@@ -28,6 +28,26 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build
 
+  lint:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    - name: Lint with Gradle
+      run: ./gradlew lint
+
+  spotless:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    - name: Spotless with Gradle
+      run: ./gradlew spotlessCheck
+
   unit-tests:
     needs: [build]
     runs-on: ubuntu-latest
@@ -41,6 +61,6 @@ jobs:
         cache: gradle
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-    - name: Build with Gradle
+    - name: Test with Gradle
       run: ./gradlew test
 
