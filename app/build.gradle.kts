@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    id("com.diffplug.spotless") version "8.0.0"
 }
 
 android {
@@ -30,6 +31,33 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
+    }
+}
+
+spotless {
+    java {
+        // Need to explicitly specify target for android projects.
+        target("src/*/java/**/*.java")
+
+        importOrder("java|javax", "android|androidx", "")
+
+        removeUnusedImports()
+        forbidWildcardImports()
+
+        // Apply a specific flavor of google-java-format
+        palantirJavaFormat("2.81.0").style("AOSP").formatJavadoc(false)
+        // Fix formatting of type annotations
+        formatAnnotations()
+
+        // QoL stuff
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+
+    format("xml") {
+        target("src/*/res/**/*.xml")
+        trimTrailingWhitespace()
+        endWithNewline()
     }
 }
 
