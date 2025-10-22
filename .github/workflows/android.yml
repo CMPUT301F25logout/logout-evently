@@ -17,30 +17,34 @@ jobs:
         path: ~/.gradle/caches
         key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
         restore-keys: ${{ runner.os }}-gradle-
-    - name: set up JDK 21
-      uses: actions/setup-java@v4
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-        cache: gradle
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-    - name: Build with Gradle
-      run: ./gradlew build
+    - uses: ./.github/composite/setup
+    - name: Build the project (no tests, no lint etc)
+      run: ./gradlew assemble
+
+  lint:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ./.github/composite/setup
+    - name: Lint with Gradle
+      run: ./gradlew lint
+
+  spotless:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ./.github/composite/setup
+    - name: Spotless with Gradle
+      run: ./gradlew spotlessCheck
 
   unit-tests:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: set up JDK 21
-      uses: actions/setup-java@v4
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-        cache: gradle
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-    - name: Build with Gradle
+    - uses: ./.github/composite/setup
+    - name: Test with Gradle
       run: ./gradlew test
 
