@@ -19,7 +19,7 @@ jobs:
         restore-keys: ${{ runner.os }}-gradle-
     - uses: ./.github/composite/setup
     - name: Build the project (no tests, no lint etc)
-      run: gradlew assemble
+      run: ./gradlew assemble
 
   lint:
     needs: [build]
