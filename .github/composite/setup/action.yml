@@ -1,3 +1,5 @@
+name: 'Setup Java and Gradle'
+description: 'Sets up Java 21 and gradle for use in actual tasks'
 runs:
   using: "composite"
   steps:
@@ -9,3 +11,4 @@ runs:
         cache: gradle
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+      shell: bash
