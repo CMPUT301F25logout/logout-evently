@@ -177,7 +177,7 @@ If you're lucky, you might just be able to accept one side's change unequivocall
    This is critical. You don't want to accidentally drop bug fix A while merging the `bug-fix-A` branch with your branch. **Respect** changes being merged in - don't just drop them unless you have a good reason to.
 4. In general, it's important to make granular commits with descriptive commit messages. However, the repo is set up in such a way that individual commits are not preserved. They'll instead be all squashed into one when a PR is merged.
 
-   All that is to say: Use descriptive PR titles. Try to keep your PRs small-ish. Don't make a PR that says "Develop End User Activity" (that'd be a huge PR). Make a PR for "Foundation for main event brose screen for entrants".
+   All that is to say: Use descriptive PR titles. Try to keep your PRs small-ish. Don't make a PR that says "Develop End User Activity" (that'd be a huge PR). Make a PR for "Foundation for main event browse screen for entrants".
 5. Update your branch often. `main` will likely be updated almost everyday. Make sure you keep your work up to date with `main`. Incremental merges are usually easier than falling behind and merging at the very end.
 6. Commit often. You don't want to lose changes. Especially as a git beginner, you may screw things up and you'll regret losing all your hard work.
 
