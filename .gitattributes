@@ -1,0 +1,6 @@
+# Java sources
+*.java          text diff=java
+*.gradle.kts    text diff=kotlin
+
+# Text-like sources good for normalization
+*.xml           text
