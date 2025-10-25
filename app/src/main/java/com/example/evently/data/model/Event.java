@@ -1,4 +1,4 @@
-package com.example.evently;
+package com.example.evently.data.model;
 
 import java.util.Date;
 import java.util.Optional;
