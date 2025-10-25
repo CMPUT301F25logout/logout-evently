@@ -30,6 +30,6 @@ Put activity groups in `com.example.evently.ui.<activity_name>` (e.g all activit
 
 Put database classes inside `com.example.evently.data`
 
-Put generic helper types inside `com.example.evently.data.abstract`
+Put generic helper types inside `com.example.evently.data.generic`
 
 Put utility classes and global constants inside `com.example.evently.utils`
