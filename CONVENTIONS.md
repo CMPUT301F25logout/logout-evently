@@ -21,3 +21,15 @@
 
 
 Please also see git conventions in [GIT.md](./GIT.md)!
+
+# Project Structure
+
+Put full on data structures/classes inside `com.example.evently.data.model` (e.g `Event`).
+
+Put activity groups in `com.example.evently.ui.<activity_name>` (e.g all activity/fragment stuff for Entrant screens goes into `com.example.evently.ui.entrant`)
+
+Put database classes inside `com.example.evently.data`
+
+Put generic helper types inside `com.example.evently.data.abstract`
+
+Put utility classes and global constants inside `com.example.evently.utils`
