@@ -4,11 +4,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Represents a profile of a person. 
+ * Represents a profile of a person.
+ * @param accountID The UUID of the account
  * @param name The name of the account
  * @param email The email of the account holder
  * @param phoneNumber An optional phone number for the account holder
- * @param hashedPassword A hashed version of the user's password. 
+ * @param hashedPassword A hashed version of the user's password.
  */
 public record Account(
     UUID accountID,
