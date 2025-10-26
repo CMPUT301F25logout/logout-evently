@@ -15,5 +15,5 @@ public record Account(
     String name,
     String email,
     Optional<String> phoneNumber,
-    String hashedPassword
+    Integer hashedPassword
 ) {}

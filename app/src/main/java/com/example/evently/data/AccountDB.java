@@ -1,5 +1,6 @@
 package com.example.evently.data;
 
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.Set;
@@ -21,10 +22,10 @@ public class AccountDB {
     /**
      * Sets up the database of accounts. 
      * Sources: CMPUT 301 Lab 5 Presentation
-     * @param db The firestore db containing the accounts
      */
-    public AccountDB(FirebaseFirestore db){
+    public AccountDB(){
 
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
         // Saves the accounts collection for later use
         accountsRef = db.collection("accounts");
 
@@ -41,12 +42,12 @@ public class AccountDB {
                 accounts.clear();
                 for (QueryDocumentSnapshot snapshot : value){
 
-                    // Gets all the information from the 
+                    // Gets all the information from the firestore
                     UUID accountID = (UUID) snapshot.get("AccountID");
                     String name = snapshot.getString("name");
                     String email = snapshot.getString("email");
                     Optional<String> phoneNumber = (Optional<String>) snapshot.get("phoneNumber");
-                    String hashedPassword = snapshot.getString("hashedPassword");
+                    Integer hashedPassword = (Integer) snapshot.get("hashedPassword");
 
                     accounts.add(new Account(accountID, name, email, phoneNumber, hashedPassword));
                 }
@@ -55,7 +56,31 @@ public class AccountDB {
     }
 
 
+    /**
+     * Stores an account in the database
+     * @param a The account stored in the database
+     */
+    public void storeAccount(Account a){
+        DocumentReference docRef = accountsRef.document(a.name());
 
+        HashMap<String,Object> dataToStore = new HashMap<>();
+        dataToStore.put("name",a.name());
+        dataToStore.put("email",a.email());
+        dataToStore.put("phoneNumber",a.phoneNumber());
+        dataToStore.put("hashedPassword",a.hashedPassword());
 
-    
+        docRef.set(dataToStore);
+    }
+
+    /**
+     * Gets the number of accounts in the database.
+     * @return Number of accounts in the database.
+     */
+    public int getNumberAccounts(){
+        return accounts.size();
+    }
+
+    // TODO: (ALEX) Add tests
+    // TODO: (ALEX) Add fetching of accounts
+    // TODO: (ALEX) Add ADMIN status to account
 }
