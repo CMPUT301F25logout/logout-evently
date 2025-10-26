@@ -7,6 +7,8 @@ import java.util.Set;
 import java.util.HashSet;
 import com.example.evently.data.model.Account;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -14,11 +16,13 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 public class AccountDB {
 
     // Reference to the accounts collection
-    private final CollectionReference accountsRef =
-            FirebaseFirestore.getInstance().collection("accounts");
+    private final CollectionReference accountsRef;
+
     private final Set<Account> accounts = new HashSet<Account>();
 
     /**
@@ -27,6 +31,8 @@ public class AccountDB {
      */
     public AccountDB(){
 
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        accountsRef = db.collection("accounts");
         // Sets up the accounts snapshot listener, which updates the set of records.
         accountsRef.addSnapshotListener( (value, error) -> {
 
@@ -41,13 +47,18 @@ public class AccountDB {
                 for (QueryDocumentSnapshot snapshot : value){
 
                     // Gets all the information from the firestore
-                    UUID accountID = (UUID) snapshot.get("AccountID");
+                    String accountID = snapshot.getId();
                     String name = snapshot.getString("name");
                     String email = snapshot.getString("email");
-                    Optional<String> phoneNumber = (Optional<String>) snapshot.get("phoneNumber");
-                    Integer hashedPassword = (Integer) snapshot.get("hashedPassword");
 
-                    accounts.add(new Account(accountID, name, email, phoneNumber, hashedPassword));
+                    String phoneNumber = snapshot.getString("phoneNumber");
+                    Optional<String> optionalPhone = Optional.ofNullable(phoneNumber);
+
+                    Integer hashedPassword = snapshot.getLong("hashedPassword").intValue();
+                    Log.d("hashed password", "Hashed Password: " + hashedPassword.toString());
+                    Log.d("hashed password", "accountID : " + accountID);
+                    accounts.add(new Account(UUID.fromString(accountID), name, email, optionalPhone, hashedPassword));
+                    Log.d("hashed password", "Add successful!: " + hashedPassword.toString());
                 }
             }
         });
@@ -87,16 +98,33 @@ public class AccountDB {
      * Stores an account in the database
      * @param a The account stored in the database.
      */
-    public void storeAccount(Account a){
+    public boolean storeAccount(Account a){
         DocumentReference docRef = accountsRef.document(a.accountID().toString());
+
+        // An Optional<String> cannot be stored in the DB.
+        String storable_phone_num = a.phoneNumber().toString();
 
         HashMap<String,Object> dataToStore = new HashMap<>();
         dataToStore.put("name",a.name());
         dataToStore.put("email",a.email());
-        dataToStore.put("phoneNumber",a.phoneNumber());
+        dataToStore.put("phoneNumber",storable_phone_num);
         dataToStore.put("hashedPassword",a.hashedPassword());
 
-        docRef.set(dataToStore);
+        docRef.set(dataToStore)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                      @Override
+                      public void onSuccess(Void aVoid) {
+                          Log.d("Firestore", "DocumentSnapshot successfully written!");
+                      }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d("Firestore", "DocumentSnapshot not written!");
+                    }
+                });
+
+        return true;
         // Since the database has a snapshot listener, I believe no point adding to the hashset.
     }
 

@@ -33,6 +33,14 @@ android {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
+
+//    testOptions {
+//        unitTests {
+//            all {
+//                it.useJUnitPlatform()
+//            }
+//        }
+//    }
 }
 
 spotless {
@@ -67,11 +75,14 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+    implementation(libs.ext.junit)
+    implementation(libs.runner)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation(platform("com.google.firebase:firebase-bom:34.3.0"))
-    implementation("com.google.firebase:firebase-firestore")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.0.1")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.0.1")
+    implementation(libs.firebase.firestore)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.junit.v115)
+    androidTestImplementation(libs.espresso.core.v351)
 }
