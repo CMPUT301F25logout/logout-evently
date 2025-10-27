@@ -24,7 +24,6 @@ import com.google.firebase.auth.AuthResult;
 
 import com.example.evently.databinding.FragmentRegisterBinding;
 import com.example.evently.utils.AuthConstants;
-import com.example.evently.utils.validation.EmailValidator;
 
 /**
  * This fragment manages the register form. It should solely be used in AuthActivity.
@@ -72,7 +71,6 @@ public class RegisterFragment extends Fragment {
 
     private void setupListeners() {
         final var nameEditText = binding.name;
-        final var emailEditText = binding.email;
         final var phoneEditText = binding.phone;
         final var registerBtn = binding.register;
         final var loadingProgressBar = binding.loading;
@@ -97,7 +95,6 @@ public class RegisterFragment extends Fragment {
                 registerBtn.setEnabled(validateInputs());
             }
         };
-        emailEditText.addTextChangedListener(afterTextChangedListener);
         nameEditText.addTextChangedListener(afterTextChangedListener);
         phoneEditText.addTextChangedListener(afterTextChangedListener);
         phoneEditText.setOnEditorActionListener((TextView v, int actionId, KeyEvent event) -> {
@@ -116,13 +113,8 @@ public class RegisterFragment extends Fragment {
 
     private boolean validateInputs() {
         // TODO (chase): Should add name and phone number validation too.
-        var emailInp = binding.email.getText().toString();
-        if (!EmailValidator.validate(emailInp)) {
-            binding.email.setError("Please enter a valid email");
-            return false;
-        }
         var nameInp = binding.name.getText().toString();
-        if (nameInp.strip().isBlank()) {
+        if (nameInp.isBlank()) {
             binding.name.setError("Please enter your name");
             return false;
         }
@@ -131,9 +123,11 @@ public class RegisterFragment extends Fragment {
 
     private void tryRegistering(int retryCount) {
         // Register flow activated, sign up the user with google.
+        var nameInp = binding.name.getText().toString().strip();
+        var phoneInp = binding.phone.getText().toString().strip();
         firebaseLogin.launchLogin(
                 true,
-                this::successfulLogin,
+                res -> this.successfulLogin(nameInp, phoneInp, res),
                 e -> {
                     switch (e) {
                         case GetCredentialCancellationException ce -> {
@@ -167,11 +161,16 @@ public class RegisterFragment extends Fragment {
                 this::unrecoverableError);
     }
 
-    private void successfulLogin(AuthResult res) {
+    private void successfulLogin(String name, String phone, AuthResult res) {
         // Login successful - let the parent activity know.
+        // Obtain the email from firebase user. It should be there since this was a google sign in.
+        var user = Objects.requireNonNull(res.getUser());
+        var email = Objects.requireNonNull(user.getEmail());
+        // Put the registration data into the bundle for the parent activity to persist.
         var dbData = new Bundle();
-        // TODO (chase): Need to persist the name, email, phone
-        //  into the DB linked with the firebase user ID!s
+        dbData.putString("email", email);
+        dbData.putString("name", name);
+        dbData.putString("phone", phone);
         getParentFragmentManager().setFragmentResult(resultKey, dbData);
     }
 

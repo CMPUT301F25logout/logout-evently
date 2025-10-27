@@ -97,8 +97,9 @@ public class AuthActivity extends AppCompatActivity {
         getSupportFragmentManager()
                 .setFragmentResultListener(
                         RegisterFragment.resultKey, this, (var key, var bundle) -> {
-                            // TODO (chase): The bundle should contain data to persist in the DB
-                            // regarding the account.
+                            // TODO (chase): Persist the data in the bundle to register user.
+                            // NOTE: If the bundle contains an email that already exists in the DB,
+                            // show an error and prompt the user to login instead of registering.
                             startActivity(transition);
                             finish();
                         });
