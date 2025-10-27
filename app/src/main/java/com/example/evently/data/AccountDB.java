@@ -3,16 +3,16 @@ package com.example.evently.data;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.Set;
-import java.util.HashSet;
+
 import com.example.evently.data.model.Account;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import android.util.Log;
 
@@ -23,45 +23,14 @@ public class AccountDB {
     // Reference to the accounts collection
     private final CollectionReference accountsRef;
 
-    private final Set<Account> accounts = new HashSet<Account>();
-
     /**
-     * Sets up the database of accounts. 
+     * Sets up the database of accounts.
      * Sources: CMPUT 301 Lab 5 Presentation
      */
     public AccountDB(){
-
+        // Defines the reference to the accounts collection
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         accountsRef = db.collection("accounts");
-        // Sets up the accounts snapshot listener, which updates the set of records.
-        accountsRef.addSnapshotListener( (value, error) -> {
-
-            // If we have a firestore error, the error is logged
-            if (error != null) Log.e("Firestore", error.toString());
-
-            // If the firestore has changed, we empty out set of accounts, and update it with
-            // the records from the firestore. 
-            if(value != null && !value.isEmpty()){
-                
-                accounts.clear();
-                for (QueryDocumentSnapshot snapshot : value){
-
-                    // Gets all the information from the firestore
-                    String accountID = snapshot.getId();
-                    String name = snapshot.getString("name");
-                    String email = snapshot.getString("email");
-
-                    String phoneNumber = snapshot.getString("phoneNumber");
-                    Optional<String> optionalPhone = Optional.ofNullable(phoneNumber);
-
-                    Integer hashedPassword = snapshot.getLong("hashedPassword").intValue();
-                    Log.d("hashed password", "Hashed Password: " + hashedPassword.toString());
-                    Log.d("hashed password", "accountID : " + accountID);
-                    accounts.add(new Account(UUID.fromString(accountID), name, email, optionalPhone, hashedPassword));
-                    Log.d("hashed password", "Add successful!: " + hashedPassword.toString());
-                }
-            }
-        });
     }
 
     /**
@@ -97,8 +66,9 @@ public class AccountDB {
     /**
      * Stores an account in the database
      * @param a The account stored in the database.
+     * @return The task from storing an account
      */
-    public boolean storeAccount(Account a){
+    public Task<Void> storeAccount(Account a){
         DocumentReference docRef = accountsRef.document(a.accountID().toString());
 
         // An Optional<String> cannot be stored in the DB.
@@ -110,7 +80,7 @@ public class AccountDB {
         dataToStore.put("phoneNumber",storable_phone_num);
         dataToStore.put("hashedPassword",a.hashedPassword());
 
-        docRef.set(dataToStore)
+        return docRef.set(dataToStore)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                       @Override
                       public void onSuccess(Void aVoid) {
@@ -123,40 +93,80 @@ public class AccountDB {
                         Log.d("Firestore", "DocumentSnapshot not written!");
                     }
                 });
-
-        return true;
-        // Since the database has a snapshot listener, I believe no point adding to the hashset.
     }
 
-    /**
-     * Gets the number of accounts in the database.
-     * @return Number of accounts in the database.
-     */
-    public int getNumberAccounts(){
-        return accounts.size();
-    }
 
     /**
-     * Fetches an account from a provided accountID.
+     * Returns an account based b
      * @param accountID The id of the target account
-     * @return An optional of the Account
+     * @return A task with the Document snapshot
      */
-    public Optional<Account> fetchAccount(UUID accountID){
+    public Task<DocumentSnapshot> fetchAccount(UUID accountID) {
 
+        // Returns a document snapshot with the attached account.
         String fetchAccountString = accountID.toString();
-
-        // Searches through each account in the account set, and returns account if it matches the
-        // account id.
-        for (Account a : accounts){
-
-            // If the current account being searched is a string, we
-            String currentAccountID = a.accountID().toString();
-            if (currentAccountID.equals(fetchAccountString)) return Optional.of(a);
-
-        }
-        return Optional.empty();
+        return accountsRef.document(fetchAccountString).get();
     }
 
-    // TODO: (Alex) Clean up code, and add "deleteAccount" method.
 
+    /**
+     * Delete an account from the database by UUID
+     * @param accountID The UUID of the target account
+     * @return The delete account task.
+     */
+    public Task<Void> deleteAccount(UUID accountID){
+
+        /**
+         * The following code is from the firebase documentation on deleting documents:
+         * https://firebase.google.com/docs/firestore/manage-data/delete-data
+         */
+        return accountsRef.document(accountID.toString())
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("DEL ACCOUNT", "DocumentSnapshot successfully deleted!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("DEL ACCOUNT", "Error deleting document", e);
+                    }
+                }
+        );
+    }
+
+    /**
+     * Updates an account phone number in the database
+     * @param phoneNumber The new phone number
+     * @return The update phoneNumber task.
+     */
+    public Task<Void> updatePhoneNumber(UUID accountID,String phoneNumber){
+
+        // Gets an account by its document number
+        String stringAccountID = accountID.toString();
+        DocumentReference docRef = accountsRef.document(stringAccountID);
+
+//      The following code is from the firebase docs on how to update a field in the DB:
+//      https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
+        return docRef.update("phoneNumber",phoneNumber);
+    }
+
+
+    /**
+     * Updates an account's email in the database
+     * @param email The new email of the account holder
+     * @return The update email task.
+     */
+    public Task<Void> updateEmail(UUID accountID,String email){
+
+        // Gets an account by its document number
+        String stringAccountID = accountID.toString();
+        DocumentReference docRef = accountsRef.document(stringAccountID);
+
+//      The following code is from the firebase docs on how to update a field in the DB:
+//      https://firebase.google.com/docs/firestore/manage-data/add-daSta#update-data
+        return docRef.update("phoneNumber",email);
+    }
 }
