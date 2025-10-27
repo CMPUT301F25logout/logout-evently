@@ -1,25 +1,24 @@
 package com.example.evently.ui.login;
 
+import java.util.Objects;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.credentials.exceptions.GetCredentialCancellationException;
 import androidx.credentials.exceptions.GetCredentialInterruptedException;
 import androidx.credentials.exceptions.GetCredentialUnsupportedException;
 import androidx.credentials.exceptions.NoCredentialException;
 
-import com.example.evently.MainActivity;
-import com.example.evently.R;
-import com.example.evently.utils.AuthConstants;
 import com.google.android.gms.common.SignInButton;
 import com.google.firebase.auth.AuthResult;
 
-import java.util.Objects;
-import java.util.function.Consumer;
+import com.example.evently.MainActivity;
+import com.example.evently.R;
+import com.example.evently.utils.AuthConstants;
 
 public class AuthActivity extends AppCompatActivity {
     private boolean activityRecreated;
@@ -44,7 +43,8 @@ public class AuthActivity extends AppCompatActivity {
         super.onStart();
 
         if (activityRecreated) {
-            // If it was recreated, auto login has already been tried and the fragment already exists.
+            // If it was recreated, auto login has already been tried and the fragment already
+            // exists.
             // Nothing to be done.
             return;
         }
@@ -81,22 +81,26 @@ public class AuthActivity extends AppCompatActivity {
                             // This device does not support credential manager.
                             // Our app simply cannot work on this device.
                             // TODO (chase): Might be worth showing an alert dialog here.
-                            Toast.makeText(this, "Device unsupported; Sorry!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Device unsupported; Sorry!", Toast.LENGTH_SHORT)
+                                    .show();
                         case NoCredentialException ne -> {
                             // This is likely a totally new user and must register first.
                             // Hand off to the register fragment.
                             manualLoginBtn.setVisibility(View.INVISIBLE);
-                            getSupportFragmentManager().beginTransaction()
+                            getSupportFragmentManager()
+                                    .beginTransaction()
                                     .setReorderingAllowed(true)
                                     .add(R.id.register_form_container, RegisterFragment.class, null)
                                     .commit();
                         }
                         default ->
-                            Log.e("AuthActivity.GetCredentialCustomException", Objects.requireNonNullElse(e.getLocalizedMessage(), e.toString()));
+                            Log.e(
+                                    "AuthActivity.GetCredentialCustomException",
+                                    Objects.requireNonNullElse(
+                                            e.getLocalizedMessage(), e.toString()));
                     }
                 },
-                this::unrecoverableError
-        );
+                this::unrecoverableError);
     }
 
     private void successfulLogin(AuthResult res) {
@@ -104,7 +108,10 @@ public class AuthActivity extends AppCompatActivity {
     }
 
     private void unrecoverableError(Exception e) {
-        Log.e("LoginActivity.unrecoverableError", Objects.requireNonNullElse(e.getLocalizedMessage(), e.toString()));
-        Toast.makeText(this, "Something went catastrophically wrong...", Toast.LENGTH_SHORT).show();
+        Log.e(
+                "LoginActivity.unrecoverableError",
+                Objects.requireNonNullElse(e.getLocalizedMessage(), e.toString()));
+        Toast.makeText(this, "Something went catastrophically wrong...", Toast.LENGTH_SHORT)
+                .show();
     }
 }

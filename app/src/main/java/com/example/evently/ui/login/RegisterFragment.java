@@ -1,13 +1,12 @@
 package com.example.evently.ui.login;
 
+import java.util.Objects;
+
+import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,19 +15,31 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.credentials.exceptions.GetCredentialCancellationException;
+import androidx.credentials.exceptions.GetCredentialInterruptedException;
+import androidx.credentials.exceptions.GetCredentialUnsupportedException;
+import androidx.fragment.app.Fragment;
 
-import com.example.evently.databinding.FragmentRegisterBinding;
-import com.example.evently.utils.validation.EmailValidator;
 import com.google.android.gms.common.SignInButton;
+import com.google.firebase.auth.AuthResult;
+
+import com.example.evently.MainActivity;
+import com.example.evently.databinding.FragmentRegisterBinding;
+import com.example.evently.utils.AuthConstants;
+import com.example.evently.utils.validation.EmailValidator;
 
 public class RegisterFragment extends Fragment {
-
     private FragmentRegisterBinding binding;
     private FirebaseLogin firebaseLogin;
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         binding = FragmentRegisterBinding.inflate(getLayoutInflater(), container, false);
         return binding.getRoot();
     }
@@ -57,10 +68,11 @@ public class RegisterFragment extends Fragment {
         final EditText nameEditText = binding.name;
         final EditText emailEditText = binding.email;
         final EditText phoneEditText = binding.phone;
-        final SignInButton loginButton = binding.register;
+        final SignInButton registerBtn = binding.register;
         final ProgressBar loadingProgressBar = binding.loading;
 
-        loginButton.setEnabled(false);
+        // Setting it in XML doesn't work for some reason. Must set it programmatically.
+        registerBtn.setEnabled(false);
 
         TextWatcher afterTextChangedListener = new TextWatcher() {
             @Override
@@ -75,34 +87,93 @@ public class RegisterFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                var emailInp = emailEditText.getText().toString();
-                if (!EmailValidator.validate(emailInp)) {
-                    emailEditText.setError("Please enter a valid email");
-                }
-                var nameInp = nameEditText.getText().toString();
-                if (!nameInp.strip().isBlank()) {
-                    loginButton.setEnabled(true);
-                } else {
-                    nameEditText.setError("Please enter your name");
-                }
+                registerBtn.setEnabled(validateInputs());
             }
         };
         emailEditText.addTextChangedListener(afterTextChangedListener);
         nameEditText.addTextChangedListener(afterTextChangedListener);
         phoneEditText.addTextChangedListener(afterTextChangedListener);
         phoneEditText.setOnEditorActionListener((TextView v, int actionId, KeyEvent event) -> {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    // TODO: Register.
-                }
-                return false;
+            if (actionId == EditorInfo.IME_ACTION_DONE && validateInputs()) {
+                loadingProgressBar.setVisibility(View.VISIBLE);
+                tryRegistering(0);
+            }
+            return false;
         });
 
-        loginButton.setOnClickListener(v -> {
-            if (!loginButton.isEnabled()) {
-                return;
-            }
+        registerBtn.setOnClickListener(v -> {
             loadingProgressBar.setVisibility(View.VISIBLE);
-            // TODO: Register.
+            tryRegistering(0);
         });
+    }
+
+    private boolean validateInputs() {
+        var emailInp = binding.email.getText().toString();
+        if (!EmailValidator.validate(emailInp)) {
+            binding.email.setError("Please enter a valid email");
+            return false;
+        }
+        var nameInp = binding.name.getText().toString();
+        if (nameInp.strip().isBlank()) {
+            binding.name.setError("Please enter your name");
+            return false;
+        }
+        return true;
+    }
+
+    private void tryRegistering(int retryCount) {
+        firebaseLogin.launchLogin(
+                true,
+                this::successfulLogin,
+                e -> {
+                    switch (e) {
+                        case GetCredentialCancellationException ce -> {
+                            // The user cancelled the sign in request...
+                            // Let them try again (do nothing).
+                        }
+                        case GetCredentialInterruptedException ie -> {
+                            // Retry (unless we retried too many times already).
+                            if (retryCount > AuthConstants.MAX_RETRY) {
+                                unrecoverableError(ie);
+                                return;
+                            }
+                            tryRegistering(retryCount + 1);
+                        }
+                        case GetCredentialUnsupportedException ue -> {
+                            // This device does not support credential manager.
+                            // Our app simply cannot work on this device.
+                            // TODO (chase): Might be worth showing an alert dialog here.
+                            Toast.makeText(
+                                            requireActivity(),
+                                            "Device unsupported; Sorry!",
+                                            Toast.LENGTH_SHORT)
+                                    .show();
+                        }
+                        default ->
+                            Log.e(
+                                    "RegisterFragment.GetCredentialCustomException",
+                                    Objects.requireNonNullElse(
+                                            e.getLocalizedMessage(), e.toString()));
+                    }
+                },
+                this::unrecoverableError);
+    }
+
+    private void successfulLogin(AuthResult res) {
+        var intent = new Intent(requireContext(), MainActivity.class);
+        // TODO (chase): Need to persist the name, email, phone into the DB linked with the firebase
+        // user ID!
+        startActivity(intent);
+    }
+
+    private void unrecoverableError(Exception e) {
+        Log.e(
+                "LoginActivity.unrecoverableError",
+                Objects.requireNonNullElse(e.getLocalizedMessage(), e.toString()));
+        Toast.makeText(
+                        requireContext(),
+                        "Something went catastrophically wrong...",
+                        Toast.LENGTH_SHORT)
+                .show();
     }
 }

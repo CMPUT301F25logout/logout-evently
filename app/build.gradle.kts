@@ -60,15 +60,17 @@ spotless {
         // Need to explicitly specify target for android projects.
         target("src/*/java/**/*.java")
 
-        importOrder("java|javax", "android|androidx", "")
-
         removeUnusedImports()
         forbidWildcardImports()
 
         // Apply a specific flavor of google-java-format
         palantirJavaFormat("2.81.0").style("AOSP").formatJavadoc(false)
+
         // Fix formatting of type annotations
         formatAnnotations()
+
+        // Fix import order
+        importOrder("java|javax", "android|androidx", "", "com.example.evently")
 
         // QoL stuff
         trimTrailingWhitespace()
