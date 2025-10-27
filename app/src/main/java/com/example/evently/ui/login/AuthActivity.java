@@ -36,6 +36,8 @@ public class AuthActivity extends AppCompatActivity {
         activityRecreated = savedInstanceState != null;
         manualLoginBtn = findViewById(R.id.login);
         transition = new Intent(AuthActivity.this, MainActivity.class);
+
+        manualLoginBtn.setOnClickListener(v -> tryLoggingIn(0));
     }
 
     @Override
