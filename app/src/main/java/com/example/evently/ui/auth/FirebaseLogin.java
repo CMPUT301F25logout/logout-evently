@@ -101,14 +101,6 @@ class FirebaseLogin {
                 });
     }
 
-    /**
-     * Sign out the currently logged in user.
-     * This will throw if there's no user signed in.
-     */
-    protected void signOut() {
-        mAuth.signOut();
-    }
-
     private void handleSignIn(
             Credential credential,
             Consumer<AuthResult> onSuccess,

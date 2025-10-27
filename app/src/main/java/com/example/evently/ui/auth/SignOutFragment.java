@@ -8,6 +8,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import com.example.evently.databinding.FragmentSignoutBinding;
 
 /**
@@ -26,7 +28,6 @@ import com.example.evently.databinding.FragmentSignoutBinding;
 public class SignOutFragment extends Fragment {
     public static final String resultKey = "signOut";
     private FragmentSignoutBinding binding;
-    private FirebaseLogin firebaseLogin;
 
     @Override
     public View onCreateView(
@@ -50,18 +51,11 @@ public class SignOutFragment extends Fragment {
         setupListeners();
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        firebaseLogin = new FirebaseLogin(requireActivity());
-    }
-
     private void setupListeners() {
         final var signOutBtn = binding.signOut;
 
         signOutBtn.setOnClickListener(v -> {
-            firebaseLogin.signOut();
+            FirebaseAuth.getInstance().signOut();
 
             // Signal the parent activity about the sign out being successful so they can handle the
             // rest.
