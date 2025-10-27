@@ -14,32 +14,34 @@ import androidx.credentials.exceptions.NoCredentialException;
 
 import com.example.evently.MainActivity;
 import com.example.evently.R;
+import com.example.evently.utils.AuthConstants;
 import com.google.android.gms.common.SignInButton;
 import com.google.firebase.auth.AuthResult;
 
 import java.util.Objects;
 import java.util.function.Consumer;
 
-public class LoginActivity extends AppCompatActivity {
-    static final int MAX_RETRY_LOGIN = 5;
+public class AuthActivity extends AppCompatActivity {
     private boolean activityRecreated;
     private FirebaseLogin firebaseLogin;
     private SignInButton manualLoginBtn;
 
+    private Intent transition;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_auth);
 
         firebaseLogin = new FirebaseLogin(this);
         activityRecreated = savedInstanceState != null;
         manualLoginBtn = findViewById(R.id.login);
+        transition = new Intent(AuthActivity.this, MainActivity.class);
     }
 
     @Override
     public void onStart() {
         super.onStart();
-
 
         if (activityRecreated) {
             // If it was recreated, auto login has already been tried and the fragment already exists.
@@ -47,20 +49,9 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        // Essentially a panic meant for very exceptional circumstance.
-        Consumer<Exception> onException = e -> {
-            Log.e("LoginActivity", Objects.requireNonNullElse(e.getLocalizedMessage(), e.toString()));
-            Toast.makeText(this, "Something went wrong...", Toast.LENGTH_SHORT).show();
-        };
-
-        Consumer<AuthResult> successfulLogin = res -> {
-            // Log in successful.
-            new Intent(LoginActivity.this, MainActivity.class);
-        };
-
         if (firebaseLogin.isLoggedIn()) {
             // Already signed in - move on to next activity
-            new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(transition);
             return;
         }
 
@@ -80,7 +71,7 @@ public class LoginActivity extends AppCompatActivity {
                             manualLoginBtn.setVisibility(View.VISIBLE);
                         case GetCredentialInterruptedException ie -> {
                             // Retry (unless we retried too many times already).
-                            if (retryCount > MAX_RETRY_LOGIN) {
+                            if (retryCount > AuthConstants.MAX_RETRY) {
                                 unrecoverableError(ie);
                                 return;
                             }
@@ -101,7 +92,7 @@ public class LoginActivity extends AppCompatActivity {
                                     .commit();
                         }
                         default ->
-                            Log.e("LoginActivity.GetCredentialCustomException", Objects.requireNonNullElse(e.getLocalizedMessage(), e.toString()));
+                            Log.e("AuthActivity.GetCredentialCustomException", Objects.requireNonNullElse(e.getLocalizedMessage(), e.toString()));
                     }
                 },
                 this::unrecoverableError
@@ -109,7 +100,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void successfulLogin(AuthResult res) {
-        new Intent(LoginActivity.this, MainActivity.class);
+        startActivity(transition);
     }
 
     private void unrecoverableError(Exception e) {
