@@ -15,3 +15,6 @@
 local.properties
 # API keys and such
 keys.properties
+
+# Google services should not be publicized
+google-services.json
