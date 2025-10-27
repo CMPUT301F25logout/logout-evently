@@ -139,7 +139,7 @@ public class RegisterFragment extends Fragment {
                             }
                             tryRegistering(retryCount + 1);
                         }
-                        case GetCredentialUnsupportedException ue -> {
+                        case GetCredentialUnsupportedException ue ->
                             // This device does not support credential manager.
                             // Our app simply cannot work on this device.
                             // TODO (chase): Might be worth showing an alert dialog here.
@@ -148,7 +148,6 @@ public class RegisterFragment extends Fragment {
                                             "Device unsupported; Sorry!",
                                             Toast.LENGTH_SHORT)
                                     .show();
-                        }
                         default ->
                             Log.e(
                                     "RegisterFragment.GetCredentialCustomException",
