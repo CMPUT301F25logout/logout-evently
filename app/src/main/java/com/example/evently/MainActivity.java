@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        // This is merely an example of using the SignOut fragment and may be removed.
         getSupportFragmentManager()
                 .beginTransaction()
                 .setReorderingAllowed(true)
@@ -31,10 +32,11 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
 
         getSupportFragmentManager()
-                .setFragmentResultListener("signOut", this, (var key, var bundle) -> {
+                .setFragmentResultListener(SignOutFragment.resultKey, this, (var key, var bundle) -> {
                     // Sign out succeeded through fragment, go back to auth activity.
                     var intent = new Intent(MainActivity.this, AuthActivity.class);
                     startActivity(intent);
+                    finish();
                 });
     }
 }

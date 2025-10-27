@@ -22,12 +22,30 @@ import com.example.evently.MainActivity;
 import com.example.evently.R;
 import com.example.evently.utils.AuthConstants;
 
+/**
+ * The overarching activity for managing authentication. This is the activity launched
+ * at the start. If a user session exists (i.e user has logged in recently), it will immediately
+ * transition to the next activity.
+ * <p>
+ * Otherwise, it'll try to prompt the user for sign in (if they have signed in once before).
+ * <p>
+ * If it's a totally new user, it will show the registration form via {@link RegisterFragment}.
+ * @see RegisterFragment
+ * @see FirebaseLogin
+ */
 public class AuthActivity extends AppCompatActivity {
+    // Whether or not the activity was _re-created_.
     private boolean activityRecreated;
+    /**
+     * Whether or not the activity already has a registration fragment.
+     * We don't want to add fragment on top of fragment. onStart may be called several times
+     *   without the activity being recreated.
+     */
     private boolean hasRegisterForm = false;
     private FirebaseLogin firebaseLogin;
     private ActivityAuthBinding binding;
 
+    // Utility for transitioning to the next activity.
     private Intent transition;
 
     @Override
@@ -41,6 +59,7 @@ public class AuthActivity extends AppCompatActivity {
         activityRecreated = savedInstanceState != null;
         transition = new Intent(AuthActivity.this, MainActivity.class);
 
+        // Manual buttons in case user refuses the auto login prompt.
         binding.login.setOnClickListener(v -> tryLoggingIn(0));
         binding.registerForm.setOnClickListener(v -> showRegisterForm());
     }
@@ -64,7 +83,6 @@ public class AuthActivity extends AppCompatActivity {
         }
 
         // Otherwise, try logging in (not register).
-        Log.i("AuthActivity", "LOGGING IN!");
         tryLoggingIn(0);
     }
 
@@ -78,7 +96,7 @@ public class AuthActivity extends AppCompatActivity {
                 .add(R.id.register_form_container, RegisterFragment.class, null)
                 .commit();
         getSupportFragmentManager()
-                .setFragmentResultListener("register", this, (var key, var bundle) -> {
+                .setFragmentResultListener(RegisterFragment.resultKey, this, (var key, var bundle) -> {
                     // TODO (chase): The bundle should contain data to persist in the DB regarding the account.
                     startActivity(transition);
                     finish();

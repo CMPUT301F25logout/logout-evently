@@ -11,7 +11,21 @@ import androidx.fragment.app.Fragment;
 
 import com.example.evently.databinding.FragmentSignoutBinding;
 
+/**
+ * Fragment for managing the sign out button.
+ * May be attached to any activity that requires exposing a sign out flow.
+ * <p>
+ * Upon successful sign out, this fragment sets result under the key "SignOutFragment.resultKey".
+ * The parent activity should listen for this result, and perform any action needed post sign out.
+ * <p>
+ * Layout file: fragment_signout.xml
+ * <p>
+ * The fragment should be included within a fragment container in the parent layout.
+ * It is the parent layout's responsibility to set proper width and height to the container
+ * for the button within, as the button adjusts to the whole space of the container
+ */
 public class SignOutFragment extends Fragment {
+    public static final String resultKey = "signOut";
     private FragmentSignoutBinding binding;
     private FirebaseLogin firebaseLogin;
 
@@ -55,7 +69,7 @@ public class SignOutFragment extends Fragment {
             Bundle res = new Bundle();
             // The bundle doesn't actually need to contain anything. This request is more like a
             // signal than a result.
-            getParentFragmentManager().setFragmentResult("signOut", res);
+            getParentFragmentManager().setFragmentResult(resultKey, res);
         });
     }
 }

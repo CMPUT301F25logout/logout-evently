@@ -16,6 +16,7 @@ import androidx.credentials.CustomCredential;
 import androidx.credentials.GetCredentialRequest;
 import androidx.credentials.GetCredentialResponse;
 import androidx.credentials.exceptions.GetCredentialException;
+import androidx.credentials.exceptions.NoCredentialException;
 
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
@@ -26,11 +27,20 @@ import com.google.firebase.auth.GoogleAuthProvider;
 
 import com.example.evently.BuildConfig;
 
+/**
+ * Utility class for handling sign in/register with google using Firebase auth.
+ */
 class FirebaseLogin {
+    // Context under which the auth may be used.
     private final Activity act;
     private final FirebaseAuth mAuth;
     private final CredentialManager credentialManager;
 
+    /**
+     * @param act The activity context under which authentication flow is being used.
+     * @apiNote Take care to keep the activity context up to date. If the activity is recreated, this object
+     *   must be recreated too.
+     */
     protected FirebaseLogin(Activity act) {
         this.act = act;
         this.mAuth = FirebaseAuth.getInstance();
@@ -39,11 +49,24 @@ class FirebaseLogin {
 
     /**
      * @return Whether local storage contains a session ID already (i.e user can be logged back in automatically)
+     * @apiNote It is expected that other activities use FirebaseAuth::getCurrentUser when needed to get the
+     *  logged in user. This way, the user doesn't need to be passed around everywhere and saved to local storage
+     *  manually. Firebase already does that.
      */
     protected boolean isLoggedIn() {
         return mAuth.getCurrentUser() != null;
     }
 
+    /**
+     * Launch the login flow and thus take the user to the "Google sign in" dialog (part of the Android platform).
+     * @param newUser Whether or not this is for a completely new user (i.e registration).
+     * @param onSuccess UI thread callback for successful login/registration.
+     *                  This will have access to the {@link AuthResult}, which contains information on the logged in user.
+     * @param onGoogleIdFailure UI thread callback in case google sign in fails.
+     *                          If newUser is set to false but sign in was indeed tried with a brand new user,
+     *                          a {@link NoCredentialException} may be raised.
+     * @param onException UI thread callback in case of catastrophic, probably unrecoverable exceptions.
+     */
     protected void launchLogin(
             boolean newUser,
             Consumer<AuthResult> onSuccess,
@@ -79,6 +102,10 @@ class FirebaseLogin {
                 });
     }
 
+    /**
+     * Sign out the currently logged in user.
+     * This will throw if there's no user signed in.
+     */
     protected void signOut() {
         mAuth.signOut();
     }
@@ -99,7 +126,7 @@ class FirebaseLogin {
                     GoogleAuthProvider.getCredential(googleIdTokenCredential.getIdToken(), null);
             mAuth.signInWithCredential(firebaseCred).addOnCompleteListener(act, task -> {
                 if (task.isSuccessful()) {
-                    // Sign in success, update UI with the signed-in user's information
+                    // Sign in success, delegate to callback.
                     act.runOnUiThread(() -> onSuccess.accept(task.getResult()));
                 } else {
                     // Exceptional scenario where firebase auth fails.

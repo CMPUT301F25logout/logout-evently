@@ -31,7 +31,18 @@ import com.example.evently.databinding.FragmentRegisterBinding;
 import com.example.evently.utils.AuthConstants;
 import com.example.evently.utils.validation.EmailValidator;
 
+/**
+ * This fragment manages the register form. It should solely be used in AuthActivity.
+ * <p>
+ * Upon successful registration, this fragment sets result under the key "RegisterFragment.resultKey".
+ * The result bundle contains data from the register form and should be persisted by the parent activity
+ * by listening on the result. Afterwards, the parent activity may transition into other activities.
+ * <p>
+ * Layout: fragment_register.xml
+ * @see AuthActivity
+ */
 public class RegisterFragment extends Fragment {
+    public static final String resultKey = "register";
     private FragmentRegisterBinding binding;
     private FirebaseLogin firebaseLogin;
 
@@ -74,6 +85,7 @@ public class RegisterFragment extends Fragment {
         // Setting it in XML doesn't work for some reason. Must set it programmatically.
         registerBtn.setEnabled(false);
 
+        // Responsive validation using text changed listeners.
         TextWatcher afterTextChangedListener = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -108,6 +120,7 @@ public class RegisterFragment extends Fragment {
     }
 
     private boolean validateInputs() {
+        // TODO (chase): Should add name and phone number validation too.
         var emailInp = binding.email.getText().toString();
         if (!EmailValidator.validate(emailInp)) {
             binding.email.setError("Please enter a valid email");
@@ -122,6 +135,7 @@ public class RegisterFragment extends Fragment {
     }
 
     private void tryRegistering(int retryCount) {
+        // Register flow activated, sign up the user with google.
         firebaseLogin.launchLogin(
                 true,
                 this::successfulLogin,
@@ -159,10 +173,11 @@ public class RegisterFragment extends Fragment {
     }
 
     private void successfulLogin(AuthResult res) {
+        // Login successful - let the parent activity know.
         Bundle dbData = new Bundle();
         // TODO (chase): Need to persist the name, email, phone
         //  into the DB linked with the firebase user ID!s
-        getParentFragmentManager().setFragmentResult("register", dbData);
+        getParentFragmentManager().setFragmentResult(resultKey, dbData);
     }
 
     private void unrecoverableError(Exception e) {
