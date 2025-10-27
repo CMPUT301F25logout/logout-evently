@@ -18,6 +18,9 @@ jobs:
         key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
         restore-keys: ${{ runner.os }}-gradle-
     - uses: ./.github/composite/setup
+      with:
+        GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
     - name: Build the project (no tests, no lint etc)
       run: ./gradlew assemble
 
@@ -27,6 +30,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: ./.github/composite/setup
+      with:
+        GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
     - name: Lint with Gradle
       run: ./gradlew lint
 
@@ -36,6 +42,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: ./.github/composite/setup
+      with:
+        GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
     - name: Spotless with Gradle
       run: ./gradlew spotlessCheck
 
@@ -45,6 +54,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: ./.github/composite/setup
+      with:
+        GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
     - name: Test with Gradle
       run: ./gradlew test
 
