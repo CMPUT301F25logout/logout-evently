@@ -20,7 +20,6 @@ import androidx.credentials.exceptions.NoCredentialException;
 
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
-import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
@@ -118,11 +117,10 @@ class FirebaseLogin {
                 && credential.getType().equals(TYPE_GOOGLE_ID_TOKEN_CREDENTIAL)) {
             // Create Google ID Token
             Bundle credentialData = customCredential.getData();
-            GoogleIdTokenCredential googleIdTokenCredential =
-                    GoogleIdTokenCredential.createFrom(credentialData);
+            var googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credentialData);
 
             // Sign in to Firebase with using the token
-            AuthCredential firebaseCred =
+            var firebaseCred =
                     GoogleAuthProvider.getCredential(googleIdTokenCredential.getIdToken(), null);
             mAuth.signInWithCredential(firebaseCred).addOnCompleteListener(act, task -> {
                 if (task.isSuccessful()) {

@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.credentials.exceptions.GetCredentialCancellationException;
@@ -14,12 +13,11 @@ import androidx.credentials.exceptions.GetCredentialInterruptedException;
 import androidx.credentials.exceptions.GetCredentialUnsupportedException;
 import androidx.credentials.exceptions.NoCredentialException;
 
-import com.example.evently.databinding.ActivityAuthBinding;
-import com.google.android.gms.common.SignInButton;
 import com.google.firebase.auth.AuthResult;
 
 import com.example.evently.MainActivity;
 import com.example.evently.R;
+import com.example.evently.databinding.ActivityAuthBinding;
 import com.example.evently.utils.AuthConstants;
 
 /**
@@ -42,6 +40,7 @@ public class AuthActivity extends AppCompatActivity {
      *   without the activity being recreated.
      */
     private boolean hasRegisterForm = false;
+
     private FirebaseLogin firebaseLogin;
     private ActivityAuthBinding binding;
 
@@ -96,11 +95,13 @@ public class AuthActivity extends AppCompatActivity {
                 .add(R.id.register_form_container, RegisterFragment.class, null)
                 .commit();
         getSupportFragmentManager()
-                .setFragmentResultListener(RegisterFragment.resultKey, this, (var key, var bundle) -> {
-                    // TODO (chase): The bundle should contain data to persist in the DB regarding the account.
-                    startActivity(transition);
-                    finish();
-                });
+                .setFragmentResultListener(
+                        RegisterFragment.resultKey, this, (var key, var bundle) -> {
+                            // TODO (chase): The bundle should contain data to persist in the DB
+                            // regarding the account.
+                            startActivity(transition);
+                            finish();
+                        });
         hasRegisterForm = true;
     }
 

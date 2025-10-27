@@ -32,11 +32,12 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
 
         getSupportFragmentManager()
-                .setFragmentResultListener(SignOutFragment.resultKey, this, (var key, var bundle) -> {
-                    // Sign out succeeded through fragment, go back to auth activity.
-                    var intent = new Intent(MainActivity.this, AuthActivity.class);
-                    startActivity(intent);
-                    finish();
-                });
+                .setFragmentResultListener(
+                        SignOutFragment.resultKey, this, (var key, var bundle) -> {
+                            // Sign out succeeded through fragment, go back to auth activity.
+                            var intent = new Intent(MainActivity.this, AuthActivity.class);
+                            startActivity(intent);
+                            finish();
+                        });
     }
 }

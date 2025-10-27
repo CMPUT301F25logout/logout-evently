@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -59,14 +58,14 @@ public class SignOutFragment extends Fragment {
     }
 
     private void setupListeners() {
-        final Button signOutBtn = binding.signOut;
+        final var signOutBtn = binding.signOut;
 
         signOutBtn.setOnClickListener(v -> {
             firebaseLogin.signOut();
 
             // Signal the parent activity about the sign out being successful so they can handle the
             // rest.
-            Bundle res = new Bundle();
+            var res = new Bundle();
             // The bundle doesn't actually need to contain anything. This request is more like a
             // signal than a result.
             getParentFragmentManager().setFragmentResult(resultKey, res);

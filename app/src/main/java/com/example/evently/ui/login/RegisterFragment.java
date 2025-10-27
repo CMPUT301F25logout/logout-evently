@@ -2,7 +2,6 @@ package com.example.evently.ui.login;
 
 import java.util.Objects;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -12,8 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -23,10 +20,8 @@ import androidx.credentials.exceptions.GetCredentialInterruptedException;
 import androidx.credentials.exceptions.GetCredentialUnsupportedException;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.gms.common.SignInButton;
 import com.google.firebase.auth.AuthResult;
 
-import com.example.evently.MainActivity;
 import com.example.evently.databinding.FragmentRegisterBinding;
 import com.example.evently.utils.AuthConstants;
 import com.example.evently.utils.validation.EmailValidator;
@@ -76,17 +71,17 @@ public class RegisterFragment extends Fragment {
     }
 
     private void setupListeners() {
-        final EditText nameEditText = binding.name;
-        final EditText emailEditText = binding.email;
-        final EditText phoneEditText = binding.phone;
-        final SignInButton registerBtn = binding.register;
-        final ProgressBar loadingProgressBar = binding.loading;
+        final var nameEditText = binding.name;
+        final var emailEditText = binding.email;
+        final var phoneEditText = binding.phone;
+        final var registerBtn = binding.register;
+        final var loadingProgressBar = binding.loading;
 
         // Setting it in XML doesn't work for some reason. Must set it programmatically.
         registerBtn.setEnabled(false);
 
         // Responsive validation using text changed listeners.
-        TextWatcher afterTextChangedListener = new TextWatcher() {
+        var afterTextChangedListener = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 // ignore
@@ -174,7 +169,7 @@ public class RegisterFragment extends Fragment {
 
     private void successfulLogin(AuthResult res) {
         // Login successful - let the parent activity know.
-        Bundle dbData = new Bundle();
+        var dbData = new Bundle();
         // TODO (chase): Need to persist the name, email, phone
         //  into the DB linked with the firebase user ID!s
         getParentFragmentManager().setFragmentResult(resultKey, dbData);
