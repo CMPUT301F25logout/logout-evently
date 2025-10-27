@@ -1,4 +1,4 @@
-package com.example.evently.ui.login;
+package com.example.evently.ui.auth;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

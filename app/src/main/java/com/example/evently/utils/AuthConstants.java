@@ -1,6 +1,6 @@
 package com.example.evently.utils;
 
-import com.example.evently.ui.login.AuthActivity;
+import com.example.evently.ui.auth.AuthActivity;
 
 /**
  * Configuration constants for {@link AuthActivity} logic.

@@ -1,4 +1,4 @@
-package com.example.evently.ui.login;
+package com.example.evently.ui.auth;
 
 import static com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL;
 

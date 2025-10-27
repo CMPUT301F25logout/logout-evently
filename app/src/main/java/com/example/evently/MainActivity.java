@@ -8,8 +8,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.evently.ui.login.AuthActivity;
-import com.example.evently.ui.login.SignOutFragment;
+import com.example.evently.ui.auth.AuthActivity;
+import com.example.evently.ui.auth.SignOutFragment;
 
 public class MainActivity extends AppCompatActivity {
 

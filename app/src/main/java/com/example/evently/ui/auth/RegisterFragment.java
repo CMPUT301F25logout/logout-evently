@@ -1,4 +1,4 @@
-package com.example.evently.ui.login;
+package com.example.evently.ui.auth;
 
 import java.util.Objects;
 
