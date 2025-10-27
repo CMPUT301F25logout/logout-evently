@@ -79,6 +79,10 @@ class FirebaseLogin {
                 });
     }
 
+    protected void signOut() {
+        mAuth.signOut();
+    }
+
     private void handleSignIn(
             Credential credential,
             Consumer<AuthResult> onSuccess,
