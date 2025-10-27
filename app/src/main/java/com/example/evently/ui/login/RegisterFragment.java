@@ -159,10 +159,10 @@ public class RegisterFragment extends Fragment {
     }
 
     private void successfulLogin(AuthResult res) {
-        var intent = new Intent(requireContext(), MainActivity.class);
-        // TODO (chase): Need to persist the name, email, phone into the DB linked with the firebase
-        // user ID!
-        startActivity(intent);
+        Bundle dbData = new Bundle();
+        // TODO (chase): Need to persist the name, email, phone
+        //  into the DB linked with the firebase user ID!s
+        getParentFragmentManager().setFragmentResult("register", dbData);
     }
 
     private void unrecoverableError(Exception e) {

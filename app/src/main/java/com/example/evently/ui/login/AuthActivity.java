@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.credentials.exceptions.GetCredentialCancellationException;
@@ -13,6 +14,7 @@ import androidx.credentials.exceptions.GetCredentialInterruptedException;
 import androidx.credentials.exceptions.GetCredentialUnsupportedException;
 import androidx.credentials.exceptions.NoCredentialException;
 
+import com.example.evently.databinding.ActivityAuthBinding;
 import com.google.android.gms.common.SignInButton;
 import com.google.firebase.auth.AuthResult;
 
@@ -22,31 +24,34 @@ import com.example.evently.utils.AuthConstants;
 
 public class AuthActivity extends AppCompatActivity {
     private boolean activityRecreated;
+    private boolean hasRegisterForm = false;
     private FirebaseLogin firebaseLogin;
-    private SignInButton manualLoginBtn;
+    private ActivityAuthBinding binding;
 
     private Intent transition;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_auth);
+
+        binding = ActivityAuthBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         firebaseLogin = new FirebaseLogin(this);
         activityRecreated = savedInstanceState != null;
-        manualLoginBtn = findViewById(R.id.login);
         transition = new Intent(AuthActivity.this, MainActivity.class);
 
-        manualLoginBtn.setOnClickListener(v -> tryLoggingIn(0));
+        binding.login.setOnClickListener(v -> tryLoggingIn(0));
+        binding.registerForm.setOnClickListener(v -> showRegisterForm());
     }
 
     @Override
     public void onStart() {
         super.onStart();
 
-        if (activityRecreated) {
-            // If it was recreated, auto login has already been tried and the fragment already
-            // exists.
+        if (activityRecreated || hasRegisterForm) {
+            // If it was recreated/resumed, auto login has already been tried
+            // and the fragment already exists.
             // Nothing to be done.
             return;
         }
@@ -54,11 +59,31 @@ public class AuthActivity extends AppCompatActivity {
         if (firebaseLogin.isLoggedIn()) {
             // Already signed in - move on to next activity
             startActivity(transition);
+            finish();
             return;
         }
 
         // Otherwise, try logging in (not register).
+        Log.i("AuthActivity", "LOGGING IN!");
         tryLoggingIn(0);
+    }
+
+    private void showRegisterForm() {
+        binding.login.setVisibility(View.INVISIBLE);
+        binding.registerForm.setVisibility(View.INVISIBLE);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .setReorderingAllowed(true)
+                .setCustomAnimations(R.animator.fade_in, R.animator.fade_out)
+                .add(R.id.register_form_container, RegisterFragment.class, null)
+                .commit();
+        getSupportFragmentManager()
+                .setFragmentResultListener("register", this, (var key, var bundle) -> {
+                    // TODO (chase): The bundle should contain data to persist in the DB regarding the account.
+                    startActivity(transition);
+                    finish();
+                });
+        hasRegisterForm = true;
     }
 
     private void tryLoggingIn(int retryCount) {
@@ -67,10 +92,12 @@ public class AuthActivity extends AppCompatActivity {
                 this::successfulLogin,
                 e -> {
                     switch (e) {
-                        case GetCredentialCancellationException ce ->
-                            // The user cancelled the sign in request...
-                            // Let them try again by exposing a button that exposes the same flow.
-                            manualLoginBtn.setVisibility(View.VISIBLE);
+                        case GetCredentialCancellationException ce -> {
+                            // The user cancelled the auto sign in request...
+                            // Expose buttons to manually sign in or register.
+                            binding.login.setVisibility(View.VISIBLE);
+                            binding.registerForm.setVisibility(View.VISIBLE);
+                        }
                         case GetCredentialInterruptedException ie -> {
                             // Retry (unless we retried too many times already).
                             if (retryCount > AuthConstants.MAX_RETRY) {
@@ -88,12 +115,7 @@ public class AuthActivity extends AppCompatActivity {
                         case NoCredentialException ne -> {
                             // This is likely a totally new user and must register first.
                             // Hand off to the register fragment.
-                            manualLoginBtn.setVisibility(View.INVISIBLE);
-                            getSupportFragmentManager()
-                                    .beginTransaction()
-                                    .setReorderingAllowed(true)
-                                    .add(R.id.register_form_container, RegisterFragment.class, null)
-                                    .commit();
+                            showRegisterForm();
                         }
                         default ->
                             Log.e(
@@ -107,6 +129,7 @@ public class AuthActivity extends AppCompatActivity {
 
     private void successfulLogin(AuthResult res) {
         startActivity(transition);
+        finish();
     }
 
     private void unrecoverableError(Exception e) {
