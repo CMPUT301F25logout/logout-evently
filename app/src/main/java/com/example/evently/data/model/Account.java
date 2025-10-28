@@ -15,10 +15,9 @@ import java.util.UUID;
  * @param isAdmin A boolean representing whether or not an account is an Admin account.
  */
 public record Account(
-    UUID accountID,
-    String name,
-    String email,
-    Optional<String> phoneNumber,
-    Integer hashedPassword,
-    Boolean isAdmin
-) {}
+        UUID accountID,
+        String name,
+        String email,
+        Optional<String> phoneNumber,
+        Integer hashedPassword,
+        Boolean isAdmin) {}

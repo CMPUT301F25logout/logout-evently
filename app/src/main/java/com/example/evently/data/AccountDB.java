@@ -1,15 +1,15 @@
 package com.example.evently.data;
 
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.UUID;
-
 import com.example.evently.data.model.Account;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * The account database for fetching, storing, deleting, and updating accounts in the database
@@ -23,12 +23,11 @@ public class AccountDB {
     /**
      * Sets up the collection of accounts for the AccountDB
      */
-    public AccountDB(){
+    public AccountDB() {
         // Defines the reference to the accounts collection
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         accountsRef = db.collection("accounts");
     }
-
 
     /**
      * Creates an account based on specified parameters
@@ -39,30 +38,29 @@ public class AccountDB {
      * @param isAdmin a boolean for whether the account is an Admin
      * @return The newly created account.
      */
-    public static Account createAccount(String name, String email, Optional<String> phoneNumber, String password, boolean isAdmin){
+    public static Account createAccount(
+            String name,
+            String email,
+            Optional<String> phoneNumber,
+            String password,
+            boolean isAdmin) {
 
         // Creates the account, and returns it. Account is not added to the list of accounts.
         return new Account(
-                UUID.randomUUID(),
-                name,
-                email,
-                phoneNumber,
-                password.hashCode(),
-                isAdmin
-        );
+                UUID.randomUUID(), name, email, phoneNumber, password.hashCode(), isAdmin);
     }
-
 
     /**
      * Returns an account from a document snapshot.
      * @param documentSnapshot The snapshot of the account
      * @return the fetched account.
      */
-    public static Account getAccountFromSnapshot(DocumentSnapshot documentSnapshot) throws NullPointerException{
+    public static Account getAccountFromSnapshot(DocumentSnapshot documentSnapshot)
+            throws NullPointerException {
         Optional<String> phoneNumber;
 
         // Converts the phone number in the DB to Optional
-        if (documentSnapshot.getString("phoneNumber").equals("No Phone Number")){
+        if (documentSnapshot.getString("phoneNumber").equals("No Phone Number")) {
             phoneNumber = Optional.empty();
         } else {
             phoneNumber = Optional.ofNullable(documentSnapshot.getString("phoneNumber"));
@@ -75,29 +73,27 @@ public class AccountDB {
                 documentSnapshot.getString("email"),
                 phoneNumber,
                 documentSnapshot.getLong("hashedPassword").intValue(),
-                documentSnapshot.getBoolean("isAdmin")
-        );
+                documentSnapshot.getBoolean("isAdmin"));
     }
-
 
     /**
      * Stores an account in the database
      * @param a The account stored in the database.
      * @return The task from storing an account
      */
-    public Task<Void> storeAccount(Account a){
+    public Task<Void> storeAccount(Account a) {
         DocumentReference docRef = accountsRef.document(a.accountID().toString());
 
         // An Optional<String> cannot be stored in the DB.
         String storable_phone_num = a.phoneNumber().orElse("No Phone Number");
 
         // Places all the account information into a HashMap.
-        HashMap<String,Object> dataToStore = new HashMap<>();
-        dataToStore.put("name",a.name());
-        dataToStore.put("email",a.email());
-        dataToStore.put("phoneNumber",storable_phone_num);
-        dataToStore.put("hashedPassword",a.hashedPassword());
-        dataToStore.put("isAdmin",a.isAdmin());
+        HashMap<String, Object> dataToStore = new HashMap<>();
+        dataToStore.put("name", a.name());
+        dataToStore.put("email", a.email());
+        dataToStore.put("phoneNumber", storable_phone_num);
+        dataToStore.put("hashedPassword", a.hashedPassword());
+        dataToStore.put("isAdmin", a.isAdmin());
 
         // Returns the task of storing an account.
         return docRef.set(dataToStore);
@@ -115,50 +111,47 @@ public class AccountDB {
         return accountsRef.document(fetchAccountString).get();
     }
 
-
     /**
      * Delete an account from the database by UUID
      * @param accountID The UUID of the target account
      * @return The delete account task.
      */
-    public Task<Void> deleteAccount(UUID accountID){
+    public Task<Void> deleteAccount(UUID accountID) {
 
         // The following code is from the firebase documentation on deleting documents:
         // https://firebase.google.com/docs/firestore/manage-data/delete-data
         return accountsRef.document(accountID.toString()).delete();
     }
 
-
     /**
      * Updates an account phone number in the database
      * @param phoneNumber The new phone number
      * @return The update phoneNumber task.
      */
-    public Task<Void> updatePhoneNumber(UUID accountID,String phoneNumber){
+    public Task<Void> updatePhoneNumber(UUID accountID, String phoneNumber) {
 
         // Gets an account by its document number
         String stringAccountID = accountID.toString();
         DocumentReference docRef = accountsRef.document(stringAccountID);
 
-//      The following code is from the firebase docs on how to update a field in the DB:
-//      https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
-        return docRef.update("phoneNumber",phoneNumber);
+        //      The following code is from the firebase docs on how to update a field in the DB:
+        //      https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
+        return docRef.update("phoneNumber", phoneNumber);
     }
-
 
     /**
      * Updates an account's email in the database
      * @param email The new email of the account holder
      * @return The update email task.
      */
-    public Task<Void> updateEmail(UUID accountID,String email){
+    public Task<Void> updateEmail(UUID accountID, String email) {
 
         // Gets an account by its document number
         String stringAccountID = accountID.toString();
         DocumentReference docRef = accountsRef.document(stringAccountID);
 
-//      The following code is from the firebase docs on how to update a field in the DB:
-//      https://firebase.google.com/docs/firestore/manage-data/add-daSta#update-data
-        return docRef.update("email",email);
+        //      The following code is from the firebase docs on how to update a field in the DB:
+        //      https://firebase.google.com/docs/firestore/manage-data/add-daSta#update-data
+        return docRef.update("email", email);
     }
 }
