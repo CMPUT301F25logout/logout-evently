@@ -99,8 +99,6 @@ Note: When you run `gradlew spotlessApply` to format your files, there WILL be n
 
 Advice: Use your IDEs version control system to choose and add changes/files and commit from there. It's usually easier for beginners.
 
-Note: When running `gradlew spotlessApply`, ensure JDK version is <= version 24 (`java --version`)
-
 # Changing branches with pending work
 
 Changing branches sounds simple. You just do `git checkout branchName` and assuming `branchName` already exists, you'll switch to it. However, things become complicated when you have pending changes in your current branch that you haven't yet committed and you're trying to change branches (maybe to update it).

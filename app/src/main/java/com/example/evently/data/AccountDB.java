@@ -1,15 +1,12 @@
 package com.example.evently.data;
 
 import com.example.evently.data.model.Account;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.function.Consumer;
 
 /**
  * The account database for fetching, storing, deleting, and updating accounts in the database
@@ -30,128 +27,70 @@ public class AccountDB {
     }
 
     /**
-     * Creates an account based on specified parameters
-     * @param name The name of the account
-     * @param email The email of the account
-     * @param phoneNumber The phone number of the account.
-     * @param password The password of the account
-     * @param isAdmin a boolean for whether the account is an Admin
-     * @return The newly created account.
-     */
-    public static Account createAccount(
-            String name,
-            String email,
-            Optional<String> phoneNumber,
-            String password,
-            boolean isAdmin) {
-
-        // Creates the account, and returns it. Account is not added to the list of accounts.
-        return new Account(
-                UUID.randomUUID(), name, email, phoneNumber, password.hashCode(), isAdmin);
-    }
-
-    /**
-     * Returns an account from a document snapshot.
-     * @param documentSnapshot The snapshot of the account
-     * @return the fetched account.
-     */
-    public static Account getAccountFromSnapshot(DocumentSnapshot documentSnapshot)
-            throws NullPointerException {
-        Optional<String> phoneNumber;
-
-        // Converts the phone number in the DB to Optional
-        if (documentSnapshot.getString("phoneNumber").equals("No Phone Number")) {
-            phoneNumber = Optional.empty();
-        } else {
-            phoneNumber = Optional.ofNullable(documentSnapshot.getString("phoneNumber"));
-        }
-
-        // Creates and stores the account.
-        return new Account(
-                UUID.fromString(documentSnapshot.getId()),
-                documentSnapshot.getString("name"),
-                documentSnapshot.getString("email"),
-                phoneNumber,
-                documentSnapshot.getLong("hashedPassword").intValue(),
-                documentSnapshot.getBoolean("isAdmin"));
-    }
-
-    /**
      * Stores an account in the database
      * @param a The account stored in the database.
-     * @return The task from storing an account
      */
-    public Task<Void> storeAccount(Account a) {
-        DocumentReference docRef = accountsRef.document(a.accountID().toString());
+    public void storeAccount(Account a, Consumer<Void> onSuccess, Consumer<Exception> onException) {
+        DocumentReference docRef = accountsRef.document(a.email());
 
         // An Optional<String> cannot be stored in the DB.
-        String storable_phone_num = a.phoneNumber().orElse("No Phone Number");
-
-        // Places all the account information into a HashMap.
-        HashMap<String, Object> dataToStore = new HashMap<>();
-        dataToStore.put("name", a.name());
-        dataToStore.put("email", a.email());
-        dataToStore.put("phoneNumber", storable_phone_num);
-        dataToStore.put("hashedPassword", a.hashedPassword());
-        dataToStore.put("isAdmin", a.isAdmin());
+        String storable_phone_num = a.phoneNumber().orElse(null);
 
         // Returns the task of storing an account.
-        return docRef.set(dataToStore);
+        docRef.set(a.toHashMap())
+                .addOnSuccessListener(onSuccess::accept)
+                .addOnFailureListener(onException::accept);
     }
 
     /**
-     * Returns an account based b
-     * @param accountID The id of the target account
-     * @return A task with the Document snapshot
+     * Returns an account based based on an email
+     * @param email The email of the target account
      */
-    public Task<DocumentSnapshot> fetchAccount(UUID accountID) {
+    public void fetchAccount(
+            String email, Consumer<DocumentSnapshot> onSuccess, Consumer<Exception> onException) {
 
         // Returns a document snapshot with the attached account.
-        String fetchAccountString = accountID.toString();
-        return accountsRef.document(fetchAccountString).get();
+        accountsRef
+                .document(email)
+                .get()
+                .addOnSuccessListener(onSuccess::accept)
+                .addOnFailureListener(onException::accept);
     }
 
     /**
-     * Delete an account from the database by UUID
-     * @param accountID The UUID of the target account
-     * @return The delete account task.
+     * Delete an account from the database by email
+     * @param email The email of the target account
      */
-    public Task<Void> deleteAccount(UUID accountID) {
+    public void deleteAccount(
+            String email, Consumer<Void> onSuccess, Consumer<Exception> onException) {
 
         // The following code is from the firebase documentation on deleting documents:
         // https://firebase.google.com/docs/firestore/manage-data/delete-data
-        return accountsRef.document(accountID.toString()).delete();
+        accountsRef
+                .document(email)
+                .delete()
+                .addOnSuccessListener(onSuccess::accept)
+                .addOnFailureListener(onException::accept);
     }
 
     /**
-     * Updates an account phone number in the database
+     * Updates an account phone number in the database based on account email.
+     * @param email The email of the user
      * @param phoneNumber The new phone number
-     * @return The update phoneNumber task.
      */
-    public Task<Void> updatePhoneNumber(UUID accountID, String phoneNumber) {
+    public void updatePhoneNumber(
+            String email,
+            String phoneNumber,
+            Consumer<Void> onSuccess,
+            Consumer<Exception> onException) {
 
-        // Gets an account by its document number
-        String stringAccountID = accountID.toString();
-        DocumentReference docRef = accountsRef.document(stringAccountID);
+        // Gets an account based on the email
+        DocumentReference docRef = accountsRef.document(email);
 
         //      The following code is from the firebase docs on how to update a field in the DB:
         //      https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
-        return docRef.update("phoneNumber", phoneNumber);
-    }
-
-    /**
-     * Updates an account's email in the database
-     * @param email The new email of the account holder
-     * @return The update email task.
-     */
-    public Task<Void> updateEmail(UUID accountID, String email) {
-
-        // Gets an account by its document number
-        String stringAccountID = accountID.toString();
-        DocumentReference docRef = accountsRef.document(stringAccountID);
-
-        //      The following code is from the firebase docs on how to update a field in the DB:
-        //      https://firebase.google.com/docs/firestore/manage-data/add-daSta#update-data
-        return docRef.update("email", email);
+        docRef.update("phoneNumber", phoneNumber)
+                .addOnSuccessListener(onSuccess::accept)
+                .addOnFailureListener(onException::accept);
     }
 }
