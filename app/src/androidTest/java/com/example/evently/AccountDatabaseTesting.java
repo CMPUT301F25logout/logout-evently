@@ -29,40 +29,28 @@ public class AccountDatabaseTesting {
 //    @Rule
 //    public ActivityScenarioRule<MainActivity> scenario = new
 //            ActivityScenarioRule<MainActivity>(MainActivity.class);
-
-//    public AccountDB createDB(){
-//        // Creates accountDB
-//        AccountDB accountDB = new AccountDB();
 //
-//        // Stores the account
-//        accountDB.storeAccount(getMockAccount());
-//        return accountDB;
-//    }
-
+//
 //    public Account getMockAccount(){
 //        return AccountDB.createAccount(
 //                "Alex Bradley",
 //                "hi@gmail.com",
-//                "123-456-7890",
+//                Optional.of("123-456-7890"),
 //                "password"
 //        );
 //    }
-
-    @Test
-    public void testAddAccount() {
-//        AccountDB db = createDB();
+//
+//    @Test
+//    public void testAddAccount() {
+//        AccountDB db = new AccountDB();
 //        Account a = getMockAccount();
 //        db.storeAccount(a);
-
-//        Optional<Account> fetched_account = db.fetchAccount(a.accountID());
-//        if (fetched_account.isPresent()) {
-//            assertEquals(a.accountID(), fetched_account.get().accountID());
-//            Log.d("Fetched account", "testAddAccount: "+ fetched_account.get().accountID());
-//        }
-
-        assertTrue(true);
-
-
-    }
+//        db.fetchAccount(a.accountID());
+//
+//        // Updates the email.
+//        db.updateEmail(a.accountID(),"Aadsfhjkasdf@gmail.com");
+//        db.updatePhoneNumber(a.accountID(),"");
+//        assertTrue(true);
+//    }
 
 }
