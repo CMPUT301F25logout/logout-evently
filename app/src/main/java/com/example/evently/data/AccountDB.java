@@ -11,17 +11,17 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import android.util.Log;
-
-
+/**
+ * The account database for fetching, storing, deleting, and updating accounts in the database
+ * @author alexander-b
+ */
 public class AccountDB {
 
     // Reference to the accounts collection
     private final CollectionReference accountsRef;
 
     /**
-     * Sets up the database of accounts.
-     * Sources: CMPUT 301 Lab 5 Presentation
+     * Sets up the collection of accounts for the AccountDB
      */
     public AccountDB(){
         // Defines the reference to the accounts collection
@@ -29,16 +29,17 @@ public class AccountDB {
         accountsRef = db.collection("accounts");
     }
 
+
     /**
      * Creates an account based on specified parameters
      * @param name The name of the account
      * @param email The email of the account
      * @param phoneNumber The phone number of the account.
      * @param password The password of the account
+     * @param isAdmin a boolean for whether the account is an Admin
      * @return The newly created account.
      */
-    public static Account createAccount(String name, String email, Optional<String> phoneNumber, String password){
-
+    public static Account createAccount(String name, String email, Optional<String> phoneNumber, String password, boolean isAdmin){
 
         // Creates the account, and returns it. Account is not added to the list of accounts.
         return new Account(
@@ -46,23 +47,25 @@ public class AccountDB {
                 name,
                 email,
                 phoneNumber,
-                password.hashCode()
+                password.hashCode(),
+                isAdmin
         );
     }
+
 
     /**
      * Returns an account from a document snapshot.
      * @param documentSnapshot The snapshot of the account
      * @return the fetched account.
      */
-    public Account getAccountFromSnapshot(DocumentSnapshot documentSnapshot){
+    public static Account getAccountFromSnapshot(DocumentSnapshot documentSnapshot) throws NullPointerException{
         Optional<String> phoneNumber;
 
         // Converts the phone number in the DB to Optional
         if (documentSnapshot.getString("phoneNumber").equals("No Phone Number")){
             phoneNumber = Optional.empty();
         } else {
-            phoneNumber = Optional.of(documentSnapshot.getString("phoneNumber"));
+            phoneNumber = Optional.ofNullable(documentSnapshot.getString("phoneNumber"));
         }
 
         // Creates and stores the account.
@@ -71,9 +74,11 @@ public class AccountDB {
                 documentSnapshot.getString("name"),
                 documentSnapshot.getString("email"),
                 phoneNumber,
-                documentSnapshot.getLong("hashedPassword").intValue()
+                documentSnapshot.getLong("hashedPassword").intValue(),
+                documentSnapshot.getBoolean("isAdmin")
         );
     }
+
 
     /**
      * Stores an account in the database
@@ -86,15 +91,16 @@ public class AccountDB {
         // An Optional<String> cannot be stored in the DB.
         String storable_phone_num = a.phoneNumber().orElse("No Phone Number");
 
+        // Places all the account information into a HashMap.
         HashMap<String,Object> dataToStore = new HashMap<>();
         dataToStore.put("name",a.name());
         dataToStore.put("email",a.email());
         dataToStore.put("phoneNumber",storable_phone_num);
         dataToStore.put("hashedPassword",a.hashedPassword());
+        dataToStore.put("isAdmin",a.isAdmin());
 
-        return docRef.set(dataToStore)
-                .addOnSuccessListener(aVoid -> Log.d("Firestore", "DocumentSnapshot successfully written!"))
-                .addOnFailureListener(e -> Log.d("Firestore", "DocumentSnapshot not written!"));
+        // Returns the task of storing an account.
+        return docRef.set(dataToStore);
     }
 
     /**
@@ -117,16 +123,11 @@ public class AccountDB {
      */
     public Task<Void> deleteAccount(UUID accountID){
 
-        /**
-         * The following code is from the firebase documentation on deleting documents:
-         * https://firebase.google.com/docs/firestore/manage-data/delete-data
-         */
-        return accountsRef.document(accountID.toString())
-                .delete()
-                .addOnSuccessListener(aVoid -> Log.d("DEL ACCOUNT", "DocumentSnapshot successfully deleted!"))
-                .addOnFailureListener(e -> Log.w("DEL ACCOUNT", "Error deleting document", e)
-                );
+        // The following code is from the firebase documentation on deleting documents:
+        // https://firebase.google.com/docs/firestore/manage-data/delete-data
+        return accountsRef.document(accountID.toString()).delete();
     }
+
 
     /**
      * Updates an account phone number in the database
