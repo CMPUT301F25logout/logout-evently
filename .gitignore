@@ -1,20 +1,21 @@
 *.iml
 .gradle
 /local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
 .DS_Store
 /build
 /captures
 .externalNativeBuild
 .cxx
 local.properties
+
 # API keys and such
 keys.properties
 
 # Google services should not be publicized
 google-services.json
+
+# Ignore dumb .idea stuff
+/.idea/*
+
+# Make an exception for the dictionary
+!/.idea/dictionaries
