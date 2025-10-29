@@ -27,17 +27,31 @@ public class AccountDB {
     }
 
     /**
-     * Stores an account in the database
+     * Stores an account in the database.
      * @param a The account stored in the database.
      */
-    public void storeAccount(Account a) {
+    public void storeAccount(Account a, Consumer<Void> onSuccess, Consumer<Exception> onException) {
         DocumentReference docRef = accountsRef.document(a.email());
-        docRef.set(a.toHashMap());
+        docRef.set(a.toHashMap())
+                .addOnSuccessListener(onSuccess::accept)
+                .addOnFailureListener(onException::accept);
     }
 
     /**
      * Returns an account based based on an email
      * @param email The email of the target account
+     */
+    public void fetchAccount(String email) {
+
+        // Returns a document snapshot with the attached account.
+        accountsRef.document(email).get();
+    }
+
+    /**
+     * Returns an account based based on an email. Also takes in onSuccess, and onFailure listeners.
+     * @param email The email of the target account
+     * @param onSuccess A callback for the onSuccessListener
+     * @param onException A callback for the onFailureListener
      */
     public void fetchAccount(
             String email, Consumer<DocumentSnapshot> onSuccess, Consumer<Exception> onException) {
@@ -62,7 +76,7 @@ public class AccountDB {
     }
 
     /**
-     * Updates an account phone number in the database based on account email.
+     * Updates an accounts phone number in the database based on the email primary key.
      * @param email The email of the user
      * @param phoneNumber The new phone number
      */
@@ -74,5 +88,67 @@ public class AccountDB {
         //      The following code is from the firebase docs on how to update a field in the DB:
         //      https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
         docRef.update("phoneNumber", phoneNumber);
+    }
+
+    /**
+     * Updates an accounts visible email in the database.
+     * @param primaryEmail The original email of the user for login.
+     * @param newVisibleEmail The new visible email
+     */
+    public void updateVisibleEmail(String primaryEmail, String newVisibleEmail) {
+
+        // Gets an account based on the email
+        DocumentReference docRef = accountsRef.document(primaryEmail);
+
+        //      The following code is from the firebase docs on how to update a field in the DB:
+        //      https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
+        docRef.update("visibleEmail", newVisibleEmail);
+    }
+
+    /**
+     * Updates an accounts phone number in the database based on the email primary key.
+     * Has a callback for onSuccess, and onException
+     * @param email The email of the user
+     * @param phoneNumber The new phone number
+     * @param onSuccess A callback for the onSuccessListener
+     * @param onException A callback for the onFailureListener
+     */
+    public void updatePhoneNumber(
+            String email,
+            String phoneNumber,
+            Consumer<Void> onSuccess,
+            Consumer<Exception> onException) {
+
+        // Gets an account based on the email
+        DocumentReference docRef = accountsRef.document(email);
+
+        //      The following code is from the firebase docs on how to update a field in the DB:
+        //      https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
+        docRef.update("phoneNumber", phoneNumber)
+                .addOnSuccessListener(onSuccess::accept)
+                .addOnFailureListener(onException::accept);
+    }
+
+    /**
+     * Updates an accounts visible email in the database. Has a callback for onSuccess, and onException
+     * @param primaryEmail The original email of the user for login.
+     * @param newVisibleEmail The new visible email
+     * @param onSuccess A callback for the onSuccessListener
+     * @param onException A callback for the onFailureListener
+     */
+    public void updateVisibleEmail(
+            String primaryEmail,
+            String newVisibleEmail,
+            Consumer<Void> onSuccess,
+            Consumer<Exception> onException) {
+
+        // Gets an account based on the email
+        DocumentReference docRef = accountsRef.document(primaryEmail);
+
+        //      The following code is from the firebase docs on how to update a field in the DB:
+        //      https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
+        docRef.update("visibleEmail", newVisibleEmail)
+                .addOnSuccessListener(onSuccess::accept)
+                .addOnFailureListener(onException::accept);
     }
 }

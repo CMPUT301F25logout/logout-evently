@@ -12,9 +12,10 @@ import java.util.Optional;
  * @param email The email of the account holder
  * @param name The name of the account
  * @param phoneNumber An optional phone number for the account holder
- * @param isAdmin A boolean representing whether or not an account is an Admin account.
+ * @param visibleEmail The visible email for a user.
  */
-public record Account(String email, String name, Optional<String> phoneNumber, Boolean isAdmin) {
+public record Account(
+        String email, String name, Optional<String> phoneNumber, String visibleEmail) {
 
     /**
      * Converts an account to a hashMap for storing in the DB. Since the email
@@ -27,9 +28,9 @@ public record Account(String email, String name, Optional<String> phoneNumber, B
         HashMap<String, Object> hashMap = new HashMap<>();
 
         // Stores the account in the hashMap
-        hashMap.put("name", this.name());
-        hashMap.put("phoneNumber", this.phoneNumber().orElse(null));
-        hashMap.put("isAdmin", this.isAdmin());
+        hashMap.put("name", this.name);
+        hashMap.put("phoneNumber", this.phoneNumber.orElse(null));
+        hashMap.put("visibleEmail", this.visibleEmail);
         return hashMap;
     }
 
@@ -46,9 +47,9 @@ public record Account(String email, String name, Optional<String> phoneNumber, B
 
         // Creates and stores the account.
         return new Account(
-                documentSnapshot.getString("email"),
+                documentSnapshot.getId(),
                 documentSnapshot.getString("name"),
                 optionalPhoneNum,
-                documentSnapshot.getBoolean("isAdmin"));
+                documentSnapshot.getString("visibleEmail"));
     }
 }
