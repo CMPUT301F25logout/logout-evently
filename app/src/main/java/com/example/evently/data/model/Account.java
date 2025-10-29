@@ -27,9 +27,9 @@ public record Account(String email, String name, Optional<String> phoneNumber, B
         HashMap<String, Object> hashMap = new HashMap<>();
 
         // Stores the account in the hashMap
-        hashMap.put("name", this.name);
-        hashMap.put("phoneNumber", this.phoneNumber.orElse(null));
-        hashMap.put("isAdmin", this.isAdmin);
+        hashMap.put("name", this.name());
+        hashMap.put("phoneNumber", this.phoneNumber().orElse(null));
+        hashMap.put("isAdmin", this.isAdmin());
         return hashMap;
     }
 

@@ -30,16 +30,9 @@ public class AccountDB {
      * Stores an account in the database
      * @param a The account stored in the database.
      */
-    public void storeAccount(Account a, Consumer<Void> onSuccess, Consumer<Exception> onException) {
+    public void storeAccount(Account a) {
         DocumentReference docRef = accountsRef.document(a.email());
-
-        // An Optional<String> cannot be stored in the DB.
-        String storable_phone_num = a.phoneNumber().orElse(null);
-
-        // Returns the task of storing an account.
-        docRef.set(a.toHashMap())
-                .addOnSuccessListener(onSuccess::accept)
-                .addOnFailureListener(onException::accept);
+        docRef.set(a.toHashMap());
     }
 
     /**
@@ -61,16 +54,11 @@ public class AccountDB {
      * Delete an account from the database by email
      * @param email The email of the target account
      */
-    public void deleteAccount(
-            String email, Consumer<Void> onSuccess, Consumer<Exception> onException) {
+    public void deleteAccount(String email) {
 
         // The following code is from the firebase documentation on deleting documents:
         // https://firebase.google.com/docs/firestore/manage-data/delete-data
-        accountsRef
-                .document(email)
-                .delete()
-                .addOnSuccessListener(onSuccess::accept)
-                .addOnFailureListener(onException::accept);
+        accountsRef.document(email).delete();
     }
 
     /**
@@ -78,19 +66,13 @@ public class AccountDB {
      * @param email The email of the user
      * @param phoneNumber The new phone number
      */
-    public void updatePhoneNumber(
-            String email,
-            String phoneNumber,
-            Consumer<Void> onSuccess,
-            Consumer<Exception> onException) {
+    public void updatePhoneNumber(String email, String phoneNumber) {
 
         // Gets an account based on the email
         DocumentReference docRef = accountsRef.document(email);
 
         //      The following code is from the firebase docs on how to update a field in the DB:
         //      https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
-        docRef.update("phoneNumber", phoneNumber)
-                .addOnSuccessListener(onSuccess::accept)
-                .addOnFailureListener(onException::accept);
+        docRef.update("phoneNumber", phoneNumber);
     }
 }
