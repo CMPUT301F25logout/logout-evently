@@ -1,6 +1,9 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
-    id("com.diffplug.spotless") version "8.0.0"
+
+    id("com.diffplug.spotless")
     id("com.google.gms.google-services")
 }
 
@@ -18,6 +21,19 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Load API credentials
+        val keystoreFile = project.rootProject.file("keys.properties")
+        val properties = Properties()
+        properties.load(keystoreFile.inputStream())
+
+        val gclientID = properties.getProperty("GOOGLE_CLIENT_ID") ?: ""
+
+        buildConfigField(
+            type = "String",
+            name = "GOOGLE_CLIENT_ID",
+            value = gclientID
+        )
     }
 
     buildTypes {
@@ -33,14 +49,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
-
-//    testOptions {
-//        unitTests {
-//            all {
-//                it.useJUnitPlatform()
-//            }
-//        }
-//    }
+    buildFeatures {
+        buildConfig = true
+        viewBinding = true
+    }
 }
 
 spotless {
@@ -48,15 +60,17 @@ spotless {
         // Need to explicitly specify target for android projects.
         target("src/*/java/**/*.java")
 
-        importOrder("java|javax", "android|androidx", "")
-
         removeUnusedImports()
         forbidWildcardImports()
 
         // Apply a specific flavor of google-java-format
         palantirJavaFormat("2.81.0").style("AOSP").formatJavadoc(false)
+
         // Fix formatting of type annotations
         formatAnnotations()
+
+        // Fix import order
+        importOrder("java|javax", "android|androidx", "", "com.example.evently")
 
         // QoL stuff
         trimTrailingWhitespace()
@@ -77,6 +91,18 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.ext.junit)
     implementation(libs.runner)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+
+    implementation(libs.credentials)
+    implementation(libs.credentials.play.services.auth)
+    implementation(libs.googleid)
+    implementation(libs.play.services.auth)
+    implementation(libs.legacy.support.v4)
+    implementation(libs.lifecycle.livedata.ktx)
+    implementation(libs.lifecycle.viewmodel.ktx)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
