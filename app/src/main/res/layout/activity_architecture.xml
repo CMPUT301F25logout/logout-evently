@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:fitsSystemWindows="true"
-    tools:context=".ui.organizer.OrganizerActivity">
+    tools:context=".ui.common.ArchitectureActivity">
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nav_host_fragment"
@@ -14,7 +14,6 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:defaultNavHost="true"
-        app:navGraph="@navigation/organizer_graph"
         android:layout_weight="1" />
 
     <include
