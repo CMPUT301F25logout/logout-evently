@@ -1,7 +1,5 @@
 package com.example.evently.data.model;
 
-import com.google.firebase.firestore.DocumentSnapshot;
-
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -17,11 +15,9 @@ import java.util.Optional;
 public record Account(
         String email, String name, Optional<String> phoneNumber, String visibleEmail) {
 
-    /**
-     * Converts an account to a hashMap for storing in the DB. Since the email
-     * is the primary key of the account, it is not added to the hashMap
-     * @return A hashmap of the account's contents.
-     */
+    // Converts an account to a hashMap for storing in the DB. Since the email
+    // is the primary key of the account, it is not added to the hashMap
+    // @return A hashmap of the account's contents.
     public HashMap<String, Object> toHashMap() {
 
         // Creates the hashMap
@@ -32,24 +28,5 @@ public record Account(
         hashMap.put("phoneNumber", this.phoneNumber.orElse(null));
         hashMap.put("visibleEmail", this.visibleEmail);
         return hashMap;
-    }
-
-    /**
-     * Returns an account from a document snapshot.
-     * @param documentSnapshot The snapshot of the account
-     * @return the fetched account.
-     */
-    public static Account getAccountFromSnapshot(DocumentSnapshot documentSnapshot)
-            throws NullPointerException {
-
-        String stringPhoneNum = documentSnapshot.getString("phoneNumber");
-        Optional<String> optionalPhoneNum = Optional.ofNullable(stringPhoneNum);
-
-        // Creates and stores the account.
-        return new Account(
-                documentSnapshot.getId(),
-                documentSnapshot.getString("name"),
-                optionalPhoneNum,
-                documentSnapshot.getString("visibleEmail"));
     }
 }

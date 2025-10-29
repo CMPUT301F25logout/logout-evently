@@ -16,7 +16,6 @@ import org.junit.Test;
 
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public class AccountDatabaseTesting {
     @Rule
@@ -25,19 +24,17 @@ public class AccountDatabaseTesting {
 
     /**
      * The following code tests the store, and fetch account operations.
-     * @throws InterruptedException
      */
     @Test
     public void testStoreAndFetchAccount() throws InterruptedException {
 
-        /**
-         * The idea for using CountDownLatches for synchronization is from the article below:
-         * Article: https://stackoverflow.com/questions/15938538/how-can-i-make-a-junit-test-wait
-         * Title: "How can I make a JUnit test wait?"
-         * Answer: https://stackoverflow.com/a/64645442
-         * License: CC BY-SA 4.0
-         */
+        // The idea for using CountDownLatches for synchronization is from the article below:
+        // Article: https://stackoverflow.com/questions/15938538/how-can-i-make-a-junit-test-wait
+        // Title: "How can I make a JUnit test wait?"
+        // Answer: https://stackoverflow.com/a/64645442
+        // License: CC BY-SA 4.0
         CountDownLatch addAccountLatch = new CountDownLatch(1);
+
         AccountDB db = new AccountDB();
         // Creates an account, and stores it in the DB
         Account addedAccount = new Account(
@@ -57,10 +54,11 @@ public class AccountDatabaseTesting {
         CountDownLatch fetchLatch = new CountDownLatch(1);
         db.fetchAccount(
                 addedAccount.email(),
-                documentSnapshot -> {
-                    Account fetched_account = Account.getAccountFromSnapshot(documentSnapshot);
+                fetchedAccount -> {
                     fetchLatch.countDown();
-                    assertEquals(fetched_account, addedAccount);
+
+                    assertTrue(fetchedAccount.isPresent());
+                    assertEquals(fetchedAccount.get(), addedAccount);
                 },
                 e -> {
                     Log.d("FETCH ACCOUNT", "testStoreAccount: Failed to fetch account");
@@ -72,18 +70,10 @@ public class AccountDatabaseTesting {
 
     /**
      * The following code tests the rename phone, and email functions.
-     * @throws InterruptedException
      */
     @Test
     public void testRenamePhoneAndEmail() throws InterruptedException {
 
-        /**
-         * The idea for using CountDownLatches for synchronization is from the article below:
-         * Article: https://stackoverflow.com/questions/15938538/how-can-i-make-a-junit-test-wait
-         * Title: "How can I make a JUnit test wait?"
-         * Answer: https://stackoverflow.com/a/64645442
-         * License: CC BY-SA 4.0
-         */
         CountDownLatch addAccountLatch = new CountDownLatch(1);
         AccountDB db = new AccountDB();
 
@@ -111,12 +101,15 @@ public class AccountDatabaseTesting {
                 v -> {
                     db.fetchAccount(
                             "hi@gmail.com",
-                            documentSnapshot -> {
-                                Account fetched_account =
-                                        Account.getAccountFromSnapshot(documentSnapshot);
+                            optionalAccount -> {
 
+                                // Checks that the fetched account is found
+                                assertTrue(optionalAccount.isPresent());
+
+                                Account fetchedAccount = optionalAccount.get();
                                 assertEquals(
-                                        fetched_account.phoneNumber().orElse(null), newPhoneNumber);
+                                        newPhoneNumber,
+                                        fetchedAccount.phoneNumber().orElse(null));
                                 phoneNumLatch.countDown();
                             },
                             e -> {});
@@ -134,11 +127,11 @@ public class AccountDatabaseTesting {
                 v -> {
                     db.fetchAccount(
                             "hi@gmail.com",
-                            documentSnapshot -> {
-                                Account fetched_account =
-                                        Account.getAccountFromSnapshot(documentSnapshot);
+                            fetchedOptionalAccount -> {
+                                assertTrue(fetchedOptionalAccount.isPresent());
+                                Account fetchedAccount = fetchedOptionalAccount.get();
 
-                                assertEquals(fetched_account.visibleEmail(), newEmail);
+                                assertEquals(newEmail, fetchedAccount.visibleEmail());
                                 visibleEmailLatch.countDown();
                             },
                             e -> {});
@@ -152,18 +145,16 @@ public class AccountDatabaseTesting {
     /**
      * The following code tests the delete account function. It first creates an account, stores it,
      * deletes it, and ensures it is deleted.
-     * @throws InterruptedException
      */
     @Test
     public void testDeleteAccount() throws InterruptedException {
         AccountDB db = new AccountDB();
-        /**
-         * The idea for using CountDownLatches for synchronization is from the article below:
-         * Article: https://stackoverflow.com/questions/15938538/how-can-i-make-a-junit-test-wait
-         * Title: "How can I make a JUnit test wait?"
-         * Answer: https://stackoverflow.com/a/64645442
-         * License: CC BY-SA 4.0
-         */
+
+        // The idea for using CountDownLatches for synchronization is from the article below:
+        // Article: https://stackoverflow.com/questions/15938538/how-can-i-make-a-junit-test-wait
+        // Title: "How can I make a JUnit test wait?"
+        // Answer: https://stackoverflow.com/a/64645442
+        // License: CC BY-SA 4.0
         CountDownLatch addAccountLatch = new CountDownLatch(1);
 
         // Creates an account, and stores it in the DB
@@ -192,13 +183,14 @@ public class AccountDatabaseTesting {
 
         // The following code ensures the account cannot be found.
         CountDownLatch fetchLatch = new CountDownLatch(1);
+
         db.fetchAccount(
                 "hi@gmail.com",
-                v -> {},
-                //                    assertTrue(v.exists());},
+                optionalAccount -> {
+                    assertFalse(optionalAccount.isPresent());
+                    fetchLatch.countDown();
+                },
                 e -> {});
-
-        // If not found within 3 seconds, we pass the test.
-        assertFalse(fetchLatch.await(3, TimeUnit.SECONDS));
+        fetchLatch.await();
     }
 }
