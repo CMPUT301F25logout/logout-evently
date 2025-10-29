@@ -14,16 +14,14 @@ material = "1.13.0"
 activity = "1.11.0"
 constraintlayout = "2.2.1"
 runner = "1.7.0"
-
-[libraries]
-espresso-core-v351 = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCoreVersion" }
-firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 playServicesAuth = "21.4.0"
 legacySupportV4 = "1.0.0"
 lifecycleLivedataKtx = "2.9.4"
 lifecycleViewmodelKtx = "2.9.4"
 
 [libraries]
+espresso-core-v351 = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCoreVersion" }
+firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentialsPlayServicesAuth" }
 credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
