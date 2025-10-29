@@ -12,4 +12,8 @@
     <string name="register_title">Register a new Account</string>
     <string name="action_sign_out">Sign out</string>
     <string name="action_register_form">Create Account</string>
+    <string name="action_bar_home">home page</string>
+    <string name="action_bar_account">Profile page</string>
+    <string name="action_bar_search">Search events</string>
+    <string name="action_bar_notifs">Notifications page</string>
 </resources>
