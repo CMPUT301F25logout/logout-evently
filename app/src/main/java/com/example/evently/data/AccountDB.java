@@ -76,6 +76,24 @@ public class AccountDB {
     }
 
     /**
+     * Delete an account from the database by email
+     * @param email The email of the target account
+     * @param onSuccess A callback for the onSuccessListener
+     * @param onException A callback for the onFailureListener
+     */
+    public void deleteAccount(
+            String email, Consumer<Void> onSuccess, Consumer<Exception> onException) {
+
+        // The following code is from the firebase documentation on deleting documents:
+        // https://firebase.google.com/docs/firestore/manage-data/delete-data
+        accountsRef
+                .document(email)
+                .delete()
+                .addOnSuccessListener(onSuccess::accept)
+                .addOnFailureListener(onException::accept);
+    }
+
+    /**
      * Updates an accounts phone number in the database based on the email primary key.
      * @param email The email of the user
      * @param phoneNumber The new phone number
@@ -85,8 +103,8 @@ public class AccountDB {
         // Gets an account based on the email
         DocumentReference docRef = accountsRef.document(email);
 
-        //      The following code is from the firebase docs on how to update a field in the DB:
-        //      https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
+        // The following code is from the firebase docs on how to update a field in the DB:
+        // https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
         docRef.update("phoneNumber", phoneNumber);
     }
 
@@ -100,8 +118,8 @@ public class AccountDB {
         // Gets an account based on the email
         DocumentReference docRef = accountsRef.document(primaryEmail);
 
-        //      The following code is from the firebase docs on how to update a field in the DB:
-        //      https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
+        // The following code is from the firebase docs on how to update a field in the DB:
+        // https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
         docRef.update("visibleEmail", newVisibleEmail);
     }
 
@@ -122,8 +140,8 @@ public class AccountDB {
         // Gets an account based on the email
         DocumentReference docRef = accountsRef.document(email);
 
-        //      The following code is from the firebase docs on how to update a field in the DB:
-        //      https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
+        // The following code is from the firebase docs on how to update a field in the DB:
+        // https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
         docRef.update("phoneNumber", phoneNumber)
                 .addOnSuccessListener(onSuccess::accept)
                 .addOnFailureListener(onException::accept);
@@ -145,8 +163,8 @@ public class AccountDB {
         // Gets an account based on the email
         DocumentReference docRef = accountsRef.document(primaryEmail);
 
-        //      The following code is from the firebase docs on how to update a field in the DB:
-        //      https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
+        // The following code is from the firebase docs on how to update a field in the DB:
+        // https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
         docRef.update("visibleEmail", newVisibleEmail)
                 .addOnSuccessListener(onSuccess::accept)
                 .addOnFailureListener(onException::accept);

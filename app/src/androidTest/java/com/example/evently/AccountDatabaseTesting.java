@@ -1,6 +1,7 @@
 package com.example.evently;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.util.Log;
@@ -15,6 +16,7 @@ import org.junit.Test;
 
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class AccountDatabaseTesting {
     @Rule
@@ -36,9 +38,8 @@ public class AccountDatabaseTesting {
          * License: CC BY-SA 4.0
          */
         CountDownLatch addAccountLatch = new CountDownLatch(1);
-
-        // Creates an account, and stores it in the DB
         AccountDB db = new AccountDB();
+        // Creates an account, and stores it in the DB
         Account addedAccount = new Account(
                 "hi@gmail.com",
                 "AlexBradley",
@@ -84,9 +85,9 @@ public class AccountDatabaseTesting {
          * License: CC BY-SA 4.0
          */
         CountDownLatch addAccountLatch = new CountDownLatch(1);
+        AccountDB db = new AccountDB();
 
         // Creates an account, and stores it in the DB
-        AccountDB db = new AccountDB();
         Account addedAccount = new Account(
                 "hi@gmail.com",
                 "AlexBradley",
@@ -123,8 +124,8 @@ public class AccountDatabaseTesting {
                 e -> {});
         phoneNumLatch.await();
 
-        // The following code tests the update email method, and confirms the query returns the
-        // result
+        // The following code tests the update visible email method, and confirms the query returns
+        // the visible email.
         CountDownLatch visibleEmailLatch = new CountDownLatch(1);
         String newEmail = "NEW EMAIL WOOOOOOO!!!!";
         db.updateVisibleEmail(
@@ -137,8 +138,7 @@ public class AccountDatabaseTesting {
                                 Account fetched_account =
                                         Account.getAccountFromSnapshot(documentSnapshot);
 
-                                assertEquals(
-                                        fetched_account.phoneNumber().orElse(null), newPhoneNumber);
+                                assertEquals(fetched_account.visibleEmail(), newEmail);
                                 visibleEmailLatch.countDown();
                             },
                             e -> {});
@@ -147,5 +147,58 @@ public class AccountDatabaseTesting {
         visibleEmailLatch.await();
 
         assertTrue(true);
+    }
+
+    /**
+     * The following code tests the delete account function. It first creates an account, stores it,
+     * deletes it, and ensures it is deleted.
+     * @throws InterruptedException
+     */
+    @Test
+    public void testDeleteAccount() throws InterruptedException {
+        AccountDB db = new AccountDB();
+        /**
+         * The idea for using CountDownLatches for synchronization is from the article below:
+         * Article: https://stackoverflow.com/questions/15938538/how-can-i-make-a-junit-test-wait
+         * Title: "How can I make a JUnit test wait?"
+         * Answer: https://stackoverflow.com/a/64645442
+         * License: CC BY-SA 4.0
+         */
+        CountDownLatch addAccountLatch = new CountDownLatch(1);
+
+        // Creates an account, and stores it in the DB
+        Account addedAccount = new Account(
+                "hi@gmail.com",
+                "AlexBradley",
+                Optional.of("123-456-7890"),
+                "my_visible_email@yahoo.com");
+        db.storeAccount(
+                addedAccount,
+                v -> {
+                    addAccountLatch.countDown();
+                },
+                e -> {});
+        addAccountLatch.await(); // Waits until the account is added
+
+        // Remove the account from the DB.
+        CountDownLatch delAccountLatch = new CountDownLatch(1);
+        db.deleteAccount(
+                addedAccount.email(),
+                v -> {
+                    delAccountLatch.countDown();
+                },
+                e -> {});
+        delAccountLatch.await(); // Waits until the account is added
+
+        // The following code ensures the account cannot be found.
+        CountDownLatch fetchLatch = new CountDownLatch(1);
+        db.fetchAccount(
+                "hi@gmail.com",
+                v -> {},
+                //                    assertTrue(v.exists());},
+                e -> {});
+
+        // If not found within 3 seconds, we pass the test.
+        assertFalse(fetchLatch.await(3, TimeUnit.SECONDS));
     }
 }
