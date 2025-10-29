@@ -1,11 +1,11 @@
 package com.example.evently.ui.organizer;
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.evently.data.model.Event;
 import com.example.evently.databinding.FragmentEventBinding;
@@ -15,7 +15,8 @@ import java.util.List;
 /**
  * {@link RecyclerView.Adapter} that can display a {@link Event}.
  */
-public class EventRecyclerViewAdapter extends RecyclerView.Adapter<EventRecyclerViewAdapter.ViewHolder> {
+public class EventRecyclerViewAdapter
+        extends RecyclerView.Adapter<EventRecyclerViewAdapter.ViewHolder> {
 
     private final List<Event> mValues;
 
@@ -23,12 +24,11 @@ public class EventRecyclerViewAdapter extends RecyclerView.Adapter<EventRecycler
         mValues = items;
     }
 
-    @NonNull
-    @Override
+    @NonNull @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        return new ViewHolder(FragmentEventBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
-
+        return new ViewHolder(FragmentEventBinding.inflate(
+                LayoutInflater.from(parent.getContext()), parent, false));
     }
 
     @Override
@@ -52,8 +52,7 @@ public class EventRecyclerViewAdapter extends RecyclerView.Adapter<EventRecycler
             mContentView = binding.content;
         }
 
-        @NonNull
-        @Override
+        @NonNull @Override
         public String toString() {
             return super.toString() + " '" + mContentView.getText() + "'";
         }
