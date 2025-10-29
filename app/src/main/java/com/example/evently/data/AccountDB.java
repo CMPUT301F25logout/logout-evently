@@ -1,13 +1,14 @@
 package com.example.evently.data;
 
-import com.example.evently.data.model.Account;
+import java.util.Optional;
+import java.util.function.Consumer;
+
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.Optional;
-import java.util.function.Consumer;
+import com.example.evently.data.model.Account;
 
 /**
  * The account database for fetching, storing, deleting, and updating accounts in the database

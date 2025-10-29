@@ -4,18 +4,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+
 import android.util.Log;
-
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
-
-import com.example.evently.data.AccountDB;
-import com.example.evently.data.model.Account;
 
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.util.Optional;
-import java.util.concurrent.CountDownLatch;
+import com.example.evently.data.AccountDB;
+import com.example.evently.data.model.Account;
 
 public class AccountDatabaseTesting {
     @Rule
