@@ -1,10 +1,10 @@
 package com.example.evently.data.model;
 
-import android.media.Image;
-
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
+
+import android.media.Image;
 
 // TODO (chase): Add image once we decide how to store them.
 // TODO (chase): Add location once geolocation support is being worked on.
@@ -28,5 +28,4 @@ public record Event(
         UUID organizer,
         Optional<Long> entrantLimit,
         long selectionLimit,
-        Image poster
-        ) {}
+        Image poster) {}

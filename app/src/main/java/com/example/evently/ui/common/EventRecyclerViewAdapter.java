@@ -1,9 +1,10 @@
 package com.example.evently.ui.common;
 
 import java.text.MessageFormat;
-import java.util.List;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -21,9 +22,11 @@ import com.example.evently.databinding.FragmentEventBinding;
  * This is not abstract since there's no requirement for displaying {@link Event}s differently.
  * They always look the same (a little box with all the event brief info + picture).
  */
-public class EventRecyclerViewAdapter extends RecyclerView.Adapter<EventRecyclerViewAdapter.EventViewHolder> {
+public class EventRecyclerViewAdapter
+        extends RecyclerView.Adapter<EventRecyclerViewAdapter.EventViewHolder> {
 
-    private static final DateTimeFormatter some_date = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("UTC"));
+    private static final DateTimeFormatter some_date =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("UTC"));
     private final List<Event> mValues;
 
     public EventRecyclerViewAdapter(List<Event> items) {
@@ -40,34 +43,37 @@ public class EventRecyclerViewAdapter extends RecyclerView.Adapter<EventRecycler
     public void onBindViewHolder(final EventViewHolder holder, int position) {
         // Attach the Event to the view.
         holder.mItem = mValues.get(position);
+        var binding = holder.binding;
+
         // Title / name
-        holder.binding.content.setText(holder.mItem.name());
+        binding.content.setText(holder.mItem.name());
 
         // Poster
-        holder.binding.imgPoster.setImageResource(android.R.drawable.ic_menu_report_image);
+        binding.imgPoster.setImageResource(android.R.drawable.ic_menu_report_image);
 
         // Status + selectionDate
         String[] statuses = new String[] {"Confirmed", "Open", "Closed"};
         String status = statuses[position % statuses.length];
-        holder.binding.txtStatus.setText(status);
+        binding.txtStatus.setText(status);
 
         if ("Open".equals(status)) {
-            holder.binding.txtselectionDate.setVisibility(android.view.View.VISIBLE);
-            holder.binding.txtselectionDate.setText(MessageFormat.format("Selection on {0}", some_date.format(holder.mItem.selectionTime())));
+            binding.txtselectionDate.setVisibility(android.view.View.VISIBLE);
+            binding.txtselectionDate.setText(MessageFormat.format(
+                    "Selection on {0}", some_date.format(holder.mItem.selectionTime())));
 
         } else if ("Closed".equals(status)) {
-            holder.binding.txtselectionDate.setVisibility(android.view.View.VISIBLE);
-            holder.binding.txtselectionDate.setText("Waitlist closed");
+            binding.txtselectionDate.setVisibility(android.view.View.VISIBLE);
+            binding.txtselectionDate.setText("Waitlist closed");
         } else {
-            holder.binding.txtselectionDate.setVisibility(android.view.View.GONE);
+            binding.txtselectionDate.setVisibility(android.view.View.GONE);
         }
 
         // Event date
-        holder.binding.txtDate.setText(some_date.format(holder.mItem.eventTime()));
+        binding.txtDate.setText(some_date.format(holder.mItem.eventTime()));
 
         // Details button with no click logic
-        holder.binding.btnDetails.setOnClickListener(null);
-        holder.binding.btnDetails.setClickable(false);
+        binding.btnDetails.setOnClickListener(null);
+        binding.btnDetails.setClickable(false);
     }
 
     @Override

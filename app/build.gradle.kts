@@ -103,10 +103,6 @@ dependencies {
     implementation(libs.navigation.ui)
     implementation(libs.recyclerview)
 
-    implementation(libs.navigation.fragment)
-    implementation(libs.navigation.ui)
-    implementation(libs.recyclerview)
-
     testImplementation(libs.junit)
     androidTestImplementation(libs.runner)
     androidTestImplementation(libs.ext.junit)

@@ -22,7 +22,7 @@ public class BrowseEventsFragment extends EventsFragment {
                 Instant.parse("2025-12-05T23:59:00Z"), // selection date
                 Instant.parse("2026-02-14T09:00:00Z"), // event date
                 UUID.randomUUID(),
-                Optional.empty(), 
+                Optional.empty(),
                 20,
                 null));
 
