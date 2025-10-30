@@ -2,7 +2,6 @@ package com.example.evently.ui.common;
 
 import java.util.List;
 
-import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,30 +29,28 @@ public class EventRecyclerViewAdapter
         mValues = items;
     }
 
-    @NonNull @Override
+    @NonNull
+    @Override
     public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new EventViewHolder(
-                FragmentEventBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false)
-        );
+                FragmentEventBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
-    @SuppressLint({"DefaultLocale", "SetTextI18n"})
     @Override
     public void onBindViewHolder(final EventViewHolder holder, int position) {
         // Attach the Event to the view.
         holder.mItem = mValues.get(position);
 
-        // --- Minimal guaranteed field (from your examples) ---
+
         // Title / name
         holder.binding.content.setText(holder.mItem.name());
 
-        // --- The rest are placeholder bindings until DB/model integration ---
+        // The rest are placeholder bindings until Data Base integration
         // Poster
         holder.binding.imgPoster.setImageResource(android.R.drawable.ic_menu_report_image);
 
-
         // Status + selectionDate
-        String[] statuses = new String[]{"Confirmed", "Open", "Closed"};
+        String[] statuses = new String[] {"Confirmed", "Open", "Closed"};
         String status = statuses[position % statuses.length];
         holder.binding.txtStatus.setText(status);
 
@@ -91,7 +88,8 @@ public class EventRecyclerViewAdapter
             this.mContentView = binding.content; // title text
         }
 
-        @NonNull @Override
+        @NonNull
+        @Override
         public String toString() {
             return super.toString() + " '" + mContentView.getText() + "'";
         }
