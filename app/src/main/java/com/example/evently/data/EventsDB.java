@@ -1,18 +1,19 @@
 package com.example.evently.data;
 
-import com.example.evently.data.model.Event;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
+
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import com.example.evently.data.model.Event;
 
 /**
  * The Event database for managing events
@@ -94,7 +95,8 @@ public class EventsDB {
                 throw new IllegalArgumentException("'entrantLimit' must be positive");
             }
             if (limit < event.selectionLimit()) {
-                throw new IllegalArgumentException("'selectionLimit' must not be lower than 'entrantLimit'.");
+                throw new IllegalArgumentException(
+                        "'selectionLimit' must not be lower than 'entrantLimit'.");
             }
         });
     }
@@ -114,7 +116,8 @@ public class EventsDB {
      * @param onSuccess Action to be performed on success
      * @param onException Action to be performed on exception
      */
-    public void fetchEvent(UUID eventID, Consumer<DocumentSnapshot> onSuccess, Consumer<Exception> onException) {
+    public void fetchEvent(
+            UUID eventID, Consumer<DocumentSnapshot> onSuccess, Consumer<Exception> onException) {
         eventsRef
                 .document(eventID.toString())
                 .get()
@@ -128,7 +131,8 @@ public class EventsDB {
      * @param onSuccess Action to be performed on success
      * @param onException Action to be performed on exception
      */
-    public void fetchEvent(String eventID, Consumer<DocumentSnapshot> onSuccess, Consumer<Exception> onException) {
+    public void fetchEvent(
+            String eventID, Consumer<DocumentSnapshot> onSuccess, Consumer<Exception> onException) {
         eventsRef
                 .document(eventID)
                 .get()
@@ -142,7 +146,8 @@ public class EventsDB {
      * @param onSuccess Action to be performed on success
      * @param onException Action to be performed on exception
      */
-    public void fetchEventsByOrganizers(String organizer, Consumer<QuerySnapshot> onSuccess, Consumer<Exception> onException) {
+    public void fetchEventsByOrganizers(
+            String organizer, Consumer<QuerySnapshot> onSuccess, Consumer<Exception> onException) {
         eventsRef
                 .whereEqualTo("organizer", organizer)
                 .get()
@@ -156,7 +161,10 @@ public class EventsDB {
      * @param onSuccess Action to be performed on success
      * @param onException Action to be performed on exception
      */
-    public void fetchEventsByOrganizers(List<String> organizers, Consumer<QuerySnapshot> onSuccess, Consumer<Exception> onException) {
+    public void fetchEventsByOrganizers(
+            List<String> organizers,
+            Consumer<QuerySnapshot> onSuccess,
+            Consumer<Exception> onException) {
         eventsRef
                 .whereIn("organizer", organizers)
                 .get()
@@ -171,7 +179,11 @@ public class EventsDB {
      * @param onException Action to be performed on exception
      * @param isStart {@code true} for events after constraint, {@code false} for events before.
      */
-    public void fetchEventsByDate(Date dateConstraint, Consumer<QuerySnapshot> onSuccess, Consumer<Exception> onException, boolean isStart) {
+    public void fetchEventsByDate(
+            Date dateConstraint,
+            Consumer<QuerySnapshot> onSuccess,
+            Consumer<Exception> onException,
+            boolean isStart) {
         if (isStart) {
             eventsRef
                     .whereGreaterThan("eventTime", dateConstraint)
@@ -194,7 +206,11 @@ public class EventsDB {
      * @param onSuccess Action to be performed on success
      * @param onException Action to be performed on exception
      */
-    public void fetchEventsByDate(Date startTime, Date endTime, Consumer<QuerySnapshot> onSuccess, Consumer<Exception> onException) {
+    public void fetchEventsByDate(
+            Date startTime,
+            Date endTime,
+            Consumer<QuerySnapshot> onSuccess,
+            Consumer<Exception> onException) {
         eventsRef
                 .whereGreaterThan("eventTime", startTime)
                 .whereLessThan("eventTime", endTime)
@@ -209,7 +225,8 @@ public class EventsDB {
      * @param onSuccess Action to be performed on success
      * @param onException Action to be performed on exception
      */
-    public void fetchEventsByEnrolled(String enrollee, Consumer<QuerySnapshot> onSuccess, Consumer<Exception> onException) {
+    public void fetchEventsByEnrolled(
+            String enrollee, Consumer<QuerySnapshot> onSuccess, Consumer<Exception> onException) {
         eventsRef
                 .whereArrayContains("enrolledEntrants", enrollee)
                 .get()
@@ -223,7 +240,10 @@ public class EventsDB {
      * @param onSuccess Action to be performed on success
      * @param onException Action to be performed on exception
      */
-    public void fetchEventsByEnrolled(List<String> enrollees, Consumer<QuerySnapshot> onSuccess, Consumer<Exception> onException) {
+    public void fetchEventsByEnrolled(
+            List<String> enrollees,
+            Consumer<QuerySnapshot> onSuccess,
+            Consumer<Exception> onException) {
         eventsRef
                 .whereArrayContainsAny("enrolledEntrants", enrollees)
                 .get()
@@ -236,9 +256,7 @@ public class EventsDB {
      * @param eventID UUID of event
      */
     public void deleteEvent(UUID eventID) {
-        eventsRef
-                .document(eventID.toString())
-                .delete();
+        eventsRef.document(eventID.toString()).delete();
     }
 
     /**
@@ -246,11 +264,6 @@ public class EventsDB {
      * @param eventID String ID of event
      */
     public void deleteEvent(String eventID) {
-        eventsRef
-                .document(eventID)
-                .delete();
+        eventsRef.document(eventID).delete();
     }
-
-
-
 }
