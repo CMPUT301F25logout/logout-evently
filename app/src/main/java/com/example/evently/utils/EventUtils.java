@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A utility class to help with filtering lists of events.
+ * A utility class to help with anything related to events.
  */
-public class EventFilter {
+public final class EventUtils {
 
     /**
      * Filters a list of events and returns a new list containing only the events
@@ -20,7 +20,7 @@ public class EventFilter {
      * @return A new ArrayList of events that match the category.
      *         Returns an empty list if no events match.
      */
-    public static ArrayList<Event> filterEvents(List<Event> events, Category category) {
+    public static ArrayList<Event> filterByCategory(List<Event> events, Category category) {
         ArrayList<Event> filteredList = new ArrayList<>();
         // go through each event in the original list
         for (Event event : events) {
