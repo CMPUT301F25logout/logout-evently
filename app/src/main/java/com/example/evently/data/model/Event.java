@@ -1,5 +1,7 @@
 package com.example.evently.data.model;
 
+import android.media.Image;
+
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,4 +27,6 @@ public record Event(
         Instant eventTime,
         UUID organizer,
         Optional<Long> entrantLimit,
-        long selectionLimit) {}
+        long selectionLimit,
+        Image poster
+        ) {}

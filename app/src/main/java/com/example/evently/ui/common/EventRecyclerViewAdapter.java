@@ -1,9 +1,10 @@
 package com.example.evently.ui.common;
 
+import java.text.MessageFormat;
 import java.util.List;
-
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -20,32 +21,28 @@ import com.example.evently.databinding.FragmentEventBinding;
  * This is not abstract since there's no requirement for displaying {@link Event}s differently.
  * They always look the same (a little box with all the event brief info + picture).
  */
-public class EventRecyclerViewAdapter
-        extends RecyclerView.Adapter<EventRecyclerViewAdapter.EventViewHolder> {
+public class EventRecyclerViewAdapter extends RecyclerView.Adapter<EventRecyclerViewAdapter.EventViewHolder> {
 
+    private static final DateTimeFormatter some_date = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("UTC"));
     private final List<Event> mValues;
 
     public EventRecyclerViewAdapter(List<Event> items) {
         mValues = items;
     }
 
-    @NonNull
-    @Override
+    @NonNull @Override
     public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new EventViewHolder(
-                FragmentEventBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
+        return new EventViewHolder(FragmentEventBinding.inflate(
+                LayoutInflater.from(parent.getContext()), parent, false));
     }
 
     @Override
     public void onBindViewHolder(final EventViewHolder holder, int position) {
         // Attach the Event to the view.
         holder.mItem = mValues.get(position);
-
-
         // Title / name
         holder.binding.content.setText(holder.mItem.name());
 
-        // The rest are placeholder bindings until Data Base integration
         // Poster
         holder.binding.imgPoster.setImageResource(android.R.drawable.ic_menu_report_image);
 
@@ -55,17 +52,18 @@ public class EventRecyclerViewAdapter
         holder.binding.txtStatus.setText(status);
 
         if ("Open".equals(status)) {
-            holder.binding.txtStatusSub.setVisibility(View.VISIBLE);
-            holder.binding.txtStatusSub.setText("• Selection on 2025-12-" + (10 + (position % 9)));
+            holder.binding.txtselectionDate.setVisibility(android.view.View.VISIBLE);
+            holder.binding.txtselectionDate.setText(MessageFormat.format("Selection on {0}", some_date.format(holder.mItem.selectionTime())));
+
         } else if ("Closed".equals(status)) {
-            holder.binding.txtStatusSub.setVisibility(View.VISIBLE);
-            holder.binding.txtStatusSub.setText("• Waitlist closed");
+            holder.binding.txtselectionDate.setVisibility(android.view.View.VISIBLE);
+            holder.binding.txtselectionDate.setText("Waitlist closed");
         } else {
-            holder.binding.txtStatusSub.setVisibility(View.GONE);
+            holder.binding.txtselectionDate.setVisibility(android.view.View.GONE);
         }
 
         // Event date
-        holder.binding.txtDate.setText("2026-03-" + String.format("%02d", 1 + (position % 28)));
+        holder.binding.txtDate.setText(some_date.format(holder.mItem.eventTime()));
 
         // Details button with no click logic
         holder.binding.btnDetails.setOnClickListener(null);
@@ -88,8 +86,7 @@ public class EventRecyclerViewAdapter
             this.mContentView = binding.content; // title text
         }
 
-        @NonNull
-        @Override
+        @NonNull @Override
         public String toString() {
             return super.toString() + " '" + mContentView.getText() + "'";
         }

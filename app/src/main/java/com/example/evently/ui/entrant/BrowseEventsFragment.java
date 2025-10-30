@@ -23,7 +23,8 @@ public class BrowseEventsFragment extends EventsFragment {
                 Instant.parse("2026-02-14T09:00:00Z"), // event date
                 UUID.randomUUID(),
                 Optional.empty(), 
-                20));
+                20,
+                null));
 
         placeHolderEvents.add(new Event(
                 "LAN Gaming",
@@ -32,7 +33,8 @@ public class BrowseEventsFragment extends EventsFragment {
                 Instant.parse("2026-03-09T18:00:00Z"),
                 UUID.randomUUID(),
                 Optional.empty(),
-                64));
+                64,
+                null));
 
         placeHolderEvents.add(new Event(
                 "Spelling Bee",
@@ -41,7 +43,8 @@ public class BrowseEventsFragment extends EventsFragment {
                 Instant.parse("2026-03-01T13:00:00Z"),
                 UUID.randomUUID(),
                 Optional.empty(),
-                40));
+                40,
+                null));
 
         callback.accept(placeHolderEvents);
     }
