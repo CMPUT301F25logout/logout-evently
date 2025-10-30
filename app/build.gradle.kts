@@ -53,10 +53,6 @@ android {
         buildConfig = true
         viewBinding = true
     }
-
-    tasks.withType<Test>{
-        useJUnitPlatform()
-    }
 }
 
 spotless {
