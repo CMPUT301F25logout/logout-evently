@@ -72,3 +72,9 @@
 - Event
 - Admin
 - User
+
+#### Properties (model)
+- Associated event ID (String)
+- Channel (ALL, WINNERS, LOSERS, CANCELLED)
+- Message (String)
+- SeenBy (List<String> of account emails, lowercased)
