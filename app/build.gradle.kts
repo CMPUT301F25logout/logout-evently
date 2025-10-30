@@ -92,6 +92,7 @@ dependencies {
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
 
     implementation(libs.credentials)
     implementation(libs.credentials.play.services.auth)
