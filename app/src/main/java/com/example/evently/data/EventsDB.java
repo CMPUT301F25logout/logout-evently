@@ -6,6 +6,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.core.Query;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -100,11 +101,21 @@ public class EventsDB {
         });
     }
 
+    /**
+     * Stores an event in the database.
+     * @param event event to be stored
+     */
     public void storeEvent(Event event) {
         DocumentReference docRef = eventsRef.document(event.eventID().toString());
         docRef.set(event.toHashMap());
     }
 
+    /**
+     * Fetch an event from database by UUID.
+     * @param eventID UUID of the event
+     * @param onSuccess Action to be performed on success
+     * @param onException Action to be performed on exception
+     */
     public void fetchEvent(UUID eventID, Consumer<DocumentSnapshot> onSuccess, Consumer<Exception> onException) {
         eventsRef
                 .document(eventID.toString())
@@ -113,6 +124,12 @@ public class EventsDB {
                 .addOnFailureListener(onException::accept);
     }
 
+    /**
+     * Fetch an event from database by {@code String} eventID.
+     * @param eventID eventID of the event
+     * @param onSuccess Action to be performed on success
+     * @param onException Action to be performed on exception
+     */
     public void fetchEvent(String eventID, Consumer<DocumentSnapshot> onSuccess, Consumer<Exception> onException) {
         eventsRef
                 .document(eventID)
@@ -121,6 +138,12 @@ public class EventsDB {
                 .addOnFailureListener(onException::accept);
     }
 
+    /**
+     * Fetch events from database by organizer UUID.
+     * @param organizer UUID of the event's organizer
+     * @param onSuccess Action to be performed on success
+     * @param onException Action to be performed on exception
+     */
     public void fetchEventsByOrganizers(UUID organizer, Consumer<QuerySnapshot> onSuccess, Consumer<Exception> onException) {
         eventsRef
                 .whereEqualTo("organizer", organizer)
@@ -129,6 +152,12 @@ public class EventsDB {
                 .addOnFailureListener(onException::accept);
     }
 
+    /**
+     * Fetch events from database with one of the organizer UUIDs.
+     * @param organizers UUID of the event organizers
+     * @param onSuccess Action to be performed on success
+     * @param onException Action to be performed on exception
+     */
     public void fetchEventsByOrganizers(List<UUID> organizers, Consumer<QuerySnapshot> onSuccess, Consumer<Exception> onException) {
         eventsRef
                 .whereIn("organizer", organizers)
@@ -137,6 +166,36 @@ public class EventsDB {
                 .addOnFailureListener(onException::accept);
     }
 
+    /**
+     * Fetch events before or after a given date
+     * @param dateConstraint date to constrain events by
+     * @param onSuccess Action to be performed on success
+     * @param onException Action to be performed on exception
+     * @param isStart {@code true} for events after constraint, {@code false} for events before.
+     */
+    public void fetchEventsByDate(Date dateConstraint, Consumer<QuerySnapshot> onSuccess, Consumer<Exception> onException, boolean isStart) {
+        if (isStart) {
+            eventsRef
+                    .whereGreaterThan("eventTime", dateConstraint)
+                    .get()
+                    .addOnSuccessListener(onSuccess::accept)
+                    .addOnFailureListener(onException::accept);
+        } else {
+            eventsRef
+                    .whereLessThan("eventTime", dateConstraint)
+                    .get()
+                    .addOnSuccessListener(onSuccess::accept)
+                    .addOnFailureListener(onException::accept);
+        }
+    }
+
+    /**
+     * Fetch events from database in a date range.
+     * @param startTime Date range start
+     * @param endTime Date range end
+     * @param onSuccess Action to be performed on success
+     * @param onException Action to be performed on exception
+     */
     public void fetchEventsByDate(Date startTime, Date endTime, Consumer<QuerySnapshot> onSuccess, Consumer<Exception> onException) {
         eventsRef
                 .whereGreaterThan("eventTime", startTime)
@@ -146,6 +205,12 @@ public class EventsDB {
                 .addOnFailureListener(onException::accept);
     }
 
+    /**
+     * Fetch events with an account enrolled.
+     * @param enrollee UUID of enrolled account
+     * @param onSuccess Action to be performed on success
+     * @param onException Action to be performed on exception
+     */
     public void fetchEventsByEnrolled(UUID enrollee, Consumer<QuerySnapshot> onSuccess, Consumer<Exception> onException) {
         eventsRef
                 .whereArrayContains("enrolledEntrants", enrollee)
@@ -154,6 +219,12 @@ public class EventsDB {
                 .addOnFailureListener(onException::accept);
     }
 
+    /**
+     * Fetch events with one of the accounts enrolled.
+     * @param enrollees UUIDs of enrolled accounts
+     * @param onSuccess Action to be performed on success
+     * @param onException Action to be performed on exception
+     */
     public void fetchEventsByEnrolled(List<UUID> enrollees, Consumer<QuerySnapshot> onSuccess, Consumer<Exception> onException) {
         eventsRef
                 .whereArrayContainsAny("enrolledEntrants", enrollees)
@@ -161,6 +232,27 @@ public class EventsDB {
                 .addOnSuccessListener(onSuccess::accept)
                 .addOnFailureListener(onException::accept);
     }
-    
+
+    /**
+     * Remove given event from DB
+     * @param eventID UUID of event
+     */
+    public void deleteEvent(UUID eventID) {
+        eventsRef
+                .document(eventID.toString())
+                .delete();
+    }
+
+    /**
+     * Remove given event with String id from DB
+     * @param eventID String ID of event
+     */
+    public void deleteEvent(String eventID) {
+        eventsRef
+                .document(eventID)
+                .delete();
+    }
+
+
 
 }
