@@ -1,8 +1,8 @@
 package com.example.evently.ui.common;
 
 import java.util.List;
-import java.util.Random;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +25,6 @@ public class EventRecyclerViewAdapter
         extends RecyclerView.Adapter<EventRecyclerViewAdapter.EventViewHolder> {
 
     private final List<Event> mValues;
-    private final Random random = new Random();
 
     public EventRecyclerViewAdapter(List<Event> items) {
         mValues = items;
@@ -38,6 +37,7 @@ public class EventRecyclerViewAdapter
         );
     }
 
+    @SuppressLint({"DefaultLocale", "SetTextI18n"})
     @Override
     public void onBindViewHolder(final EventViewHolder holder, int position) {
         // Attach the Event to the view.
