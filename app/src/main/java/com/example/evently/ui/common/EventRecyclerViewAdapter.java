@@ -1,8 +1,10 @@
 package com.example.evently.ui.common;
 
 import java.util.List;
+import java.util.Random;
 
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -23,6 +25,7 @@ public class EventRecyclerViewAdapter
         extends RecyclerView.Adapter<EventRecyclerViewAdapter.EventViewHolder> {
 
     private final List<Event> mValues;
+    private final Random random = new Random();
 
     public EventRecyclerViewAdapter(List<Event> items) {
         mValues = items;
@@ -30,17 +33,46 @@ public class EventRecyclerViewAdapter
 
     @NonNull @Override
     public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-
-        return new EventViewHolder(FragmentEventBinding.inflate(
-                LayoutInflater.from(parent.getContext()), parent, false));
+        return new EventViewHolder(
+                FragmentEventBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false)
+        );
     }
 
     @Override
     public void onBindViewHolder(final EventViewHolder holder, int position) {
         // Attach the Event to the view.
         holder.mItem = mValues.get(position);
-        // TODO: Set text views and similar as per event representation.
-        holder.mContentView.setText(holder.mItem.name());
+
+        // --- Minimal guaranteed field (from your examples) ---
+        // Title / name
+        holder.binding.content.setText(holder.mItem.name());
+
+        // --- The rest are placeholder bindings until DB/model integration ---
+        // Poster
+        holder.binding.imgPoster.setImageResource(android.R.drawable.ic_menu_report_image);
+
+
+        // Status + selectionDate
+        String[] statuses = new String[]{"Confirmed", "Open", "Closed"};
+        String status = statuses[position % statuses.length];
+        holder.binding.txtStatus.setText(status);
+
+        if ("Open".equals(status)) {
+            holder.binding.txtStatusSub.setVisibility(View.VISIBLE);
+            holder.binding.txtStatusSub.setText("• Selection on 2025-12-" + (10 + (position % 9)));
+        } else if ("Closed".equals(status)) {
+            holder.binding.txtStatusSub.setVisibility(View.VISIBLE);
+            holder.binding.txtStatusSub.setText("• Waitlist closed");
+        } else {
+            holder.binding.txtStatusSub.setVisibility(View.GONE);
+        }
+
+        // Event date
+        holder.binding.txtDate.setText("2026-03-" + String.format("%02d", 1 + (position % 28)));
+
+        // Details button with no click logic
+        holder.binding.btnDetails.setOnClickListener(null);
+        holder.binding.btnDetails.setClickable(false);
     }
 
     @Override
@@ -48,16 +80,15 @@ public class EventRecyclerViewAdapter
         return mValues.size();
     }
 
-    // TODO: Incomplete.
     public static class EventViewHolder extends RecyclerView.ViewHolder {
-        // TODO: Add other views in here that represent an event.
+        public final FragmentEventBinding binding;
         public final TextView mContentView;
         public Event mItem;
 
         public EventViewHolder(FragmentEventBinding binding) {
             super(binding.getRoot());
-            // TODO: Assign all the views here. Don't assign Event.
-            mContentView = binding.content;
+            this.binding = binding;
+            this.mContentView = binding.content; // title text
         }
 
         @NonNull @Override
