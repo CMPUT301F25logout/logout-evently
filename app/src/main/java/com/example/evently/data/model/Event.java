@@ -1,7 +1,5 @@
 package com.example.evently.data.model;
 
-import android.accounts.Account;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,13 +17,13 @@ import java.util.UUID;
  *                      Once this time has passed, the event will not be available for entry.
  *                      However, re-selections may take place if invited entrants cancel.
  * @param eventTime Time on which the event is set to happen. No re-selections will take place afterwards.
- * @param organizer Unique ID for the organizer. This should correspond with the database.
+ * @param organizer email for the organizer. This should correspond with the database.
  * @param entrantLimit Optional limit to the total number of entrants that may enlist before selection.
  * @param selectionLimit Event capacity. This is the total number of enlisted entrants that may be selected.
- * @param entrants UUIDs of all entrants to the event.
- * @param cancelledEntrants UUIDs of entrants who declined enrollment or were cancelled.
- * @param selectedEntrants UUIDs of entrants who were selected to enroll.
- * @param enrolledEntrants UUIDs of final set of enrolled entrants
+ * @param entrants emails of all entrants to the event.
+ * @param cancelledEntrants emails of entrants who declined enrollment or were cancelled.
+ * @param selectedEntrants emails of entrants who were selected to enroll.
+ * @param enrolledEntrants emails of final set of enrolled entrants
  */
 public record Event(
         UUID eventID,
@@ -33,13 +31,13 @@ public record Event(
         String description,
         Date selectionTime,
         Date eventTime,
-        UUID organizer,
+        String organizer,
         Optional<Long> entrantLimit,
         long selectionLimit,
-        Collection<UUID> entrants,
-        Collection<UUID> cancelledEntrants,
-        Collection<UUID> selectedEntrants,
-        Collection<UUID> enrolledEntrants) {
+        Collection<String> entrants,
+        Collection<String> cancelledEntrants,
+        Collection<String> selectedEntrants,
+        Collection<String> enrolledEntrants) {
     /**
      * Converts an event to a hashMap for storing in the DB. Since the eventID
      * is the primary key of the event, it is not added to the hashMap

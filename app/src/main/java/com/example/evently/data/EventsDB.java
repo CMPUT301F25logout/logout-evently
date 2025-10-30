@@ -6,10 +6,8 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.core.Query;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +37,7 @@ public class EventsDB {
      *                      Once this time has passed, the event will not be available for entry.
      *                      However, re-selections may take place if invited entrants cancel.
      * @param eventTime Time on which the event is set to happen. No re-selections will take place afterwards.
-     * @param organizer Unique ID for the organizer. This should correspond with the database.
+     * @param organizer Email for the organizer. This should correspond with the database.
      * @param entrantLimit Optional limit to the total number of entrants that may enlist before selection.
      * @param selectionLimit Event capacity. This is the total number of enlisted entrants that may be selected.
      * @return the created event
@@ -49,7 +47,7 @@ public class EventsDB {
             String description,
             Date selectionTime,
             Date eventTime,
-            UUID organizer,
+            String organizer,
             Optional<Long> entrantLimit,
             long selectionLimit) {
         Event event = new Event(
@@ -139,12 +137,12 @@ public class EventsDB {
     }
 
     /**
-     * Fetch events from database by organizer UUID.
-     * @param organizer UUID of the event's organizer
+     * Fetch events from database by organizer email.
+     * @param organizer email of the event's organizer
      * @param onSuccess Action to be performed on success
      * @param onException Action to be performed on exception
      */
-    public void fetchEventsByOrganizers(UUID organizer, Consumer<QuerySnapshot> onSuccess, Consumer<Exception> onException) {
+    public void fetchEventsByOrganizers(String organizer, Consumer<QuerySnapshot> onSuccess, Consumer<Exception> onException) {
         eventsRef
                 .whereEqualTo("organizer", organizer)
                 .get()
@@ -153,12 +151,12 @@ public class EventsDB {
     }
 
     /**
-     * Fetch events from database with one of the organizer UUIDs.
-     * @param organizers UUID of the event organizers
+     * Fetch events from database with one of the organizer emails.
+     * @param organizers emails of the event organizers
      * @param onSuccess Action to be performed on success
      * @param onException Action to be performed on exception
      */
-    public void fetchEventsByOrganizers(List<UUID> organizers, Consumer<QuerySnapshot> onSuccess, Consumer<Exception> onException) {
+    public void fetchEventsByOrganizers(List<String> organizers, Consumer<QuerySnapshot> onSuccess, Consumer<Exception> onException) {
         eventsRef
                 .whereIn("organizer", organizers)
                 .get()
@@ -207,11 +205,11 @@ public class EventsDB {
 
     /**
      * Fetch events with an account enrolled.
-     * @param enrollee UUID of enrolled account
+     * @param enrollee email of enrolled account
      * @param onSuccess Action to be performed on success
      * @param onException Action to be performed on exception
      */
-    public void fetchEventsByEnrolled(UUID enrollee, Consumer<QuerySnapshot> onSuccess, Consumer<Exception> onException) {
+    public void fetchEventsByEnrolled(String enrollee, Consumer<QuerySnapshot> onSuccess, Consumer<Exception> onException) {
         eventsRef
                 .whereArrayContains("enrolledEntrants", enrollee)
                 .get()
@@ -221,11 +219,11 @@ public class EventsDB {
 
     /**
      * Fetch events with one of the accounts enrolled.
-     * @param enrollees UUIDs of enrolled accounts
+     * @param enrollees emails of enrolled accounts
      * @param onSuccess Action to be performed on success
      * @param onException Action to be performed on exception
      */
-    public void fetchEventsByEnrolled(List<UUID> enrollees, Consumer<QuerySnapshot> onSuccess, Consumer<Exception> onException) {
+    public void fetchEventsByEnrolled(List<String> enrollees, Consumer<QuerySnapshot> onSuccess, Consumer<Exception> onException) {
         eventsRef
                 .whereArrayContainsAny("enrolledEntrants", enrollees)
                 .get()
