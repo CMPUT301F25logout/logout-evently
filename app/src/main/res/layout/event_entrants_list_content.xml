@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:orientation="horizontal"
+    android:id="@+id/entrantListRow">
+
+    <TextView
+        android:id="@+id/image_placeholder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:textSize="15sp"
+        android:text="Image placeholder"/>
+
+    <TextView
+        android:id="@+id/entrant_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:textSize="15sp"
+        android:text="Name"/>
+
+    <Button
+        android:id="@+id/button_details"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Details" />
+
+
+</LinearLayout>
