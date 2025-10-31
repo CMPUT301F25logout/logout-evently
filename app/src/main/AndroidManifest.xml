@@ -11,6 +11,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Evently">
+
+        <!-- Default icon, color, and channel for notification -->
+        <meta-data
+            android:name="com.example.evently.default_notification_icon"
+            android:resource="@drawable/ic_notifs" />
+        <meta-data
+            android:name="com.example.evently.default_notification_color"
+            android:resource="@color/material_dynamic_secondary10" />
+        <meta-data
+            android:name="com.example.evently.default_notification_channel_id"
+            android:value="@string/default_notif_channel" />
+
         <activity
             android:name=".ui.auth.AuthActivity"
             android:exported="true">
