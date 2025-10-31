@@ -8,12 +8,11 @@ import java.util.List;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.evently.data.model.EventStatus;
 import com.example.evently.data.model.Event;
+import com.example.evently.data.model.EventStatus;
 import com.example.evently.databinding.FragmentEventBinding;
 
 /**
@@ -34,7 +33,6 @@ public class EventRecyclerViewAdapter
     public EventRecyclerViewAdapter(List<Event> items) {
         mValues = items;
     }
-
 
     @NonNull @Override
     public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -60,17 +58,15 @@ public class EventRecyclerViewAdapter
         switch (status) {
             case OPEN -> {
                 binding.txtStatus.setText("Open");
-                binding.txtselectionDate.setVisibility(android.view.View.VISIBLE);
-                binding.txtselectionDate.setText(
-                        MessageFormat.format("Selection on {0}", some_date.format(holder.mItem.selectionTime()))
-                );
+                binding.txtselectionDate.setText(MessageFormat.format(
+                        "Selection on {0}", some_date.format(holder.mItem.selectionTime())));
             }
             case CLOSED -> {
                 binding.txtStatus.setText("Closed");
-                binding.txtselectionDate.setVisibility(android.view.View.VISIBLE);
                 binding.txtselectionDate.setText("Waitlist closed");
             }
         }
+        binding.txtselectionDate.setVisibility(android.view.View.VISIBLE);
 
         // Event date
         binding.txtDate.setText(some_date.format(holder.mItem.eventTime()));
@@ -92,11 +88,6 @@ public class EventRecyclerViewAdapter
         public EventViewHolder(FragmentEventBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
-        }
-
-        @NonNull @Override
-        public String toString() {
-            return super.toString();
         }
     }
 }
