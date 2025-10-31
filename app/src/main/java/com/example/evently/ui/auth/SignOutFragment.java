@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import com.example.evently.databinding.FragmentSignoutBinding;
 
@@ -57,12 +58,18 @@ public class SignOutFragment extends Fragment {
         signOutBtn.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
 
-            // Signal the parent activity about the sign out being successful so they can handle the
-            // rest.
-            var res = new Bundle();
-            // The bundle doesn't actually need to contain anything. This request is more like a
-            // signal than a result.
-            getParentFragmentManager().setFragmentResult(resultKey, res);
+            // Disable FCM auto init and remove the token so the device no longer gets
+            // notifications.
+            FirebaseMessaging.getInstance().setAutoInitEnabled(false);
+            FirebaseMessaging.getInstance().deleteToken().addOnCompleteListener(d -> {
+                // Signal the parent activity about the sign out being successful so they can handle
+                // the
+                // rest.
+                var res = new Bundle();
+                // The bundle doesn't actually need to contain anything. This request is more like a
+                // signal than a result.
+                getParentFragmentManager().setFragmentResult(resultKey, res);
+            });
         });
     }
 }

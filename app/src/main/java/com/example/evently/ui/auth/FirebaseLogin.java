@@ -48,7 +48,7 @@ class FirebaseLogin {
 
     /**
      * @return Whether local storage contains a session ID already (i.e user can be logged back in automatically)
-     * @apiNote It is expected that other activities use FirebaseAuth::getCurrentUser when needed to get the
+     * @apiNote It is expected that other activities use FirebaseAuthUtils::getCurrentEmail when needed to get the
      *  logged in user. This way, the user doesn't need to be passed around everywhere and saved to local storage
      *  manually. Firebase already does that.
      */
