@@ -10,4 +10,10 @@
         android:name="com.example.evently.ui.entrant.BrowseEventsFragment"
         android:label="Browse"
         tools:layout="@layout/fragment_event_list"/>
+
+    <fragment
+        android:id="@+id/nav_notifs"
+        android:name="com.example.evently.ui.entrant.ViewNotificationsFragment"
+        android:label="Notifications"
+        tools:layout="@layout/fragment_notifs"/>
 </navigation>
