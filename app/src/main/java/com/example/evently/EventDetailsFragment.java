@@ -20,6 +20,17 @@ import com.example.evently.data.model.Account;
 import com.example.evently.data.model.Event;
 import com.example.evently.databinding.FragmentEventDetailsBinding;
 
+/**
+ * Fragment that displays the event information as well as the entrants that have been waitlisted.
+ *
+ *
+ * Things to implement:
+ * Images for the event and accounts
+ * QR Code
+ * Extending the description if it's too long
+ *
+ * Layout: fragment_event_details.xml
+ */
 public class EventDetailsFragment extends Fragment {
     private FragmentEventDetailsBinding binding;
 
@@ -54,23 +65,44 @@ public class EventDetailsFragment extends Fragment {
         loadEntrants(entrants);
     }
 
+    /**
+     * Loads the event information into the fragment
+     * @param event The event object to load into the page
+     * @param entrantNumber The number of entrants to display the amount of people that entered
+     */
     public void loadEventInformation(Event event, int entrantNumber) {
         TextView eventName = binding.eventName;
         TextView image = binding.eventPicture;
         TextView desc = binding.eventDescription;
         TextView entrantCount = binding.entryCount;
 
+        String entrantCountStr = String.valueOf(entrantNumber);
+
+        // Display according information depending on if the event has an entrant limit
+        if (event.entrantLimit().isPresent()) {
+            entrantCountStr = String.valueOf(entrantNumber) + "/"
+                    + String.valueOf(event.entrantLimit().get());
+        }
+
+        entrantCount.setText(entrantCountStr);
         eventName.setText(event.name());
         desc.setText(event.description());
-        entrantCount.setText(String.valueOf(entrantNumber));
     }
 
+    /**
+     * Loads the entrants into the fragment using a recycler view
+     * Uses the event_entrants_list_content.xml for the recycler view rows
+     * @param entrants The list of entrants for this given event
+     */
     public void loadEntrants(ArrayList<Account> entrants) {
         RecyclerView entrantList = binding.entrantList;
         entrantList.setLayoutManager(new LinearLayoutManager(this.getContext()));
         entrantList.setAdapter(new EntrantListAdapter(this.getContext(), entrants));
     }
 
+    /**
+     * Adds dummy data for visualizing the fragment
+     */
     public void addDummyData() {
         event = new Event(
                 "Sample Event Name",
@@ -79,6 +111,7 @@ public class EventDetailsFragment extends Fragment {
                 new Date(),
                 UUID.randomUUID(),
                 Optional.of((long) 100),
+                // Optional.empty(),
                 10);
 
         entrants.add(new Account(

@@ -12,6 +12,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.evently.data.model.Account;
 
+/**
+ * Recycler view that displays each entrant as a row with their profile picture and name
+ */
 public class EntrantListAdapter extends RecyclerView.Adapter<EntrantListAdapter.ViewHolder> {
     private ArrayList<Account> entrants;
     private LayoutInflater inflater;
@@ -43,9 +46,11 @@ public class EntrantListAdapter extends RecyclerView.Adapter<EntrantListAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull EntrantListAdapter.ViewHolder holder, int position) {
+        // Define the image and names
         String img = "Image placeholder";
         String name = entrants.get(position).name();
 
+        // Set the images and name of each person
         holder.image.setText(img);
         holder.name.setText(name);
     }
