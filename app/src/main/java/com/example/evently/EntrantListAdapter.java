@@ -6,18 +6,19 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.evently.data.model.MockUser;
+import com.example.evently.data.model.Account;
+
+
 
 public class EntrantListAdapter extends RecyclerView.Adapter<EntrantListAdapter.ViewHolder> {
-    private ArrayList<MockUser> entrants;
+    private ArrayList<Account> entrants;
     private LayoutInflater inflater;
 
-    EntrantListAdapter(Context context, ArrayList<MockUser> entrants) {
+    EntrantListAdapter(Context context, ArrayList<Account> entrants) {
         this.entrants = entrants;
         this.inflater = LayoutInflater.from(context);
     }
@@ -25,7 +26,6 @@ public class EntrantListAdapter extends RecyclerView.Adapter<EntrantListAdapter.
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView image;
         TextView name;
-        Button details;
 
         public ViewHolder(View view) {
             super(view);
@@ -33,7 +33,6 @@ public class EntrantListAdapter extends RecyclerView.Adapter<EntrantListAdapter.
 
             this.image = view.findViewById(R.id.image_placeholder);
             this.name = view.findViewById(R.id.entrant_name);
-            this.details = view.findViewById(R.id.button_details);
         }
     }
 
@@ -46,8 +45,8 @@ public class EntrantListAdapter extends RecyclerView.Adapter<EntrantListAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull EntrantListAdapter.ViewHolder holder, int position) {
-        String img = entrants.get(position).image();
-        String name = entrants.get(position).username();
+        String img = "Image placeholder";
+        String name = entrants.get(position).name();
 
         holder.image.setText(img);
         holder.name.setText(name);

@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.evently.data.model.Event;
-import com.example.evently.data.model.MockUser;
+import com.example.evently.data.model.Account;
 import com.example.evently.databinding.FragmentEventDetailsBinding;
 
 import java.util.ArrayList;
@@ -26,8 +26,7 @@ public class EventDetailsFragment extends Fragment {
     private FragmentEventDetailsBinding binding;
 
     Event event;
-    ArrayList<MockUser> entrants;
-
+    ArrayList<Account> entrants;
 
     @Override
     public View onCreateView(
@@ -48,31 +47,37 @@ public class EventDetailsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        entrants = new ArrayList<MockUser>();
+        entrants = new ArrayList<Account>();
 
         addDummyData();
 
-        loadEventInformation(event, entrants);
+        loadEventInformation(event, entrants.size());
+
+        loadEntrants(entrants);
     }
 
-    public void loadEventInformation(Event event, ArrayList<MockUser> entrants) {
+    public void loadEventInformation(Event event, int entrantNumber) {
         TextView eventName = binding.eventName;
         TextView image = binding.eventPicture;
         TextView desc = binding.eventDescription;
         TextView entrantCount = binding.entryCount;
-        RecyclerView entrantList = binding.entrantList;
+
 
         eventName.setText(event.name());
         desc.setText(event.description());
-        entrantCount.setText(String.valueOf(entrants.size()));
+        entrantCount.setText(String.valueOf(entrantNumber));
+    }
 
+    public void loadEntrants(ArrayList<Account> entrants)
+    {
+        RecyclerView entrantList = binding.entrantList;
         entrantList.setLayoutManager(new LinearLayoutManager(this.getContext()));
         entrantList.setAdapter(new EntrantListAdapter(this.getContext(), entrants));
     }
 
     public void addDummyData() {
         event = new Event(
-                "J",
+                "Sample Event Name",
                 "Blah Blah Blah Description",
                 new Date(),
                 new Date(),
@@ -80,7 +85,17 @@ public class EventDetailsFragment extends Fragment {
                 Optional.of((long) 100),
                 10);
 
-        entrants.add(new MockUser("U", "First Image"));
-        entrants.add(new MockUser("L", "Second Image"));
+        entrants.add(new Account("Email 1@gmail.com", "Name 1", Optional.of("780"), "Email 10@gmail.com"));
+        entrants.add(new Account("Email 2@gmail.com", "Name 2", Optional.empty(), "Emtail 20@gmail.com"));
+
+        for (int i = 0; i < 15; i++)
+        {
+            int num = i*10;
+            String n = String.valueOf(num);
+            String email = "Email " + n + "@gmail.com";
+            String name = "Name " + n;
+            Account a = new Account(email, name, Optional.empty(), email +" v");
+            entrants.add(a);
+        }
     }
 }

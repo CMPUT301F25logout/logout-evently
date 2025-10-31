@@ -1,7 +1,5 @@
 package com.example.evently;
 
-import java.util.ArrayList;
-
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.activity.EdgeToEdge;
@@ -10,88 +8,26 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.evently.data.model.Event;
-import com.example.evently.data.model.MockUser;
-import com.example.evently.ui.auth.AuthActivity;
-import com.example.evently.ui.auth.SignOutFragment;
 
 public class MainActivity extends AppCompatActivity {
-    /*
-    Event event;
-    ArrayList<MockUser> entrants;
-    */
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        //setContentView(R.layout.fragment_event_details);
         setContentView(R.layout.activity_main);
-        //ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.event_details), (v, insets) -> {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        /*
-        entrants = new ArrayList<MockUser>();
 
-        addDummyData();
 
-        loadEventInformation(event, entrants);
-         */
-        // This is merely an example of using the SignOut fragment and may be removed.
+        // Testing event details
         getSupportFragmentManager()
                 .beginTransaction()
                 .setReorderingAllowed(true)
-                .add(R.id.sign_out_container, EventDetailsFragment.class, null)
+                .add(R.id.event_details, EventDetailsFragment.class, null)
                 .commit();
-
-        /*
-        getSupportFragmentManager()
-                .beginTransaction()
-                .setReorderingAllowed(true)
-                .add(R.id.sign_out_container, SignOutFragment.class, null)
-                .commit();
-
-        getSupportFragmentManager()
-                .setFragmentResultListener(
-                        SignOutFragment.resultKey, this, (var key, var bundle) -> {
-                            // Sign out succeeded through fragment, go back to auth activity.
-                            var intent = new Intent(MainActivity.this, AuthActivity.class);
-                            startActivity(intent);
-                            finish();
-                        });
-         */
     }
-
-    /*
-    public void loadEventInformation(Event event, ArrayList<MockUser> entrants) {
-        TextView eventName = findViewById(R.id.eventName);
-        TextView image = findViewById(R.id.eventPicture);
-        TextView desc = findViewById(R.id.eventDescription);
-        TextView entrantCount = findViewById(R.id.entryCount);
-        RecyclerView entrantList = findViewById(R.id.entrantList);
-
-        eventName.setText(event.name());
-        desc.setText(event.description());
-        entrantCount.setText(String.valueOf(entrants.size()));
-
-        entrantList.setLayoutManager(new LinearLayoutManager(this));
-        entrantList.setAdapter(new EntrantListAdapter(this, entrants));
-    }
-
-    public void addDummyData() {
-        event = new Event(
-                "J",
-                "Blah Blah Blah Description",
-                new Date(),
-                new Date(),
-                UUID.randomUUID(),
-                Optional.of((long) 100),
-                10);
-
-        entrants.add(new MockUser("U", "First Image"));
-        entrants.add(new MockUser("L", "Second Image"));
-    }
-     */
 }
