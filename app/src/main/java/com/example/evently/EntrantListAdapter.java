@@ -12,8 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.evently.data.model.Account;
 
-
-
 public class EntrantListAdapter extends RecyclerView.Adapter<EntrantListAdapter.ViewHolder> {
     private ArrayList<Account> entrants;
     private LayoutInflater inflater;
