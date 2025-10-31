@@ -1,5 +1,6 @@
 package com.example.evently;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -23,6 +24,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.example.evently.ui.auth.AuthActivity;
+import com.example.evently.ui.auth.SignOutFragment;
 
 public class MainActivity extends AppCompatActivity {
 
