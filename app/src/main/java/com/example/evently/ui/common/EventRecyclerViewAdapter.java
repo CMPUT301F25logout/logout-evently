@@ -83,18 +83,16 @@ public class EventRecyclerViewAdapter
 
     public static class EventViewHolder extends RecyclerView.ViewHolder {
         public final FragmentEventBinding binding;
-        public final TextView mContentView;
         public Event mItem;
 
         public EventViewHolder(FragmentEventBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
-            this.mContentView = binding.content; // title text
         }
 
         @NonNull @Override
         public String toString() {
-            return super.toString() + " '" + mContentView.getText() + "'";
+            return super.toString();
         }
     }
 }
