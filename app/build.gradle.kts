@@ -22,6 +22,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
+
         // Load API credentials
         val keystoreFile = project.rootProject.file("keys.properties")
         val properties = Properties()
@@ -34,6 +35,7 @@ android {
             name = "GOOGLE_CLIENT_ID",
             value = gclientID
         )
+
     }
 
     buildTypes {

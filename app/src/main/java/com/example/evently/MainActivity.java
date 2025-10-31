@@ -1,32 +1,22 @@
 package com.example.evently;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Optional;
+import java.util.UUID;
 
+import android.os.Bundle;
+import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.evently.data.model.Event;
 import com.example.evently.data.model.MockUser;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import com.example.evently.ui.auth.AuthActivity;
-import com.example.evently.ui.auth.SignOutFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,8 +24,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<MockUser> entrants;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.fragment_event_details);
@@ -52,10 +41,7 @@ public class MainActivity extends AppCompatActivity {
         loadEventInformation(event, entrants);
     }
 
-
-
-    public void loadEventInformation(Event event, ArrayList<MockUser> entrants)
-    {
+    public void loadEventInformation(Event event, ArrayList<MockUser> entrants) {
         TextView eventName = findViewById(R.id.eventName);
         TextView image = findViewById(R.id.eventPicture);
         TextView desc = findViewById(R.id.eventDescription);
@@ -68,15 +54,19 @@ public class MainActivity extends AppCompatActivity {
 
         entrantList.setLayoutManager(new LinearLayoutManager(this));
         entrantList.setAdapter(new EntrantListAdapter(this, entrants));
-
     }
 
-    public void addDummyData()
-    {
-        event = new Event("J", "Blah Blah Blah Description", new Date(), new Date(), UUID.randomUUID(), Optional.of((long)100), 10);
+    public void addDummyData() {
+        event = new Event(
+                "J",
+                "Blah Blah Blah Description",
+                new Date(),
+                new Date(),
+                UUID.randomUUID(),
+                Optional.of((long) 100),
+                10);
 
         entrants.add(new MockUser("U", "First Image"));
         entrants.add(new MockUser("L", "Second Image"));
     }
-
 }
