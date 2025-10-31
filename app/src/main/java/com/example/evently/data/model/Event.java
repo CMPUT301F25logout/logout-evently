@@ -1,6 +1,6 @@
 package com.example.evently.data.model;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,8 +21,8 @@ import java.util.UUID;
 public record Event(
         String name,
         String description,
-        Date selectionTime,
-        Date eventTime,
+        Instant selectionTime,
+        Instant eventTime,
         UUID organizer,
         Optional<Long> entrantLimit,
         long selectionLimit) {}
