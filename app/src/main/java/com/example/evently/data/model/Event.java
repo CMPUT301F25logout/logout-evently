@@ -4,10 +4,6 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
-import android.media.Image;
-
-import com.example.evently.data.EventStatus;
-
 // TODO (chase): Add image once we decide how to store them.
 // TODO (chase): Add location once geolocation support is being worked on.
 /**
@@ -29,17 +25,18 @@ public record Event(
         Instant eventTime,
         UUID organizer,
         Optional<Long> entrantLimit,
-        long selectionLimit,
-        Image poster) {
+        long selectionLimit) {
+
+    /**
+     * Calculate the status of the event at given time.
+     * @param now Time to compare to.
+     * @return whether the event is closed or open at given time.
+     */
     public EventStatus computeStatus(Instant now) {
-        Instant selDate = selectionTime();
-        if (selDate == null) return EventStatus.CLOSED; // if selection date is never given
-        if (now.isBefore(selDate)) {
+        if (now.isBefore(this.selectionTime)) {
             return EventStatus.OPEN;
         } else {
             return EventStatus.CLOSED;
         }
     }
-
 }
-

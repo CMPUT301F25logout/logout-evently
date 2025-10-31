@@ -22,8 +22,7 @@ public class OwnEventsFragment extends EventsFragment {
                 Instant.parse("2025-11-09T09:00:00.00Z"),
                 UUID.randomUUID(),
                 Optional.empty(),
-                42,
-                null));
+                42));
         callback.accept(placeHolderEvents);
     }
 }

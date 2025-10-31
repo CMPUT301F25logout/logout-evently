@@ -8,11 +8,11 @@ import java.util.List;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.evently.data.EventStatus;
+import com.example.evently.data.model.EventStatus;
 import com.example.evently.data.model.Event;
 import com.example.evently.databinding.FragmentEventBinding;
 
