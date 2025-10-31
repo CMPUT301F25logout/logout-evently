@@ -14,6 +14,7 @@ import androidx.credentials.exceptions.GetCredentialUnsupportedException;
 import androidx.credentials.exceptions.NoCredentialException;
 
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import com.example.evently.R;
 import com.example.evently.databinding.ActivityAuthBinding;
@@ -148,6 +149,8 @@ public class AuthActivity extends AppCompatActivity {
     }
 
     private void successfulLogin(AuthResult res) {
+        // Once user has logged in - they're free to receive FCM stuff again.
+        FirebaseMessaging.getInstance().setAutoInitEnabled(true);
         startActivity(transition);
         finish();
     }
