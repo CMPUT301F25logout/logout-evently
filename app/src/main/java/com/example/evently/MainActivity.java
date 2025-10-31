@@ -1,46 +1,70 @@
 package com.example.evently;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Optional;
-import java.util.UUID;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.evently.data.model.Event;
 import com.example.evently.data.model.MockUser;
+import com.example.evently.ui.auth.AuthActivity;
+import com.example.evently.ui.auth.SignOutFragment;
 
 public class MainActivity extends AppCompatActivity {
-
+    /*
     Event event;
     ArrayList<MockUser> entrants;
-
+    */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.fragment_event_details);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.event_details), (v, insets) -> {
+        //setContentView(R.layout.fragment_event_details);
+        setContentView(R.layout.activity_main);
+        //ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.event_details), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
+        /*
         entrants = new ArrayList<MockUser>();
 
         addDummyData();
 
         loadEventInformation(event, entrants);
+         */
+        // This is merely an example of using the SignOut fragment and may be removed.
+        getSupportFragmentManager()
+                .beginTransaction()
+                .setReorderingAllowed(true)
+                .add(R.id.sign_out_container, EventDetailsFragment.class, null)
+                .commit();
+
+        /*
+        getSupportFragmentManager()
+                .beginTransaction()
+                .setReorderingAllowed(true)
+                .add(R.id.sign_out_container, SignOutFragment.class, null)
+                .commit();
+
+        getSupportFragmentManager()
+                .setFragmentResultListener(
+                        SignOutFragment.resultKey, this, (var key, var bundle) -> {
+                            // Sign out succeeded through fragment, go back to auth activity.
+                            var intent = new Intent(MainActivity.this, AuthActivity.class);
+                            startActivity(intent);
+                            finish();
+                        });
+         */
     }
 
+    /*
     public void loadEventInformation(Event event, ArrayList<MockUser> entrants) {
         TextView eventName = findViewById(R.id.eventName);
         TextView image = findViewById(R.id.eventPicture);
@@ -69,4 +93,5 @@ public class MainActivity extends AppCompatActivity {
         entrants.add(new MockUser("U", "First Image"));
         entrants.add(new MockUser("L", "Second Image"));
     }
+     */
 }
