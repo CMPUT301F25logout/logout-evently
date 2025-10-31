@@ -53,6 +53,12 @@ android {
         buildConfig = true
         viewBinding = true
     }
+
+    lint {
+        checkAllWarnings = true
+        abortOnError = true
+        warningsAsErrors = false
+    }
 }
 
 spotless {
