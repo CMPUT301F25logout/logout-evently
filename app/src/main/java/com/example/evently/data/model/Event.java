@@ -6,6 +6,8 @@ import java.util.UUID;
 
 import android.media.Image;
 
+import com.example.evently.data.EventStatus;
+
 // TODO (chase): Add image once we decide how to store them.
 // TODO (chase): Add location once geolocation support is being worked on.
 /**
@@ -28,4 +30,16 @@ public record Event(
         UUID organizer,
         Optional<Long> entrantLimit,
         long selectionLimit,
-        Image poster) {}
+        Image poster) {
+    public EventStatus computeStatus(Instant now) {
+        Instant selDate = selectionTime();
+        if (selDate == null) return EventStatus.CLOSED; // if selection date is never given
+        if (now.isBefore(selDate)) {
+            return EventStatus.OPEN;
+        } else {
+            return EventStatus.CLOSED;
+        }
+    }
+
+}
+

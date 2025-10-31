@@ -1,6 +1,7 @@
 package com.example.evently.ui.common;
 
 import java.text.MessageFormat;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.evently.data.EventStatus;
 import com.example.evently.data.model.Event;
 import com.example.evently.databinding.FragmentEventBinding;
 
@@ -33,6 +35,7 @@ public class EventRecyclerViewAdapter
         mValues = items;
     }
 
+
     @NonNull @Override
     public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new EventViewHolder(FragmentEventBinding.inflate(
@@ -52,20 +55,21 @@ public class EventRecyclerViewAdapter
         binding.imgPoster.setImageResource(android.R.drawable.ic_menu_report_image);
 
         // Status + selectionDate
-        String[] statuses = new String[] {"Confirmed", "Open", "Closed"};
-        String status = statuses[position % statuses.length];
-        binding.txtStatus.setText(status);
+        EventStatus status = holder.mItem.computeStatus(Instant.now());
 
-        if ("Open".equals(status)) {
-            binding.txtselectionDate.setVisibility(android.view.View.VISIBLE);
-            binding.txtselectionDate.setText(MessageFormat.format(
-                    "Selection on {0}", some_date.format(holder.mItem.selectionTime())));
-
-        } else if ("Closed".equals(status)) {
-            binding.txtselectionDate.setVisibility(android.view.View.VISIBLE);
-            binding.txtselectionDate.setText("Waitlist closed");
-        } else {
-            binding.txtselectionDate.setVisibility(android.view.View.GONE);
+        switch (status) {
+            case OPEN -> {
+                binding.txtStatus.setText("Open");
+                binding.txtselectionDate.setVisibility(android.view.View.VISIBLE);
+                binding.txtselectionDate.setText(
+                        MessageFormat.format("Selection on {0}", some_date.format(holder.mItem.selectionTime()))
+                );
+            }
+            case CLOSED -> {
+                binding.txtStatus.setText("Closed");
+                binding.txtselectionDate.setVisibility(android.view.View.VISIBLE);
+                binding.txtselectionDate.setText("Waitlist closed");
+            }
         }
 
         // Event date
