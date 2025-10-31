@@ -15,9 +15,9 @@ import androidx.credentials.exceptions.NoCredentialException;
 
 import com.google.firebase.auth.AuthResult;
 
-import com.example.evently.MainActivity;
 import com.example.evently.R;
 import com.example.evently.databinding.ActivityAuthBinding;
+import com.example.evently.ui.entrant.EntrantActivity;
 import com.example.evently.utils.AuthConstants;
 
 /**
@@ -56,7 +56,7 @@ public class AuthActivity extends AppCompatActivity {
 
         firebaseLogin = new FirebaseLogin(this);
         activityRecreated = savedInstanceState != null;
-        transition = new Intent(AuthActivity.this, MainActivity.class);
+        transition = new Intent(AuthActivity.this, EntrantActivity.class);
 
         // Manual buttons in case user refuses the auto login prompt.
         binding.login.setOnClickListener(v -> tryLoggingIn(0));
