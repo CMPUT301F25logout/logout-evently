@@ -3,14 +3,15 @@ package com.example.evently.ui.entrant;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
 /**
- * Dialog shown for "Winner" notifications. i.e invited to event.
- * These not only show the notification title, message etc. but also the "accept or decline" buttons.
+ * Generic notification dialog used for all non-winner notifications.
+ * These simply have an "ok" button. No further action is required.
  */
-public class NotificationWinnerDialog extends DialogFragment {
+public class NotificationGenericDialog extends DialogFragment {
     @NonNull @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
@@ -25,12 +26,7 @@ public class NotificationWinnerDialog extends DialogFragment {
         var message = args.getString("description");
         builder.setTitle(title)
                 .setMessage(message)
-                .setPositiveButton("Accept", (dialog, id) -> {
-                    // TODO (chase): Store this entrant in the accepted list for this event.
-                    // TODO (chase): Store this entrant in the "seenBy" list of this notification.
-                })
-                .setNegativeButton("Decline", (dialog, id) -> {
-                    // TODO (chase): Store this entrant in the cancelled list for this event.
+                .setPositiveButton("OK", (dialog, id) -> {
                     // TODO (chase): Store this entrant in the "seenBy" list of this notification.
                 });
         return builder.create();
