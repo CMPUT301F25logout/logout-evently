@@ -78,6 +78,11 @@ public class NotificationRecyclerViewAdapter
         return mValues.size();
     }
 
+    /**
+     * Find the position of the item that matches the given predicate.
+     * @param predicate Function that should return true if the right item is found.
+     * @return The position of the item if found, or nothing.
+     */
     public OptionalInt findItemPosition(Predicate<Notification> predicate) {
         return IntStream.range(0, mValues.size())
                 .filter(i -> predicate.test(mValues.get(i)))

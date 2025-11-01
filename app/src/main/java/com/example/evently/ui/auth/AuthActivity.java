@@ -1,7 +1,6 @@
 package com.example.evently.ui.auth;
 
 import java.util.Objects;
-import java.util.UUID;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,8 +13,6 @@ import androidx.credentials.exceptions.GetCredentialInterruptedException;
 import androidx.credentials.exceptions.GetCredentialUnsupportedException;
 import androidx.credentials.exceptions.NoCredentialException;
 
-import com.example.evently.utils.IntentConstants;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import com.example.evently.R;

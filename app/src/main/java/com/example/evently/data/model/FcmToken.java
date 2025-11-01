@@ -13,7 +13,7 @@ import java.util.HashMap;
 public record FcmToken(String token, Instant creationTime) {
 
     public HashMap<String, Object> toHashMap() {
-        var mp = new HashMap<String, Object>();
+        final var mp = new HashMap<String, Object>();
         mp.put("token", token);
         mp.put("timestamp", creationTime);
         return mp;
