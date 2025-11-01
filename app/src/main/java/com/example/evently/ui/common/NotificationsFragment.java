@@ -49,7 +49,7 @@ public abstract class NotificationsFragment extends Fragment {
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_event_list, container, false);
-
+        // TODO (chase): The bundle may have a notification ID passed in that we're meant to highlight.
         if (view instanceof RecyclerView recyclerView) {
             // Set the adapter
             Context context = recyclerView.getContext();
@@ -63,7 +63,7 @@ public abstract class NotificationsFragment extends Fragment {
 
             return view;
         } else {
-            throw new AssertionError("EventsFragment.onCreateView called with non RecyclerView");
+            throw new AssertionError("NotificationsFragment.onCreateView called with non RecyclerView");
         }
     }
 }
