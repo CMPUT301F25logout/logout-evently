@@ -1,10 +1,10 @@
 package com.example.evently.utils;
 
-import com.example.evently.data.model.Category;
-import com.example.evently.data.model.Event;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import com.example.evently.data.model.Category;
+import com.example.evently.data.model.Event;
 
 /**
  * A utility class to help with anything related to events.
