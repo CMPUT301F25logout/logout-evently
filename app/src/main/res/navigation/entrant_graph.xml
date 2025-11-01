@@ -9,5 +9,19 @@
         android:id="@+id/nav_home"
         android:name="com.example.evently.ui.entrant.BrowseEventsFragment"
         android:label="Browse"
-        tools:layout="@layout/fragment_event_list"/>
+        tools:layout="@layout/fragment_event_list">
+        <action
+            android:id="@+id/action_nav_home_to_event_details"
+            app:destination="@id/event_details" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/event_details"
+        android:name="com.example.evently.EventDetailsFragment"
+        android:label="fragment_event_details"
+        tools:layout="@layout/fragment_event_details" >
+        <argument
+            android:name="eventId"
+            app:argType="string" />
+    </fragment>
 </navigation>
