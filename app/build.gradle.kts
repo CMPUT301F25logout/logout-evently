@@ -22,7 +22,6 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-
         // Load API credentials
         val keystoreFile = project.rootProject.file("keys.properties")
         val properties = Properties()
@@ -35,7 +34,6 @@ android {
             name = "GOOGLE_CLIENT_ID",
             value = gclientID
         )
-
     }
 
     buildTypes {
@@ -102,6 +100,10 @@ dependencies {
     implementation(libs.play.services.auth)
 
     implementation(libs.recyclerview)
+    implementation(libs.navigation.fragment)
+    implementation(libs.navigation.ui)
+    implementation(libs.recyclerview)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.runner)
     androidTestImplementation(libs.ext.junit)

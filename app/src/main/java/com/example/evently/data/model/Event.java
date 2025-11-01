@@ -1,6 +1,6 @@
 package com.example.evently.data.model;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,8 +21,22 @@ import java.util.UUID;
 public record Event(
         String name,
         String description,
-        Date selectionTime,
-        Date eventTime,
+        Instant selectionTime,
+        Instant eventTime,
         UUID organizer,
         Optional<Long> entrantLimit,
-        long selectionLimit) {}
+        long selectionLimit) {
+
+    /**
+     * Calculate the status of the event at given time.
+     * @param now Time to compare to.
+     * @return whether the event is closed or open at given time.
+     */
+    public EventStatus computeStatus(Instant now) {
+        if (now.isBefore(this.selectionTime)) {
+            return EventStatus.OPEN;
+        } else {
+            return EventStatus.CLOSED;
+        }
+    }
+}
