@@ -1,7 +1,6 @@
 package com.example.evently.ui.auth;
 
 import java.util.Objects;
-import java.util.Optional;
 
 import android.os.Bundle;
 import android.text.Editable;
@@ -23,8 +22,6 @@ import androidx.fragment.app.Fragment;
 
 import com.google.firebase.auth.AuthResult;
 
-import com.example.evently.data.AccountDB;
-import com.example.evently.data.model.Account;
 import com.example.evently.databinding.FragmentRegisterBinding;
 import com.example.evently.utils.AuthConstants;
 
@@ -175,7 +172,6 @@ public class RegisterFragment extends Fragment {
         dbData.putString("name", name);
         dbData.putString("phone", phone);
         getParentFragmentManager().setFragmentResult(resultKey, dbData);
-
     }
 
     private void unrecoverableError(Exception e) {

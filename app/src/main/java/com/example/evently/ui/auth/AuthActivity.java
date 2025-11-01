@@ -14,11 +14,11 @@ import androidx.credentials.exceptions.GetCredentialInterruptedException;
 import androidx.credentials.exceptions.GetCredentialUnsupportedException;
 import androidx.credentials.exceptions.NoCredentialException;
 
-import com.example.evently.data.AccountDB;
-import com.example.evently.data.model.Account;
 import com.google.firebase.auth.AuthResult;
 
 import com.example.evently.R;
+import com.example.evently.data.AccountDB;
+import com.example.evently.data.model.Account;
 import com.example.evently.databinding.ActivityAuthBinding;
 import com.example.evently.ui.entrant.EntrantActivity;
 import com.example.evently.utils.AuthConstants;
@@ -100,7 +100,6 @@ public class AuthActivity extends AppCompatActivity {
         getSupportFragmentManager()
                 .setFragmentResultListener(
                         RegisterFragment.resultKey, this, (var key, var bundle) -> {
-
                             String email = bundle.getString("email");
                             String name = bundle.getString("name");
                             String phone = bundle.getString("phone");
@@ -122,7 +121,10 @@ public class AuthActivity extends AppCompatActivity {
                                             // NOTE: If the bundle contains an email that already
                                             // exists in the DB, show an error and prompt the user
                                             // to login instead of registering.
-                                            Toast.makeText(this, "Account already registered: Please login", Toast.LENGTH_SHORT)
+                                            Toast.makeText(
+                                                            this,
+                                                            "Account already registered: Please login",
+                                                            Toast.LENGTH_SHORT)
                                                     .show();
 
                                             /**
@@ -132,14 +134,12 @@ public class AuthActivity extends AppCompatActivity {
                                              * Response: https://stackoverflow.com/a/25122894
                                              * Response Author: "Martin"
                                              */
-                                            findViewById(R.id.register_form_container).setVisibility(View.GONE);
+                                            findViewById(R.id.register_form_container)
+                                                    .setVisibility(View.GONE);
                                             binding.login.setVisibility(View.VISIBLE);
-
                                         }
                                     },
                                     e -> {});
-
-
                         });
         hasRegisterForm = true;
     }
@@ -147,7 +147,28 @@ public class AuthActivity extends AppCompatActivity {
     private void tryLoggingIn(int retryCount) {
         firebaseLogin.launchLogin(
                 false,
-                this::successfulLogin,
+                res -> {
+                    var user = Objects.requireNonNull(res.getUser());
+                    String email = Objects.requireNonNull(user.getEmail()).toString();
+
+                    new AccountDB()
+                            .fetchAccount(
+                                    email,
+                                    optionalAccount -> {
+                                        if (optionalAccount.isPresent()) {
+
+                                            successfulLogin(res);
+                                        } else {
+                                            Toast.makeText(
+                                                            this,
+                                                            "Account not found: Please register",
+                                                            Toast.LENGTH_SHORT)
+                                                    .show();
+                                            showRegisterForm();
+                                        }
+                                    },
+                                    e -> {});
+                },
                 e -> {
                     switch (e) {
                         case GetCredentialCancellationException ce -> {
