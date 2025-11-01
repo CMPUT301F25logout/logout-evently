@@ -29,6 +29,7 @@ import com.example.evently.utils.FirebaseMessagingUtils;
  */
 public abstract class ArchitectureActivity extends AppCompatActivity {
     private ActivityArchitectureBinding binding;
+    protected NavController navController;
 
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(
@@ -62,7 +63,7 @@ public abstract class ArchitectureActivity extends AppCompatActivity {
         NavHostFragment navHostFragment = (NavHostFragment)
                 getSupportFragmentManager().findFragmentById(fragmentContainer.getId());
         assert navHostFragment != null;
-        NavController navController = navHostFragment.getNavController();
+        navController = navHostFragment.getNavController();
         navController.setGraph(this.getGraph());
         NavigationUI.setupWithNavController(navBar, navController);
 

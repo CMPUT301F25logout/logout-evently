@@ -1,6 +1,7 @@
 package com.example.evently.ui.auth;
 
 import java.util.Objects;
+import java.util.UUID;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import androidx.credentials.exceptions.GetCredentialInterruptedException;
 import androidx.credentials.exceptions.GetCredentialUnsupportedException;
 import androidx.credentials.exceptions.NoCredentialException;
 
+import com.example.evently.utils.IntentConstants;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.messaging.FirebaseMessaging;
 
@@ -45,9 +47,6 @@ public class AuthActivity extends AppCompatActivity {
     private FirebaseLogin firebaseLogin;
     private ActivityAuthBinding binding;
 
-    // Utility for transitioning to the next activity.
-    private Intent transition;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +56,6 @@ public class AuthActivity extends AppCompatActivity {
 
         firebaseLogin = new FirebaseLogin(this);
         activityRecreated = savedInstanceState != null;
-        transition = new Intent(AuthActivity.this, EntrantActivity.class);
 
         // Manual buttons in case user refuses the auto login prompt.
         binding.login.setOnClickListener(v -> tryLoggingIn(0));
@@ -77,8 +75,7 @@ public class AuthActivity extends AppCompatActivity {
 
         if (firebaseLogin.isLoggedIn()) {
             // Already signed in - move on to next activity
-            startActivity(transition);
-            finish();
+            this.successfulLogin();
             return;
         }
 
@@ -101,8 +98,7 @@ public class AuthActivity extends AppCompatActivity {
                             // TODO (chase): Persist the data in the bundle to register user.
                             // NOTE: If the bundle contains an email that already exists in the DB,
                             // show an error and prompt the user to login instead of registering.
-                            startActivity(transition);
-                            finish();
+                            successfulLogin();
                         });
         hasRegisterForm = true;
     }
@@ -110,7 +106,7 @@ public class AuthActivity extends AppCompatActivity {
     private void tryLoggingIn(int retryCount) {
         firebaseLogin.launchLogin(
                 false,
-                this::successfulLogin,
+                r -> this.successfulLogin(),
                 e -> {
                     switch (e) {
                         case GetCredentialCancellationException ce -> {
@@ -148,9 +144,16 @@ public class AuthActivity extends AppCompatActivity {
                 this::unrecoverableError);
     }
 
-    private void successfulLogin(AuthResult res) {
+    private void successfulLogin() {
         // Once user has logged in - they're free to receive FCM stuff again.
         FirebaseMessaging.getInstance().setAutoInitEnabled(true);
+        // Target is always the Entrant screen.
+        var transition = new Intent(AuthActivity.this, EntrantActivity.class);
+        // We forward any extras that we were passed.
+        var thisExtras = getIntent().getExtras();
+        if (thisExtras != null) {
+            transition.putExtras(thisExtras);
+        }
         startActivity(transition);
         finish();
     }
