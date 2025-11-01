@@ -22,6 +22,7 @@ import com.example.evently.data.model.Account;
 import com.example.evently.databinding.ActivityAuthBinding;
 import com.example.evently.ui.entrant.EntrantActivity;
 import com.example.evently.utils.AuthConstants;
+import com.google.firebase.auth.FirebaseAuth;
 
 /**
  * The overarching activity for managing authentication. This is the activity launched
@@ -121,6 +122,7 @@ public class AuthActivity extends AppCompatActivity {
                                             // NOTE: If the bundle contains an email that already
                                             // exists in the DB, show an error and prompt the user
                                             // to login instead of registering.
+                                            FirebaseAuth.getInstance().signOut();
                                             Toast.makeText(
                                                             this,
                                                             "Account already registered: Please login",
@@ -137,6 +139,7 @@ public class AuthActivity extends AppCompatActivity {
                                             findViewById(R.id.register_form_container)
                                                     .setVisibility(View.GONE);
                                             binding.login.setVisibility(View.VISIBLE);
+                                            binding.registerForm.setVisibility(View.VISIBLE);
                                         }
                                     },
                                     e -> {});
