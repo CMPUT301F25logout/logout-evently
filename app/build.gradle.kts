@@ -59,6 +59,10 @@ android {
         abortOnError = true
         warningsAsErrors = false
     }
+
+    tasks.withType<JavaCompile> {
+        options.compilerArgs.add("-Xlint:deprecation")
+    }
 }
 
 spotless {
