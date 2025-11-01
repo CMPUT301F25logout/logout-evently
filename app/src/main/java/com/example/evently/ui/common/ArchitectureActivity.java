@@ -79,6 +79,11 @@ public abstract class ArchitectureActivity extends AppCompatActivity {
         // See: https://firebase.google.com/docs/cloud-messaging/manage-tokens
     }
 
+    @Override
+    public boolean onSupportNavigateUp() {
+        return navController.navigateUp() || super.onSupportNavigateUp();
+    }
+
     private void askNotificationPermission() {
         // This is only necessary for API Level > 33 (TIRAMISU)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
