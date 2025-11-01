@@ -22,9 +22,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.entrant.EntrantActivity"
             android:exported="true">
         </activity>
+        <activity
+            android:name=".ui.organizer.OrganizerActivity"
+            android:exported="true" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="true" />
     </application>
 
 </manifest>
