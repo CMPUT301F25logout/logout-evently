@@ -65,7 +65,7 @@ public abstract class ArchitectureActivity extends AppCompatActivity {
         assert navHostFragment != null;
         navController = navHostFragment.getNavController();
         navController.setGraph(this.getGraph());
-        NavigationUI.setupWithNavController(navBar, navController);
+        NavigationUI.setupWithNavController(navBar, navController, false);
 
         askNotificationPermission();
 
