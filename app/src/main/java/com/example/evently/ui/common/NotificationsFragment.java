@@ -16,20 +16,22 @@ import com.example.evently.R;
 import com.example.evently.data.model.Notification;
 
 /**
- * A reusable abstract fragment representing a list of Events.
- * This is meant to serve as the template for all the "browse events" screens,
- * e.g: Browse all events, Browse own events etc.
+ * A reusable abstract fragment representing a list of notifications.
+ * This is meant to serve as the template for all the "browse notification" screens,
+ * e.g: Browse received notifications, Browse sent notifications etc.
  * <p>
- * Extending classes can provide initial list of events by implementing `initEvents`.
+ * Extending classes can provide initial list of notifications by implementing `initNotifications`.
  * Extending classes will also have access to the {@link NotificationRecyclerViewAdapter} to modify dynamically.
  * @see NotificationRecyclerViewAdapter
  */
 public abstract class NotificationsFragment extends Fragment {
 
     /**
-     * Adapter to manage the events list dynamically.
+     * Adapter to manage the notification list dynamically.
      */
     protected NotificationRecyclerViewAdapter adapter;
+
+    protected RecyclerView recyclerView;
 
     /**
      * Listener to attach to the notification on click.
@@ -48,9 +50,9 @@ public abstract class NotificationsFragment extends Fragment {
     @Override
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_event_list, container, false);
-        // TODO (chase): The bundle may have a notification ID passed in that we're meant to highlight.
-        if (view instanceof RecyclerView recyclerView) {
+        View view = inflater.inflate(R.layout.fragment_notifs, container, false);
+        if (view instanceof RecyclerView recyclerView_) {
+            this.recyclerView = recyclerView_;
             // Set the adapter
             Context context = recyclerView.getContext();
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
@@ -63,7 +65,8 @@ public abstract class NotificationsFragment extends Fragment {
 
             return view;
         } else {
-            throw new AssertionError("NotificationsFragment.onCreateView called with non RecyclerView");
+            throw new AssertionError(
+                    "NotificationsFragment.onCreateView called with non RecyclerView");
         }
     }
 }
