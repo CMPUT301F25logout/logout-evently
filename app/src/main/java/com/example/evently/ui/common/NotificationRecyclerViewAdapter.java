@@ -3,6 +3,9 @@ package com.example.evently.ui.common;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.OptionalInt;
+import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -73,6 +76,12 @@ public class NotificationRecyclerViewAdapter
     @Override
     public int getItemCount() {
         return mValues.size();
+    }
+
+    public OptionalInt findItemPosition(Predicate<Notification> predicate) {
+        return IntStream.range(0, mValues.size())
+                .filter(i -> predicate.test(mValues.get(i)))
+                .findFirst();
     }
 
     public static class NotificationViewHolder extends RecyclerView.ViewHolder {
