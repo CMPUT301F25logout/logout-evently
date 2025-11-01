@@ -1,6 +1,7 @@
 package com.example.evently.ui.auth;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +14,8 @@ import androidx.credentials.exceptions.GetCredentialInterruptedException;
 import androidx.credentials.exceptions.GetCredentialUnsupportedException;
 import androidx.credentials.exceptions.NoCredentialException;
 
+import com.example.evently.data.AccountDB;
+import com.example.evently.data.model.Account;
 import com.google.firebase.auth.AuthResult;
 
 import com.example.evently.R;
@@ -97,11 +100,46 @@ public class AuthActivity extends AppCompatActivity {
         getSupportFragmentManager()
                 .setFragmentResultListener(
                         RegisterFragment.resultKey, this, (var key, var bundle) -> {
-                            // TODO (chase): Persist the data in the bundle to register user.
-                            // NOTE: If the bundle contains an email that already exists in the DB,
-                            // show an error and prompt the user to login instead of registering.
-                            startActivity(transition);
-                            finish();
+
+                            String email = bundle.getString("email");
+                            String name = bundle.getString("name");
+                            String phone = bundle.getString("phone");
+
+                            // Stores a new account
+                            AccountDB accountDB = new AccountDB();
+                            accountDB.fetchAccount(
+                                    email,
+                                    optionalAccount -> {
+                                        if (optionalAccount.isEmpty()) {
+                                            // If user is not found, we need to create an account
+                                            // for them with the new information
+                                            Account newAccount = new Account(
+                                                    email, name, Optional.ofNullable(phone), email);
+                                            accountDB.storeAccount(newAccount);
+                                            startActivity(transition);
+                                            finish();
+                                        } else {
+                                            // NOTE: If the bundle contains an email that already
+                                            // exists in the DB, show an error and prompt the user
+                                            // to login instead of registering.
+                                            Toast.makeText(this, "Account already registered: Please login", Toast.LENGTH_SHORT)
+                                                    .show();
+
+                                            /**
+                                             * The following line of code is from Stack Overflow:
+                                             * Title: "how to remove view inside fragment"
+                                             * Author: "Jackspicer"
+                                             * Response: https://stackoverflow.com/a/25122894
+                                             * Response Author: "Martin"
+                                             */
+                                            findViewById(R.id.register_form_container).setVisibility(View.GONE);
+                                            binding.login.setVisibility(View.VISIBLE);
+
+                                        }
+                                    },
+                                    e -> {});
+
+
                         });
         hasRegisterForm = true;
     }

@@ -171,34 +171,11 @@ public class RegisterFragment extends Fragment {
         var email = Objects.requireNonNull(user.getEmail());
         // Creates the bundle
         var dbData = new Bundle();
+        dbData.putString("email", email.toString());
+        dbData.putString("name", name);
+        dbData.putString("phone", phone);
+        getParentFragmentManager().setFragmentResult(resultKey, dbData);
 
-        // Stores a new account
-        AccountDB accountDB = new AccountDB();
-        accountDB.fetchAccount(
-                email.toString(),
-                optionalAccount -> {
-                    if (optionalAccount.isEmpty()) {
-                        // If user is not found, we need to create an account for them with the new
-                        // information
-                        dbData.putString("email", email.toString());
-                        dbData.putString("name", name);
-                        dbData.putString("phone", phone);
-                        Account newAccount = new Account(
-                                email.toString(), name, Optional.of(phone), email.toString());
-                        accountDB.storeAccount(newAccount);
-
-                    } else {
-                        // If the user account is found, then we put the user information in the
-                        // bundle, logging in.
-                        Account userAccount = optionalAccount.get();
-                        dbData.putString("email", userAccount.email());
-                        dbData.putString("name", userAccount.name());
-                        dbData.putString("phone", userAccount.phoneNumber().orElse(null));
-                    }
-                    // Sets fragment once result is returned
-                    getParentFragmentManager().setFragmentResult(resultKey, dbData);
-                },
-                e -> {});
     }
 
     private void unrecoverableError(Exception e) {
