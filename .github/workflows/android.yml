@@ -23,6 +23,11 @@ jobs:
         GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
     - name: Build the project (no tests, no lint etc)
       run: ./gradlew assemble
+    - name: Upload the APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: evently-debug.apk
+        path: app/build/outputs/apk/debug/app-debug.apk
 
   lint:
     needs: [build]
