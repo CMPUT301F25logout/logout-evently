@@ -11,6 +11,11 @@ import com.example.evently.data.model.Event;
 import com.example.evently.ui.common.EventsFragment;
 
 public class OwnEventsFragment extends EventsFragment {
+
+    protected void onEventClick(Event event) {
+        // TODO (chase): Organizer event click action?
+    }
+
     @Override
     protected void initEvents(Consumer<List<Event>> callback) {
         // TODO (chase): Get list of own events by organizer.

@@ -13,6 +13,11 @@ import com.example.evently.ui.common.EventsFragment;
 public class BrowseEventsFragment extends EventsFragment {
 
     @Override
+    protected void onEventClick(Event event) {
+        // TODO (chase): Navigate to the event details fragment and attach the event ID argument!
+    }
+
+    @Override
     protected void initEvents(Consumer<List<Event>> callback) {
         // TODO: Replace with “all active events” once DB/Firebase is integrated.
         var placeHolderEvents = new ArrayList<Event>();

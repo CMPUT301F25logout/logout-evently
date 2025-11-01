@@ -99,6 +99,7 @@ dependencies {
     implementation(libs.googleid)
     implementation(libs.play.services.auth)
 
+    implementation(libs.recyclerview)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
     implementation(libs.recyclerview)
