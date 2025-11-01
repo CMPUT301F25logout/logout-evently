@@ -21,10 +21,10 @@ import androidx.credentials.exceptions.GetCredentialInterruptedException;
 import androidx.credentials.exceptions.GetCredentialUnsupportedException;
 import androidx.fragment.app.Fragment;
 
-import com.example.evently.data.AccountDB;
-import com.example.evently.data.model.Account;
 import com.google.firebase.auth.AuthResult;
 
+import com.example.evently.data.AccountDB;
+import com.example.evently.data.model.Account;
 import com.example.evently.databinding.FragmentRegisterBinding;
 import com.example.evently.utils.AuthConstants;
 
@@ -175,22 +175,19 @@ public class RegisterFragment extends Fragment {
         dbData.putString("name", name);
         dbData.putString("phone", phone);
 
-//        AccountDB accountDB = new AccountDB();
-//        accountDB.fetchAccount(email.toString(),
-//                optionalAccount -> {
-//
-//            if (!optionalAccount.isPresent()) {
-//                // If user is not found, we need to create an account for them
-//                Account newAccount = new Account(
-//                        email,
-//                        name,
-//                        Optional.of(phone),
-//                        email
-//                );
-//                accountDB.storeAccount(newAccount);
-//            }
-//            // If user is  found, do nothing.
-//                }, e -> {});
+        AccountDB accountDB = new AccountDB();
+        accountDB.fetchAccount(
+                email.toString(),
+                optionalAccount -> {
+                    if (optionalAccount.isEmpty()) {
+                        // If user is not found, we need to create an account for them
+                        Account newAccount = new Account(
+                                email.toString(), name, Optional.of(phone), email.toString());
+                        accountDB.storeAccount(newAccount);
+                    }
+                    // If user is  found, do nothing.
+                },
+                e -> {});
 
         getParentFragmentManager().setFragmentResult(resultKey, dbData);
     }
