@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.common.EventsFragment;
 
@@ -22,7 +23,8 @@ public class OwnEventsFragment extends EventsFragment {
                 Instant.parse("2025-11-09T09:00:00.00Z"),
                 UUID.randomUUID(),
                 Optional.empty(),
-                42));
+                42,
+                Category.SPORTS));
         callback.accept(placeHolderEvents);
     }
 }
