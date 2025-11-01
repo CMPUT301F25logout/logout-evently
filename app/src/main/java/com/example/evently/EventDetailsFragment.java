@@ -1,7 +1,7 @@
 package com.example.evently;
 
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -107,8 +107,8 @@ public class EventDetailsFragment extends Fragment {
         event = new Event(
                 "Sample Event Name",
                 "Blah Blah Blah Description",
-                new Date(),
-                new Date(),
+                Instant.now(),
+                Instant.now(),
                 UUID.randomUUID(),
                 Optional.of((long) 100),
                 // Optional.empty(),
