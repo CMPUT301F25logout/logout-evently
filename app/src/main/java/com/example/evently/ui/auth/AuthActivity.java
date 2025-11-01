@@ -15,6 +15,7 @@ import androidx.credentials.exceptions.GetCredentialUnsupportedException;
 import androidx.credentials.exceptions.NoCredentialException;
 
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 
 import com.example.evently.R;
 import com.example.evently.data.AccountDB;
@@ -22,7 +23,6 @@ import com.example.evently.data.model.Account;
 import com.example.evently.databinding.ActivityAuthBinding;
 import com.example.evently.ui.entrant.EntrantActivity;
 import com.example.evently.utils.AuthConstants;
-import com.google.firebase.auth.FirebaseAuth;
 
 /**
  * The overarching activity for managing authentication. This is the activity launched
