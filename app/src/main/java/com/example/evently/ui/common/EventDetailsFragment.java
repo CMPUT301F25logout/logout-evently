@@ -61,12 +61,13 @@ public class EventDetailsFragment extends Fragment {
 
         entrants = new ArrayList<Account>();
 
-        // This is temporary until the event ID is implemented
+        // This is temporary until navigation is fully implemented
         addDummyData();
 
-        // TODO Implement logic to determine whether or not the user has joined the event from the database
+        // TODO Implement logic to determine whether or not the user has joined the event from the
+        // database
 
-        loadEventInformation(event, entrants.size(), false);
+        loadEventInformation(event, entrants.size(), true);
 
         loadEntrants(entrants);
     }
@@ -91,8 +92,7 @@ public class EventDetailsFragment extends Fragment {
                     + String.valueOf(event.entrantLimit().get());
 
             // Disable the button if the waitlist is already full
-            if (event.entrantLimit().get() == currEntrants)
-            {
+            if (event.entrantLimit().get() == currEntrants) {
                 waitlistAction.setEnabled(false);
                 // Change the button text to indicate that it's full
                 String waitlistFull = "Event is full.";
@@ -113,16 +113,12 @@ public class EventDetailsFragment extends Fragment {
      */
     // Not sure if we plan on updating the page or just the Entrant List and the button
     // Whenever the user joins the event, so it's a function for now
-    public void displayWaitlistAction(boolean joined)
-    {
+    public void displayWaitlistAction(boolean joined) {
         Button waitlistAction = binding.waitlistAction;
         String wlActionText;
-        if (joined)
-        {
+        if (joined) {
             wlActionText = "LEAVE WAITLIST";
-        }
-        else
-        {
+        } else {
             wlActionText = "JOIN WAITLIST";
         }
 

@@ -4,7 +4,6 @@ import java.util.List;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,8 +31,7 @@ public class EntrantListAdapter extends RecyclerView.Adapter<EntrantListAdapter.
     }
 
     @NonNull @Override
-    public EntrantViewHolder onCreateViewHolder(
-            @NonNull ViewGroup parent, int viewType) {
+    public EntrantViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new EntrantViewHolder(FragmentEventEntrantBinding.inflate(
                 LayoutInflater.from(parent.getContext()), parent, false));
     }
@@ -46,7 +44,7 @@ public class EntrantListAdapter extends RecyclerView.Adapter<EntrantListAdapter.
 
         // Set the name of each person
         binding.entrantName.setText(name);
-        }
+    }
 
     @Override
     public int getItemCount() {

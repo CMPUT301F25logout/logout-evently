@@ -17,7 +17,6 @@ public class BrowseEventsFragment extends EventsFragment {
     protected void onEventClick(Event event) {
         // TODO (chase): Navigate to the event details fragment and attach the event ID argument!
 
-
     }
 
     @Override
