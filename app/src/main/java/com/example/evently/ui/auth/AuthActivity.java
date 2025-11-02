@@ -132,7 +132,7 @@ public class AuthActivity extends AppCompatActivity {
 
                                             binding.login.setVisibility(View.VISIBLE);
                                             binding.registerForm.setVisibility(View.VISIBLE);
-
+                                            hasRegisterForm = false;
                                             // The following code is from the stack overflow
                                             // question below:
                                             // Title: "Remove old Fragment from fragment manager"
@@ -149,7 +149,6 @@ public class AuthActivity extends AppCompatActivity {
                                     },
                                     e -> {});
                         });
-        hasRegisterForm = true;
     }
 
     private void tryLoggingIn(int retryCount) {
