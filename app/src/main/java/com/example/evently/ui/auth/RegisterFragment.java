@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -39,6 +40,7 @@ public class RegisterFragment extends Fragment {
     public static final String resultKey = "register";
     private FragmentRegisterBinding binding;
     private FirebaseLogin firebaseLogin;
+    private ProgressBar loadingProgressBar;
 
     @Override
     public View onCreateView(
@@ -73,7 +75,7 @@ public class RegisterFragment extends Fragment {
         final var nameEditText = binding.name;
         final var phoneEditText = binding.phone;
         final var registerBtn = binding.register;
-        final var loadingProgressBar = binding.loading;
+        loadingProgressBar = binding.loading;
 
         // Setting it in XML doesn't work for some reason. Must set it programmatically.
         registerBtn.setEnabled(false);
@@ -132,7 +134,13 @@ public class RegisterFragment extends Fragment {
                     switch (e) {
                         case GetCredentialCancellationException ce -> {
                             // The user cancelled the sign in request...
-                            // Let them try again (do nothing).
+                            // Let them know and let them try again.
+                            loadingProgressBar.setVisibility(View.INVISIBLE);
+                            Toast.makeText(
+                                            requireContext(),
+                                            "You denied the sign up request",
+                                            Toast.LENGTH_SHORT)
+                                    .show();
                         }
                         case GetCredentialInterruptedException ie -> {
                             // Retry (unless we retried too many times already).
