@@ -45,7 +45,7 @@ public class FirebaseNotificationService extends FirebaseMessagingService {
             // The notifications our cloud functions send always contain both.
             final var notifTitle = remoteMessage.getNotification().getTitle();
             final var notifBody = remoteMessage.getNotification().getBody();
-            final var notificationID = UUID.fromString(dataPayload.get("id"));
+            final var notificationID = UUID.fromString(dataPayload.get(IntentConstants.NOTIFICATION_INTENT_ID_KEY));
             if (notifTitle != null && notifBody != null && notificationID != null) {
                 sendNotification(notifTitle, notifBody, notificationID);
             }

@@ -23,9 +23,6 @@ interface EventEntrants {
   cancelled: string[];
 }
 
-// The activity to start on notification click.
-const INTENT_ACTIVITY = "AuthActivity";
-
 admin.initializeApp();
 
 const db = admin.firestore();
@@ -74,12 +71,7 @@ async function sendNotification(
   const message = {
     tokens: registrationTokens,
     notification: { title, body },
-    data: { id: notificationID },
-    android: {
-      notification: {
-        clickAction: INTENT_ACTIVITY,
-      },
-    },
+    data: { notificationID }
   };
 
   const response = await getMessaging().sendEachForMulticast(message);
