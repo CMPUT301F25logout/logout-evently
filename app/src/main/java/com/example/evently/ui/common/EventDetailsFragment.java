@@ -2,6 +2,7 @@ package com.example.evently;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -9,6 +10,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.evently.data.model.Account;
+import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.databinding.FragmentEventDetailsBinding;
 
@@ -35,7 +38,7 @@ public class EventDetailsFragment extends Fragment {
     private FragmentEventDetailsBinding binding;
 
     Event event;
-    ArrayList<Account> entrants;
+    List<Account> entrants;
 
     @Override
     public View onCreateView(
@@ -58,7 +61,7 @@ public class EventDetailsFragment extends Fragment {
 
         entrants = new ArrayList<Account>();
 
-        addDummyData();
+        //addDummyData();
 
         loadEventInformation(event, entrants.size());
 
@@ -68,21 +71,34 @@ public class EventDetailsFragment extends Fragment {
     /**
      * Loads the event information into the fragment
      * @param event The event object to load into the page
-     * @param entrantNumber The number of entrants to display the amount of people that entered
+     * @param currEntrants The number of entrants to display the amount of people that entered
      */
-    public void loadEventInformation(Event event, int entrantNumber) {
+    public void loadEventInformation(Event event, int currEntrants) {
         TextView eventName = binding.eventName;
         TextView image = binding.eventPicture;
         TextView desc = binding.eventDescription;
         TextView entrantCount = binding.entryCount;
+        Button waitlistAction = binding.waitlistAction;
 
-        String entrantCountStr = String.valueOf(entrantNumber);
+        String entrantCountStr = String.valueOf(currEntrants);
 
         // Display according information depending on if the event has an entrant limit
         if (event.entrantLimit().isPresent()) {
-            entrantCountStr = String.valueOf(entrantNumber) + "/"
+            entrantCountStr = String.valueOf(currEntrants) + "/"
                     + String.valueOf(event.entrantLimit().get());
+
+            // Disable the button if the waitlist is already full
+            if (event.entrantLimit().get() == currEntrants)
+            {
+                waitlistAction.setEnabled(false);
+                // Change the button text to indicate that it's full
+                String waitlistFull = "Event is full.";
+                waitlistAction.setText(waitlistFull);
+            }
         }
+
+        // TODO Update the button based on whether the user has joined or not
+
 
         entrantCount.setText(entrantCountStr);
         eventName.setText(event.name());
@@ -94,10 +110,10 @@ public class EventDetailsFragment extends Fragment {
      * Uses the event_entrants_list_content.xml for the recycler view rows
      * @param entrants The list of entrants for this given event
      */
-    public void loadEntrants(ArrayList<Account> entrants) {
+    public void loadEntrants(List<Account> entrants) {
         RecyclerView entrantList = binding.entrantList;
         entrantList.setLayoutManager(new LinearLayoutManager(this.getContext()));
-        entrantList.setAdapter(new EntrantListAdapter(this.getContext(), entrants));
+        entrantList.setAdapter(new EntrantListAdapter(entrants));
     }
 
     /**
@@ -112,7 +128,8 @@ public class EventDetailsFragment extends Fragment {
                 UUID.randomUUID(),
                 Optional.of((long) 100),
                 // Optional.empty(),
-                10);
+                10,
+                Category.SPORTS);
 
         entrants.add(new Account(
                 "Email 1@gmail.com", "Name 1", Optional.of("780"), "Email 10@gmail.com"));
