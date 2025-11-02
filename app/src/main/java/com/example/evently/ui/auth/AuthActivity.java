@@ -111,6 +111,7 @@ public class AuthActivity extends AppCompatActivity {
                                     email,
                                     optionalAccount -> {
                                         if (optionalAccount.isEmpty()) {
+                                            hasRegisterForm = true;
                                             // If user is not found, we need to create an account
                                             // for them with the new information
                                             Account newAccount = new Account(
@@ -129,17 +130,21 @@ public class AuthActivity extends AppCompatActivity {
                                                             Toast.LENGTH_SHORT)
                                                     .show();
 
-                                            /**
-                                             * The following line of code is from Stack Overflow:
-                                             * Title: "how to remove view inside fragment"
-                                             * Author: "Jackspicer"
-                                             * Response: https://stackoverflow.com/a/25122894
-                                             * Response Author: "Martin"
-                                             */
-                                            findViewById(R.id.register_form_container)
-                                                    .setVisibility(View.GONE);
                                             binding.login.setVisibility(View.VISIBLE);
                                             binding.registerForm.setVisibility(View.VISIBLE);
+
+                                            // The following code is from the stack overflow
+                                            // question below:
+                                            // Title: "Remove old Fragment from fragment manager"
+                                            // Author: "khouloud mejdoub"
+                                            // Response Author: "Yashdeep Patel"
+                                            // Link: https://stackoverflow.com/a/22474821
+                                            getSupportFragmentManager()
+                                                    .beginTransaction()
+                                                    .remove(getSupportFragmentManager()
+                                                            .findFragmentById(
+                                                                    R.id.register_form_container))
+                                                    .commit();
                                         }
                                     },
                                     e -> {});
@@ -162,11 +167,14 @@ public class AuthActivity extends AppCompatActivity {
 
                                             successfulLogin(res);
                                         } else {
+                                            // If the account is not found, it prompts the user to
+                                            // register
                                             Toast.makeText(
                                                             this,
                                                             "Account not found: Please register",
                                                             Toast.LENGTH_SHORT)
                                                     .show();
+                                            FirebaseAuth.getInstance().signOut();
                                             showRegisterForm();
                                         }
                                     },
