@@ -1,4 +1,4 @@
-package com.example.evently;
+package com.example.evently.ui.common;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -61,9 +61,12 @@ public class EventDetailsFragment extends Fragment {
 
         entrants = new ArrayList<Account>();
 
-        //addDummyData();
+        // This is temporary until the event ID is implemented
+        addDummyData();
 
-        loadEventInformation(event, entrants.size());
+        // TODO Implement logic to determine whether or not the user has joined the event from the database
+
+        loadEventInformation(event, entrants.size(), false);
 
         loadEntrants(entrants);
     }
@@ -73,7 +76,7 @@ public class EventDetailsFragment extends Fragment {
      * @param event The event object to load into the page
      * @param currEntrants The number of entrants to display the amount of people that entered
      */
-    public void loadEventInformation(Event event, int currEntrants) {
+    public void loadEventInformation(Event event, int currEntrants, boolean joined) {
         TextView eventName = binding.eventName;
         TextView image = binding.eventPicture;
         TextView desc = binding.eventDescription;
@@ -97,12 +100,33 @@ public class EventDetailsFragment extends Fragment {
             }
         }
 
-        // TODO Update the button based on whether the user has joined or not
-
+        displayWaitlistAction(joined);
 
         entrantCount.setText(entrantCountStr);
         eventName.setText(event.name());
         desc.setText(event.description());
+    }
+
+    /**
+     * Change the display of the Button on the waitlist depending on if the user joined the event or not
+     * @param joined Whether or not the user has joined the event
+     */
+    // Not sure if we plan on updating the page or just the Entrant List and the button
+    // Whenever the user joins the event, so it's a function for now
+    public void displayWaitlistAction(boolean joined)
+    {
+        Button waitlistAction = binding.waitlistAction;
+        String wlActionText;
+        if (joined)
+        {
+            wlActionText = "LEAVE WAITLIST";
+        }
+        else
+        {
+            wlActionText = "JOIN WAITLIST";
+        }
+
+        waitlistAction.setText(wlActionText);
     }
 
     /**
@@ -117,7 +141,7 @@ public class EventDetailsFragment extends Fragment {
     }
 
     /**
-     * Adds dummy data for visualizing the fragment
+     * Adds dummy data for visualizing the fragment, need to implement the onclick for the events to remove this
      */
     public void addDummyData() {
         event = new Event(

@@ -17,7 +17,7 @@
 
     <fragment
         android:id="@+id/event_details"
-        android:name="com.example.evently.EventDetailsFragment"
+        android:name="com.example.evently.ui.common.EventDetailsFragment"
         android:label="fragment_event_details"
         tools:layout="@layout/fragment_event_details" >
         <argument

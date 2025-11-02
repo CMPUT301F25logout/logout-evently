@@ -7,6 +7,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.evently.ui.common.EventDetailsFragment;
+import com.example.evently.ui.entrant.BrowseEventsFragment;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -24,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager()
                 .beginTransaction()
                 .setReorderingAllowed(true)
-                .add(R.id.event_details, EventDetailsFragment.class, null)
+                .add(R.id.event_details, BrowseEventsFragment.class, null)
                 .commit();
     }
 }
