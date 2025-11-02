@@ -61,8 +61,8 @@ public class NotificationDB {
      */
     public void fetchAllNotifications(Consumer<ArrayList<Notification>> onSuccess, Consumer<Exception> onException){
 
-        // The following line of code uses the firebase query-data order-limit-data docs:
-        // https://firebase.google.com/docs/firestore/query-data/order-limit-data
+        // The following line of code is partially from the firebase query-data order-limit-data
+        // docs: https://firebase.google.com/docs/firestore/query-data/order-limit-data
         notificationsRef.orderBy("creationTime", Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener(allDocs -> {
