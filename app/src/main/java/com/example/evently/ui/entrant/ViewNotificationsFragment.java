@@ -54,13 +54,18 @@ public class ViewNotificationsFragment extends NotificationsFragment {
                 Instant.now(),
                 seenByOne));
         callback.accept(notifs);
+        // By this point, the recyclerview and adapter are definitely set up.
+        handleNotificationClickIntent();
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        // We may have been passed a notification ID to "blink" (double highlight).
+    /**
+     * We may have been passed a notification ID to "blink" (double highlight).
+     * This happens when a user clicks on a push notification.
+     * This function checks if that's the case and handles it.
+     *
+     * @apiNote This function must only be used after the recyclerview and its adapter are populated.
+     */
+    private void handleNotificationClickIntent() {
         var intent = requireActivity().getIntent();
         if (intent.hasExtra(IntentConstants.NOTIFICATION_INTENT_ID_KEY)) {
             final UUID targetID;
