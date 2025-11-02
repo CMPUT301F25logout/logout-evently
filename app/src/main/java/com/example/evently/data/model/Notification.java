@@ -1,5 +1,9 @@
 package com.example.evently.data.model;
 
+import com.google.firebase.Timestamp;
+
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -30,6 +34,7 @@ public record Notification(
         Channel channel,
         String title,
         String description,
+        Instant creationTime,
         HashSet<String> seenBy) {
     public enum Channel {
         All,
@@ -55,6 +60,30 @@ public record Notification(
     public Notification addSeen(String email) {
         var seenByCopy = new HashSet<>(seenBy);
         seenByCopy.add(email.trim().toLowerCase());
-        return new Notification(id, eventId, channel, title, description, seenByCopy);
+        return new Notification(id, eventId, channel, title, description, creationTime, seenByCopy);
+    }
+
+    /**
+     * Returns a hashMap of the given notification, excluding the UUID of the notification.
+     * The notification UUID is excluded, as it is the primary key for storing the notification
+     * in the DB.
+     * @return A HashMap of the location
+     */
+    public HashMap<String, Object> toHashMap(){
+        HashMap<String, Object> hashMap = new HashMap<>();
+
+        hashMap.put("eventId",eventId.toString());
+        hashMap.put("channel",channel.toString());
+        hashMap.put("title",title);
+        hashMap.put("description",description);
+        hashMap.put("seenBy",seenBy);
+
+        // The following line code is from Claude Sonnet 4.5.
+        // Query: How to store a timestamp in Firebase? I currently
+        // have an "Instant" object, and want to store it in a firestore.
+        Timestamp timestamp = new Timestamp(creationTime);
+        hashMap.put("creationTime",timestamp);
+
+        return hashMap;
     }
 }
