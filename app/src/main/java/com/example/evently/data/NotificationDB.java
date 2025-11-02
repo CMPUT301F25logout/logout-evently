@@ -1,24 +1,24 @@
 package com.example.evently.data;
 
-import com.example.evently.data.model.Notification;
-import com.example.evently.data.model.Event;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.UUID;
+import java.util.function.Consumer;
+
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.UUID;
-import java.util.function.Consumer;
+import com.example.evently.data.model.Event;
+import com.example.evently.data.model.Notification;
 
 public class NotificationDB {
 
     private final CollectionReference notificationsRef;
 
-    public NotificationDB(){
+    public NotificationDB() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         notificationsRef = db.collection("notifications");
     }
@@ -27,7 +27,7 @@ public class NotificationDB {
      * Stores a provided notification in the database, with the notification id as the primary key.
      * @param notification The notification to be stored.
      */
-    public void storeNotification(Notification notification){
+    public void storeNotification(Notification notification) {
         // Gets notification id
         String notification_id = notification.id().toString();
         DocumentReference docRef = notificationsRef.document(notification_id);
@@ -49,8 +49,7 @@ public class NotificationDB {
                 snapshot.getString("title"),
                 snapshot.getString("desc"),
                 snapshot.getTimestamp("creationTime").toInstant(),
-                (HashSet<String>) snapshot.get("seenBy")
-        );
+                (HashSet<String>) snapshot.get("seenBy"));
     }
 
     /**
@@ -59,11 +58,13 @@ public class NotificationDB {
      * @param onSuccess
      * @param onException
      */
-    public void fetchAllNotifications(Consumer<ArrayList<Notification>> onSuccess, Consumer<Exception> onException){
+    public void fetchAllNotifications(
+            Consumer<ArrayList<Notification>> onSuccess, Consumer<Exception> onException) {
 
         // The following line of code is partially from the firebase query-data order-limit-data
         // docs: https://firebase.google.com/docs/firestore/query-data/order-limit-data
-        notificationsRef.orderBy("creationTime", Query.Direction.DESCENDING)
+        notificationsRef
+                .orderBy("creationTime", Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener(allDocs -> {
                     // Creates an ArrayList of notifications
@@ -72,7 +73,7 @@ public class NotificationDB {
                     if (!allDocs.isEmpty()) {
 
                         // Adds each notification to the list of notifiations.
-                        for (QueryDocumentSnapshot doc : allDocs){
+                        for (QueryDocumentSnapshot doc : allDocs) {
                             Notification newNotification = notificationFromQuerySnapshot(doc);
                             notifications.add(newNotification);
                         }
@@ -82,16 +83,14 @@ public class NotificationDB {
     }
 
     // TODO: Complete once EventDB is completed.
-    public void fetchUserNotifications(String email, Consumer<ArrayList<Notification>> onSuccess){
+    public void fetchUserNotifications(String email, Consumer<ArrayList<Notification>> onSuccess) {
 
         fetchAllNotifications(
                 notifications -> {
 
                     // Gets all events using future eventDB
                     ArrayList<Event> events = new ArrayList<>();
-
-
-                }, e -> {});
+                },
+                e -> {});
     }
-
 }
