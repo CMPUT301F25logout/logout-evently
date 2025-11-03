@@ -7,6 +7,10 @@ import android.widget.Button;
 import androidx.core.content.ContextCompat;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.evently.R;
+import com.example.evently.data.model.Event;
+import com.example.evently.ui.common.EventsFragment;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,16 +18,10 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import com.example.evently.R;
-import com.example.evently.data.model.Category;
-import com.example.evently.data.model.Event;
-import com.example.evently.ui.common.EventsFragment;
-
-public class BrowseEventsFragment extends EventsFragment {
+public class JoinedEventsFragment extends EventsFragment {
 
     @Override
     protected int getLayoutRes() {
-        // Layout with the two buttons + list
         return R.layout.fragment_event_entrants_list;
     }
 
@@ -34,16 +32,16 @@ public class BrowseEventsFragment extends EventsFragment {
         Button btnJoined  = view.findViewById(R.id.btnJoined);
         Button btnBrowse  = view.findViewById(R.id.btnBrowse);
 
-        styleSelected(btnJoined, false);
-        styleSelected(btnBrowse, true);
+        styleSelected(btnJoined, true);
+        styleSelected(btnBrowse, false);
 
-        // Navigate to Joined via action id
-        btnJoined.setOnClickListener(v ->
+        // Navigate back to Browse via action id
+        btnBrowse.setOnClickListener(v ->
                 NavHostFragment.findNavController(this)
-                        .navigate(R.id.action_browse_to_joined));
+                        .navigate(R.id.action_joined_to_browse));
 
-        // Already on Browse
-        btnBrowse.setOnClickListener(v -> {});
+        // Already on Joined
+        btnJoined.setOnClickListener(v -> { });
     }
 
     private void styleSelected(Button b, boolean selected) {
@@ -58,37 +56,38 @@ public class BrowseEventsFragment extends EventsFragment {
 
     @Override
     protected void initEvents(Consumer<List<Event>> callback) {
-        var browseEvents = new ArrayList<Event>();
-        browseEvents.add(new Event(
-                "Whale Watching",
-                "See whales off the coast — binoculars provided.",
-                Instant.parse("2025-12-05T23:59:00Z"),
-                Instant.parse("2026-02-14T09:00:00Z"),
+        var joined = new ArrayList<Event>();
+        joined.add(new Event(
+                "Community Piano for Beginners",
+                "Intro series for absolute beginners.",
+                Instant.parse("2025-12-10T23:59:00Z"),
+                Instant.parse("2026-01-15T18:30:00Z"),
                 UUID.randomUUID(),
                 Optional.empty(),
-                20,
+                30,
                 null));
 
-        browseEvents.add(new Event(
-                "LAN Gaming",
-                "Bring your rig for co-op action.",
-                Instant.parse("2025-12-01T23:59:00Z"),
-                Instant.parse("2026-03-09T18:00:00Z"),
+        joined.add(new Event(
+                "Canoe Safety Night",
+                "Dryland basics & safety briefing.",
+                Instant.parse("2025-11-30T23:59:00Z"),
+                Instant.parse("2026-02-05T19:00:00Z"),
                 UUID.randomUUID(),
                 Optional.empty(),
-                64,
+                50,
                 null));
 
-        browseEvents.add(new Event(
-                "Spelling Bee",
-                "Community-wide spelling bee — all ages.",
-                Instant.parse("2025-11-28T23:59:00Z"),
-                Instant.parse("2026-03-01T13:00:00Z"),
+        joined.add(new Event(
+                "Yoga Flow Level 1",
+                "Gentle strength and stretch.",
+                Instant.parse("2025-12-08T23:59:00Z"),
+                Instant.parse("2026-02-20T09:00:00Z"),
                 UUID.randomUUID(),
-                Optional.empty(),
-                40,
+                Optional.of(25L),
+                25,
                 null));
 
-        callback.accept(browseEvents);
+        callback.accept(joined);
     }
 }
+
