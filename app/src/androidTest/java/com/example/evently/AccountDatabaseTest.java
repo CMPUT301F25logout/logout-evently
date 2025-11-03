@@ -6,16 +6,13 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
 
 import android.util.Log;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -71,7 +68,7 @@ public class AccountDatabaseTest {
                 fetchedAccount -> {
                     fetchLatch.countDown();
 
-                    assertFalse(fetchedAccount.isPresent());
+                    assertTrue(fetchedAccount.isPresent());
                     assertEquals(fetchedAccount.get(), addedAccount);
                 },
                 e -> {
