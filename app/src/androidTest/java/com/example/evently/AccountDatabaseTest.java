@@ -28,7 +28,7 @@ public class AccountDatabaseTest extends FirebaseEmulatorTest {
             new ActivityScenarioRule<MainActivity>(MainActivity.class);
 
     @After
-    public static void cleanUpAccounts() throws ExecutionException, InterruptedException {
+    public void cleanUpAccounts() throws ExecutionException, InterruptedException {
         final var db = new AccountDB();
         Tasks.await(db.nuke());
     }
