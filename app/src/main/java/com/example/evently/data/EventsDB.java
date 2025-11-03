@@ -1,12 +1,8 @@
 package com.example.evently.data;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -38,38 +34,38 @@ public class EventsDB {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
     }
-    
+
+    /**
+     * Gets an event from a DocumentSnapshot if able
+     * @param documentSnapshot DocumentSnapshot to retrieve event from
+     * @return An optional with the retrieved event if one was retrieved
+     * @throws NullPointerException When documentSnapshot has an incorrectly stored event
+     */
     private static Optional<Event> getEventFromSnapshot(DocumentSnapshot documentSnapshot)
             throws NullPointerException {
 
         if (!documentSnapshot.exists()) return Optional.empty();
 
-        Function<String, ArrayList<String>> unpackList = field ->
-                Arrays
-                        .stream(documentSnapshot.getString(field).split(","))
+        Function<String, ArrayList<String>> unpackList =
+                field -> Arrays.stream(documentSnapshot.getString(field).split(","))
                         .collect(Collectors.toCollection(ArrayList::new));
 
-        long longEntrantLimit = documentSnapshot.getLong("entrantLimit");
-        Optional<Long> optionalEntrantLimit = Optional.of(longEntrantLimit);
+        Optional<Long> optionalEntrantLimit =
+                Optional.ofNullable(documentSnapshot.getLong("entrantLimit"));
 
         return Optional.of(new Event(
                 UUID.fromString(documentSnapshot.getId()),
                 documentSnapshot.getString("name"),
                 documentSnapshot.getString("description"),
-                documentSnapshot.getTimestamp("selectionTime").toDate().toInstant()
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalDate(),
-                documentSnapshot.getTimestamp("eventTime").toDate().toInstant()
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalDateTime(),
+                documentSnapshot.getTimestamp("selectionTime"),
+                documentSnapshot.getTimestamp("eventTime"),
                 documentSnapshot.getString("organizer"),
                 optionalEntrantLimit,
                 documentSnapshot.getLong("selectionLimit"),
                 unpackList.apply("entrants"),
                 unpackList.apply("cancelledEntrants"),
                 unpackList.apply("selectedEntrants"),
-                unpackList.apply("enrolledEntrants")
-        ));
+                unpackList.apply("enrolledEntrants")));
     }
 
     /**
@@ -84,8 +80,8 @@ public class EventsDB {
     /**
      * Stores an event in the database.
      * @param event event to be stored
-     * @param onSuccess Action to be performed on success
-     * @param onException Action to be performed on exception
+     * @param onSuccess A callback for the onSuccessListener
+     * @param onException A callback for the onFailureListener
      */
     public void storeEvent(Event event, Consumer<Void> onSuccess, Consumer<Exception> onException) {
         DocumentReference docRef = eventsRef.document(event.eventID().toString());
@@ -97,26 +93,29 @@ public class EventsDB {
     /**
      * Fetch an event from database by UUID.
      * @param eventID UUID of the event
-     * @param onSuccess Action to be performed on success
-     * @param onException Action to be performed on exception
+     * @param onSuccess A callback for the onSuccessListener
+     * @param onException A callback for the onFailureListener
      */
     public void fetchEvent(
             UUID eventID, Consumer<Optional<Event>> onSuccess, Consumer<Exception> onException) {
         eventsRef
                 .document(eventID.toString())
                 .get()
-                .addOnSuccessListener(docSnapshot -> onSuccess.accept(getEventFromSnapshot(docSnapshot)))
+                .addOnSuccessListener(
+                        docSnapshot -> onSuccess.accept(getEventFromSnapshot(docSnapshot)))
                 .addOnFailureListener(onException::accept);
     }
 
     /**
      * Fetch events from database by organizer email.
      * @param organizer email of the event's organizer
-     * @param onSuccess Action to be performed on success
-     * @param onException Action to be performed on exception
+     * @param onSuccess A callback for the onSuccessListener
+     * @param onException A callback for the onFailureListener
      */
     public void fetchEventsByOrganizers(
-            String organizer, Consumer<Collection<Event>> onSuccess, Consumer<Exception> onException) {
+            String organizer,
+            Consumer<Collection<Event>> onSuccess,
+            Consumer<Exception> onException) {
         eventsRef
                 .whereEqualTo("organizer", organizer)
                 .get()
@@ -136,8 +135,8 @@ public class EventsDB {
     /**
      * Fetch events before or after a given date
      * @param dateConstraint date to constrain events by
-     * @param onSuccess Action to be performed on success
-     * @param onException Action to be performed on exception
+     * @param onSuccess A callback for the onSuccessListener
+     * @param onException A callback for the onFailureListener
      * @param isStart {@code true} for events after constraint, {@code false} for events before.
      */
     public void fetchEventsByDate(
@@ -151,8 +150,7 @@ public class EventsDB {
         } else {
             query = eventsRef.whereLessThan("eventTime", dateConstraint);
         }
-        query
-                .get()
+        query.get()
                 .addOnSuccessListener(querySnapshot -> {
                     List<Event> events = new ArrayList<>();
                     for (DocumentSnapshot docSnapshot : querySnapshot.getDocuments()) {
@@ -164,15 +162,14 @@ public class EventsDB {
                     onSuccess.accept(events);
                 })
                 .addOnFailureListener(onException::accept);
-
     }
 
     /**
      * Fetch events from database in a date range.
      * @param startTime Date range start
      * @param endTime Date range end
-     * @param onSuccess Action to be performed on success
-     * @param onException Action to be performed on exception
+     * @param onSuccess A callback for the onSuccessListener
+     * @param onException A callback for the onFailureListener
      */
     public void fetchEventsByDate(
             Timestamp startTime,
@@ -190,8 +187,8 @@ public class EventsDB {
     /**
      * Fetch events with an account enrolled.
      * @param enrollee email of enrolled account
-     * @param onSuccess Action to be performed on success
-     * @param onException Action to be performed on exception
+     * @param onSuccess A callback for the onSuccessListener
+     * @param onException A callback for the onFailureListener
      */
     public void fetchEventsByEnrolled(
             String enrollee, Consumer<QuerySnapshot> onSuccess, Consumer<Exception> onException) {
@@ -205,8 +202,8 @@ public class EventsDB {
     /**
      * Fetch events with one of the accounts enrolled.
      * @param enrollees emails of enrolled accounts
-     * @param onSuccess Action to be performed on success
-     * @param onException Action to be performed on exception
+     * @param onSuccess A callback for the onSuccessListener
+     * @param onException A callback for the onFailureListener
      */
     public void fetchEventsByEnrolled(
             List<String> enrollees,
@@ -233,7 +230,8 @@ public class EventsDB {
      * @param onSuccess A callback for the onSuccessListener
      * @param onException A callback for the onFailureListener
      */
-    public void deleteEvent(UUID eventID, Consumer<Void> onSuccess, Consumer<Exception> onException) {
+    public void deleteEvent(
+            UUID eventID, Consumer<Void> onSuccess, Consumer<Exception> onException) {
         eventsRef
                 .document(eventID.toString())
                 .delete()

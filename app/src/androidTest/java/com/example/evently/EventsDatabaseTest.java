@@ -4,50 +4,60 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import android.util.Log;
-
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
-
-import com.example.evently.data.EventsDB;
-import com.example.evently.data.model.Event;
-import com.google.firebase.Timestamp;
-
-import org.junit.Rule;
-import org.junit.Test;
-
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
+
+import android.util.Log;
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
+
+import com.google.firebase.Timestamp;
+import org.junit.Rule;
+import org.junit.Test;
+
+import com.example.evently.data.EventsDB;
+import com.example.evently.data.model.Event;
 
 public class EventsDatabaseTest {
     @Rule
     public ActivityScenarioRule<MainActivity> scenario =
             new ActivityScenarioRule<MainActivity>(MainActivity.class);
 
+    /**
+     * Creates an event for testing
+     * @return created event
+     */
     private Event testEvent() {
         return new Event(
                 "testEvent",
                 "Event created to test.",
-                LocalDate.now(),
-                LocalDateTime.of(2026, 1, 1, 1, 0),
+                Timestamp.now(),
+                new Timestamp(LocalDate.of(2026, 1, 1)
+                        .atStartOfDay(ZoneId.systemDefault())
+                        .toInstant()),
                 "testOrganizer@example.com",
                 Optional.of(55L),
                 10L);
     }
 
+    /**
+     * Creates an event with values altered by num
+     * @param num an integer value to include in values
+     * @return created event
+     */
     private Event testEvent(int num) {
         return new Event(
                 "testEvent" + num,
                 "Event " + num + " created for testing",
-                LocalDate.now(),
-                LocalDateTime.of(2026 + num, 1, 1, 1, 0),
+                Timestamp.now(),
+                new Timestamp(LocalDate.of(2026 + num, 1, 1)
+                        .atStartOfDay(ZoneId.systemDefault())
+                        .toInstant()),
                 "testOrganizer" + num + "@example.com",
                 Optional.of(55L),
-                10L
-        );
+                10L);
     }
 
     /**
@@ -66,13 +76,9 @@ public class EventsDatabaseTest {
         EventsDB db = new EventsDB();
 
         Event event = testEvent();
-        db.storeEvent(
-                event,
-                v -> addEventLatch.countDown(),
-                e -> {});
-        addEventLatch.await(); // Waits until the account is added
+        db.storeEvent(event, v -> addEventLatch.countDown(), e -> {});
+        addEventLatch.await();
 
-        // The following code fetches the added account, and confirms the query returns the result
         CountDownLatch fetchLatch = new CountDownLatch(1);
         db.fetchEvent(
                 event.eventID(),
@@ -83,7 +89,7 @@ public class EventsDatabaseTest {
                     assertEquals(fetchedEvent.get(), event);
                 },
                 e -> {
-                    Log.d("FETCH ACCOUNT", "testStoreAccount: Failed to fetch account");
+                    Log.d("FETCH Event", "testStoreAndFetchEvent: Failed to fetch event");
                 });
 
         fetchLatch.await();
@@ -100,17 +106,11 @@ public class EventsDatabaseTest {
         EventsDB db = new EventsDB();
 
         Event event = testEvent();
-        db.storeEvent(
-                event,
-                v -> addEventLatch.countDown(),
-                e -> {});
+        db.storeEvent(event, v -> addEventLatch.countDown(), e -> {});
         addEventLatch.await();
 
         CountDownLatch deleteEventLatch = new CountDownLatch(1);
-        db.deleteEvent(
-                event.eventID(),
-                v -> deleteEventLatch.countDown(),
-                e -> {});
+        db.deleteEvent(event.eventID(), v -> deleteEventLatch.countDown(), e -> {});
         deleteEventLatch.await();
 
         CountDownLatch fetchLatch = new CountDownLatch(1);
@@ -129,23 +129,17 @@ public class EventsDatabaseTest {
      * Tests fetching events by organizer
      */
     @Test
-    public void testFetchEventByOrganizer() throws InterruptedException{
+    public void testFetchEventByOrganizer() throws InterruptedException {
         CountDownLatch addEventLatch = new CountDownLatch(1);
 
         EventsDB db = new EventsDB();
 
         Event event1 = testEvent(1);
         Event event2 = testEvent(2);
-        db.storeEvent(
-                event1,
-                v -> addEventLatch.countDown(),
-                e -> {});
+        db.storeEvent(event1, v -> addEventLatch.countDown(), e -> {});
         addEventLatch.await();
 
-        db.storeEvent(
-                event2,
-                v -> addEventLatch.countDown(),
-                e -> {});
+        db.storeEvent(event2, v -> addEventLatch.countDown(), e -> {});
         addEventLatch.await();
 
         CountDownLatch fetchLatch = new CountDownLatch(1);
@@ -174,7 +168,7 @@ public class EventsDatabaseTest {
      * Tests fetching events by date
      */
     @Test
-    public void testFetchEventByDate() throws InterruptedException{
+    public void testFetchEventByDate() throws InterruptedException {
         CountDownLatch addEventLatch = new CountDownLatch(1);
         Instant timeCheck = LocalDate.of(2027, 2, 1)
                 .atStartOfDay()
@@ -185,16 +179,10 @@ public class EventsDatabaseTest {
 
         Event event1 = testEvent(1);
         Event event2 = testEvent(2);
-        db.storeEvent(
-                event1,
-                v -> addEventLatch.countDown(),
-                e -> {});
+        db.storeEvent(event1, v -> addEventLatch.countDown(), e -> {});
         addEventLatch.await();
 
-        db.storeEvent(
-                event2,
-                v -> addEventLatch.countDown(),
-                e -> {});
+        db.storeEvent(event2, v -> addEventLatch.countDown(), e -> {});
         addEventLatch.await();
 
         CountDownLatch fetchLatch = new CountDownLatch(1);
