@@ -22,16 +22,10 @@ import com.example.evently.data.AccountDB;
 import com.example.evently.data.model.Account;
 
 @RunWith(AndroidJUnit4.class)
-public class AccountDatabaseTest {
+public class AccountDatabaseTest extends FirebaseEmulatorTest {
     @Rule
     public ActivityScenarioRule<MainActivity> scenario =
             new ActivityScenarioRule<MainActivity>(MainActivity.class);
-
-    @BeforeClass
-    public static void setUpEmulators() {
-        FirebaseAuth.getInstance().useEmulator("10.0.2.2", 9099);
-        FirebaseFirestore.getInstance().useEmulator("10.0.2.2", 8080);
-    }
 
     /**
      * The following code tests the store, and fetch account operations.
