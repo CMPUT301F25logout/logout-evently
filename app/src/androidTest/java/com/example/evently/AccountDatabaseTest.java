@@ -6,11 +6,14 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 
 import android.util.Log;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.google.android.gms.tasks.Tasks;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,6 +26,12 @@ public class AccountDatabaseTest extends FirebaseEmulatorTest {
     @Rule
     public ActivityScenarioRule<MainActivity> scenario =
             new ActivityScenarioRule<MainActivity>(MainActivity.class);
+
+    @After
+    public static void cleanUpAccounts() throws ExecutionException, InterruptedException {
+        final var db = new AccountDB();
+        Tasks.await(db.nuke());
+    }
 
     /**
      * The following code tests the store, and fetch account operations.
