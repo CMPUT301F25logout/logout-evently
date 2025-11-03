@@ -1,8 +1,6 @@
 package com.example.evently;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-
 import org.junit.BeforeClass;
 
 public abstract class FirebaseEmulatorTest {
