@@ -1,12 +1,5 @@
 package com.example.evently.ui.entrant;
 
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-
-import androidx.core.content.ContextCompat;
-import androidx.navigation.fragment.NavHostFragment;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,8 +7,13 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import androidx.core.content.ContextCompat;
+import androidx.navigation.fragment.NavHostFragment;
+
 import com.example.evently.R;
-import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.common.EventsFragment;
 
@@ -28,19 +26,18 @@ public class BrowseEventsFragment extends EventsFragment {
     }
 
     @Override
-    public void onViewCreated( View view, Bundle savedInstanceState) {
+    public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Button btnJoined  = view.findViewById(R.id.btnJoined);
-        Button btnBrowse  = view.findViewById(R.id.btnBrowse);
+        Button btnJoined = view.findViewById(R.id.btnJoined);
+        Button btnBrowse = view.findViewById(R.id.btnBrowse);
 
         styleSelected(btnJoined, false);
         styleSelected(btnBrowse, true);
 
         // Navigate to Joined via action id
         btnJoined.setOnClickListener(v ->
-                NavHostFragment.findNavController(this)
-                        .navigate(R.id.action_browse_to_joined));
+                NavHostFragment.findNavController(this).navigate(R.id.action_browse_to_joined));
 
         // Already on Browse
         btnBrowse.setOnClickListener(v -> {});

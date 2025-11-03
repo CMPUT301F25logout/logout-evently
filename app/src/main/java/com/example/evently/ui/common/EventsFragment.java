@@ -41,7 +41,8 @@ public abstract class EventsFragment extends Fragment {
     protected abstract void initEvents(Consumer<List<Event>> callback);
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(
+            LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(getLayoutRes(), container, false);
 
         RecyclerView recyclerView = (view instanceof RecyclerView)
@@ -62,5 +63,4 @@ public abstract class EventsFragment extends Fragment {
 
         return view;
     }
-
 }
