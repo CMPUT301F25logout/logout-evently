@@ -31,15 +31,9 @@ public class AccountDatabaseTest {
             new ActivityScenarioRule<MainActivity>(MainActivity.class);
 
     @BeforeClass
-    public void setUpEmulators() {
+    public static void setUpEmulators() {
         FirebaseAuth.getInstance().useEmulator("10.0.2.2", 9099);
         FirebaseFirestore.getInstance().useEmulator("10.0.2.2", 8080);
-    }
-
-    @After
-    public void teardownDB() throws ExecutionException, InterruptedException {
-        final var db = new AccountDB();
-        Tasks.await(db.nuke());
     }
 
     /**

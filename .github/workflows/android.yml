@@ -56,6 +56,12 @@ jobs:
         GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
     - name: Test with Gradle
       run: ./gradlew test
+    - name: Upload test report in case of failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: unit-test-report
+        path: app/build/reports/tests/testDebugUnitTest/index.html
 
   instrumented-tests:
     runs-on: ubuntu-latest
@@ -69,11 +75,20 @@ jobs:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
       - uses: ./.github/composite/emulators
-      - name: Run instrumented tests
+      - name: Run connected tests with the emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 31
+          api-level: ${{ matrix.api-level }}
           target: google_apis
           arch: x86_64
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
           working-directory: ./firebase
           script: firebase emulators:exec "../gradlew connectedCheck -p ../"
+      - name: Upload test report in case of failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: connected-test-report
+          path: app/build/reports/androidTests/connected/debug/index.html
