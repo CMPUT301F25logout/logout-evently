@@ -1,13 +1,5 @@
-name: 'Setup Firebase and Android emulators'
+name: 'Run connected test with firebase and android emulators'
 description: 'Sets up Firebase emulator based on ./firebase and an android emulator for tests'
-
-inputs:
-  GOOGLE_SERVICES_JSON:
-    description: 'Base64 encoded google-services.json from secrets'
-    required: true
-  GOOGLE_CLIENT_ID:
-    description: 'GOOGLE_CLIENT_ID from secrets'
-    required: true
 
 runs:
   using: "composite"
@@ -55,3 +47,15 @@ runs:
         emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
         disable-animations: false
         script: echo "Generated AVD snapshot for caching."
+
+    - name: Run connected tests with the emulator
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: ${{ matrix.api-level }}
+        target: google_apis
+        arch: x86_64
+        force-avd-creation: false
+        emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+        disable-animations: true
+        working-directory: ./firebase
+        script: firebase emulators:exec "../gradlew connectedCheck -p ../"
