@@ -25,7 +25,6 @@ jobs:
       run: ./gradlew assemble
 
   lint:
-    needs: [build]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -37,7 +36,6 @@ jobs:
       run: ./gradlew lint
 
   spotless:
-    needs: [build]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -49,7 +47,6 @@ jobs:
       run: ./gradlew spotlessCheck
 
   unit-tests:
-    needs: [build]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -60,3 +57,23 @@ jobs:
     - name: Test with Gradle
       run: ./gradlew test
 
+  instrumented-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        api-level: [31]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/composite/setup
+        with:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+      - uses: ./.github/composite/emulators
+      - name: Run instrumented tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 31
+          target: google_apis
+          arch: x86_64
+          working-directory: ./firebase
+          script: firebase emulators:exec "../gradlew connectedCheck -p ../"
