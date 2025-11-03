@@ -5,6 +5,7 @@ plugins {
 
     id("com.diffplug.spotless")
     id("com.google.gms.google-services")
+    id("androidx.navigation.safeargs")
 }
 
 android {

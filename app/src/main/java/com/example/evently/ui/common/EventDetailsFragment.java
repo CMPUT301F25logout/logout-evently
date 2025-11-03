@@ -46,6 +46,10 @@ public class EventDetailsFragment extends Fragment {
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         binding = FragmentEventDetailsBinding.inflate(getLayoutInflater(), container, false);
+
+        // Receive the event ID string
+        String eventID = EventDetailsFragmentArgs.fromBundle(getArguments()).getEventId();
+
         return binding.getRoot();
     }
 
@@ -141,6 +145,7 @@ public class EventDetailsFragment extends Fragment {
      */
     public void addDummyData() {
         event = new Event(
+                UUID.randomUUID(),
                 "Sample Event Name",
                 "Blah Blah Blah Description",
                 Instant.now(),

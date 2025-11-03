@@ -16,6 +16,12 @@ public class BrowseEventsFragment extends EventsFragment {
     @Override
     protected void onEventClick(Event event) {
         // TODO (chase): Navigate to the event details fragment and attach the event ID argument!
+        /*
+        var action =
+                BrowseEventsFragmentDirections.actionNavHomeToEventDetails(String.valueOf(event.eventID()));
+        NavController n = NavHostFragment.findNavController(this);
+        n.navigate(action);
+         */
 
     }
 
@@ -24,6 +30,7 @@ public class BrowseEventsFragment extends EventsFragment {
         // TODO: Replace with “all active events” once DB/Firebase is integrated.
         var placeHolderEvents = new ArrayList<Event>();
         placeHolderEvents.add(new Event(
+                UUID.randomUUID(),
                 "Whale Watching",
                 "See whales off the coast — binoculars provided.",
                 Instant.parse("2025-12-05T23:59:00Z"), // selection date
@@ -34,6 +41,7 @@ public class BrowseEventsFragment extends EventsFragment {
                 Category.SOCIAL));
 
         placeHolderEvents.add(new Event(
+                UUID.randomUUID(),
                 "LAN Gaming",
                 "Bring your rig for co-op action.",
                 Instant.parse("2025-12-01T23:59:00Z"),
@@ -44,6 +52,7 @@ public class BrowseEventsFragment extends EventsFragment {
                 Category.SOCIAL));
 
         placeHolderEvents.add(new Event(
+                UUID.randomUUID(),
                 "Spelling Bee",
                 "Community-wide spelling bee — all ages.",
                 Instant.parse("2025-11-28T23:59:00Z"),
