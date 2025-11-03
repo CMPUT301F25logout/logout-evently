@@ -20,7 +20,7 @@ Create a local file `keys.properties` at the root of this project (same level as
 
 ## Google Authentication on Emulator
 
-To enable Google authentication for the Android Studio emulator, open the device manager and create a virtual device device. Select a device with "Play" (I used Pixel 7 Pro), and install the recommended system image. 
+To enable Google authentication for the Android Studio emulator, open the device manager and create a virtual device. Select a device with "Play" (I used Pixel 7 Pro), and install the recommended system image. 
 
 Once installed, boot up the emulator, open the Play store, and then login to your Google account. Now, the emulator is prepared for Google authentication when the Evently is opened. 
 
