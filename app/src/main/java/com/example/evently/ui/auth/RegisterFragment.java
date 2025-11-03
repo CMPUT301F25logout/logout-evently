@@ -174,9 +174,9 @@ public class RegisterFragment extends Fragment {
         // Obtain the email from firebase user. It should be there since this was a google sign in.
         var user = Objects.requireNonNull(res.getUser());
         var email = Objects.requireNonNull(user.getEmail());
-        // Put the registration data into the bundle for the parent activity to persist.
+        // Creates the bundle
         var dbData = new Bundle();
-        dbData.putString("email", email);
+        dbData.putString("email", email.toString());
         dbData.putString("name", name);
         dbData.putString("phone", phone);
         getParentFragmentManager().setFragmentResult(resultKey, dbData);
