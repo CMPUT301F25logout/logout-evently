@@ -1,6 +1,7 @@
 package com.example.evently.ui.auth;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,9 +14,11 @@ import androidx.credentials.exceptions.GetCredentialInterruptedException;
 import androidx.credentials.exceptions.GetCredentialUnsupportedException;
 import androidx.credentials.exceptions.NoCredentialException;
 
-import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 
 import com.example.evently.R;
+import com.example.evently.data.AccountDB;
+import com.example.evently.data.model.Account;
 import com.example.evently.databinding.ActivityAuthBinding;
 import com.example.evently.ui.entrant.EntrantActivity;
 import com.example.evently.utils.AuthConstants;
@@ -96,20 +99,94 @@ public class AuthActivity extends AppCompatActivity {
                 .commit();
         getSupportFragmentManager()
                 .setFragmentResultListener(
-                        RegisterFragment.resultKey, this, (var key, var bundle) -> {
-                            // TODO (chase): Persist the data in the bundle to register user.
-                            // NOTE: If the bundle contains an email that already exists in the DB,
-                            // show an error and prompt the user to login instead of registering.
-                            startActivity(transition);
-                            finish();
+                        RegisterFragment.resultKey, this, (String key, Bundle bundle) -> {
+                            String email = bundle.getString("email");
+
+                            AccountDB accountDB = new AccountDB();
+                            accountDB.fetchAccount(
+                                    email,
+                                    optionalAccount -> handleAccountDBCheck(
+                                            optionalAccount, false, Optional.of(bundle)),
+                                    e -> {});
                         });
-        hasRegisterForm = true;
+    }
+
+    /**
+     * Handles login, and registration attempts, based on the provided optional account.
+     * If attempting to login, but no account created, it prompts user to register
+     * If attempting to register, but account already exists, it prompts user to login.
+     * @param optionalAccount The optional account of whether the account was found
+     * @param isLoginAttempt A boolean of whether the attempt is to login, register.
+     */
+    private void handleAccountDBCheck(
+            Optional<Account> optionalAccount, boolean isLoginAttempt, Optional<Bundle> bundle) {
+
+        // If the user is attempting to login
+        if (isLoginAttempt) {
+
+            if (optionalAccount.isPresent()) {
+                startActivity(transition);
+                finish();
+            } else {
+                // If the account is not found, it prompts the user to register
+                Toast.makeText(this, "Account not found: Please register", Toast.LENGTH_SHORT)
+                        .show();
+                FirebaseAuth.getInstance().signOut();
+                showRegisterForm();
+            }
+        }
+        // If the user is attempting to register:
+        else {
+            if (optionalAccount.isPresent()) {
+                //                 If email already in the DB, prompt user to login instead.
+                FirebaseAuth.getInstance().signOut();
+                Toast.makeText(this, "Account already registered: Please login", Toast.LENGTH_SHORT)
+                        .show();
+
+                binding.login.setVisibility(View.VISIBLE);
+                binding.registerForm.setVisibility(View.VISIBLE);
+                hasRegisterForm = false;
+
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .remove(getSupportFragmentManager()
+                                .findFragmentById(R.id.register_form_container))
+                        .commit();
+            } else {
+                // If user is trying to register and not in DB, we register them.
+                AccountDB accountDB = new AccountDB();
+
+                if (bundle.isEmpty()) {
+                    throw new IllegalArgumentException("Bundle for registration must be provided!");
+                }
+
+                String email = bundle.get().getString("email");
+                String name = bundle.get().getString("name");
+                String phone = bundle.get().getString("phone");
+
+                // If user is not found, create an account for them with the new info
+                Account newAccount = new Account(email, name, Optional.ofNullable(phone), email);
+                accountDB.storeAccount(newAccount);
+                startActivity(transition);
+                finish();
+            }
+        }
     }
 
     private void tryLoggingIn(int retryCount) {
         firebaseLogin.launchLogin(
                 false,
-                this::successfulLogin,
+                res -> {
+                    var user = Objects.requireNonNull(res.getUser());
+                    String email = Objects.requireNonNull(user.getEmail()).toString();
+
+                    new AccountDB()
+                            .fetchAccount(
+                                    email,
+                                    optionalAccount -> handleAccountDBCheck(
+                                            optionalAccount, true, Optional.empty()),
+                                    e -> {});
+                },
                 e -> {
                     switch (e) {
                         case GetCredentialCancellationException ce -> {
@@ -145,11 +222,6 @@ public class AuthActivity extends AppCompatActivity {
                     }
                 },
                 this::unrecoverableError);
-    }
-
-    private void successfulLogin(AuthResult res) {
-        startActivity(transition);
-        finish();
     }
 
     private void unrecoverableError(Exception e) {
