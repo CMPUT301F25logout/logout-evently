@@ -6,11 +6,17 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 
 import android.util.Log;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import org.junit.After;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,6 +29,18 @@ public class AccountDatabaseTest {
     @Rule
     public ActivityScenarioRule<MainActivity> scenario =
             new ActivityScenarioRule<MainActivity>(MainActivity.class);
+
+    @BeforeClass
+    public void setUpEmulators() {
+        FirebaseAuth.getInstance().useEmulator("10.0.2.2", 9099);
+        FirebaseFirestore.getInstance().useEmulator("10.0.2.2", 8080);
+    }
+
+    @After
+    public void teardownDB() throws ExecutionException, InterruptedException {
+        final var db = new AccountDB();
+        Tasks.await(db.nuke());
+    }
 
     /**
      * The following code tests the store, and fetch account operations.
@@ -59,7 +77,7 @@ public class AccountDatabaseTest {
                 fetchedAccount -> {
                     fetchLatch.countDown();
 
-                    assertTrue(fetchedAccount.isPresent());
+                    assertFalse(fetchedAccount.isPresent());
                     assertEquals(fetchedAccount.get(), addedAccount);
                 },
                 e -> {
