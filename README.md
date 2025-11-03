@@ -18,11 +18,17 @@ Next, you need the google cloud server client ID. Go to [Google cloud console](h
 
 Create a local file `keys.properties` at the root of this project (same level as this README.md). Put in `GOOGLE_CLIENT_ID="<PASTE THE CLIENT ID>"` in its own line. Make sure the client ID you pasted is in quotes.
 
+### Emulator
+
+It is recommended you use firebase emulator to run tests. Run `firebase emulators:start` inside the [firebase](./firebase/) directory to start emulators (do this in a separate terminal).
+
+All instrumented tests should extend `FirebaseEmulatorTest` to hook up all firebase calls with the emulator. Once this is done, running the instrumented tests with an AVD (Android emulator) will use this emulated firebase.
+
 ## Google Authentication on Emulator
 
-To enable Google authentication for the Android Studio emulator, open the device manager and create a virtual device. Select a device with "Play" (I used Pixel 7 Pro), and install the recommended system image. 
+To enable Google authentication for the Android Studio emulator, open the device manager and create a virtual device. Select a device with "Play" (I used Pixel 7 Pro), and install the recommended system image.
 
-Once installed, boot up the emulator, open the Play store, and then login to your Google account. Now, the emulator is prepared for Google authentication when the Evently is opened. 
+Once installed, boot up the emulator, open the Play store, and then login to your Google account. Now, the emulator is prepared for Google authentication when the Evently is opened.
 
 ## Test build
 
