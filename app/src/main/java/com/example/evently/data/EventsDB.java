@@ -1,16 +1,25 @@
 package com.example.evently.data;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import com.example.evently.data.model.Event;
@@ -29,76 +38,38 @@ public class EventsDB {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
     }
+    
+    private static Optional<Event> getEventFromSnapshot(DocumentSnapshot documentSnapshot)
+            throws NullPointerException {
 
-    /**
-     * Creates but does not store an event.
-     * @param name The name of the event
-     * @param description A brief description about the event available for view to entrants.
-     * @param selectionTime Time after which lottery selection will be performed on enlisted entrants.
-     *                      Once this time has passed, the event will not be available for entry.
-     *                      However, re-selections may take place if invited entrants cancel.
-     * @param eventTime Time on which the event is set to happen. No re-selections will take place afterwards.
-     * @param organizer Email for the organizer. This should correspond with the database.
-     * @param entrantLimit Optional limit to the total number of entrants that may enlist before selection.
-     * @param selectionLimit Event capacity. This is the total number of enlisted entrants that may be selected.
-     * @return the created event
-     */
-    public Event createEvent(
-            String name,
-            String description,
-            Date selectionTime,
-            Date eventTime,
-            String organizer,
-            Optional<Long> entrantLimit,
-            long selectionLimit) {
-        Event event = new Event(
-                UUID.randomUUID(),
-                name,
-                description,
-                selectionTime,
-                eventTime,
-                organizer,
-                entrantLimit,
-                selectionLimit,
-                new ArrayList<>(),
-                new ArrayList<>(),
-                new ArrayList<>(),
-                new ArrayList<>());
-        verifyEvent(event);
-        return event;
-    }
+        if (!documentSnapshot.exists()) return Optional.empty();
 
-    /**
-     * Verifies an event is valid
-     * @param event The event to be verified
-     * @throws IllegalArgumentException If one or more parameters of the event were invalid.
-     */
-    private void verifyEvent(Event event) {
-        if (event.name().isBlank()) {
-            throw new IllegalArgumentException("'name' must not be left blank");
-        }
+        Function<String, ArrayList<String>> unpackList = field ->
+                Arrays
+                        .stream(documentSnapshot.getString(field).split(","))
+                        .collect(Collectors.toCollection(ArrayList::new));
 
-        if (event.description().isBlank()) {
-            throw new IllegalArgumentException("'description' must not be left blank");
-        }
+        long longEntrantLimit = documentSnapshot.getLong("entrantLimit");
+        Optional<Long> optionalEntrantLimit = Optional.of(longEntrantLimit);
 
-        if (event.eventTime().before(event.selectionTime())) {
-            throw new IllegalArgumentException("'eventTime' must not be before 'selectionTime'");
-        }
-
-        if (event.selectionLimit() <= 0) {
-            throw new IllegalArgumentException("'selectionLimit' must be positive");
-        }
-
-        event.entrantLimit().ifPresent(limit -> {
-            if (limit <= 0) {
-                throw new IllegalArgumentException("'entrantLimit' must be positive");
-            }
-            if (limit < event.selectionLimit()) {
-                throw new IllegalArgumentException(
-                        "'selectionLimit' must not be lower than 'entrantLimit'.");
-            }
-        });
+        return Optional.of(new Event(
+                UUID.fromString(documentSnapshot.getId()),
+                documentSnapshot.getString("name"),
+                documentSnapshot.getString("description"),
+                documentSnapshot.getTimestamp("selectionTime").toDate().toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate(),
+                documentSnapshot.getTimestamp("eventTime").toDate().toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDateTime(),
+                documentSnapshot.getString("organizer"),
+                optionalEntrantLimit,
+                documentSnapshot.getLong("selectionLimit"),
+                unpackList.apply("entrants"),
+                unpackList.apply("cancelledEntrants"),
+                unpackList.apply("selectedEntrants"),
+                unpackList.apply("enrolledEntrants")
+        ));
     }
 
     /**
@@ -111,32 +82,30 @@ public class EventsDB {
     }
 
     /**
+     * Stores an event in the database.
+     * @param event event to be stored
+     * @param onSuccess Action to be performed on success
+     * @param onException Action to be performed on exception
+     */
+    public void storeEvent(Event event, Consumer<Void> onSuccess, Consumer<Exception> onException) {
+        DocumentReference docRef = eventsRef.document(event.eventID().toString());
+        docRef.set(event.toHashMap())
+                .addOnSuccessListener(onSuccess::accept)
+                .addOnFailureListener(onException::accept);
+    }
+
+    /**
      * Fetch an event from database by UUID.
      * @param eventID UUID of the event
      * @param onSuccess Action to be performed on success
      * @param onException Action to be performed on exception
      */
     public void fetchEvent(
-            UUID eventID, Consumer<DocumentSnapshot> onSuccess, Consumer<Exception> onException) {
+            UUID eventID, Consumer<Optional<Event>> onSuccess, Consumer<Exception> onException) {
         eventsRef
                 .document(eventID.toString())
                 .get()
-                .addOnSuccessListener(onSuccess::accept)
-                .addOnFailureListener(onException::accept);
-    }
-
-    /**
-     * Fetch an event from database by {@code String} eventID.
-     * @param eventID eventID of the event
-     * @param onSuccess Action to be performed on success
-     * @param onException Action to be performed on exception
-     */
-    public void fetchEvent(
-            String eventID, Consumer<DocumentSnapshot> onSuccess, Consumer<Exception> onException) {
-        eventsRef
-                .document(eventID)
-                .get()
-                .addOnSuccessListener(onSuccess::accept)
+                .addOnSuccessListener(docSnapshot -> onSuccess.accept(getEventFromSnapshot(docSnapshot)))
                 .addOnFailureListener(onException::accept);
     }
 
@@ -147,28 +116,20 @@ public class EventsDB {
      * @param onException Action to be performed on exception
      */
     public void fetchEventsByOrganizers(
-            String organizer, Consumer<QuerySnapshot> onSuccess, Consumer<Exception> onException) {
+            String organizer, Consumer<Collection<Event>> onSuccess, Consumer<Exception> onException) {
         eventsRef
                 .whereEqualTo("organizer", organizer)
                 .get()
-                .addOnSuccessListener(onSuccess::accept)
-                .addOnFailureListener(onException::accept);
-    }
+                .addOnSuccessListener(querySnapshot -> {
+                    List<Event> events = new ArrayList<>();
+                    for (DocumentSnapshot docSnapshot : querySnapshot.getDocuments()) {
+                        Optional<Event> event = getEventFromSnapshot(docSnapshot);
+                        if (event.isEmpty()) continue;
+                        events.add(event.get());
+                    }
 
-    /**
-     * Fetch events from database with one of the organizer emails.
-     * @param organizers emails of the event organizers
-     * @param onSuccess Action to be performed on success
-     * @param onException Action to be performed on exception
-     */
-    public void fetchEventsByOrganizers(
-            List<String> organizers,
-            Consumer<QuerySnapshot> onSuccess,
-            Consumer<Exception> onException) {
-        eventsRef
-                .whereIn("organizer", organizers)
-                .get()
-                .addOnSuccessListener(onSuccess::accept)
+                    onSuccess.accept(events);
+                })
                 .addOnFailureListener(onException::accept);
     }
 
@@ -180,23 +141,30 @@ public class EventsDB {
      * @param isStart {@code true} for events after constraint, {@code false} for events before.
      */
     public void fetchEventsByDate(
-            Date dateConstraint,
-            Consumer<QuerySnapshot> onSuccess,
+            Timestamp dateConstraint,
+            Consumer<Collection<Event>> onSuccess,
             Consumer<Exception> onException,
             boolean isStart) {
+        Query query;
         if (isStart) {
-            eventsRef
-                    .whereGreaterThan("eventTime", dateConstraint)
-                    .get()
-                    .addOnSuccessListener(onSuccess::accept)
-                    .addOnFailureListener(onException::accept);
+            query = eventsRef.whereGreaterThan("eventTime", dateConstraint);
         } else {
-            eventsRef
-                    .whereLessThan("eventTime", dateConstraint)
-                    .get()
-                    .addOnSuccessListener(onSuccess::accept)
-                    .addOnFailureListener(onException::accept);
+            query = eventsRef.whereLessThan("eventTime", dateConstraint);
         }
+        query
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<Event> events = new ArrayList<>();
+                    for (DocumentSnapshot docSnapshot : querySnapshot.getDocuments()) {
+                        Optional<Event> event = getEventFromSnapshot(docSnapshot);
+                        if (event.isEmpty()) continue;
+                        events.add(event.get());
+                    }
+
+                    onSuccess.accept(events);
+                })
+                .addOnFailureListener(onException::accept);
+
     }
 
     /**
@@ -207,8 +175,8 @@ public class EventsDB {
      * @param onException Action to be performed on exception
      */
     public void fetchEventsByDate(
-            Date startTime,
-            Date endTime,
+            Timestamp startTime,
+            Timestamp endTime,
             Consumer<QuerySnapshot> onSuccess,
             Consumer<Exception> onException) {
         eventsRef
@@ -257,6 +225,20 @@ public class EventsDB {
      */
     public void deleteEvent(UUID eventID) {
         eventsRef.document(eventID.toString()).delete();
+    }
+
+    /**
+     * Remove given event from DB
+     * @param eventID UUID of event
+     * @param onSuccess A callback for the onSuccessListener
+     * @param onException A callback for the onFailureListener
+     */
+    public void deleteEvent(UUID eventID, Consumer<Void> onSuccess, Consumer<Exception> onException) {
+        eventsRef
+                .document(eventID.toString())
+                .delete()
+                .addOnSuccessListener(onSuccess::accept)
+                .addOnFailureListener(onException::accept);
     }
 
     /**

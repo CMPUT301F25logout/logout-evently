@@ -1,5 +1,11 @@
 package com.example.evently.data.model;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,8 +35,8 @@ public record Event(
         UUID eventID,
         String name,
         String description,
-        Date selectionTime,
-        Date eventTime,
+        LocalDate selectionTime,
+        LocalDateTime eventTime,
         String organizer,
         Optional<Long> entrantLimit,
         long selectionLimit,
@@ -38,6 +44,60 @@ public record Event(
         Collection<String> cancelledEntrants,
         Collection<String> selectedEntrants,
         Collection<String> enrolledEntrants) {
+
+    public Event {
+        if (name.isBlank()) {
+            throw new IllegalArgumentException("'name' must not be left blank");
+        }
+
+        if (description.isBlank()) {
+            throw new IllegalArgumentException("'description' must not be left blank");
+        }
+
+        if (eventTime.isBefore(selectionTime.atStartOfDay())) {
+            throw new IllegalArgumentException("'eventTime' must not be before 'selectionTime'");
+        }
+
+        if (selectionLimit <= 0) {
+            throw new IllegalArgumentException("'selectionLimit' must be positive");
+        }
+
+        entrantLimit.ifPresent(limit -> {
+            if (limit <= 0) {
+                throw new IllegalArgumentException("'entrantLimit' must be positive");
+            }
+            if (limit < selectionLimit) {
+                throw new IllegalArgumentException(
+                        "'selectionLimit' must not be lower than 'entrantLimit'.");
+            }
+        });
+    }
+
+    public Event(
+            UUID eventID,
+            String name,
+            String description,
+            LocalDate selectionTime,
+            LocalDateTime eventTime,
+            String organizer,
+            Optional<Long> entrantLimit,
+            long selectionLimit
+    ) {
+        this(eventID, name, description, selectionTime, eventTime, organizer, entrantLimit, selectionLimit, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+    }
+
+    public Event(
+            String name,
+            String description,
+            LocalDate selectionTime,
+            LocalDateTime eventTime,
+            String organizer,
+            Optional<Long> entrantLimit,
+            long selectionLimit
+    ) {
+        this(UUID.randomUUID(), name, description, selectionTime, eventTime, organizer, entrantLimit, selectionLimit, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+    }
+
     /**
      * Converts an event to a hashMap for storing in the DB. Since the eventID
      * is the primary key of the event, it is not added to the hashMap
@@ -48,16 +108,35 @@ public record Event(
 
         hashMap.put("name", this.name());
         hashMap.put("description", this.description());
-        hashMap.put("selectionTime", this.selectionTime());
-        hashMap.put("eventTime", this.eventTime());
+        hashMap.put("selectionTime", Timestamp.from(this.selectionTime().atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        hashMap.put("eventTime", Timestamp.from(this.eventTime().atZone(ZoneId.systemDefault()).toInstant()));
         hashMap.put("organizer", this.organizer());
         hashMap.put("entrantLimit", this.entrantLimit().orElse(null));
         hashMap.put("selectionLimit", this.selectionLimit());
-        hashMap.put("entrants", this.entrants());
-        hashMap.put("cancelledEntrants", this.cancelledEntrants());
-        hashMap.put("selectedEntrants", this.selectedEntrants());
-        hashMap.put("enrolledEntrants", this.enrolledEntrants());
+        hashMap.put("entrants", this.entrants().toString().replaceAll("[\\[\\]]", ""));
+        hashMap.put("cancelledEntrants", this.cancelledEntrants().toString().replaceAll("[\\[\\]]", ""));
+        hashMap.put("selectedEntrants", this.selectedEntrants().toString().replaceAll("[\\[\\]]", ""));
+        hashMap.put("enrolledEntrants", this.enrolledEntrants().toString().replaceAll("[\\[\\]]", ""));
 
         return hashMap;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other == null || other.getClass() != getClass()) return false;
+        Event event = (Event) other;
+        if (!this.eventID().equals(event.eventID())) return false;
+        if (!this.name().equals(event.name())) return false;
+        if (!this.description().equals(event.description())) return false;
+        if (!this.selectionTime().isEqual(event.selectionTime())) return false;
+        if (!this.eventTime().isEqual(event.eventTime())) return false;
+        if (!this.organizer().equals(event.organizer())) return false;
+        if (!this.entrantLimit().equals(event.entrantLimit())) return false;
+        if (this.selectionLimit() != event.selectionLimit()) return false;
+        if (!this.entrants().toString().equals(event.entrants().toString())) return false;
+        if (!this.cancelledEntrants().toString().equals(event.cancelledEntrants().toString())) return false;
+        if (!this.selectedEntrants().toString().equals(event.selectedEntrants().toString())) return false;
+        return this.enrolledEntrants().toString().equals(event.enrolledEntrants().toString());
     }
 }
