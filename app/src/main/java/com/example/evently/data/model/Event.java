@@ -1,5 +1,6 @@
 package com.example.evently.data.model;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -221,9 +222,11 @@ public record Event(
      * @return whether the event is closed or open at given time.
      */
     public EventStatus computeStatus(Instant now) {
-        if (now.isBefore(Instant.ofEpochSecond(this.selectionTime().getSeconds(), this.selectionTime().getNanoseconds())) {
+        if (now.isBefore(Instant.ofEpochSecond(
+                this.selectionTime().getSeconds(), this.selectionTime().getNanoseconds()))) {
             return EventStatus.OPEN;
         } else {
             return EventStatus.CLOSED;
         }
+    }
 }
