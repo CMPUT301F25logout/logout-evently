@@ -1,5 +1,7 @@
 package com.example.evently.utils;
 
+import android.util.Log;
+
 import java.time.Instant;
 
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -18,14 +20,14 @@ public final class FirebaseMessagingUtils {
         var fcmToken = new FcmToken(token, Instant.now());
 
         assert userEmail != null;
+        Log.d("StoreToken", userEmail);
 
         // Update the token if it's different from the existing one.
         db.collection("fcmTokens").document(userEmail).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 var snapshot = task.getResult();
                 var existingToken = snapshot.get("token");
-                assert existingToken != null;
-                if (existingToken.equals(token)) {
+                if (existingToken != null && existingToken.equals(token)) {
                     // Same token, no need to update.
                     return;
                 }

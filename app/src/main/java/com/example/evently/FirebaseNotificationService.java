@@ -8,7 +8,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
-import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
@@ -45,7 +44,8 @@ public class FirebaseNotificationService extends FirebaseMessagingService {
             // The notifications our cloud functions send always contain both.
             final var notifTitle = remoteMessage.getNotification().getTitle();
             final var notifBody = remoteMessage.getNotification().getBody();
-            final var notificationID = UUID.fromString(dataPayload.get(IntentConstants.NOTIFICATION_INTENT_ID_KEY));
+            final var notificationID =
+                    UUID.fromString(dataPayload.get(IntentConstants.NOTIFICATION_INTENT_ID_KEY));
             if (notifTitle != null && notifBody != null && notificationID != null) {
                 sendNotification(notifTitle, notifBody, notificationID);
             }
@@ -89,9 +89,9 @@ public class FirebaseNotificationService extends FirebaseMessagingService {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         final var channelId = getString(R.string.default_notif_channel);
-        final var defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        final var notificationBuilder = new NotificationCompat.Builder(
-                        this, channelId)
+        final var defaultSoundUri =
+                RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        final var notificationBuilder = new NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.drawable.ic_notifs)
                 .setContentTitle(messageTitle)
                 .setContentText(messageBody)

@@ -9,9 +9,6 @@ import java.util.function.Consumer;
 
 import android.os.Build;
 import android.os.Bundle;
-import android.view.View;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.example.evently.data.model.Notification;
 import com.example.evently.ui.common.NotificationsFragment;
@@ -19,12 +16,13 @@ import com.example.evently.utils.IntentConstants;
 
 public class ViewNotificationsFragment extends NotificationsFragment {
     protected void onNotificationClick(Notification notif) {
-        final var dialog = switch (notif.channel()) {
-            case Winners -> new NotificationWinnerDialog();
-            // TODO (chase): Do the other notifications need anything special or
-            //  is it okay for all of them to have the same dialog behavior (like here)?
-            default -> new NotificationGenericDialog();
-        };
+        final var dialog =
+                switch (notif.channel()) {
+                    case Winners -> new NotificationWinnerDialog();
+                    // TODO (chase): Do the other notifications need anything special or
+                    //  is it okay for all of them to have the same dialog behavior (like here)?
+                    default -> new NotificationGenericDialog();
+                };
         var bundle = new Bundle();
         bundle.putString("title", notif.title());
         bundle.putString("message", notif.description());
