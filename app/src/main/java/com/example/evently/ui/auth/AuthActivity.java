@@ -15,6 +15,7 @@ import androidx.credentials.exceptions.GetCredentialUnsupportedException;
 import androidx.credentials.exceptions.NoCredentialException;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import com.example.evently.R;
 import com.example.evently.data.AccountDB;
@@ -47,9 +48,6 @@ public class AuthActivity extends AppCompatActivity {
     private FirebaseLogin firebaseLogin;
     private ActivityAuthBinding binding;
 
-    // Utility for transitioning to the next activity.
-    private Intent transition;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,7 +57,6 @@ public class AuthActivity extends AppCompatActivity {
 
         firebaseLogin = new FirebaseLogin(this);
         activityRecreated = savedInstanceState != null;
-        transition = new Intent(AuthActivity.this, EntrantActivity.class);
 
         // Manual buttons in case user refuses the auto login prompt.
         binding.login.setOnClickListener(v -> tryLoggingIn(0));
@@ -79,8 +76,7 @@ public class AuthActivity extends AppCompatActivity {
 
         if (firebaseLogin.isLoggedIn()) {
             // Already signed in - move on to next activity
-            startActivity(transition);
-            finish();
+            successfulTransition();
             return;
         }
 
@@ -125,8 +121,7 @@ public class AuthActivity extends AppCompatActivity {
         if (isLoginAttempt) {
 
             if (optionalAccount.isPresent()) {
-                startActivity(transition);
-                finish();
+                successfulTransition();
             } else {
                 // If the account is not found, it prompts the user to register
                 Toast.makeText(this, "Account not found: Please register", Toast.LENGTH_SHORT)
@@ -167,8 +162,6 @@ public class AuthActivity extends AppCompatActivity {
                 // If user is not found, create an account for them with the new info
                 Account newAccount = new Account(email, name, Optional.ofNullable(phone), email);
                 accountDB.storeAccount(newAccount);
-                startActivity(transition);
-                finish();
             }
         }
     }
@@ -222,6 +215,20 @@ public class AuthActivity extends AppCompatActivity {
                     }
                 },
                 this::unrecoverableError);
+    }
+
+    private void successfulTransition() {
+        // Once user has logged in - they're free to receive FCM stuff again.
+        FirebaseMessaging.getInstance().setAutoInitEnabled(true);
+        // Target is always the Entrant screen.
+        var transition = new Intent(AuthActivity.this, EntrantActivity.class);
+        // We forward any extras that we were passed.
+        var thisExtras = getIntent().getExtras();
+        if (thisExtras != null) {
+            transition.putExtras(thisExtras);
+        }
+        startActivity(transition);
+        finish();
     }
 
     private void unrecoverableError(Exception e) {

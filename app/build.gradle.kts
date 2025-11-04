@@ -53,6 +53,16 @@ android {
         buildConfig = true
         viewBinding = true
     }
+
+    lint {
+        checkAllWarnings = true
+        abortOnError = true
+        warningsAsErrors = false
+    }
+
+    tasks.withType<JavaCompile> {
+        options.compilerArgs.add("-Xlint:deprecation")
+    }
 }
 
 spotless {
@@ -93,6 +103,7 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.messaging)
 
     implementation(libs.credentials)
     implementation(libs.credentials.play.services.auth)
