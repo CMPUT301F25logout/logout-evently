@@ -12,7 +12,7 @@
         tools:layout="@layout/fragment_organizer_event_list"/>
 
     <fragment
-        android:id="@+id/nav_create_event"
+        android:id="@+id/navigate_create_events"
         android:name="com.example.evently.ui.organizer.CreateEventFragment"
         android:label="Create Event"
         tools:layout="@layout/fragment_create_event" />
