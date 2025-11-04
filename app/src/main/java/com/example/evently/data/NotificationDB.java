@@ -1,6 +1,7 @@
 package com.example.evently.data;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -135,7 +136,6 @@ public class NotificationDB {
                     ArrayList<UUID> eventIDs = new ArrayList<>();
                     for (Event e : eventCollection) eventIDs.add(e.eventID());
 
-                    //
                     notificationsRef
                             .whereIn("eventId", eventIDs)
                             .get()
@@ -155,27 +155,93 @@ public class NotificationDB {
                 onException);
     }
 
-    //    /**
-    //     * Fetches unseen notifications from the DB by a user.
-    //     * @param email The organizer of the events which have sent notifications
-    //     * @param onSuccess A callback with the notifications the organizer has created.
-    //     * @param onException A callback for exceptions.
-    //     */
-    //    public void fetchUnseenNotificationsByUser(
-    //            String organizer,
-    //            Consumer<ArrayList<Notification>> onSuccess,
-    //            Consumer<Exception> onException) {}
+    /**
+     * Fetches unseen notifications from the DB by a user.
+     * @param email The user with the email.
+     * @param onSuccess A callback of the unseen notifications.
+     * @param onException A callback for exceptions.
+     */
+    public void fetchUnseenNotificationsByUser(
+            String email,
+            Consumer<ArrayList<Notification>> onSuccess,
+            Consumer<Exception> onException) {
 
-    // TODO: Complete once EventDB is completed.
-    //    public void fetchUserNotifications(String email, Consumer<ArrayList<Notification>>
-    // onSuccess, Consumer<Exception> onException) {
-    //
-    //
-    //        EventsDB eventsDB = new EventsDB();
-    //
-    //        // Gets all events the user is an enterant of.
-    //        eventsDB.fetchEventsByUser(email, eventList -> {
-    //
-    //        }, onException);
-    //    }
+        fetchUserNotifications(
+                email,
+                notifications -> {
+
+                    // Removes notifications if they have been seen.
+                    notifications.removeIf(n -> n.hasSeen(email));
+                    onSuccess.accept(notifications);
+                },
+                onException);
+    }
+
+    /**
+     * Fetches user notifications
+     * @param email The user's email
+     * @param onSuccess A callback function of the user's notifications
+     * @param onException A callback function for exceptions.
+     */
+    public void fetchUserNotifications(
+            String email,
+            Consumer<ArrayList<Notification>> onSuccess,
+            Consumer<Exception> onException) {
+
+        EventsDB eventsDB = new EventsDB();
+
+        eventsDB.fetchEventListByEntrant(
+                email,
+                eventList -> {
+
+                    // Creates a hash map of the event ID's related to the channel notifications.
+                    HashMap<UUID, Notification.Channel> eventIds = new HashMap<>();
+                    for (Event e : eventList) {
+
+                        eventIds.put(e.eventID(), Notification.Channel.All);
+                        if (e.selectedEntrants().contains(email)) {
+                            eventIds.put(e.eventID(), Notification.Channel.Winners);
+                        }
+                        if (e.cancelledEntrants().contains(email)) {
+                            eventIds.put(e.eventID(), Notification.Channel.Cancelled);
+                        }
+                        // If someone is selected, and this entrant isn't, it is a loser
+                        if (e.selectedEntrants().isEmpty()
+                                && eventIds.get(e.eventID()) == Notification.Channel.All) {
+                            eventIds.put(e.eventID(), Notification.Channel.Losers);
+                        }
+                    }
+
+                    // Gets the notifications for the events a user has enrolled..
+                    notificationsRef
+                            .whereIn("eventId", new ArrayList<>(eventIds.keySet()))
+                            .get()
+                            .addOnSuccessListener(allDocsSnapshot -> {
+                                ArrayList<Notification> notifications =
+                                        new ArrayList<Notification>();
+
+                                // Adds each notification to the notifications list if it is the
+                                // correct channel
+                                for (QueryDocumentSnapshot documentSnapshot : allDocsSnapshot) {
+                                    if (documentSnapshot.exists()) {
+
+                                        // Adds the notification list if the message is to all event
+                                        // participants or if the user is a member of a certain
+                                        // Channel.
+                                        Notification n =
+                                                notificationFromQuerySnapshot(documentSnapshot);
+                                        if (n.channel() == Notification.Channel.All
+                                                || n.channel() == eventIds.get(n.eventId())) {
+                                            notifications.add(n);
+                                        }
+                                    }
+                                }
+
+                                // Runs the provided callback function.
+                                onSuccess.accept(notifications);
+                            })
+                            .addOnFailureListener(onException::accept);
+                },
+                onException);
+    }
 }

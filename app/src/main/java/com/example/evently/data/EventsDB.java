@@ -200,6 +200,30 @@ public class EventsDB {
     }
 
     /**
+     * Fetch events with an entrant.
+     * @param entrant email of entrant account
+     * @param onSuccess A callback for the onSuccessListener
+     * @param onException A callback for the onFailureListener
+     */
+    public void fetchEventListByEntrant(
+            String entrant, Consumer<ArrayList<Event>> onSuccess, Consumer<Exception> onException) {
+        eventsRef
+                .whereArrayContains("entrants", entrant)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    ArrayList<Event> events = new ArrayList<>();
+                    for (DocumentSnapshot docSnapshot : querySnapshot.getDocuments()) {
+                        Optional<Event> event = getEventFromSnapshot(docSnapshot);
+                        if (event.isEmpty()) continue;
+                        events.add(event.get());
+                    }
+
+                    onSuccess.accept(events);
+                })
+                .addOnFailureListener(onException::accept);
+    }
+
+    /**
      * Fetch events with one of the accounts enrolled.
      * @param enrollees emails of enrolled accounts
      * @param onSuccess A callback for the onSuccessListener
