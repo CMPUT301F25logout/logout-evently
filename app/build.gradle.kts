@@ -2,7 +2,6 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
-
     id("com.diffplug.spotless")
     id("com.google.gms.google-services")
 }
@@ -98,6 +97,7 @@ dependencies {
     implementation(libs.credentials.play.services.auth)
     implementation(libs.googleid)
     implementation(libs.play.services.auth)
+    implementation(libs.firebase.database)
 
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
