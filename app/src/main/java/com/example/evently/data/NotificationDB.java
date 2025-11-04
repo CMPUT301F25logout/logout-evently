@@ -25,6 +25,7 @@ public class NotificationDB {
 
     /**
      * Stores a provided notification in the database, with the notification id as the primary key.
+     *
      * @param notification The notification to be stored.
      */
     public void storeNotification(Notification notification) {
@@ -37,6 +38,7 @@ public class NotificationDB {
 
     /**
      * Creates a notification from a QueryDocumentSnapshot
+     *
      * @param snapshot The queryDocumentSnapshot for the notification
      * @return A notification from the QueryDocumentSnapshot.
      */
@@ -55,6 +57,7 @@ public class NotificationDB {
     /**
      * Fetches all notifications, ordered by time sent.
      * a user's notifications.
+     *
      * @param onSuccess
      * @param onException
      */
@@ -71,7 +74,6 @@ public class NotificationDB {
                     ArrayList<Notification> notifications = new ArrayList<>();
                     // If we have a notification
                     if (!allDocs.isEmpty()) {
-
                         // Adds each notification to the list of notifiations.
                         for (QueryDocumentSnapshot doc : allDocs) {
                             Notification newNotification = notificationFromQuerySnapshot(doc);
@@ -79,18 +81,101 @@ public class NotificationDB {
                         }
                     }
                     onSuccess.accept(notifications);
-                });
+                })
+                .addOnFailureListener(onException::accept);
     }
+
+    /**
+     * Gets the notifications for a specific event
+     * @param eventID     The event being searched for notifications.
+     * @param onSuccess   Callback for when the notifications are discovered
+     * @param onException Callback for exceptions
+     */
+    public void fetchEventNotifications(
+            UUID eventID,
+            Consumer<ArrayList<Notification>> onSuccess,
+            Consumer<Exception> onException) {
+
+        // Gets the notifications for an event
+        notificationsRef
+                .whereEqualTo("eventId", eventID.toString())
+                .get()
+                .addOnSuccessListener(allDocsSnapshot -> {
+                    ArrayList<Notification> notifications = new ArrayList<>();
+
+                    // Adds each notification to the notifications list
+                    for (QueryDocumentSnapshot documentSnapshot : allDocsSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            notifications.add(notificationFromQuerySnapshot(documentSnapshot));
+                        }
+                    }
+                    onSuccess.accept(notifications);
+                })
+                .addOnFailureListener(onException::accept);
+    }
+
+    /**
+     * Fetches notifications from the DB by an organizer.
+     * @param organizer The organizer of the events which have sent notifications
+     * @param onSuccess A callback with the notifications the organizer has created.
+     * @param onException A callback for exceptions.
+     */
+    public void fetchNotificationsByOrganizer(
+            String organizer,
+            Consumer<ArrayList<Notification>> onSuccess,
+            Consumer<Exception> onException) {
+        EventsDB eventsDB = new EventsDB();
+
+        // Fetches event by organizers
+        eventsDB.fetchEventsByOrganizers(
+                organizer,
+                eventCollection -> {
+
+                    // Adds fetched eventID's to a list.
+                    ArrayList<UUID> eventIDs = new ArrayList<>();
+                    for (Event e : eventCollection) eventIDs.add(e.eventID());
+
+                    //
+                    notificationsRef
+                            .whereIn("eventId", eventIDs)
+                            .get()
+                            .addOnSuccessListener(allDocsSnapshot -> {
+                                ArrayList<Notification> notifications = new ArrayList<>();
+
+                                // Adds each notification to the notifications list
+                                for (QueryDocumentSnapshot documentSnapshot : allDocsSnapshot) {
+                                    if (documentSnapshot.exists()) {
+                                        notifications.add(
+                                                notificationFromQuerySnapshot(documentSnapshot));
+                                    }
+                                }
+                                onSuccess.accept(notifications);
+                            });
+                },
+                onException);
+    }
+
+    //    /**
+    //     * Fetches unseen notifications from the DB by a user.
+    //     * @param email The organizer of the events which have sent notifications
+    //     * @param onSuccess A callback with the notifications the organizer has created.
+    //     * @param onException A callback for exceptions.
+    //     */
+    //    public void fetchUnseenNotificationsByUser(
+    //            String organizer,
+    //            Consumer<ArrayList<Notification>> onSuccess,
+    //            Consumer<Exception> onException) {}
 
     // TODO: Complete once EventDB is completed.
-    public void fetchUserNotifications(String email, Consumer<ArrayList<Notification>> onSuccess) {
-
-        fetchAllNotifications(
-                notifications -> {
-
-                    // Gets all events using future eventDB
-                    ArrayList<Event> events = new ArrayList<>();
-                },
-                e -> {});
-    }
+    //    public void fetchUserNotifications(String email, Consumer<ArrayList<Notification>>
+    // onSuccess, Consumer<Exception> onException) {
+    //
+    //
+    //        EventsDB eventsDB = new EventsDB();
+    //
+    //        // Gets all events the user is an enterant of.
+    //        eventsDB.fetchEventsByUser(email, eventList -> {
+    //
+    //        }, onException);
+    //    }
 }
