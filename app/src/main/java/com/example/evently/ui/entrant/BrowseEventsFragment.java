@@ -7,14 +7,11 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import androidx.navigation.NavController;
-import androidx.navigation.fragment.NavHostFragment;
-
-import com.example.evently.data.model.Category;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import androidx.core.content.ContextCompat;
+import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.evently.R;
@@ -69,11 +66,9 @@ public class BrowseEventsFragment extends EventsFragment {
     @Override
     protected void initEvents(Consumer<List<Event>> callback) {
         // TODO: Replace with “all active events” once DB/Firebase is integrated.
-        var placeHolderEvents = new ArrayList<Event>();
-        placeHolderEvents.add(new Event(
-                UUID.randomUUID(),
         var browseEvents = new ArrayList<Event>();
         browseEvents.add(new Event(
+                UUID.randomUUID(),
                 "Whale Watching",
                 "See whales off the coast — binoculars provided.",
                 Instant.parse("2025-12-05T23:59:00Z"),
@@ -83,9 +78,8 @@ public class BrowseEventsFragment extends EventsFragment {
                 20,
                 null));
 
-        placeHolderEvents.add(new Event(
-                UUID.randomUUID(),
         browseEvents.add(new Event(
+                UUID.randomUUID(),
                 "LAN Gaming",
                 "Bring your rig for co-op action.",
                 Instant.parse("2025-12-01T23:59:00Z"),
@@ -95,9 +89,8 @@ public class BrowseEventsFragment extends EventsFragment {
                 64,
                 null));
 
-        placeHolderEvents.add(new Event(
-                UUID.randomUUID(),
         browseEvents.add(new Event(
+                UUID.randomUUID(),
                 "Spelling Bee",
                 "Community-wide spelling bee — all ages.",
                 Instant.parse("2025-11-28T23:59:00Z"),

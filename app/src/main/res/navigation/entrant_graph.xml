@@ -22,10 +22,11 @@
         android:id="@+id/event_details"
         android:name="com.example.evently.ui.common.EventDetailsFragment"
         android:label="fragment_event_details"
-        tools:layout="@layout/fragment_event_details" >
+        tools:layout="@layout/fragment_event_details">
         <argument
             android:name="eventId"
             app:argType="string" />
+    </fragment>
 
     <fragment
         android:id="@+id/nav_notifs"

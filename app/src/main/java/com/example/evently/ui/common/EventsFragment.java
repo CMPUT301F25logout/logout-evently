@@ -63,11 +63,11 @@ public abstract class EventsFragment extends Fragment {
         Context context = recyclerView.getContext();
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
 
-            // Set up the recycler view adapter with the initial list of events (asynchronous).
-            initEvents(events -> {
-                adapter = new EventRecyclerViewAdapter(events, this::onEventClick);
-                recyclerView.setAdapter(adapter);
-            });
+        // Set up the recycler view adapter with the initial list of events (asynchronous).
+        initEvents(events -> {
+            adapter = new EventRecyclerViewAdapter(events, this::onEventClick);
+            recyclerView.setAdapter(adapter);
+        });
 
         return view;
     }
