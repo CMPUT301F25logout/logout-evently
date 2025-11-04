@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import com.example.evently.R;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.common.EventsFragment;
@@ -15,6 +16,11 @@ public class OwnEventsFragment extends EventsFragment {
 
     protected void onEventClick(Event event) {
         // TODO (chase): Organizer event click action?
+    }
+
+    @Override
+    protected int getLayoutRes() {
+        return R.layout.fragment_event_list;
     }
 
     @Override

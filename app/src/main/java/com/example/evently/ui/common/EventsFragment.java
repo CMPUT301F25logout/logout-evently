@@ -38,6 +38,8 @@ public abstract class EventsFragment extends Fragment {
      */
     protected abstract void onEventClick(Event event);
 
+    protected abstract int getLayoutRes();
+
     /**
      * This method will be called by onCreateView to set up the events view.
      * It is guaranteed that the activity context will be available at the time of calling.
@@ -48,12 +50,18 @@ public abstract class EventsFragment extends Fragment {
     @Override
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_event_list, container, false);
+        View view = inflater.inflate(getLayoutRes(), container, false);
 
-        if (view instanceof RecyclerView recyclerView) {
-            // Set the adapter
-            Context context = recyclerView.getContext();
-            recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        RecyclerView recyclerView = (view instanceof RecyclerView)
+                ? (RecyclerView) view
+                : view.findViewById(R.id.event_list);
+
+        if (recyclerView == null) {
+            throw new AssertionError("EventsFragment.onCreateView called with non RecyclerView");
+        }
+
+        Context context = recyclerView.getContext();
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
 
             // Set up the recycler view adapter with the initial list of events (asynchronous).
             initEvents(events -> {
@@ -61,9 +69,6 @@ public abstract class EventsFragment extends Fragment {
                 recyclerView.setAdapter(adapter);
             });
 
-            return view;
-        } else {
-            throw new AssertionError("EventsFragment.onCreateView called with non RecyclerView");
-        }
+        return view;
     }
 }

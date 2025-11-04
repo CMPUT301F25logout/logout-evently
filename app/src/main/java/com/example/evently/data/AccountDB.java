@@ -3,10 +3,13 @@ package com.example.evently.data;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.WriteBatch;
+import org.jetbrains.annotations.TestOnly;
 
 import com.example.evently.data.model.Account;
 
@@ -198,5 +201,19 @@ public class AccountDB {
         docRef.update("visibleEmail", newVisibleEmail)
                 .addOnSuccessListener(onSuccess::accept)
                 .addOnFailureListener(onException::accept);
+    }
+
+    /**
+     * Nuke the accounts collection and all associated data.
+     */
+    @TestOnly
+    public Task<Void> nuke() {
+        return accountsRef.get().onSuccessTask(docs -> {
+            WriteBatch batch = FirebaseFirestore.getInstance().batch();
+            for (var doc : docs) {
+                batch.delete(doc.getReference());
+            }
+            return batch.commit();
+        });
     }
 }

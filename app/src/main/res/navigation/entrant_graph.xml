@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_nav_home_to_event_details"
             app:destination="@id/event_details" />
+        <action
+            android:id="@+id/action_browse_to_joined"
+            app:destination="@id/nav_joined" />
     </fragment>
 
     <fragment
@@ -23,5 +26,21 @@
         <argument
             android:name="eventId"
             app:argType="string" />
+
+    <fragment
+        android:id="@+id/nav_notifs"
+        android:name="com.example.evently.ui.entrant.ViewNotificationsFragment"
+        android:label="Notifications"
+        tools:layout="@layout/fragment_notifs"/>
+
+    <fragment
+        android:id="@+id/nav_joined"
+        android:name="com.example.evently.ui.entrant.JoinedEventsFragment"
+        android:label="Joined"
+        tools:layout="@layout/fragment_event_entrants_list">
+        <action
+            android:id="@+id/action_joined_to_browse"
+            app:destination="@id/nav_home" />
     </fragment>
+
 </navigation>
