@@ -30,8 +30,8 @@ public record Event(
         UUID organizer,
         Optional<Long> entrantLimit,
         long selectionLimit,
-        Category category
-    ) implements Serializable {
+        Category category)
+        implements Serializable {
     /**
      * Calculate the status of the event at given time.
      * @param now Time to compare to.

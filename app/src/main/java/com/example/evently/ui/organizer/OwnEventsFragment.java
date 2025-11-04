@@ -1,19 +1,18 @@
 package com.example.evently.ui.organizer;
 
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.navigation.fragment.NavHostFragment;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.evently.R;
 import com.example.evently.data.model.Category;
@@ -36,14 +35,16 @@ public class OwnEventsFragment extends EventsFragment {
 
         Button create = view.findViewById(R.id.btnCreateEvent);
         if (create != null) {
-            create.setOnClickListener(v ->
-                    NavHostFragment.findNavController(this)
-                            .navigate(R.id.nav_create_event));
+            create.setOnClickListener(
+                    v -> NavHostFragment.findNavController(this).navigate(R.id.nav_create_event));
         }
 
         // Receive result from CreateEventFragment (no ViewModel)
         var nav = NavHostFragment.findNavController(this);
-        nav.getCurrentBackStackEntry().getSavedStateHandle().<Event>getLiveData("new_event").observe(getViewLifecycleOwner(), event -> {
+        nav.getCurrentBackStackEntry()
+                .getSavedStateHandle()
+                .<Event>getLiveData("new_event")
+                .observe(getViewLifecycleOwner(), event -> {
                     if (event != null) {
                         events.add(event);
                         if (adapter != null) {
@@ -65,8 +66,7 @@ public class OwnEventsFragment extends EventsFragment {
                     UUID.randomUUID(),
                     Optional.empty(),
                     42,
-                    Category.SPORTS
-            ));
+                    Category.SPORTS));
         }
         callback.accept(events);
     }
