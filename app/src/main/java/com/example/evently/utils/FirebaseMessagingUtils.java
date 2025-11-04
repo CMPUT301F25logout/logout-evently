@@ -1,8 +1,8 @@
 package com.example.evently.utils;
 
-import android.util.Log;
-
 import java.time.Instant;
+
+import android.util.Log;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
