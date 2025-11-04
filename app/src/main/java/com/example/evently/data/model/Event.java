@@ -1,5 +1,6 @@
 package com.example.evently.data.model;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,7 +30,8 @@ public record Event(
         UUID organizer,
         Optional<Long> entrantLimit,
         long selectionLimit,
-        Category category) {
+        Category category
+    ) implements Serializable {
     /**
      * Calculate the status of the event at given time.
      * @param now Time to compare to.
