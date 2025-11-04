@@ -1,0 +1,91 @@
+package com.example.evently.ui.entrant;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Consumer;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import androidx.core.content.ContextCompat;
+import androidx.navigation.fragment.NavHostFragment;
+
+import com.example.evently.R;
+import com.example.evently.data.model.Event;
+import com.example.evently.ui.common.EventsFragment;
+
+public class BrowseEventsFragment extends EventsFragment {
+
+    @Override
+    protected int getLayoutRes() {
+        // Layout with the two buttons + list
+        return R.layout.fragment_event_entrants_list;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        Button btnJoined = view.findViewById(R.id.btnJoined);
+        Button btnBrowse = view.findViewById(R.id.btnBrowse);
+
+        styleSelected(btnJoined, false);
+        styleSelected(btnBrowse, true);
+
+        // Navigate to Joined via action id
+        btnJoined.setOnClickListener(v ->
+                NavHostFragment.findNavController(this).navigate(R.id.action_browse_to_joined));
+
+        // Already on Browse
+        btnBrowse.setOnClickListener(v -> {});
+    }
+
+    private void styleSelected(Button b, boolean selected) {
+        if (selected) {
+            b.setBackgroundResource(R.drawable.bg_tab_selected);
+            b.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white));
+        } else {
+            b.setBackgroundResource(R.drawable.bg_tab_unselected);
+            b.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black));
+        }
+    }
+
+    @Override
+    protected void initEvents(Consumer<List<Event>> callback) {
+        var browseEvents = new ArrayList<Event>();
+        browseEvents.add(new Event(
+                "Whale Watching",
+                "See whales off the coast — binoculars provided.",
+                Instant.parse("2025-12-05T23:59:00Z"),
+                Instant.parse("2026-02-14T09:00:00Z"),
+                UUID.randomUUID(),
+                Optional.empty(),
+                20,
+                null));
+
+        browseEvents.add(new Event(
+                "LAN Gaming",
+                "Bring your rig for co-op action.",
+                Instant.parse("2025-12-01T23:59:00Z"),
+                Instant.parse("2026-03-09T18:00:00Z"),
+                UUID.randomUUID(),
+                Optional.empty(),
+                64,
+                null));
+
+        browseEvents.add(new Event(
+                "Spelling Bee",
+                "Community-wide spelling bee — all ages.",
+                Instant.parse("2025-11-28T23:59:00Z"),
+                Instant.parse("2026-03-01T13:00:00Z"),
+                UUID.randomUUID(),
+                Optional.empty(),
+                40,
+                null));
+
+        callback.accept(browseEvents);
+    }
+}
