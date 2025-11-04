@@ -10,6 +10,7 @@ import com.google.firebase.Timestamp;
 
 // TODO (chase): Add image once we decide how to store them.
 // TODO (chase): Add location once geolocation support is being worked on.
+
 /**
  * Represents a listed event available for entry.
  * @param eventID The ID of the event
@@ -26,6 +27,7 @@ import com.google.firebase.Timestamp;
  * @param cancelledEntrants emails of entrants who declined enrollment or were cancelled.
  * @param selectedEntrants emails of entrants who were selected to enroll.
  * @param enrolledEntrants emails of final set of enrolled entrants
+ * @param category The category of the event.
  */
 public record Event(
         UUID eventID,
@@ -213,4 +215,15 @@ public record Event(
                 .toString()
                 .equals(event.enrolledEntrants().toString());
     }
+    /**
+     * Calculate the status of the event at given time.
+     * @param now Time to compare to.
+     * @return whether the event is closed or open at given time.
+     */
+    public EventStatus computeStatus(Instant now) {
+        if (now.isBefore(Instant.ofEpochSecond(this.selectionTime().getSeconds(), this.selectionTime().getNanoseconds())) {
+            return EventStatus.OPEN;
+        } else {
+            return EventStatus.CLOSED;
+        }
 }
