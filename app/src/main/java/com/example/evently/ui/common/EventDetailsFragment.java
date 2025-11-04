@@ -26,7 +26,7 @@ import com.example.evently.databinding.FragmentEventDetailsBinding;
 /**
  * Fragment that displays the event information as well as the entrants that have been waitlisted.
  *
- *
+ * TODO Use the eventID string to get the event from the database
  * Things to implement:
  * Images for the event and accounts
  * QR Code
@@ -40,6 +40,8 @@ public class EventDetailsFragment extends Fragment {
     Event event;
     List<Account> entrants;
 
+    String testEvent;
+
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater,
@@ -48,7 +50,7 @@ public class EventDetailsFragment extends Fragment {
         binding = FragmentEventDetailsBinding.inflate(getLayoutInflater(), container, false);
 
         // Receive the event ID string
-        String eventID = EventDetailsFragmentArgs.fromBundle(getArguments()).getEventId();
+        testEvent = EventDetailsFragmentArgs.fromBundle(getArguments()).getEventId();
 
         return binding.getRoot();
     }
@@ -145,9 +147,9 @@ public class EventDetailsFragment extends Fragment {
      */
     public void addDummyData() {
         event = new Event(
-                UUID.randomUUID(),
-                "Sample Event Name",
-                "Blah Blah Blah Description",
+                UUID.fromString(testEvent),
+                testEvent + " name",
+                testEvent + " description",
                 Instant.now(),
                 Instant.now(),
                 UUID.randomUUID(),

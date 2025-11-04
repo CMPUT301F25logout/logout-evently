@@ -7,6 +7,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
+
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.common.EventsFragment;
@@ -16,13 +19,10 @@ public class BrowseEventsFragment extends EventsFragment {
     @Override
     protected void onEventClick(Event event) {
         // TODO (chase): Navigate to the event details fragment and attach the event ID argument!
-        /*
-        var action =
-                BrowseEventsFragmentDirections.actionNavHomeToEventDetails(String.valueOf(event.eventID()));
-        NavController n = NavHostFragment.findNavController(this);
-        n.navigate(action);
-         */
-
+        var action = BrowseEventsFragmentDirections.actionNavHomeToEventDetails(
+                String.valueOf(event.eventID()));
+        NavController navController = NavHostFragment.findNavController(this);
+        navController.navigate(action);
     }
 
     @Override
