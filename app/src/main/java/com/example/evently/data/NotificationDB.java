@@ -38,6 +38,21 @@ public class NotificationDB {
     }
 
     /**
+     * Stores a provided notification in the database, with the notification id as the primary key.
+     *
+     * @param notification The notification to be stored.
+     */
+    public void storeNotification(Notification notification, Consumer<Void> onSuccess, Consumer<Exception> onException) {
+        // Gets notification id
+        String notification_id = notification.id().toString();
+        DocumentReference docRef = notificationsRef.document(notification_id);
+        // Stores the notification in the DB.
+        docRef.set(notification.toHashMap())
+                .addOnSuccessListener(onSuccess::accept)
+                .addOnFailureListener(onException::accept);
+    }
+
+    /**
      * Creates a notification from a QueryDocumentSnapshot
      *
      * @param snapshot The queryDocumentSnapshot for the notification
