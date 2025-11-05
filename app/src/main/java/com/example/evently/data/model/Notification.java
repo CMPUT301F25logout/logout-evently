@@ -1,5 +1,6 @@
 package com.example.evently.data.model;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -22,6 +23,7 @@ import java.util.UUID;
  *                Use the events collection to figure out which entrants fall under which channel(s).
  * @param title Title of the notification. This goes into the notification payload.
  * @param description Description of the notification. This goes into the notification payload.
+ * @param creationTime Time this notification was initially created (i.e stored in the database).
  * @param seenBy Tracker of all the intended entrants who have "seen" this notification (clicked on).
  */
 public record Notification(
@@ -30,6 +32,7 @@ public record Notification(
         Channel channel,
         String title,
         String description,
+        Instant creationTime,
         HashSet<String> seenBy) {
     public enum Channel {
         All,
@@ -55,6 +58,6 @@ public record Notification(
     public Notification addSeen(String email) {
         var seenByCopy = new HashSet<>(seenBy);
         seenByCopy.add(email.trim().toLowerCase());
-        return new Notification(id, eventId, channel, title, description, seenByCopy);
+        return new Notification(id, eventId, channel, title, description, creationTime, seenByCopy);
     }
 }
