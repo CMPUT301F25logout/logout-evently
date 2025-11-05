@@ -59,7 +59,7 @@ public class EventRecyclerViewAdapter
             case OPEN -> {
                 binding.txtStatus.setText("Open");
                 binding.txtselectionDate.setText(MessageFormat.format(
-                        "Selection on {0}", some_date.format(holder.mItem.selectionTime())));
+                        "Selection on {0}", some_date.format(holder.mItem.selectionTime().toInstant())));
             }
             case CLOSED -> {
                 binding.txtStatus.setText("Closed");
@@ -69,7 +69,7 @@ public class EventRecyclerViewAdapter
         binding.txtselectionDate.setVisibility(android.view.View.VISIBLE);
 
         // Event date
-        binding.txtDate.setText(some_date.format(holder.mItem.eventTime()));
+        binding.txtDate.setText(some_date.format(holder.mItem.eventTime().toInstant()));
 
         // Details button with no click logic
         binding.btnDetails.setOnClickListener(null);

@@ -11,6 +11,7 @@ import com.example.evently.R;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.common.EventsFragment;
+import com.google.firebase.Timestamp;
 
 public class OwnEventsFragment extends EventsFragment {
     @Override
@@ -25,12 +26,11 @@ public class OwnEventsFragment extends EventsFragment {
         placeHolderEvents.add(new Event(
                 "Trail Running",
                 "Let's go trail running across the river valley trails!",
-                Instant.parse("2025-11-03T11:59:00.00Z"),
-                Instant.parse("2025-11-09T09:00:00.00Z"),
-                UUID.randomUUID(),
+                new Timestamp(Instant.parse("2025-11-03T11:59:00.00Z")),
+                new Timestamp(Instant.parse("2025-11-09T09:00:00.00Z")),
+                "orgEmail",
                 Optional.empty(),
-                42,
-                Category.SPORTS));
+                42));
         callback.accept(placeHolderEvents);
     }
 }

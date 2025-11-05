@@ -16,6 +16,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.example.evently.R;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.common.EventsFragment;
+import com.google.firebase.Timestamp;
 
 public class BrowseEventsFragment extends EventsFragment {
 
@@ -59,32 +60,29 @@ public class BrowseEventsFragment extends EventsFragment {
         browseEvents.add(new Event(
                 "Whale Watching",
                 "See whales off the coast — binoculars provided.",
-                Instant.parse("2025-12-05T23:59:00Z"),
-                Instant.parse("2026-02-14T09:00:00Z"),
-                UUID.randomUUID(),
+                new Timestamp(Instant.parse("2025-12-05T23:59:00Z")),
+                new Timestamp(Instant.parse("2026-02-14T09:00:00Z")),
+                "orgEmail",
                 Optional.empty(),
-                20,
-                null));
+                20));
 
         browseEvents.add(new Event(
                 "LAN Gaming",
                 "Bring your rig for co-op action.",
-                Instant.parse("2025-12-01T23:59:00Z"),
-                Instant.parse("2026-03-09T18:00:00Z"),
-                UUID.randomUUID(),
+                new Timestamp(Instant.parse("2025-12-01T23:59:00Z")),
+                new Timestamp(Instant.parse("2026-03-09T18:00:00Z")),
+                "orgEmail",
                 Optional.empty(),
-                64,
-                null));
+                64));
 
         browseEvents.add(new Event(
                 "Spelling Bee",
                 "Community-wide spelling bee — all ages.",
-                Instant.parse("2025-11-28T23:59:00Z"),
-                Instant.parse("2026-03-01T13:00:00Z"),
-                UUID.randomUUID(),
+                new Timestamp(Instant.parse("2025-11-28T23:59:00Z")),
+                new Timestamp(Instant.parse("2026-03-01T13:00:00Z")),
+                "orgEmail",
                 Optional.empty(),
-                40,
-                null));
+                40));
 
         callback.accept(browseEvents);
     }

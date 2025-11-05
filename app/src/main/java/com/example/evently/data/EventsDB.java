@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.example.evently.data.model.Category;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -62,10 +63,11 @@ public class EventsDB {
                 documentSnapshot.getString("organizer"),
                 optionalEntrantLimit,
                 documentSnapshot.getLong("selectionLimit"),
-                unpackList.apply("entrants"),
-                unpackList.apply("cancelledEntrants"),
-                unpackList.apply("selectedEntrants"),
-                unpackList.apply("enrolledEntrants")));
+                (Collection<String>) documentSnapshot.get("entrants"),
+                (Collection<String>) documentSnapshot.get("cancelledEntrants"),
+                (Collection<String>) documentSnapshot.get("selectedEntrants"),
+                (Collection<String>) documentSnapshot.get("enrolledEntrants"),
+                documentSnapshot.get("category", Category.class)));
     }
 
     /**

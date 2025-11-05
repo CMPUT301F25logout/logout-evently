@@ -42,7 +42,8 @@ public record Event(
         Collection<String> entrants,
         Collection<String> cancelledEntrants,
         Collection<String> selectedEntrants,
-        Collection<String> enrolledEntrants) {
+        Collection<String> enrolledEntrants,
+        Category category) {
 
     /**
      * Canonical constructor for event
@@ -123,7 +124,45 @@ public record Event(
                 new ArrayList<>(),
                 new ArrayList<>(),
                 new ArrayList<>(),
-                new ArrayList<>());
+                new ArrayList<>(),
+                null);
+    }
+
+    /**
+     * Converts an event to a hashMap for storing in the DB. Since the eventID
+     * is the primary key of the event, it is not added to the hashMap
+     * @return A hashmap of the event's contents.
+     */
+    public HashMap<String, Object> toHashMap() {
+        HashMap<String, Object> hashMap = new HashMap<>();
+
+        hashMap.put("name", this.name);
+        hashMap.put("description", this.description);
+        hashMap.put("selectionTime", this.selectionTime);
+        hashMap.put("eventTime", this.eventTime);
+        hashMap.put("organizer", this.organizer);
+        hashMap.put("entrantLimit", this.entrantLimit.orElse(null));
+        hashMap.put("selectionLimit", this.selectionLimit);
+        hashMap.put("entrants", this.entrants);
+        hashMap.put("cancelledEntrants", this.cancelledEntrants);
+        hashMap.put("selectedEntrants", this.selectedEntrants);
+        hashMap.put("enrolledEntrants", this.enrolledEntrants);
+        hashMap.put("category", this.category);
+        return hashMap;
+    }
+
+    /**
+     * Calculate the status of the event at given time.
+     * @param now Time to compare to.
+     * @return whether the event is closed or open at given time.
+     */
+    public EventStatus computeStatus(Instant now) {
+        if (now.isBefore(Instant.ofEpochSecond(
+                this.selectionTime().getSeconds(), this.selectionTime().getNanoseconds()))) {
+            return EventStatus.OPEN;
+        } else {
+            return EventStatus.CLOSED;
+        }
     }
 
     /**
@@ -158,47 +197,45 @@ public record Event(
                 new ArrayList<>(),
                 new ArrayList<>(),
                 new ArrayList<>(),
-                new ArrayList<>());
+                new ArrayList<>(),
+                null);
     }
 
     /**
-     * Converts an event to a hashMap for storing in the DB. Since the eventID
-     * is the primary key of the event, it is not added to the hashMap
-     * @return A hashmap of the event's contents.
+     * Constructor for Event
+     * @param name The name of the event
+     * @param description A brief description about the event available for view to entrants.
+     * @param selectionTime Time after which lottery selection will be performed on enlisted entrants.
+     *                      Once this time has passed, the event will not be available for entry.
+     *                      However, re-selections may take place if invited entrants cancel.
+     * @param eventTime Time on which the event is set to happen. No re-selections will take place afterwards.
+     * @param organizer email for the organizer. This should correspond with the database.
+     * @param entrantLimit Optional limit to the total number of entrants that may enlist before selection.
+     * @param selectionLimit Event capacity. This is the total number of enlisted entrants that may be selected.
+     * @param category The category of the event.
      */
-    public HashMap<String, Object> toHashMap() {
-        HashMap<String, Object> hashMap = new HashMap<>();
-
-        hashMap.put("name", this.name());
-        hashMap.put("description", this.description());
-        hashMap.put("selectionTime", this.selectionTime());
-        hashMap.put("eventTime", this.eventTime());
-        hashMap.put("organizer", this.organizer());
-        hashMap.put("entrantLimit", this.entrantLimit().orElse(null));
-        hashMap.put("selectionLimit", this.selectionLimit());
-        hashMap.put("entrants", this.entrants().toString().replaceAll("[\\[\\]]", ""));
-        hashMap.put(
-                "cancelledEntrants",
-                this.cancelledEntrants().toString().replaceAll("[\\[\\]]", ""));
-        hashMap.put(
-                "selectedEntrants", this.selectedEntrants().toString().replaceAll("[\\[\\]]", ""));
-        hashMap.put(
-                "enrolledEntrants", this.enrolledEntrants().toString().replaceAll("[\\[\\]]", ""));
-
-        return hashMap;
-    }
-
-    /**
-     * Calculate the status of the event at given time.
-     * @param now Time to compare to.
-     * @return whether the event is closed or open at given time.
-     */
-    public EventStatus computeStatus(Instant now) {
-        if (now.isBefore(Instant.ofEpochSecond(
-                this.selectionTime().getSeconds(), this.selectionTime().getNanoseconds()))) {
-            return EventStatus.OPEN;
-        } else {
-            return EventStatus.CLOSED;
-        }
+    public Event(
+            String name,
+            String description,
+            Timestamp selectionTime,
+            Timestamp eventTime,
+            String organizer,
+            Optional<Long> entrantLimit,
+            long selectionLimit,
+            Category category) {
+        this(
+                UUID.randomUUID(),
+                name,
+                description,
+                selectionTime,
+                eventTime,
+                organizer,
+                entrantLimit,
+                selectionLimit,
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                null);
     }
 }
