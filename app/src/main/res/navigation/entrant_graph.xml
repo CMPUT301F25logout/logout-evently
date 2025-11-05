@@ -3,10 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/entrant_graph"
-    app:startDestination="@id/nav_browse">
+    app:startDestination="@id/nav_home">
 
     <fragment
-        android:id="@+id/nav_browse"
+        android:id="@+id/nav_home"
         android:name="com.example.evently.ui.entrant.BrowseEventsFragment"
         android:label="Browse"
         tools:layout="@layout/fragment_event_entrants_list">
@@ -16,13 +16,19 @@
     </fragment>
 
     <fragment
+        android:id="@+id/nav_notifs"
+        android:name="com.example.evently.ui.entrant.ViewNotificationsFragment"
+        android:label="Notifications"
+        tools:layout="@layout/fragment_notifs"/>
+
+    <fragment
         android:id="@+id/nav_joined"
         android:name="com.example.evently.ui.entrant.JoinedEventsFragment"
         android:label="Joined"
         tools:layout="@layout/fragment_event_entrants_list">
         <action
             android:id="@+id/action_joined_to_browse"
-            app:destination="@id/nav_browse" />
+            app:destination="@id/nav_home" />
     </fragment>
 
 </navigation>
