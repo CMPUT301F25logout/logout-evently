@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
 import android.util.Log;
@@ -20,6 +19,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.example.evently.data.EventsDB;
+import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 
 @RunWith(AndroidJUnit4.class)
@@ -36,13 +36,14 @@ public class EventsDatabaseTest extends FirebaseEmulatorTest {
         return new Event(
                 "testEvent",
                 "Event created to test.",
+                Category.EDUCATIONAL,
                 Timestamp.now(),
                 new Timestamp(LocalDate.of(2026, 1, 1)
                         .atStartOfDay(ZoneId.systemDefault())
                         .toInstant()),
                 "testOrganizer@example.com",
-                Optional.of(55L),
-                10L);
+                10L,
+                55L);
     }
 
     /**
@@ -54,13 +55,14 @@ public class EventsDatabaseTest extends FirebaseEmulatorTest {
         return new Event(
                 "testEvent" + num,
                 "Event " + num + " created for testing",
+                Category.EDUCATIONAL,
                 Timestamp.now(),
                 new Timestamp(LocalDate.of(2026 + num, 1, 1)
                         .atStartOfDay(ZoneId.systemDefault())
                         .toInstant()),
                 "testOrganizer" + num + "@example.com",
-                Optional.of(55L),
-                10L);
+                10L,
+                50L);
     }
 
     /**
