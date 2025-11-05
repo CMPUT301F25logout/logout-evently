@@ -189,34 +189,6 @@ public record Event(
     }
 
     /**
-     * Compares this event to another object.
-     * @param other the reference object with which to compare.
-     * @return {@code false} if the internal values or class is not equal, {@code true} otherwise
-     */
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) return true;
-        if (other == null || other.getClass() != getClass()) return false;
-        Event event = (Event) other;
-        if (!this.eventID().equals(event.eventID())) return false;
-        if (!this.name().equals(event.name())) return false;
-        if (!this.description().equals(event.description())) return false;
-        if (!this.selectionTime().equals(event.selectionTime())) return false;
-        if (!this.eventTime().equals(event.eventTime())) return false;
-        if (!this.organizer().equals(event.organizer())) return false;
-        if (!this.entrantLimit().equals(event.entrantLimit())) return false;
-        if (this.selectionLimit() != event.selectionLimit()) return false;
-        if (!this.entrants().toString().equals(event.entrants().toString())) return false;
-        if (!this.cancelledEntrants()
-                .toString()
-                .equals(event.cancelledEntrants().toString())) return false;
-        if (!this.selectedEntrants().toString().equals(event.selectedEntrants().toString()))
-            return false;
-        return this.enrolledEntrants()
-                .toString()
-                .equals(event.enrolledEntrants().toString());
-    }
-    /**
      * Calculate the status of the event at given time.
      * @param now Time to compare to.
      * @return whether the event is closed or open at given time.

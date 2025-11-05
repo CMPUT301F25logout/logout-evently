@@ -52,6 +52,11 @@ android {
         buildConfig = true
         viewBinding = true
     }
+    lint {
+        checkAllWarnings = true
+        abortOnError = true
+        warningsAsErrors = false
+    }
 }
 
 spotless {
@@ -98,6 +103,9 @@ dependencies {
     implementation(libs.googleid)
     implementation(libs.play.services.auth)
     implementation(libs.firebase.firestore)
+    implementation(libs.navigation.fragment)
+    implementation(libs.navigation.ui)
+    implementation(libs.recyclerview)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.runner)

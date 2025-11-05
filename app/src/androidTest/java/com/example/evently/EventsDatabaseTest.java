@@ -86,7 +86,7 @@ public class EventsDatabaseTest {
                     fetchLatch.countDown();
 
                     assertTrue(fetchedEvent.isPresent());
-                    assertEquals(fetchedEvent.get(), event);
+                    assertEquals(fetchedEvent.get().toHashMap(), event.toHashMap());
                 },
                 e -> {
                     Log.d("FETCH Event", "testStoreAndFetchEvent: Failed to fetch event");
