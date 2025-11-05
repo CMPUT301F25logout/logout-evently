@@ -1,10 +1,15 @@
 package com.example.evently.ui.entrant;
 
+import java.util.UUID;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
+
+import com.example.evently.data.NotificationDB;
+import com.example.evently.utils.FirebaseAuthUtils;
 
 /**
  * Generic notification dialog used for all non-winner notifications.
@@ -21,10 +26,12 @@ public class NotificationGenericDialog extends DialogFragment {
             return builder.create();
         }
 
+        var notificationID = (UUID) args.getSerializable("id");
+        assert notificationID != null;
         var title = args.getString("title");
         var message = args.getString("description");
         builder.setTitle(title).setMessage(message).setPositiveButton("OK", (dialog, id) -> {
-            // TODO (chase): Store this entrant in the "seenBy" list of this notification.
+            new NotificationDB().markSeen(notificationID, FirebaseAuthUtils.getCurrentEmail());
         });
         return builder.create();
     }
