@@ -2,7 +2,6 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
-
     id("com.diffplug.spotless")
     id("com.google.gms.google-services")
     id("androidx.navigation.safeargs")
