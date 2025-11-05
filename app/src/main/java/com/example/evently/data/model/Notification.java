@@ -1,6 +1,7 @@
 package com.example.evently.data.model;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
@@ -76,7 +77,10 @@ public record Notification(
         hashMap.put("channel", channel.toString());
         hashMap.put("title", title);
         hashMap.put("description", description);
-        hashMap.put("seenBy", seenBy);
+
+
+        ArrayList<String> listSeenBy = new ArrayList<>(seenBy);
+        hashMap.put("seenBy", listSeenBy);
 
         // The following line code is from Anthropic, Claude Sonnet 4.5:
         // Query: How to store a timestamp in Firebase? I currently

@@ -44,6 +44,8 @@ public class NotificationDB {
      * @return A notification from the QueryDocumentSnapshot.
      */
     private Notification notificationFromQuerySnapshot(QueryDocumentSnapshot snapshot) {
+        ArrayList<String> seenByList = (ArrayList<String>) snapshot.get("seenBy");
+
         return new Notification(
                 UUID.fromString(snapshot.getString(snapshot.getId())),
                 UUID.fromString(snapshot.getString("eventId")),
@@ -52,7 +54,8 @@ public class NotificationDB {
                 snapshot.getString("title"),
                 snapshot.getString("desc"),
                 snapshot.getTimestamp("creationTime").toInstant(),
-                (HashSet<String>) snapshot.get("seenBy"));
+                new HashSet<>(seenByList)
+        );
     }
 
     /**
@@ -110,6 +113,8 @@ public class NotificationDB {
                             notifications.add(notificationFromQuerySnapshot(documentSnapshot));
                         }
                     }
+
+
                     onSuccess.accept(notifications);
                 })
                 .addOnFailureListener(onException::accept);
