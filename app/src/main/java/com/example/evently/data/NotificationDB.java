@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -42,7 +43,8 @@ public class NotificationDB {
      *
      * @param notification The notification to be stored.
      */
-    public void storeNotification(Notification notification, Consumer<Void> onSuccess, Consumer<Exception> onException) {
+    public void storeNotification(
+            Notification notification, Consumer<Void> onSuccess, Consumer<Exception> onException) {
         // Gets notification id
         String notification_id = notification.id().toString();
         DocumentReference docRef = notificationsRef.document(notification_id);
@@ -69,16 +71,15 @@ public class NotificationDB {
                 snapshot.getString("title"),
                 snapshot.getString("desc"),
                 snapshot.getTimestamp("creationTime").toInstant(),
-                new HashSet<>(seenByList)
-        );
+                new HashSet<>(seenByList));
     }
 
     /**
      * Fetches all notifications, ordered by time sent.
      * a user's notifications.
      *
-     * @param onSuccess
-     * @param onException
+     * @param onSuccess Callback to perform on successful query.
+     * @param onException Callback to hamdle failure.
      */
     public void fetchAllNotifications(
             Consumer<ArrayList<Notification>> onSuccess, Consumer<Exception> onException) {
@@ -128,7 +129,6 @@ public class NotificationDB {
                             notifications.add(notificationFromQuerySnapshot(documentSnapshot));
                         }
                     }
-
 
                     onSuccess.accept(notifications);
                 })
@@ -210,57 +210,74 @@ public class NotificationDB {
 
         EventsDB eventsDB = new EventsDB();
 
-        eventsDB.fetchEventListByEntrant(
+        eventsDB.fetchEventsByEnrolled(
                 email,
                 eventList -> {
+                    final var eventIds =
+                            eventList.stream().map(Event::eventID).collect(Collectors.toList());
+                    eventsDB.fetchEventEntrants(
+                            eventIds,
+                            eventEntrantsList -> {
+                                // Tracking which channel "state" an entrant satisfied for an event.
+                                // Note: All entrants satisfy the "all" channel state. This is not
+                                // tracked separately.
+                                HashMap<UUID, Notification.Channel> entrantChannelInEvent =
+                                        new HashMap<>();
+                                for (final var eventEntrants : eventEntrantsList) {
 
-                    // Creates a hash map of the event ID's related to the channel notifications.
-                    HashMap<UUID, Notification.Channel> eventIds = new HashMap<>();
-                    for (Event e : eventList) {
-
-                        eventIds.put(e.eventID(), Notification.Channel.All);
-                        if (e.selectedEntrants().contains(email)) {
-                            eventIds.put(e.eventID(), Notification.Channel.Winners);
-                        }
-                        if (e.cancelledEntrants().contains(email)) {
-                            eventIds.put(e.eventID(), Notification.Channel.Cancelled);
-                        }
-                        // If someone is selected, and this entrant isn't, it is a loser
-                        if (e.selectedEntrants().isEmpty()
-                                && eventIds.get(e.eventID()) == Notification.Channel.All) {
-                            eventIds.put(e.eventID(), Notification.Channel.Losers);
-                        }
-                    }
-
-                    // Gets the notifications for the events a user has enrolled..
-                    notificationsRef
-                            .whereIn("eventId", new ArrayList<>(eventIds.keySet()))
-                            .get()
-                            .addOnSuccessListener(allDocsSnapshot -> {
-                                ArrayList<Notification> notifications =
-                                        new ArrayList<Notification>();
-
-                                // Adds each notification to the notifications list if it is the
-                                // correct channel
-                                for (QueryDocumentSnapshot documentSnapshot : allDocsSnapshot) {
-                                    if (documentSnapshot.exists()) {
-
-                                        // Adds the notification list if the message is to all event
-                                        // participants or if the user is a member of a certain
-                                        // Channel.
-                                        Notification n =
-                                                notificationFromQuerySnapshot(documentSnapshot);
-                                        if (n.channel() == Notification.Channel.All
-                                                || n.channel() == eventIds.get(n.eventId())) {
-                                            notifications.add(n);
-                                        }
+                                    if (eventEntrants.selected().contains(email)) {
+                                        entrantChannelInEvent.put(
+                                                eventEntrants.eventID(),
+                                                Notification.Channel.Winners);
+                                    } else if (!eventEntrants.selected().isEmpty()) {
+                                        entrantChannelInEvent.put(
+                                                eventEntrants.eventID(),
+                                                Notification.Channel.Losers);
+                                    }
+                                    if (eventEntrants.cancelled().contains(email)) {
+                                        entrantChannelInEvent.put(
+                                                eventEntrants.eventID(),
+                                                Notification.Channel.Cancelled);
                                     }
                                 }
+                                // Gets the notifications for the events a user has enrolled..
+                                // TODO (chase): Fix this whereIn. It only supports max 30 eventIds.
+                                notificationsRef
+                                        .whereIn("eventId", eventIds)
+                                        .get()
+                                        .addOnSuccessListener(allDocsSnapshot -> {
+                                            ArrayList<Notification> notifications =
+                                                    new ArrayList<Notification>();
 
-                                // Runs the provided callback function.
-                                onSuccess.accept(notifications);
-                            })
-                            .addOnFailureListener(onException::accept);
+                                            // Adds each notification to the notifications list if
+                                            // it is the
+                                            // correct channel
+                                            for (QueryDocumentSnapshot documentSnapshot :
+                                                    allDocsSnapshot) {
+                                                if (documentSnapshot.exists()) {
+
+                                                    // Adds the notification list if the message is
+                                                    // to all event
+                                                    // participants or if the user is a member of a
+                                                    // certain
+                                                    // Channel.
+                                                    Notification n = notificationFromQuerySnapshot(
+                                                            documentSnapshot);
+                                                    if (n.channel() == Notification.Channel.All
+                                                            || n.channel()
+                                                                    == entrantChannelInEvent.get(
+                                                                            n.eventId())) {
+                                                        notifications.add(n);
+                                                    }
+                                                }
+                                            }
+
+                                            // Runs the provided callback function.
+                                            onSuccess.accept(notifications);
+                                        })
+                                        .addOnFailureListener(onException::accept);
+                            },
+                            onException);
                 },
                 onException);
     }

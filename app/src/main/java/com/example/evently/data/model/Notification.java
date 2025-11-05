@@ -79,7 +79,6 @@ public record Notification(
         hashMap.put("title", title);
         hashMap.put("description", description);
 
-
         ArrayList<String> listSeenBy = new ArrayList<>(seenBy);
         hashMap.put("seenBy", listSeenBy);
 

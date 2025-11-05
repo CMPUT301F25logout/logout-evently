@@ -1,13 +1,11 @@
 package com.example.evently.data;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.google.android.gms.tasks.Tasks;
@@ -21,6 +19,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
+import com.example.evently.data.model.EventEntrants;
 
 /**
  * The Event database for managing events
@@ -50,10 +49,6 @@ public class EventsDB {
 
         if (!documentSnapshot.exists()) return Optional.empty();
 
-        Function<String, ArrayList<String>> unpackList =
-                field -> Arrays.stream(documentSnapshot.getString(field).split(","))
-                        .collect(Collectors.toCollection(ArrayList::new));
-
         Optional<Long> optionalEntrantLimit =
                 Optional.ofNullable(documentSnapshot.getLong("entrantLimit"));
 
@@ -67,6 +62,25 @@ public class EventsDB {
                 documentSnapshot.getString("organizer"),
                 documentSnapshot.getLong("selectionLimit"),
                 optionalEntrantLimit));
+    }
+
+    /**
+     * Gets an event from a DocumentSnapshot if able
+     * @param documentSnapshot DocumentSnapshot to retrieve EventEntrants from
+     * @return An optional with the retrieved event entrants struct if one was retrieved
+     * @throws NullPointerException When documentSnapshot has an incorrectly stored event entrants struct.
+     */
+    private static Optional<EventEntrants> getEventEntrantsFromSnapshot(
+            DocumentSnapshot documentSnapshot) throws NullPointerException {
+
+        if (!documentSnapshot.exists()) return Optional.empty();
+
+        return Optional.of(new EventEntrants(
+                UUID.fromString(documentSnapshot.getId()),
+                (List<String>) documentSnapshot.get("enrolledEntrants"),
+                (List<String>) documentSnapshot.get("selectedEntrants"),
+                (List<String>) documentSnapshot.get("acceptedEntrants"),
+                (List<String>) documentSnapshot.get("cancelledEntrants")));
     }
 
     /**
@@ -198,6 +212,7 @@ public class EventsDB {
                 .get()
                 .onSuccessTask(x -> {
                     final var eventIds = x.getDocuments().stream().map(DocumentSnapshot::getId);
+                    // TODO: Maybe use ::whereIn (but it can only take 30 elements as match input).
                     final var eventGetTasks = eventIds.map(
                                     entrantId -> eventsRef.document(entrantId).get())
                             .collect(Collectors.toList());
@@ -206,6 +221,24 @@ public class EventsDB {
                 .addOnSuccessListener(x -> {
                     final var matchingEvents = x.stream()
                             .map(EventsDB::getEventFromSnapshot)
+                            .flatMap(Optional::stream)
+                            .collect(Collectors.toList());
+                    onSuccess.accept(matchingEvents);
+                })
+                .addOnFailureListener(onException::accept);
+    }
+
+    public void fetchEventEntrants(
+            List<UUID> eventIds,
+            Consumer<List<EventEntrants>> onSuccess,
+            Consumer<Exception> onException) {
+        final var eventEntrantGetTasks = eventIds.stream()
+                .map(eventId -> eventEntrantsRef.document(eventId.toString()).get())
+                .collect(Collectors.toList());
+        Tasks.<DocumentSnapshot>whenAllSuccess(eventEntrantGetTasks)
+                .addOnSuccessListener(x -> {
+                    final var matchingEvents = x.stream()
+                            .map(EventsDB::getEventEntrantsFromSnapshot)
                             .flatMap(Optional::stream)
                             .collect(Collectors.toList());
                     onSuccess.accept(matchingEvents);

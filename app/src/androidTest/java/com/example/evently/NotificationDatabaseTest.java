@@ -1,19 +1,6 @@
 package com.example.evently;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
-
-import com.example.evently.data.EventsDB;
-import com.example.evently.data.NotificationDB;
-import com.example.evently.data.model.Event;
-import com.example.evently.data.model.Notification;
-import com.google.firebase.Timestamp;
-
-import org.junit.Rule;
-import org.junit.Test;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -23,62 +10,76 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
-public class NotificationDatabaseTest extends FirebaseEmulatorTest{
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
 
-        @Rule
-        public ActivityScenarioRule<MainActivity> scenario =
-                new ActivityScenarioRule<MainActivity>(MainActivity.class);
+import com.google.firebase.Timestamp;
+import org.junit.Rule;
+import org.junit.Test;
 
-        /**
-         * Creates an event for testing
-         * @return created event
-         */
-        private Event testEvent() {
-            return new Event(
-                    "testEvent",
-                    "Event created to test.",
-                    Timestamp.now(),
-                    new Timestamp(LocalDate.of(2026, 1, 1)
-                            .atStartOfDay(ZoneId.systemDefault())
-                            .toInstant()),
-                    "testOrganizer@example.com",
-                    Optional.of(55L),
-                    10L);
-        }
+import com.example.evently.data.EventsDB;
+import com.example.evently.data.NotificationDB;
+import com.example.evently.data.model.Event;
+import com.example.evently.data.model.Notification;
 
-        private Notification getTestNotification(Event event) {
-            return new Notification(
-                    UUID.randomUUID(), // Notification ID
-                    event.eventID(),
-                    Notification.Channel.All,
-                    "YOU HAVE WON A FREE CRUISE!!!",
-                    "Please provide your credit card number, and last 9 digits of your SSN to claim your prize",
-                    Instant.now(),    // Event creation time.
-                    new HashSet<>()); // Seen By
-        }
+public class NotificationDatabaseTest extends FirebaseEmulatorTest {
 
-        /**
-         * Creates an a notification, and stores it in the BD
-         */
-        @Test
-        public void testStoreNotification() throws InterruptedException {
+    @Rule
+    public ActivityScenarioRule<MainActivity> scenario =
+            new ActivityScenarioRule<MainActivity>(MainActivity.class);
 
-            NotificationDB notificationDB = new NotificationDB();
-            EventsDB eventsDB = new EventsDB();
+    /**
+     * Creates an event for testing
+     * @return created event
+     */
+    private Event testEvent() {
+        return new Event(
+                "testEvent",
+                "Event created to test.",
+                Timestamp.now(),
+                new Timestamp(LocalDate.of(2026, 1, 1)
+                        .atStartOfDay(ZoneId.systemDefault())
+                        .toInstant()),
+                "testOrganizer@example.com",
+                Optional.of(55L),
+                10L);
+    }
 
-            // Adds an event to the DB.
-            CountDownLatch addEventLatch = new CountDownLatch(1);
-            Event event = testEvent();
-            eventsDB.storeEvent(event, v -> addEventLatch.countDown(), e -> {});
-            addEventLatch.await();
+    private Notification getTestNotification(Event event) {
+        return new Notification(
+                UUID.randomUUID(), // Notification ID
+                event.eventID(),
+                Notification.Channel.All,
+                "YOU HAVE WON A FREE CRUISE!!!",
+                "Please provide your credit card number, and last 9 digits of your SSN to claim your prize",
+                Instant.now(), // Event creation time.
+                new HashSet<>()); // Seen By
+    }
 
-            // Stores a notification in the DB
-            CountDownLatch addNotificationLatch = new CountDownLatch(1);
-            Notification n = getTestNotification(event);
-            notificationDB.storeNotification(n, v-> {addNotificationLatch.countDown();}, e->{});
-            addNotificationLatch.await();
-            assertTrue(true);
+    /**
+     * Creates an a notification, and stores it in the BD
+     */
+    @Test
+    public void testStoreNotification() throws InterruptedException {
 
-        }
+        NotificationDB notificationDB = new NotificationDB();
+        EventsDB eventsDB = new EventsDB();
 
+        // Adds an event to the DB.
+        CountDownLatch addEventLatch = new CountDownLatch(1);
+        Event event = testEvent();
+        eventsDB.storeEvent(event, v -> addEventLatch.countDown(), e -> {});
+        addEventLatch.await();
+
+        // Stores a notification in the DB
+        CountDownLatch addNotificationLatch = new CountDownLatch(1);
+        Notification n = getTestNotification(event);
+        notificationDB.storeNotification(
+                n,
+                v -> {
+                    addNotificationLatch.countDown();
+                },
+                e -> {});
+        addNotificationLatch.await();
+        assertTrue(true);
+    }
 }
