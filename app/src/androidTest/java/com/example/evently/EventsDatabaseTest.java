@@ -12,15 +12,18 @@ import java.util.concurrent.CountDownLatch;
 
 import android.util.Log;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.firebase.Timestamp;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 
-public class EventsDatabaseTest {
+@RunWith(AndroidJUnit4.class)
+public class EventsDatabaseTest extends FirebaseEmulatorTest {
     @Rule
     public ActivityScenarioRule<MainActivity> scenario =
             new ActivityScenarioRule<MainActivity>(MainActivity.class);
