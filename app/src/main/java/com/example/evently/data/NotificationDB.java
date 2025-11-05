@@ -3,12 +3,14 @@ package com.example.evently.data;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -52,6 +54,12 @@ public class NotificationDB {
         docRef.set(notification.toHashMap())
                 .addOnSuccessListener(onSuccess::accept)
                 .addOnFailureListener(onException::accept);
+    }
+
+    public void markSeen(UUID notificationID, String email) {
+        final var updateMap = new HashMap<String, Object>();
+        updateMap.put("seenBy", FieldValue.arrayUnion(email));
+        notificationsRef.document(notificationID.toString()).update(updateMap);
     }
 
     /**
@@ -182,9 +190,7 @@ public class NotificationDB {
      * @param onException A callback for exceptions.
      */
     public void fetchUnseenNotificationsByUser(
-            String email,
-            Consumer<ArrayList<Notification>> onSuccess,
-            Consumer<Exception> onException) {
+            String email, Consumer<List<Notification>> onSuccess, Consumer<Exception> onException) {
 
         fetchUserNotifications(
                 email,
@@ -213,6 +219,10 @@ public class NotificationDB {
         eventsDB.fetchEventsByEnrolled(
                 email,
                 eventList -> {
+                    if (eventList.isEmpty()) {
+                        onSuccess.accept(new ArrayList<>());
+                        return;
+                    }
                     final var eventIds =
                             eventList.stream().map(Event::eventID).collect(Collectors.toList());
                     eventsDB.fetchEventEntrants(
