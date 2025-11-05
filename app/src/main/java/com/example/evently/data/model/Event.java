@@ -34,20 +34,6 @@ public record Event(
         String organizer,
         long selectionLimit,
         Optional<Long> optionalEntrantLimit) {
-
-    /**
-     * Canonical constructor for event
-     * @param eventID The ID of the event
-     * @param name The name of the event
-     * @param description A brief description about the event available for view to entrants.
-     * @param selectionTime Time after which lottery selection will be performed on enlisted entrants.
-     *                      Once this time has passed, the event will not be available for entry.
-     *                      However, re-selections may take place if invited entrants cancel.
-     * @param eventTime Time on which the event is set to happen. No re-selections will take place afterwards.
-     * @param organizer email for the organizer. This should correspond with the database.
-     * @param selectionLimit Event capacity. This is the total number of enlisted entrants that may be selected.
-     * @param optionalEntrantLimit Optional limit to the total number of entrants that may enlist before selection.
-     */
     public Event {
         if (name.isBlank()) {
             throw new IllegalArgumentException("'name' must not be left blank");
