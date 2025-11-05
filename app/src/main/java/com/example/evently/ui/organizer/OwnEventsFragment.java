@@ -3,8 +3,6 @@ package com.example.evently.ui.organizer;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.function.Consumer;
 
 import android.os.Bundle;
@@ -59,19 +57,17 @@ public class OwnEventsFragment extends EventsFragment {
 
     @Override
     protected void initEvents(Consumer<List<Event>> callback) {
+        // TODO (chase): Get list of own events by organizer.
         if (events.isEmpty()) {
-            // seed your original sample
             events.add(new Event(
-                    UUID.randomUUID(), // eventID
                     "Trail Running",
-                    "Let's go trail running...",
-                    Instant.parse("2025-11-03T11:59:00Z"),
-                    Instant.parse("2025-11-09T09:00:00Z"),
-                    UUID.randomUUID(), // organizer
-                    Optional.empty(),
-                    42,
-                    Category.SPORTS));
+                    "Let's go trail running across the river valley trails!",
+                    Category.SPORTS,
+                    new Timestamp(Instant.parse("2025-11-03T11:59:00.00Z")),
+                    new Timestamp(Instant.parse("2025-11-09T09:00:00.00Z")),
+                    "orgEmail",
+                    42));
         }
-        callback.accept(events);
+        callback.accept(placeHolderEvents);
     }
 }
