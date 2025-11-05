@@ -100,11 +100,12 @@ public class CreateEventFragment extends Fragment {
 
             // For now, eventTime == selectionTime (until organizer add event date/time fields)
             Event created = new Event(
+                    UUID.randomUUID(), // eventID
                     name,
                     desc,
                     selectionTime,
-                    selectionTime,
-                    UUID.randomUUID(),
+                    selectionTime, // temporary eventTime
+                    UUID.randomUUID(), // organizer (placeholder for now)
                     wait,
                     winners,
                     Category.SPORTS);

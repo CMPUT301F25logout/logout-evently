@@ -23,7 +23,10 @@ public class OwnEventsFragment extends EventsFragment {
 
     // Local, mutable list backing the adapter
     private final ArrayList<Event> events = new ArrayList<>();
-    
+
+    @Override
+    protected void onEventClick(Event event) {}
+
     @Override
     protected int getLayoutRes() {
         return R.layout.fragment_organizer_event_list;
@@ -35,8 +38,8 @@ public class OwnEventsFragment extends EventsFragment {
 
         Button create = view.findViewById(R.id.btnCreateEvent);
         if (create != null) {
-            create.setOnClickListener(
-                    v -> NavHostFragment.findNavController(this).navigate(R.id.navigate_create_events));
+            create.setOnClickListener(v ->
+                    NavHostFragment.findNavController(this).navigate(R.id.navigate_create_events));
         }
 
         // Receive result from CreateEventFragment (no ViewModel)
@@ -59,11 +62,12 @@ public class OwnEventsFragment extends EventsFragment {
         if (events.isEmpty()) {
             // seed your original sample
             events.add(new Event(
+                    UUID.randomUUID(), // eventID
                     "Trail Running",
-                    "Let's go trail running across the river valley trails!",
+                    "Let's go trail running...",
                     Instant.parse("2025-11-03T11:59:00Z"),
                     Instant.parse("2025-11-09T09:00:00Z"),
-                    UUID.randomUUID(),
+                    UUID.randomUUID(), // organizer
                     Optional.empty(),
                     42,
                     Category.SPORTS));
