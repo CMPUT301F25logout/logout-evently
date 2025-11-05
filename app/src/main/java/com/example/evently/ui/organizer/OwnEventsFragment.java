@@ -12,6 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.google.firebase.Timestamp;
+
 import com.example.evently.R;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
@@ -68,6 +70,6 @@ public class OwnEventsFragment extends EventsFragment {
                     "orgEmail",
                     42));
         }
-        callback.accept(placeHolderEvents);
+        callback.accept(events);
     }
 }

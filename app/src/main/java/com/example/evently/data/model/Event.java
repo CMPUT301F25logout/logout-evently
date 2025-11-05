@@ -34,7 +34,8 @@ public record Event(
         Timestamp eventTime,
         String organizer,
         long selectionLimit,
-        Optional<Long> optionalEntrantLimit) implements Serializable {
+        Optional<Long> optionalEntrantLimit)
+        implements Serializable {
     public Event {
         if (name.isBlank()) {
             throw new IllegalArgumentException("'name' must not be left blank");
@@ -71,7 +72,7 @@ public record Event(
             Timestamp eventTime,
             String organizer,
             long selectionLimit,
-            long entrantLimit) {
+            Long entrantLimit) {
         this(
                 UUID.randomUUID(),
                 name,
@@ -81,7 +82,7 @@ public record Event(
                 eventTime,
                 organizer,
                 selectionLimit,
-                Optional.of(entrantLimit));
+                Optional.ofNullable(entrantLimit));
     }
 
     public Event(

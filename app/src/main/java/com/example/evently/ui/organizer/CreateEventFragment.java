@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
-import java.util.UUID;
 
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -19,6 +18,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
+
+import com.google.firebase.Timestamp;
 
 import com.example.evently.R;
 import com.example.evently.data.model.Category;
@@ -100,15 +101,14 @@ public class CreateEventFragment extends Fragment {
 
             // For now, eventTime == selectionTime (until organizer add event date/time fields)
             Event created = new Event(
-                    UUID.randomUUID(), // eventID
                     name,
                     desc,
-                    selectionTime,
-                    selectionTime, // temporary eventTime
-                    UUID.randomUUID(), // organizer (placeholder for now)
-                    wait,
+                    Category.SPORTS,
+                    new Timestamp(selectionTime),
+                    new Timestamp(selectionTime),
+                    "orgEmail",
                     winners,
-                    Category.SPORTS);
+                    wait.orElse(null));
 
             var nav = NavHostFragment.findNavController(this);
             // Send result back to the previous fragment (OwnEventsFragment)
