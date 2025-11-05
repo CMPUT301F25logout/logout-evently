@@ -6,7 +6,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
@@ -18,6 +17,7 @@ import org.junit.Test;
 
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.NotificationDB;
+import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.data.model.Notification;
 
@@ -35,13 +35,14 @@ public class NotificationDatabaseTest extends FirebaseEmulatorTest {
         return new Event(
                 "testEvent",
                 "Event created to test.",
+                Category.EDUCATIONAL,
                 Timestamp.now(),
                 new Timestamp(LocalDate.of(2026, 1, 1)
                         .atStartOfDay(ZoneId.systemDefault())
                         .toInstant()),
                 "testOrganizer@example.com",
-                Optional.of(55L),
-                10L);
+                10L,
+                55L);
     }
 
     private Notification getTestNotification(Event event) {
