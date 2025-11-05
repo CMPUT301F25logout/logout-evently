@@ -5,6 +5,7 @@ plugins {
 
     id("com.diffplug.spotless")
     id("com.google.gms.google-services")
+    id("androidx.navigation.safeargs")
 }
 
 android {
@@ -110,6 +111,7 @@ dependencies {
     implementation(libs.googleid)
     implementation(libs.play.services.auth)
 
+    implementation(libs.recyclerview)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
     implementation(libs.recyclerview)
