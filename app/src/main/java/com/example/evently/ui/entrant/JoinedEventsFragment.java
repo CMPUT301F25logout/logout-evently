@@ -21,6 +21,9 @@ import com.example.evently.ui.common.EventsFragment;
 public class JoinedEventsFragment extends EventsFragment {
 
     @Override
+    protected void onEventClick(Event event) {}
+
+    @Override
     protected int getLayoutRes() {
         return R.layout.fragment_event_entrants_list;
     }
@@ -57,6 +60,7 @@ public class JoinedEventsFragment extends EventsFragment {
     protected void initEvents(Consumer<List<Event>> callback) {
         var joined = new ArrayList<Event>();
         joined.add(new Event(
+                UUID.randomUUID(),
                 "Community Piano for Beginners",
                 "Intro series for absolute beginners.",
                 new Timestamp(Instant.parse("2025-12-10T23:59:00Z")),
@@ -66,6 +70,7 @@ public class JoinedEventsFragment extends EventsFragment {
                 30));
 
         joined.add(new Event(
+                UUID.randomUUID(),
                 "Canoe Safety Night",
                 "Dryland basics & safety briefing.",
                 new Timestamp(Instant.parse("2025-11-30T23:59:00Z")),
@@ -75,6 +80,7 @@ public class JoinedEventsFragment extends EventsFragment {
                 50));
 
         joined.add(new Event(
+                UUID.randomUUID(),
                 "Yoga Flow Level 1",
                 "Gentle strength and stretch.",
                 new Timestamp(Instant.parse("2025-12-08T23:59:00Z")),

@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import androidx.core.content.ContextCompat;
+import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.firebase.Timestamp;
@@ -19,6 +20,15 @@ import com.example.evently.data.model.Event;
 import com.example.evently.ui.common.EventsFragment;
 
 public class BrowseEventsFragment extends EventsFragment {
+
+    @Override
+    protected void onEventClick(Event event) {
+        // TODO (chase): Navigate to the event details fragment and attach the event ID argument!
+        var action = BrowseEventsFragmentDirections.actionNavHomeToEventDetails(
+                String.valueOf(event.eventID()));
+        NavController navController = NavHostFragment.findNavController(this);
+        navController.navigate(action);
+    }
 
     @Override
     protected int getLayoutRes() {
@@ -56,8 +66,10 @@ public class BrowseEventsFragment extends EventsFragment {
 
     @Override
     protected void initEvents(Consumer<List<Event>> callback) {
+        // TODO: Replace with “all active events” once DB/Firebase is integrated.
         var browseEvents = new ArrayList<Event>();
         browseEvents.add(new Event(
+                UUID.randomUUID(),
                 "Whale Watching",
                 "See whales off the coast — binoculars provided.",
                 new Timestamp(Instant.parse("2025-12-05T23:59:00Z")),
@@ -67,6 +79,7 @@ public class BrowseEventsFragment extends EventsFragment {
                 20));
 
         browseEvents.add(new Event(
+                UUID.randomUUID(),
                 "LAN Gaming",
                 "Bring your rig for co-op action.",
                 new Timestamp(Instant.parse("2025-12-01T23:59:00Z")),
@@ -76,6 +89,7 @@ public class BrowseEventsFragment extends EventsFragment {
                 64));
 
         browseEvents.add(new Event(
+                UUID.randomUUID(),
                 "Spelling Bee",
                 "Community-wide spelling bee — all ages.",
                 new Timestamp(Instant.parse("2025-11-28T23:59:00Z")),

@@ -13,6 +13,11 @@ import com.example.evently.data.model.Event;
 import com.example.evently.ui.common.EventsFragment;
 
 public class OwnEventsFragment extends EventsFragment {
+
+    protected void onEventClick(Event event) {
+        // TODO (chase): Organizer event click action?
+    }
+
     @Override
     protected int getLayoutRes() {
         return R.layout.fragment_event_list;
@@ -23,6 +28,7 @@ public class OwnEventsFragment extends EventsFragment {
         // TODO (chase): Get list of own events by organizer.
         var placeHolderEvents = new ArrayList<Event>();
         placeHolderEvents.add(new Event(
+                UUID.randomUUID(),
                 "Trail Running",
                 "Let's go trail running across the river valley trails!",
                 new Timestamp(Instant.parse("2025-11-03T11:59:00.00Z")),

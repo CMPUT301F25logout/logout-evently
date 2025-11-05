@@ -26,12 +26,18 @@ import com.example.evently.databinding.FragmentEventBinding;
 public class EventRecyclerViewAdapter
         extends RecyclerView.Adapter<EventRecyclerViewAdapter.EventViewHolder> {
 
+    public interface EventOnClickListener {
+        void accept(Event n);
+    }
+
     private static final DateTimeFormatter some_date =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("UTC"));
     private final List<Event> mValues;
+    private final EventOnClickListener onEventClick;
 
-    public EventRecyclerViewAdapter(List<Event> items) {
+    public EventRecyclerViewAdapter(List<Event> items, EventOnClickListener onEventClick) {
         mValues = items;
+        this.onEventClick = onEventClick;
     }
 
     @NonNull @Override
@@ -72,9 +78,8 @@ public class EventRecyclerViewAdapter
         // Event date
         binding.txtDate.setText(some_date.format(holder.mItem.eventTime().toInstant()));
 
-        // Details button with no click logic
-        binding.btnDetails.setOnClickListener(null);
-        binding.btnDetails.setClickable(false);
+        // Details button with given click logic.
+        binding.btnDetails.setOnClickListener(v -> onEventClick.accept(holder.mItem));
     }
 
     @Override
