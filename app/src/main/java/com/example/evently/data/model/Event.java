@@ -23,6 +23,7 @@ import java.util.UUID;
  * @param category The category of the event.
  */
 public record Event(
+        UUID eventID,
         String name,
         String description,
         Instant selectionTime,
