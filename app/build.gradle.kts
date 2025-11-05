@@ -118,4 +118,5 @@ dependencies {
     androidTestImplementation(libs.runner)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    androidTestImplementation(libs.espresso.contrib)
 }

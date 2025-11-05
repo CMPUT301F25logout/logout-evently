@@ -16,6 +16,7 @@ navigationFragment = "2.9.5"
 navigationUi = "2.9.5"
 runner = "1.7.0"
 playServicesAuth = "21.4.0"
+espressoContrib = "3.7.0"
 
 [libraries]
 credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentialsPlayServicesAuth" }
@@ -37,6 +38,7 @@ navigation-fragment = { group = "androidx.navigation", name = "navigation-fragme
 navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version.ref = "navigationUi" }
 runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
+espresso-contrib = { group = "androidx.test.espresso", name = "espresso-contrib", version.ref = "espressoContrib" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
