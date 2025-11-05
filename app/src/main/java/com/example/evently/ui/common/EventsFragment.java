@@ -31,6 +31,13 @@ public abstract class EventsFragment extends Fragment {
      */
     protected EventRecyclerViewAdapter adapter;
 
+    /**
+     * Listener to attach to the event on click.
+     * This may be different for the entrant vs organizer event click.
+     * @param event The structural representation of the Event view that was clicked.
+     */
+    protected abstract void onEventClick(Event event);
+
     protected abstract int getLayoutRes();
 
     /**
@@ -56,8 +63,9 @@ public abstract class EventsFragment extends Fragment {
         Context context = recyclerView.getContext();
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
 
+        // Set up the recycler view adapter with the initial list of events (asynchronous).
         initEvents(events -> {
-            adapter = new EventRecyclerViewAdapter(events);
+            adapter = new EventRecyclerViewAdapter(events, this::onEventClick);
             recyclerView.setAdapter(adapter);
         });
 

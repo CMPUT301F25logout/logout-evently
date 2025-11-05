@@ -1,8 +1,6 @@
 package com.example.evently.data.model;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
@@ -17,50 +15,25 @@ import com.google.firebase.Timestamp;
  * @param eventID The ID of the event
  * @param name The name of the event
  * @param description A brief description about the event available for view to entrants.
+ * @param category The category of the event.
  * @param selectionTime Time after which lottery selection will be performed on enlisted entrants.
  *                      Once this time has passed, the event will not be available for entry.
  *                      However, re-selections may take place if invited entrants cancel.
  * @param eventTime Time on which the event is set to happen. No re-selections will take place afterwards.
  * @param organizer email for the organizer. This should correspond with the database.
- * @param entrantLimit Optional limit to the total number of entrants that may enlist before selection.
  * @param selectionLimit Event capacity. This is the total number of enlisted entrants that may be selected.
- * @param entrants emails of all entrants to the event.
- * @param cancelledEntrants emails of entrants who declined enrollment or were cancelled.
- * @param selectedEntrants emails of entrants who were selected to enroll.
- * @param enrolledEntrants emails of final set of enrolled entrants
- * @param category The category of the event.
+ * @param optionalEntrantLimit Optional limit to the total number of entrants that may enlist before selection.
  */
 public record Event(
         UUID eventID,
         String name,
         String description,
+        Category category,
         Timestamp selectionTime,
         Timestamp eventTime,
         String organizer,
-        Optional<Long> entrantLimit,
         long selectionLimit,
-        Collection<String> entrants,
-        Collection<String> cancelledEntrants,
-        Collection<String> selectedEntrants,
-        Collection<String> enrolledEntrants) {
-
-    /**
-     * Canonical constructor for event
-     * @param eventID The ID of the event
-     * @param name The name of the event
-     * @param description A brief description about the event available for view to entrants.
-     * @param selectionTime Time after which lottery selection will be performed on enlisted entrants.
-     *                      Once this time has passed, the event will not be available for entry.
-     *                      However, re-selections may take place if invited entrants cancel.
-     * @param eventTime Time on which the event is set to happen. No re-selections will take place afterwards.
-     * @param organizer email for the organizer. This should correspond with the database.
-     * @param entrantLimit Optional limit to the total number of entrants that may enlist before selection.
-     * @param selectionLimit Event capacity. This is the total number of enlisted entrants that may be selected.
-     * @param entrants emails of all entrants to the event.
-     * @param cancelledEntrants emails of entrants who declined enrollment or were cancelled.
-     * @param selectedEntrants emails of entrants who were selected to enroll.
-     * @param enrolledEntrants emails of final set of enrolled entrants
-     */
+        Optional<Long> optionalEntrantLimit) {
     public Event {
         if (name.isBlank()) {
             throw new IllegalArgumentException("'name' must not be left blank");
@@ -78,7 +51,7 @@ public record Event(
             throw new IllegalArgumentException("'selectionLimit' must be positive");
         }
 
-        entrantLimit.ifPresent(limit -> {
+        optionalEntrantLimit.ifPresent(limit -> {
             if (limit <= 0) {
                 throw new IllegalArgumentException("'entrantLimit' must be positive");
             }
@@ -89,76 +62,45 @@ public record Event(
         });
     }
 
-    /**
-     * Constructor for Event
-     * @param eventID The ID of the event
-     * @param name The name of the event
-     * @param description A brief description about the event available for view to entrants.
-     * @param selectionTime Time after which lottery selection will be performed on enlisted entrants.
-     *                      Once this time has passed, the event will not be available for entry.
-     *                      However, re-selections may take place if invited entrants cancel.
-     * @param eventTime Time on which the event is set to happen. No re-selections will take place afterwards.
-     * @param organizer email for the organizer. This should correspond with the database.
-     * @param entrantLimit Optional limit to the total number of entrants that may enlist before selection.
-     * @param selectionLimit Event capacity. This is the total number of enlisted entrants that may be selected.
-     */
     public Event(
-            UUID eventID,
             String name,
             String description,
+            Category category,
             Timestamp selectionTime,
             Timestamp eventTime,
             String organizer,
-            Optional<Long> entrantLimit,
-            long selectionLimit) {
+            long selectionLimit,
+            long entrantLimit) {
         this(
-                eventID,
+                UUID.randomUUID(),
                 name,
                 description,
+                category,
                 selectionTime,
                 eventTime,
                 organizer,
-                entrantLimit,
                 selectionLimit,
-                new ArrayList<>(),
-                new ArrayList<>(),
-                new ArrayList<>(),
-                new ArrayList<>());
+                Optional.of(entrantLimit));
     }
 
-    /**
-     * Constructor for Event
-     * @param name The name of the event
-     * @param description A brief description about the event available for view to entrants.
-     * @param selectionTime Time after which lottery selection will be performed on enlisted entrants.
-     *                      Once this time has passed, the event will not be available for entry.
-     *                      However, re-selections may take place if invited entrants cancel.
-     * @param eventTime Time on which the event is set to happen. No re-selections will take place afterwards.
-     * @param organizer email for the organizer. This should correspond with the database.
-     * @param entrantLimit Optional limit to the total number of entrants that may enlist before selection.
-     * @param selectionLimit Event capacity. This is the total number of enlisted entrants that may be selected.
-     */
     public Event(
             String name,
             String description,
+            Category category,
             Timestamp selectionTime,
             Timestamp eventTime,
             String organizer,
-            Optional<Long> entrantLimit,
             long selectionLimit) {
         this(
                 UUID.randomUUID(),
                 name,
                 description,
+                category,
                 selectionTime,
                 eventTime,
                 organizer,
-                entrantLimit,
                 selectionLimit,
-                new ArrayList<>(),
-                new ArrayList<>(),
-                new ArrayList<>(),
-                new ArrayList<>());
+                Optional.empty());
     }
 
     /**
@@ -169,53 +111,18 @@ public record Event(
     public HashMap<String, Object> toHashMap() {
         HashMap<String, Object> hashMap = new HashMap<>();
 
-        hashMap.put("name", this.name());
-        hashMap.put("description", this.description());
-        hashMap.put("selectionTime", this.selectionTime());
-        hashMap.put("eventTime", this.eventTime());
-        hashMap.put("organizer", this.organizer());
-        hashMap.put("entrantLimit", this.entrantLimit().orElse(null));
-        hashMap.put("selectionLimit", this.selectionLimit());
-        hashMap.put("entrants", this.entrants().toString().replaceAll("[\\[\\]]", ""));
-        hashMap.put(
-                "cancelledEntrants",
-                this.cancelledEntrants().toString().replaceAll("[\\[\\]]", ""));
-        hashMap.put(
-                "selectedEntrants", this.selectedEntrants().toString().replaceAll("[\\[\\]]", ""));
-        hashMap.put(
-                "enrolledEntrants", this.enrolledEntrants().toString().replaceAll("[\\[\\]]", ""));
+        hashMap.put("name", this.name);
+        hashMap.put("description", this.description);
+        hashMap.put("category", this.category.toString());
+        hashMap.put("selectionTime", this.selectionTime);
+        hashMap.put("eventTime", this.eventTime);
+        hashMap.put("organizer", this.organizer);
+        hashMap.put("selectionLimit", this.selectionLimit);
+        hashMap.put("entrantLimit", this.optionalEntrantLimit.orElse(null));
 
         return hashMap;
     }
 
-    /**
-     * Compares this event to another object.
-     * @param other the reference object with which to compare.
-     * @return {@code false} if the internal values or class is not equal, {@code true} otherwise
-     */
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) return true;
-        if (other == null || other.getClass() != getClass()) return false;
-        Event event = (Event) other;
-        if (!this.eventID().equals(event.eventID())) return false;
-        if (!this.name().equals(event.name())) return false;
-        if (!this.description().equals(event.description())) return false;
-        if (!this.selectionTime().equals(event.selectionTime())) return false;
-        if (!this.eventTime().equals(event.eventTime())) return false;
-        if (!this.organizer().equals(event.organizer())) return false;
-        if (!this.entrantLimit().equals(event.entrantLimit())) return false;
-        if (this.selectionLimit() != event.selectionLimit()) return false;
-        if (!this.entrants().toString().equals(event.entrants().toString())) return false;
-        if (!this.cancelledEntrants()
-                .toString()
-                .equals(event.cancelledEntrants().toString())) return false;
-        if (!this.selectedEntrants().toString().equals(event.selectedEntrants().toString()))
-            return false;
-        return this.enrolledEntrants()
-                .toString()
-                .equals(event.enrolledEntrants().toString());
-    }
     /**
      * Calculate the status of the event at given time.
      * @param now Time to compare to.

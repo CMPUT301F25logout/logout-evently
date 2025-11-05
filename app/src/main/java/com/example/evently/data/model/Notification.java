@@ -27,6 +27,7 @@ import com.google.firebase.Timestamp;
  *                Use the events collection to figure out which entrants fall under which channel(s).
  * @param title Title of the notification. This goes into the notification payload.
  * @param description Description of the notification. This goes into the notification payload.
+ * @param creationTime Time this notification was initially created (i.e stored in the database).
  * @param seenBy Tracker of all the intended entrants who have "seen" this notification (clicked on).
  */
 public record Notification(

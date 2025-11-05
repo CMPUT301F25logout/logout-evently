@@ -7,20 +7,23 @@ import static org.junit.Assert.assertTrue;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
 import android.util.Log;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.firebase.Timestamp;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import com.example.evently.data.EventsDB;
+import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 
-public class EventsDatabaseTest {
+@RunWith(AndroidJUnit4.class)
+public class EventsDatabaseTest extends FirebaseEmulatorTest {
     @Rule
     public ActivityScenarioRule<MainActivity> scenario =
             new ActivityScenarioRule<MainActivity>(MainActivity.class);
@@ -33,13 +36,14 @@ public class EventsDatabaseTest {
         return new Event(
                 "testEvent",
                 "Event created to test.",
+                Category.EDUCATIONAL,
                 Timestamp.now(),
                 new Timestamp(LocalDate.of(2026, 1, 1)
                         .atStartOfDay(ZoneId.systemDefault())
                         .toInstant()),
                 "testOrganizer@example.com",
-                Optional.of(55L),
-                10L);
+                10L,
+                55L);
     }
 
     /**
@@ -51,13 +55,14 @@ public class EventsDatabaseTest {
         return new Event(
                 "testEvent" + num,
                 "Event " + num + " created for testing",
+                Category.EDUCATIONAL,
                 Timestamp.now(),
                 new Timestamp(LocalDate.of(2026 + num, 1, 1)
                         .atStartOfDay(ZoneId.systemDefault())
                         .toInstant()),
                 "testOrganizer" + num + "@example.com",
-                Optional.of(55L),
-                10L);
+                10L,
+                50L);
     }
 
     /**
@@ -86,7 +91,7 @@ public class EventsDatabaseTest {
                     fetchLatch.countDown();
 
                     assertTrue(fetchedEvent.isPresent());
-                    assertEquals(fetchedEvent.get(), event);
+                    assertEquals(fetchedEvent.get().toHashMap(), event.toHashMap());
                 },
                 e -> {
                     Log.d("FETCH Event", "testStoreAndFetchEvent: Failed to fetch event");
