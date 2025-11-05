@@ -58,16 +58,12 @@ public class EventsDB {
                 UUID.fromString(documentSnapshot.getId()),
                 documentSnapshot.getString("name"),
                 documentSnapshot.getString("description"),
+                Category.valueOf(documentSnapshot.getString("category")),
                 documentSnapshot.getTimestamp("selectionTime"),
                 documentSnapshot.getTimestamp("eventTime"),
                 documentSnapshot.getString("organizer"),
-                optionalEntrantLimit,
                 documentSnapshot.getLong("selectionLimit"),
-                (Collection<String>) documentSnapshot.get("entrants"),
-                (Collection<String>) documentSnapshot.get("cancelledEntrants"),
-                (Collection<String>) documentSnapshot.get("selectedEntrants"),
-                (Collection<String>) documentSnapshot.get("enrolledEntrants"),
-                documentSnapshot.get("category", Category.class)));
+                optionalEntrantLimit));
     }
 
     /**

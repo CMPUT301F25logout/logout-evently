@@ -3,7 +3,6 @@ package com.example.evently.ui.entrant;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 import android.os.Bundle;
@@ -15,6 +14,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.google.firebase.Timestamp;
 
 import com.example.evently.R;
+import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.common.EventsFragment;
 
@@ -60,34 +60,32 @@ public class JoinedEventsFragment extends EventsFragment {
     protected void initEvents(Consumer<List<Event>> callback) {
         var joined = new ArrayList<Event>();
         joined.add(new Event(
-                UUID.randomUUID(),
                 "Community Piano for Beginners",
                 "Intro series for absolute beginners.",
+                Category.SPORTS,
                 new Timestamp(Instant.parse("2025-12-10T23:59:00Z")),
                 new Timestamp(Instant.parse("2026-01-15T18:30:00Z")),
                 "orgEmail",
-                Optional.empty(),
                 30));
 
         joined.add(new Event(
-                UUID.randomUUID(),
                 "Canoe Safety Night",
                 "Dryland basics & safety briefing.",
+                Category.SPORTS,
                 new Timestamp(Instant.parse("2025-11-30T23:59:00Z")),
                 new Timestamp(Instant.parse("2026-02-05T19:00:00Z")),
                 "orgEmail",
-                Optional.empty(),
                 50));
 
         joined.add(new Event(
-                UUID.randomUUID(),
                 "Yoga Flow Level 1",
                 "Gentle strength and stretch.",
+                Category.SPORTS,
                 new Timestamp(Instant.parse("2025-12-08T23:59:00Z")),
                 new Timestamp(Instant.parse("2026-02-20T09:00:00Z")),
                 "orgEmail",
-                Optional.of(25L),
-                25));
+                25,
+                25L));
 
         callback.accept(joined);
     }
