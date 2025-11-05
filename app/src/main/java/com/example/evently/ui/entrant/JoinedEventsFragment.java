@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.function.Consumer;
 
 import android.os.Bundle;
@@ -13,10 +12,11 @@ import android.widget.Button;
 import androidx.core.content.ContextCompat;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.google.firebase.Timestamp;
+
 import com.example.evently.R;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.common.EventsFragment;
-import com.google.firebase.Timestamp;
 
 public class JoinedEventsFragment extends EventsFragment {
 

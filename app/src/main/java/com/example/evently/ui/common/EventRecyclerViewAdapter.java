@@ -59,7 +59,8 @@ public class EventRecyclerViewAdapter
             case OPEN -> {
                 binding.txtStatus.setText("Open");
                 binding.txtselectionDate.setText(MessageFormat.format(
-                        "Selection on {0}", some_date.format(holder.mItem.selectionTime().toInstant())));
+                        "Selection on {0}",
+                        some_date.format(holder.mItem.selectionTime().toInstant())));
             }
             case CLOSED -> {
                 binding.txtStatus.setText("Closed");
