@@ -23,10 +23,7 @@ public class OwnEventsFragment extends EventsFragment {
 
     // Local, mutable list backing the adapter
     private final ArrayList<Event> events = new ArrayList<>();
-    protected void onEventClick(Event event) {
-        // TODO (chase): Organizer event click action?
-    }
-
+    
     @Override
     protected int getLayoutRes() {
         return R.layout.fragment_organizer_event_list;
