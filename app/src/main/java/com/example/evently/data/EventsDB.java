@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -27,6 +28,7 @@ import com.example.evently.data.model.Event;
  */
 public class EventsDB {
     private final CollectionReference eventsRef;
+    private final CollectionReference eventEntrantsRef;
 
     /**
      * Constructor for EventsDB
@@ -34,6 +36,7 @@ public class EventsDB {
     public EventsDB() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
+        eventEntrantsRef = db.collection("eventEntrants");
     }
 
     /**
@@ -189,28 +192,24 @@ public class EventsDB {
      * @param onException A callback for the onFailureListener
      */
     public void fetchEventsByEnrolled(
-            String enrollee, Consumer<QuerySnapshot> onSuccess, Consumer<Exception> onException) {
-        eventsRef
+            String enrollee, Consumer<List<Event>> onSuccess, Consumer<Exception> onException) {
+        eventEntrantsRef
                 .whereArrayContains("enrolledEntrants", enrollee)
                 .get()
-                .addOnSuccessListener(onSuccess::accept)
-                .addOnFailureListener(onException::accept);
-    }
-
-    /**
-     * Fetch events with one of the accounts enrolled.
-     * @param enrollees emails of enrolled accounts
-     * @param onSuccess A callback for the onSuccessListener
-     * @param onException A callback for the onFailureListener
-     */
-    public void fetchEventsByEnrolled(
-            List<String> enrollees,
-            Consumer<QuerySnapshot> onSuccess,
-            Consumer<Exception> onException) {
-        eventsRef
-                .whereArrayContainsAny("enrolledEntrants", enrollees)
-                .get()
-                .addOnSuccessListener(onSuccess::accept)
+                .onSuccessTask(x -> {
+                    final var eventIds = x.getDocuments().stream().map(DocumentSnapshot::getId);
+                    final var eventGetTasks = eventIds.map(
+                                    entrantId -> eventsRef.document(entrantId).get())
+                            .collect(Collectors.toList());
+                    return Tasks.<DocumentSnapshot>whenAllSuccess(eventGetTasks);
+                })
+                .addOnSuccessListener(x -> {
+                    final var matchingEvents = x.stream()
+                            .map(EventsDB::getEventFromSnapshot)
+                            .flatMap(Optional::stream)
+                            .collect(Collectors.toList());
+                    onSuccess.accept(matchingEvents);
+                })
                 .addOnFailureListener(onException::accept);
     }
 
