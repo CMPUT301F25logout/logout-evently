@@ -15,7 +15,7 @@ recyclerview = "1.4.0"
 navigationFragment = "2.9.5"
 navigationUi = "2.9.5"
 runner = "1.7.0"
-playServicesAuth = "21d.4.0"
+playServicesAuth = "21.4.0"
 
 [libraries]
 credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentialsPlayServicesAuth" }
