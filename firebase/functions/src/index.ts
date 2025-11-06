@@ -2,7 +2,8 @@ import { getMessaging } from "firebase-admin/messaging";
 import * as logger from "firebase-functions/logger";
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
 
-import * as admin from "firebase-admin";
+import { initializeApp } from "firebase-admin/app";
+import { getFirestore } from "firebase-admin/firestore";
 
 type Channel = "All" | "Winners" | "Cancelled";
 
@@ -23,9 +24,9 @@ interface EventEntrants {
   cancelled: string[];
 }
 
-admin.initializeApp();
+const app = initializeApp();
 
-const db = admin.firestore();
+const db = getFirestore(app);
 
 export const createNotification = onDocumentCreated(
   "notifications/{notificationID}",
