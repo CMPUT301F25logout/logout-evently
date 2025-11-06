@@ -22,7 +22,7 @@ runs:
 
     - name: Set up firebase functions
       run: npm i
-      working-directory: ./firebase
+      working-directory: ./firebase/functions
       shell: bash
 
     - name: Enable KVM group perms
