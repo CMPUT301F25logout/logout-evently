@@ -1,17 +1,17 @@
 package com.example.evently.ui.entrant;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.example.evently.data.model.Notification;
 import com.example.evently.ui.common.NotificationsFragment;
+import com.example.evently.utils.FirebaseAuthUtils;
 import com.example.evently.utils.IntentConstants;
 
 public class ViewNotificationsFragment extends NotificationsFragment {
@@ -24,6 +24,8 @@ public class ViewNotificationsFragment extends NotificationsFragment {
                     default -> new NotificationGenericDialog();
                 };
         var bundle = new Bundle();
+        bundle.putSerializable("id", notif.id());
+        bundle.putSerializable("eventID", notif.eventId());
         bundle.putString("title", notif.title());
         bundle.putString("message", notif.description());
         dialog.setArguments(bundle);
@@ -32,28 +34,12 @@ public class ViewNotificationsFragment extends NotificationsFragment {
 
     protected void initNotifications(Consumer<List<Notification>> callback) {
         // TODO (chase): Obtain the real notifications from database.
-        var notifs = new ArrayList<Notification>();
-        var seenByOne = new HashSet<String>();
-        seenByOne.add("rmaity@ualberta.ca");
-        notifs.add(new Notification(
-                UUID.fromString("91f1fda5-61ea-4d59-8dab-e6132285290c"),
-                UUID.randomUUID(),
-                Notification.Channel.Winners,
-                "You have been invited to hiking",
-                "Congratulations! You were chosen to participate in hiking by organizer1\nYou may accept or decline this invitation",
-                Instant.now(),
-                new HashSet<>()));
-        notifs.add(new Notification(
-                UUID.randomUUID(),
-                UUID.randomUUID(),
-                Notification.Channel.Losers,
-                "You were not chosen for swimming",
-                "Sorry! You were not chosen for this event at this time.",
-                Instant.now(),
-                seenByOne));
-        callback.accept(notifs);
-        // By this point, the recyclerview and adapter are definitely set up.
-        handleNotificationClickIntent();
+        String email = FirebaseAuthUtils.getCurrentEmail();
+        notificationDB.fetchUnseenNotificationsByUser(email, callback, e -> {
+            Log.e("ViewNotificationsFragment", e.toString());
+            Toast.makeText(requireContext(), "Something went wrong...", Toast.LENGTH_SHORT)
+                    .show();
+        });
     }
 
     /**

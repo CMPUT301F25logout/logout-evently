@@ -1,5 +1,6 @@
 package com.example.evently.ui.organizer;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,9 +20,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.google.firebase.Timestamp;
+
 import com.example.evently.R;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
+import com.example.evently.utils.FirebaseAuthUtils;
 
 /**
  * Fragment that collects input to create a new organizer-owned {@link Event}
@@ -125,20 +129,16 @@ public class CreateEventFragment extends Fragment {
                 toast("Invalid date/time. Use YYYY-MM-DD and HH:mm:ss");
                 return;
             }
-            Instant eventTime = selectionTime.plusSeconds(60);
 
-            com.google.firebase.Timestamp selectionTs =
-                    new com.google.firebase.Timestamp(java.util.Date.from(selectionTime));
-            com.google.firebase.Timestamp eventTs =
-                    new com.google.firebase.Timestamp(java.util.Date.from(eventTime));
-
+            // For now, eventTime == selectionTime + 2 days (until organizer add event date/time
+            // fields)
             Event created = new Event(
                     name,
                     desc,
                     Category.SPORTS,
-                    selectionTs,
-                    eventTs,
-                    "orgEmail",
+                    new Timestamp(selectionTime),
+                    new Timestamp(selectionTime.plus(Duration.ofDays(2))),
+                    FirebaseAuthUtils.getCurrentEmail(),
                     winners,
                     wait.orElse(null));
 

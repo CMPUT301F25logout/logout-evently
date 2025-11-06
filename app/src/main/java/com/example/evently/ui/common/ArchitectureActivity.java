@@ -60,7 +60,7 @@ public abstract class ArchitectureActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         // Set the navbar.
-        final var navBar = binding.includeNavbar.navbar;
+        final var navBar = binding.navbar;
         final var fragmentContainer = binding.navHostFragment;
         NavHostFragment navHostFragment = (NavHostFragment)
                 getSupportFragmentManager().findFragmentById(fragmentContainer.getId());

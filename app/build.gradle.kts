@@ -34,6 +34,26 @@ android {
             name = "GOOGLE_CLIENT_ID",
             value = gclientID
         )
+
+        // Load emulator connection preference
+        val preferencesFile = project.rootProject.file("preferences.properties")
+        if (preferencesFile.exists()) {
+            val properties = Properties()
+            properties.load(preferencesFile.inputStream())
+
+            val hookEmulator = properties.getProperty("HOOK_EMULATOR") ?: "true"
+            buildConfigField(
+                type = "Boolean",
+                name = "HOOK_EMULATOR",
+                value = hookEmulator
+            )
+        } else {
+            buildConfigField(
+                type = "Boolean",
+                name = "HOOK_EMULATOR",
+                value = "true"
+            )
+        }
     }
 
     buildTypes {
@@ -113,9 +133,19 @@ dependencies {
     implementation(libs.recyclerview)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
+    implementation(libs.fragment)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.runner)
     androidTestImplementation(libs.ext.junit)
+    androidTestImplementation(libs.rules)
+    androidTestImplementation(libs.navigation.testing)
+    androidTestImplementation(libs.fragment.testing)
     androidTestImplementation(libs.espresso.core)
+    androidTestImplementation(libs.espresso.contrib) {
+        // https://github.com/android/android-test/issues/999
+        exclude(group = "com.google.protobuf", module = "protobuf-lite")
+    }
+
+    debugImplementation(libs.fragment.testing.manifest)
 }

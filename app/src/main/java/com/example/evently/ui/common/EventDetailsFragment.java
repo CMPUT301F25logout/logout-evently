@@ -1,11 +1,11 @@
 package com.example.evently.ui.common;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,13 +14,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.Timestamp;
-
-import com.example.evently.data.model.Account;
-import com.example.evently.data.model.Category;
+import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.databinding.FragmentEventDetailsBinding;
 
@@ -38,10 +36,7 @@ import com.example.evently.databinding.FragmentEventDetailsBinding;
 public class EventDetailsFragment extends Fragment {
     private FragmentEventDetailsBinding binding;
 
-    Event event;
-    List<Account> entrants;
-
-    String testEvent;
+    UUID eventID;
 
     @Override
     public View onCreateView(
@@ -51,7 +46,8 @@ public class EventDetailsFragment extends Fragment {
         binding = FragmentEventDetailsBinding.inflate(getLayoutInflater(), container, false);
 
         // Receive the event ID string
-        testEvent = EventDetailsFragmentArgs.fromBundle(getArguments()).getEventId();
+        eventID = UUID.fromString(
+                EventDetailsFragmentArgs.fromBundle(getArguments()).getEventId());
 
         return binding.getRoot();
     }
@@ -66,17 +62,33 @@ public class EventDetailsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        entrants = new ArrayList<Account>();
+        final var eventsDB = new EventsDB();
 
-        // This is temporary until navigation is fully implemented
-        addDummyData();
+        eventsDB.fetchEvent(
+                eventID,
+                event -> {
+                    if (event.isEmpty()) {
+                        // This should never happen.
+                        Log.w("EventDetailsFragment", "Received non existent event ID: " + eventID);
+                        NavHostFragment.findNavController(this).navigateUp();
+                        return;
+                    }
 
-        // TODO Implement logic to determine whether or not the user has joined the event from the
-        // database
-
-        loadEventInformation(event, entrants.size(), true);
-
-        loadEntrants(entrants);
+                    eventsDB.fetchEventEntrants(
+                            Collections.singletonList(eventID),
+                            eventEntrants -> {
+                                final var eventEntrantsInfo = eventEntrants.get(0);
+                                loadEventInformation(
+                                        event.get(), eventEntrantsInfo.all().size(), true);
+                                loadEntrants(eventEntrantsInfo.all());
+                            },
+                            e -> {
+                                Log.e("EventDetails", e.toString());
+                            });
+                },
+                e -> {
+                    Log.e("EventDetails", e.toString());
+                });
     }
 
     /**
@@ -136,39 +148,9 @@ public class EventDetailsFragment extends Fragment {
      * Uses the event_entrants_list_content.xml for the recycler view rows
      * @param entrants The list of entrants for this given event
      */
-    public void loadEntrants(List<Account> entrants) {
+    public void loadEntrants(List<String> entrants) {
         RecyclerView entrantList = binding.entrantList;
         entrantList.setLayoutManager(new LinearLayoutManager(this.getContext()));
         entrantList.setAdapter(new EntrantListAdapter(entrants));
-    }
-
-    /**
-     * Adds dummy data for visualizing the fragment, need to implement the onclick for the events to remove this
-     */
-    public void addDummyData() {
-        event = new Event(
-                UUID.fromString(testEvent),
-                testEvent + " name",
-                testEvent + " description",
-                Category.SPORTS,
-                Timestamp.now(),
-                Timestamp.now(),
-                "orgEmail",
-                10,
-                Optional.of(100L));
-
-        entrants.add(new Account(
-                "Email 1@gmail.com", "Name 1", Optional.of("780"), "Email 10@gmail.com"));
-        entrants.add(new Account(
-                "Email 2@gmail.com", "Name 2", Optional.empty(), "Emtail 20@gmail.com"));
-
-        for (int i = 0; i < 15; i++) {
-            int num = i * 10;
-            String n = String.valueOf(num);
-            String email = "Email " + n + "@gmail.com";
-            String name = "Name " + n;
-            Account a = new Account(email, name, Optional.empty(), email + " v");
-            entrants.add(a);
-        }
     }
 }
