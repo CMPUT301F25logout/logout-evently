@@ -98,6 +98,8 @@ public class AuthActivity extends AppCompatActivity {
         getSupportFragmentManager()
                 .setFragmentResultListener(
                         RegisterFragment.resultKey, this, this::afterRegistrationResult);
+
+        hasRegisterForm = true;
     }
 
     private void tryLoggingIn(int retryCount) {
