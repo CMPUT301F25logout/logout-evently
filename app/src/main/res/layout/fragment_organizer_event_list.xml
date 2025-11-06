@@ -7,7 +7,7 @@
     android:paddingLeft="16dp"
     android:paddingRight="16dp">
 
-    <!-- Header row: title + Create New -->
+    <!-- My Events + Create New Button-->
     <LinearLayout
         android:id="@+id/headerRow"
         android:layout_width="match_parent"
@@ -32,7 +32,8 @@
             android:text="Create New" />
     </LinearLayout>
 
-    <!-- Events list -->
+    <!-- List of Organizer Events -->
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/event_list"
         android:layout_width="match_parent"
