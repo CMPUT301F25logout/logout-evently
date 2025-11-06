@@ -45,6 +45,17 @@ public record Notification(
         Cancelled
     }
 
+    public Notification(UUID eventID, Channel channel, String title, String description) {
+        this(
+                UUID.randomUUID(),
+                eventID,
+                channel,
+                title,
+                description,
+                Instant.now(),
+                new HashSet<>());
+    }
+
     /**
      * @param email Email to identify an app entrant.
      * @return Whether or not user with given email has already seen this Notification or not.

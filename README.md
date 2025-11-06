@@ -10,6 +10,8 @@ Once you have all these, you'll need to set up a firebase project, refer to the 
 
 Once you have the firebase console set up and your android app added, enable "Google Sign In" integration under Build > Authentication > Sign-in method > Add new provider > Google.
 
+Additionally, also enable the native "Email/Password" sign in method (without enabling "email link for passwordless sign in"). This is used for tests.
+
 Redownload the `google-services.json` afterwards and put it inside `./app/`.
 
 Next, you need to authenticate the client app into Firebase. You can do so by generating the SHA1 of the app and adding it to the Firebase project. Refer to the [official instructions](https://developers.google.com/android/guides/client-auth).
