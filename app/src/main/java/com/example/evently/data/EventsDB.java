@@ -1,16 +1,15 @@
 package com.example.evently.data;
 
-import android.util.Log;
-
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
@@ -20,6 +19,8 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
+import org.jetbrains.annotations.TestOnly;
 
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
@@ -182,9 +183,7 @@ public class EventsDB {
      * @param onException A callback for the onFailureListener
      */
     public void fetchEventsByOrganizers(
-            String organizer,
-            Consumer<List<Event>> onSuccess,
-            Consumer<Exception> onException) {
+            String organizer, Consumer<List<Event>> onSuccess, Consumer<Exception> onException) {
         eventsRef
                 .whereEqualTo("organizer", organizer)
                 .get()
@@ -329,5 +328,21 @@ public class EventsDB {
      */
     public void deleteEvent(String eventID) {
         eventsRef.document(eventID).delete();
+    }
+
+    @TestOnly
+    public Task<Void> nuke() {
+        return eventsRef
+                .get()
+                .onSuccessTask(eventDocs -> eventEntrantsRef
+                        .get()
+                        .onSuccessTask(eventEntrantDocs -> Tasks.forResult(Stream.concat(
+                                eventDocs.getDocuments().stream(),
+                                eventEntrantDocs.getDocuments().stream()))))
+                .onSuccessTask(docs -> {
+                    WriteBatch batch = FirebaseFirestore.getInstance().batch();
+                    docs.forEach(doc -> batch.delete(doc.getReference()));
+                    return batch.commit();
+                });
     }
 }

@@ -1,6 +1,5 @@
 package com.example.evently.ui.organizer;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -10,19 +9,15 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.evently.data.EventsDB;
-import com.example.evently.utils.FirebaseAuthUtils;
-import com.google.firebase.Timestamp;
-
 import com.example.evently.R;
-import com.example.evently.data.model.Category;
+import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.common.EventsFragment;
+import com.example.evently.utils.FirebaseAuthUtils;
 
 public class OwnEventsFragment extends EventsFragment {
 
@@ -67,10 +62,15 @@ public class OwnEventsFragment extends EventsFragment {
     protected void initEvents(Consumer<List<Event>> callback) {
         // TODO (chase): Get list of own events by organizer.
         if (events.isEmpty()) {
-            new EventsDB().fetchEventsByOrganizers(FirebaseAuthUtils.getCurrentEmail(), callback, e -> {
-                Log.e("OwnEvents", e.toString());
-                Toast.makeText(requireContext(), "Something went wrong...", Toast.LENGTH_SHORT).show();
-            });
+            new EventsDB()
+                    .fetchEventsByOrganizers(FirebaseAuthUtils.getCurrentEmail(), callback, e -> {
+                        Log.e("OwnEvents", e.toString());
+                        Toast.makeText(
+                                        requireContext(),
+                                        "Something went wrong...",
+                                        Toast.LENGTH_SHORT)
+                                .show();
+                    });
         }
         callback.accept(events);
     }

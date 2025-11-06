@@ -8,12 +8,15 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.WriteBatch;
+import org.jetbrains.annotations.TestOnly;
 
 import com.example.evently.data.model.Event;
 import com.example.evently.data.model.Notification;
@@ -290,5 +293,16 @@ public class NotificationDB {
                             onException);
                 },
                 onException);
+    }
+
+    @TestOnly
+    public Task<Void> nuke() {
+        return notificationsRef.get().onSuccessTask(docs -> {
+            WriteBatch batch = FirebaseFirestore.getInstance().batch();
+            for (var doc : docs) {
+                batch.delete(doc.getReference());
+            }
+            return batch.commit();
+        });
     }
 }

@@ -1,7 +1,5 @@
 package com.example.evently.ui.entrant;
 
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -10,18 +8,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
-
 import androidx.core.content.ContextCompat;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.evently.data.EventsDB;
-import com.example.evently.utils.FirebaseAuthUtils;
-import com.google.firebase.Timestamp;
-
 import com.example.evently.R;
-import com.example.evently.data.model.Category;
+import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.common.EventsFragment;
+import com.example.evently.utils.FirebaseAuthUtils;
 
 public class JoinedEventsFragment extends EventsFragment {
 
@@ -65,7 +59,8 @@ public class JoinedEventsFragment extends EventsFragment {
     protected void initEvents(Consumer<List<Event>> callback) {
         new EventsDB().fetchEventsByEnrolled(FirebaseAuthUtils.getCurrentEmail(), callback, e -> {
             Log.e("JoinedEvents", e.toString());
-            Toast.makeText(requireContext(), "Something went wrong...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Something went wrong...", Toast.LENGTH_SHORT)
+                    .show();
         });
     }
 }

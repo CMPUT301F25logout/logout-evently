@@ -20,12 +20,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.evently.utils.FirebaseAuthUtils;
 import com.google.firebase.Timestamp;
 
 import com.example.evently.R;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
+import com.example.evently.utils.FirebaseAuthUtils;
 
 public class CreateEventFragment extends Fragment {
 
@@ -101,7 +101,8 @@ public class CreateEventFragment extends Fragment {
                 return;
             }
 
-            // For now, eventTime == selectionTime + 2 days (until organizer add event date/time fields)
+            // For now, eventTime == selectionTime + 2 days (until organizer add event date/time
+            // fields)
             Event created = new Event(
                     name,
                     desc,
