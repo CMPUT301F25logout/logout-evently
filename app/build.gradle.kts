@@ -34,6 +34,26 @@ android {
             name = "GOOGLE_CLIENT_ID",
             value = gclientID
         )
+
+        // Load emulator connection preference
+        val preferencesFile = project.rootProject.file("preferences.properties")
+        if (preferencesFile.exists()) {
+            val properties = Properties()
+            properties.load(preferencesFile.inputStream())
+
+            val hookEmulator = properties.getProperty("HOOK_EMULATOR") ?: "true"
+            buildConfigField(
+                type = "Boolean",
+                name = "HOOK_EMULATOR",
+                value = hookEmulator
+            )
+        } else {
+            buildConfigField(
+                type = "Boolean",
+                name = "HOOK_EMULATOR",
+                value = "true"
+            )
+        }
     }
 
     buildTypes {

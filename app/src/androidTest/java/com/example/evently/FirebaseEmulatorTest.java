@@ -46,13 +46,12 @@ public abstract class FirebaseEmulatorTest {
         return accounts;
     }
 
-    @Rule
-    public GrantPermissionRule permissionRule =
-            GrantPermissionRule.grant(Manifest.permission.POST_NOTIFICATIONS);
-
     @BeforeClass
-    public static void setUpEmulator() throws ExecutionException, InterruptedException {
-        // Connect to the emulators.
+    public static void setUpEmulator() {
+        // Connect to the emulators (unless specified otherwise).
+        if (!BuildConfig.HOOK_EMULATOR) {
+            return;
+        }
         try {
             FirebaseAuth.getInstance().useEmulator("10.0.2.2", 9099);
             FirebaseFirestore.getInstance().useEmulator("10.0.2.2", 8080);
