@@ -20,6 +20,11 @@ runs:
       run: npm i -g firebase-tools
       shell: bash
 
+    - name: Set up firebase functions
+      run: npm i
+      working-directory: ./firebase
+      shell: bash
+
     - name: Enable KVM group perms
       run: |
         echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -58,4 +63,4 @@ runs:
         emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
         disable-animations: true
         working-directory: ./firebase
-        script: firebase emulators:exec "../gradlew connectedAndroidTest --fail-fast --no-parallel -p ../"
+        script: firebase emulators:exec "../gradlew connectedAndroidTest --no-parallel -p ../"
