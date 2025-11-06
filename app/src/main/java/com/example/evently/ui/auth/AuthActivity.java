@@ -161,7 +161,11 @@ public class AuthActivity extends AppCompatActivity {
 
                 // If user is not found, create an account for them with the new info
                 Account newAccount = new Account(email, name, Optional.ofNullable(phone), email);
-                accountDB.storeAccount(newAccount);
+                accountDB.storeAccount(newAccount, v -> successfulTransition(), e -> {
+                    Log.e("AuthActivity", e.toString());
+                    Toast.makeText(this, "Something went wrong...", Toast.LENGTH_SHORT)
+                            .show();
+                });
             }
         }
     }
