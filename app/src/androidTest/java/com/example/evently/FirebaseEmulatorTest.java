@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.firestore.FirebaseFirestore;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -22,13 +24,14 @@ import com.example.evently.data.model.Account;
  * @apiNote This will not work with real devices. Only an AVD.
  */
 public abstract class FirebaseEmulatorTest {
-    private final String mockPassword = "password";
+    private static final String defaultMockEmail = "foobar589@gmail.com";
+    private static final String mockPassword = "password";
 
     /**
      * If mockAccounts is not overridden, this is the only account that is created.
      */
     protected static final Account mockAccount =
-            new Account("Foo Bar", "foo@bar.com", Optional.of("7801234579"), "foo@bar.com");
+            new Account(defaultMockEmail, "Foo Bar", Optional.of("7801234579"), defaultMockEmail);
 
     /**
      * Extending classes may override this to demand different starting accounts.
@@ -40,14 +43,20 @@ public abstract class FirebaseEmulatorTest {
         return accounts;
     }
 
+
     @BeforeClass
-    public static void setUpEmulator() {
+    public static void setUpEmulator() throws ExecutionException, InterruptedException {
         // Connect to the emulators.
-        try {
-            FirebaseAuth.getInstance().useEmulator("10.0.2.2", 9099);
-            FirebaseFirestore.getInstance().useEmulator("10.0.2.2", 8080);
-        } catch (IllegalStateException e) {
-            // Emulators have already been set up.
+//        try {
+//            FirebaseAuth.getInstance().useEmulator("10.0.2.2", 9099);
+//            FirebaseFirestore.getInstance().useEmulator("10.0.2.2", 8080);
+//        } catch (IllegalStateException e) {
+//            // Emulators have already been set up.
+//        }
+
+        // Sign in manually (we skip AuthActivity) if not signed in already.
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            login();
         }
     }
 
@@ -59,9 +68,20 @@ public abstract class FirebaseEmulatorTest {
         // Register in firebase auth.
         final var auth = FirebaseAuth.getInstance();
         final var authTasks = accounts.stream()
-                .map(acc -> auth.createUserWithEmailAndPassword(acc.email(), mockPassword))
+                .map(acc ->
+                        auth.createUserWithEmailAndPassword(acc.email(), mockPassword)
+                )
+
                 .collect(Collectors.toList());
-        Tasks.await(Tasks.whenAllSuccess(authTasks));
+
+        try {
+            Tasks.await(Tasks.whenAllSuccess(authTasks));
+        } catch (ExecutionException execExc) {
+            if (!(execExc.getCause() instanceof FirebaseAuthUserCollisionException)) {
+                // Rethrow for any other type of execution exception.s
+                throw execExc;
+            }
+        }
 
         // Register these accounts in the DB.
         final var accountDB = new AccountDB();
@@ -73,16 +93,16 @@ public abstract class FirebaseEmulatorTest {
     /**
      * Login with the default account and plug it into FirebaseAuth as "currentUser.
      */
-    public void login() throws ExecutionException, InterruptedException {
-        login(0);
+    public static void login() throws ExecutionException, InterruptedException {
+        login(defaultMockEmail);
     }
 
     /**
      * Login with a specified account so FirebaseAuth now has that set as "currentUser".
-     * @param idx Index of the account in mockAccounts (if custom) to sign in with.
+     * @param email Email of the account from mockAccounts (if custom) to sign in with.
      */
-    public void login(int idx) throws ExecutionException, InterruptedException {
+    public static void login(String email) throws ExecutionException, InterruptedException {
         final var auth = FirebaseAuth.getInstance();
-        Tasks.await(auth.signInWithEmailAndPassword(mockAccounts().get(idx).email(), mockPassword));
+        Tasks.await(auth.signInWithEmailAndPassword(email, mockPassword));
     }
 }

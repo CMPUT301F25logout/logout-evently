@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutionException;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.example.evently.utils.FirebaseAuthUtils;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -119,14 +120,6 @@ public class ViewNotificationsTest extends FirebaseEmulatorTest {
     @Rule
     public ActivityScenarioRule<EntrantActivity> scenario =
             new ActivityScenarioRule<>(EntrantActivity.class);
-
-    @Before
-    public void authenticate() throws ExecutionException, InterruptedException {
-        // Sign in manually (we skip AuthActivity) if not signed in already.
-        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-            super.login();
-        }
-    }
 
     @Before
     public void switchNavigation() {
