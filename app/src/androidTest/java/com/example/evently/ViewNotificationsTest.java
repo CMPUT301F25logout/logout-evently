@@ -13,10 +13,8 @@ import java.util.concurrent.ExecutionException;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.example.evently.utils.FirebaseAuthUtils;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;
-import com.google.firebase.auth.FirebaseAuth;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;

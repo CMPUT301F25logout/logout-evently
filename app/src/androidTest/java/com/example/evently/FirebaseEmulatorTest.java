@@ -6,13 +6,16 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import android.Manifest;
+import androidx.test.rule.GrantPermissionRule;
+
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.firestore.FirebaseFirestore;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 
 import com.example.evently.data.AccountDB;
 import com.example.evently.data.model.Account;
@@ -43,16 +46,19 @@ public abstract class FirebaseEmulatorTest {
         return accounts;
     }
 
+    @Rule
+    public GrantPermissionRule permissionRule =
+            GrantPermissionRule.grant(Manifest.permission.POST_NOTIFICATIONS);
 
     @BeforeClass
     public static void setUpEmulator() throws ExecutionException, InterruptedException {
         // Connect to the emulators.
-//        try {
-//            FirebaseAuth.getInstance().useEmulator("10.0.2.2", 9099);
-//            FirebaseFirestore.getInstance().useEmulator("10.0.2.2", 8080);
-//        } catch (IllegalStateException e) {
-//            // Emulators have already been set up.
-//        }
+        try {
+            FirebaseAuth.getInstance().useEmulator("10.0.2.2", 9099);
+            FirebaseFirestore.getInstance().useEmulator("10.0.2.2", 8080);
+        } catch (IllegalStateException e) {
+            // Emulators have already been set up.
+        }
 
         // Sign in manually (we skip AuthActivity) if not signed in already.
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
@@ -68,10 +74,7 @@ public abstract class FirebaseEmulatorTest {
         // Register in firebase auth.
         final var auth = FirebaseAuth.getInstance();
         final var authTasks = accounts.stream()
-                .map(acc ->
-                        auth.createUserWithEmailAndPassword(acc.email(), mockPassword)
-                )
-
+                .map(acc -> auth.createUserWithEmailAndPassword(acc.email(), mockPassword))
                 .collect(Collectors.toList());
 
         try {

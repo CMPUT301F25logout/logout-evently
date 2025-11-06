@@ -117,6 +117,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.runner)
     androidTestImplementation(libs.ext.junit)
+    androidTestImplementation(libs.rules)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.espresso.contrib) {
         // https://github.com/android/android-test/issues/999
