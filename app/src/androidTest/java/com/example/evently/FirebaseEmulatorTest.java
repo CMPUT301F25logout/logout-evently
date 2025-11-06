@@ -6,16 +6,12 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import android.Manifest;
-import androidx.test.rule.GrantPermissionRule;
-
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.firestore.FirebaseFirestore;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 
 import com.example.evently.data.AccountDB;
 import com.example.evently.data.model.Account;
