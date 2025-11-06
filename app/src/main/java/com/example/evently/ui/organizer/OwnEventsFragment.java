@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -18,6 +19,7 @@ import com.example.evently.R;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.common.EventsFragment;
+import com.example.evently.ui.entrant.EntrantActivity;
 
 public class OwnEventsFragment extends EventsFragment {
 
@@ -41,6 +43,10 @@ public class OwnEventsFragment extends EventsFragment {
             create.setOnClickListener(v ->
                     NavHostFragment.findNavController(this).navigate(R.id.navigate_create_events));
         }
+
+        Button becomeEntrant = view.findViewById(R.id.btnBecomeEntrant);
+        becomeEntrant.setOnClickListener(
+                v -> startActivity(new Intent(requireContext(), EntrantActivity.class)));
 
         // Receive result from CreateEventFragment (no ViewModel)
         var nav = NavHostFragment.findNavController(this);

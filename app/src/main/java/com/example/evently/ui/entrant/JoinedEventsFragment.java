@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -32,6 +33,8 @@ public class JoinedEventsFragment extends EventsFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        Button btnBecomeOrganizer = view.findViewById(R.id.btnBecomeOrganizer);
+
         Button btnJoined = view.findViewById(R.id.btnJoined);
         Button btnBrowse = view.findViewById(R.id.btnBrowse);
 
@@ -44,6 +47,9 @@ public class JoinedEventsFragment extends EventsFragment {
 
         // Already on Joined
         btnJoined.setOnClickListener(v -> {});
+
+        btnBecomeOrganizer.setOnClickListener(v -> startActivity(new Intent(
+                requireContext(), com.example.evently.ui.organizer.OrganizerActivity.class)));
     }
 
     private void styleSelected(Button b, boolean selected) {

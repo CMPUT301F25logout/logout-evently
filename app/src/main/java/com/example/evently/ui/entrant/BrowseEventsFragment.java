@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -18,6 +19,7 @@ import com.example.evently.R;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.common.EventsFragment;
+import com.example.evently.ui.organizer.OrganizerActivity;
 
 public class BrowseEventsFragment extends EventsFragment {
 
@@ -42,6 +44,7 @@ public class BrowseEventsFragment extends EventsFragment {
 
         Button btnJoined = view.findViewById(R.id.btnJoined);
         Button btnBrowse = view.findViewById(R.id.btnBrowse);
+        Button btnBecomeOrganizer = view.findViewById(R.id.btnBecomeOrganizer);
 
         styleSelected(btnJoined, false);
         styleSelected(btnBrowse, true);
@@ -52,6 +55,10 @@ public class BrowseEventsFragment extends EventsFragment {
 
         // Already on Browse
         btnBrowse.setOnClickListener(v -> {});
+
+        // Launch OrganizerActivity
+        btnBecomeOrganizer.setOnClickListener(
+                v -> startActivity(new Intent(requireContext(), OrganizerActivity.class)));
     }
 
     private void styleSelected(Button b, boolean selected) {
