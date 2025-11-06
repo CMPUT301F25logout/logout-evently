@@ -1,6 +1,9 @@
 package com.example.evently;
 
-import static com.example.evently.MatcherUtils.assertRecylerViewItem;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static com.example.evently.MatcherUtils.assertRecyclerViewItem;
 import static com.example.evently.MatcherUtils.p;
 
 import java.time.Duration;
@@ -8,7 +11,9 @@ import java.time.Instant;
 import java.util.concurrent.ExecutionException;
 
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import org.junit.AfterClass;
@@ -16,6 +21,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.NotificationDB;
@@ -24,6 +30,7 @@ import com.example.evently.data.model.Event;
 import com.example.evently.data.model.Notification;
 import com.example.evently.ui.entrant.EntrantActivity;
 
+@RunWith(AndroidJUnit4.class)
 public class ViewNotificationsTest extends FirebaseEmulatorTest {
     private static final EventsDB eventsDB = new EventsDB();
     private static final NotificationDB notificationDB = new NotificationDB();
@@ -121,6 +128,11 @@ public class ViewNotificationsTest extends FirebaseEmulatorTest {
         }
     }
 
+    @Before
+    public void switchNavigation() {
+        onView(withId(R.id.nav_notifs)).perform(click());
+    }
+
     @BeforeClass
     public static void setUpNotifications() {
         final var self = FirebaseEmulatorTest.mockAccount.email();
@@ -178,7 +190,9 @@ public class ViewNotificationsTest extends FirebaseEmulatorTest {
     }
 
     @AfterClass
-    public static void tearDownNotifications() {}
+    public static void tearDownNotifications() throws ExecutionException, InterruptedException {
+        Tasks.await(Tasks.whenAllSuccess(notificationDB.nuke(), eventsDB.nuke()));
+    }
 
     @Test
     public void expectNotification_all() throws InterruptedException {
@@ -192,7 +206,7 @@ public class ViewNotificationsTest extends FirebaseEmulatorTest {
 
         // For each of the expected notifications, scroll to it and make sure it shows properly.
         for (final var expectedNotification : expectedNotifications) {
-            assertRecylerViewItem(
+            assertRecyclerViewItem(
                     R.id.notif_list,
                     p(R.id.notif_title, expectedNotification.title()),
                     p(R.id.notif_description, expectedNotification.description()));
