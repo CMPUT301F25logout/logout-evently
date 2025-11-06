@@ -44,10 +44,6 @@ public class OwnEventsFragment extends EventsFragment {
                     NavHostFragment.findNavController(this).navigate(R.id.navigate_create_events));
         }
 
-        Button becomeEntrant = view.findViewById(R.id.btnBecomeEntrant);
-        becomeEntrant.setOnClickListener(
-                v -> startActivity(new Intent(requireContext(), EntrantActivity.class)));
-
         // Receive result from CreateEventFragment (no ViewModel)
         var nav = NavHostFragment.findNavController(this);
         nav.getCurrentBackStackEntry()
@@ -61,6 +57,12 @@ public class OwnEventsFragment extends EventsFragment {
                         }
                     }
                 });
+
+        Button becomeEntrant = view.findViewById(R.id.btnBecomeEntrant);
+        if (becomeEntrant != null) {
+            becomeEntrant.setOnClickListener(
+                    v -> startActivity(new Intent(requireContext(), EntrantActivity.class)));
+        }
     }
 
     @Override
