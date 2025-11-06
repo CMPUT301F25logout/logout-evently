@@ -1,6 +1,5 @@
 package com.example.evently.ui.common;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +16,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.firebase.Timestamp;
 
 import com.example.evently.data.model.Account;
 import com.example.evently.data.model.Category;
@@ -93,12 +94,11 @@ public class EventDetailsFragment extends Fragment {
         String entrantCountStr = String.valueOf(currEntrants);
 
         // Display according information depending on if the event has an entrant limit
-        if (event.entrantLimit().isPresent()) {
-            entrantCountStr = String.valueOf(currEntrants) + "/"
-                    + String.valueOf(event.entrantLimit().get());
+        if (event.optionalEntrantLimit().isPresent()) {
+            entrantCountStr = currEntrants + "/" + event.optionalEntrantLimit().get();
 
             // Disable the button if the waitlist is already full
-            if (event.entrantLimit().get() == currEntrants) {
+            if (event.optionalEntrantLimit().get() == currEntrants) {
                 waitlistAction.setEnabled(false);
                 // Change the button text to indicate that it's full
                 String waitlistFull = "Event is full.";
@@ -150,13 +150,12 @@ public class EventDetailsFragment extends Fragment {
                 UUID.fromString(testEvent),
                 testEvent + " name",
                 testEvent + " description",
-                Instant.now(),
-                Instant.now(),
-                UUID.randomUUID(),
-                Optional.of((long) 100),
-                // Optional.empty(),
+                Category.SPORTS,
+                Timestamp.now(),
+                Timestamp.now(),
+                "orgEmail",
                 10,
-                Category.SPORTS);
+                Optional.of(100L));
 
         entrants.add(new Account(
                 "Email 1@gmail.com", "Name 1", Optional.of("780"), "Email 10@gmail.com"));
