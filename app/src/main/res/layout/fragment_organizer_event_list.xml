@@ -7,7 +7,7 @@
     android:paddingLeft="16dp"
     android:paddingRight="16dp">
 
-    <!-- Header row: title + Become Entrant + Create New -->
+    <!-- My Events + Create New Button-->
     <LinearLayout
         android:id="@+id/headerRow"
         android:layout_width="match_parent"
@@ -25,20 +25,14 @@
             android:textStyle="bold"
             android:textSize="20sp" />
 
-        <!-- NEW: Become Entrant -->
-        <Button
-            android:id="@+id/btnBecomeEntrant"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Become Entrant"
-            android:layout_marginEnd="12dp" />
-
         <Button
             android:id="@+id/btnCreateEvent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Create New" />
     </LinearLayout>
+
+    <!-- List of Organizer Events -->
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/event_list"

@@ -9,6 +9,22 @@
     android:fitsSystemWindows="true"
     tools:context=".ui.common.ArchitectureActivity">
 
+    <!-- Top bar: global Switch Role button -->
+    <LinearLayout
+        android:id="@+id/top_role_switcher_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:paddingBottom="4dp"
+        android:gravity="center_horizontal">
+
+        <Button
+            android:id="@+id/btnSwitchRole"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Switch Role" />
+    </LinearLayout>
+
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nav_host_fragment"
         android:name="androidx.navigation.fragment.NavHostFragment"

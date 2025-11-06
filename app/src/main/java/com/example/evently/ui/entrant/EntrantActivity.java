@@ -6,13 +6,29 @@ import com.example.evently.R;
 import com.example.evently.ui.common.ArchitectureActivity;
 import com.example.evently.utils.IntentConstants;
 
+/**
+ * Activity entry point for the Entrant role.
+ * This Activity hosts the Entrant navigation graph and UI.
+ */
 public class EntrantActivity extends ArchitectureActivity {
 
+    /**
+     * Get the navigation graph for this activity.
+     *
+     * @return {@code R.navigation.entrant_graph} the Entrant nav graph resource id.
+     */
     @Override
     protected int getGraph() {
         return R.navigation.entrant_graph;
     }
 
+    /**
+     * Initializes the Entrant Activity and handles intent-driven navigation.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
