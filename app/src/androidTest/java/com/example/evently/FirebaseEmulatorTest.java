@@ -59,11 +59,6 @@ public abstract class FirebaseEmulatorTest {
         } catch (IllegalStateException e) {
             // Emulators have already been set up.
         }
-
-        // Sign in manually (we skip AuthActivity) if not signed in already.
-        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-            login();
-        }
     }
 
     @Before

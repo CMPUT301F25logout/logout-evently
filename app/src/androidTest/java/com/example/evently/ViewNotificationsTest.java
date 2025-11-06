@@ -173,7 +173,7 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
     }
 
     @Test
-    public void expectNotification_all() throws InterruptedException {
+    public void expectNotification_all() {
         // Any notifications sent to the All channel for participated event IDs should show up.
         // See the setUpNotifications to figure out which notifications we're expecting here.
         final var expectedNotifications = new Notification[] {
@@ -193,39 +193,38 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
     }
 
     @Test
-    public void expectNotification_winner() throws InterruptedException {
+    public void expectNotification_winner() {
         // Notifications sent to the Winner channel for won event IDs should show up.
 
     }
 
     @Test
-    public void expectNotification_loser() throws InterruptedException {
+    public void expectNotification_loser() {
         // Any notifications sent to the Loser channel for lost event IDs should show up.
 
     }
 
     @Test
-    public void acceptInvitation_markSeen() throws InterruptedException {
+    public void acceptInvitation_markSeen() {
         // Accepting an invitation should put self in the accepted list of entrants
         // and mark the notification as seen.
 
     }
 
     @Test
-    public void declineInvitation_markSeen_expectNotification_cancelled()
-            throws InterruptedException {
+    public void declineInvitation_markSeen_expectNotification_cancelled() {
         // Declining an invitation should put self in the cancelled list of entrants
         // and mark the notification as seen. Also expose any cancelled channel notifications.
 
     }
 
     @Test
-    public void noExpectNotification_otherEvent() throws InterruptedException {
+    public void noExpectNotification_otherEvent() {
         // Notifications from non-participated event should NOT show up.
     }
 
     @Test
-    public void noExpectNotification_otherChannel() throws InterruptedException {
+    public void noExpectNotification_otherChannel() {
         // Notifications from participated event but non-participated channel should NOT show up.
 
     }

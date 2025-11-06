@@ -1,6 +1,7 @@
 package com.example.evently;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.ExecutionException;
 
 import androidx.annotation.NavigationRes;
 import androidx.annotation.NonNull;
@@ -11,6 +12,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.testing.TestNavHostController;
 import androidx.test.core.app.ApplicationProvider;
 
+import com.google.firebase.auth.FirebaseAuth;
 import org.junit.After;
 import org.junit.Before;
 
@@ -33,7 +35,12 @@ public abstract class EmulatedFragmentTest<T extends Fragment> extends FirebaseE
     protected abstract Class<T> getFragmentClass();
 
     @Before
-    public void setUpFragment() {
+    public void setUpFragment() throws ExecutionException, InterruptedException {
+        // We're gonna sign in (AuthActivity is skipped) before spawning the fragment.
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            login();
+        }
+
         // See: https://developer.android.com/guide/navigation/testings
         TestNavHostController navController =
                 new TestNavHostController(ApplicationProvider.getApplicationContext());
@@ -59,7 +66,7 @@ public abstract class EmulatedFragmentTest<T extends Fragment> extends FirebaseE
                     // The fragment’s view has just been created
                     if (viewLifecycleOwner != null) {
                         navController.setGraph(getGraph());
-                        Navigation.setViewNavController(frag.requireView(), navController);
+                        Navigation.setViewNavController(finalFrag.requireView(), navController);
                     }
                 });
                 return frag;
