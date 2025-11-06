@@ -1,23 +1,23 @@
 package com.example.evently.ui.organizer;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.google.firebase.Timestamp;
-
 import com.example.evently.R;
-import com.example.evently.data.model.Category;
+import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.common.EventsFragment;
+import com.example.evently.utils.FirebaseAuthUtils;
 
 public class OwnEventsFragment extends EventsFragment {
 
@@ -49,6 +49,7 @@ public class OwnEventsFragment extends EventsFragment {
                 .<Event>getLiveData("new_event")
                 .observe(getViewLifecycleOwner(), event -> {
                     if (event != null) {
+                        new EventsDB().storeEvent(event);
                         events.add(event);
                         if (adapter != null) {
                             adapter.notifyItemInserted(events.size() - 1);
@@ -61,14 +62,15 @@ public class OwnEventsFragment extends EventsFragment {
     protected void initEvents(Consumer<List<Event>> callback) {
         // TODO (chase): Get list of own events by organizer.
         if (events.isEmpty()) {
-            events.add(new Event(
-                    "Trail Running",
-                    "Let's go trail running across the river valley trails!",
-                    Category.SPORTS,
-                    new Timestamp(Instant.parse("2025-11-03T11:59:00.00Z")),
-                    new Timestamp(Instant.parse("2025-11-09T09:00:00.00Z")),
-                    "orgEmail",
-                    42));
+            new EventsDB()
+                    .fetchEventsByOrganizers(FirebaseAuthUtils.getCurrentEmail(), callback, e -> {
+                        Log.e("OwnEvents", e.toString());
+                        Toast.makeText(
+                                        requireContext(),
+                                        "Something went wrong...",
+                                        Toast.LENGTH_SHORT)
+                                .show();
+                    });
         }
         callback.accept(events);
     }

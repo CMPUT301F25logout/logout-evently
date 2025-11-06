@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.evently.R;
+import com.example.evently.data.NotificationDB;
 import com.example.evently.data.model.Notification;
 
 /**
@@ -25,6 +26,8 @@ import com.example.evently.data.model.Notification;
  * @see NotificationRecyclerViewAdapter
  */
 public abstract class NotificationsFragment extends Fragment {
+
+    protected NotificationDB notificationDB;
 
     /**
      * Adapter to manage the notification list dynamically.
@@ -51,6 +54,7 @@ public abstract class NotificationsFragment extends Fragment {
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_notifs, container, false);
+        notificationDB = new NotificationDB();
         if (view instanceof RecyclerView recyclerView_) {
             this.recyclerView = recyclerView_;
             // Set the adapter

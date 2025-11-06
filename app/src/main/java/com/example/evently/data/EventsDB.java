@@ -1,21 +1,26 @@
 package com.example.evently.data;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
+import org.jetbrains.annotations.TestOnly;
 
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
@@ -90,6 +95,8 @@ public class EventsDB {
     public void storeEvent(Event event) {
         DocumentReference docRef = eventsRef.document(event.eventID().toString());
         docRef.set(event.toHashMap());
+        DocumentReference ref = eventEntrantsRef.document(event.eventID().toString());
+        ref.set(new EventEntrants(event.eventID()).toHashMap());
     }
 
     /**
@@ -101,8 +108,56 @@ public class EventsDB {
     public void storeEvent(Event event, Consumer<Void> onSuccess, Consumer<Exception> onException) {
         DocumentReference docRef = eventsRef.document(event.eventID().toString());
         docRef.set(event.toHashMap())
+                .onSuccessTask(v -> {
+                    final var eventId = event.eventID();
+                    final var ref = eventEntrantsRef.document(eventId.toString());
+                    return ref.set(new EventEntrants(eventId).toHashMap());
+                })
                 .addOnSuccessListener(onSuccess::accept)
                 .addOnFailureListener(onException::accept);
+    }
+
+    /**
+     * Add a user to the enrolled list of an event.
+     * @param eventID Target event.
+     * @param email Email of the user to enroll.
+     */
+    public void enroll(UUID eventID, String email) {
+        addEntrantToList(eventID, email, "enrolledEntrants");
+    }
+
+    /**
+     * Add a user to the selected list of an event.
+     * @param eventID Target event.
+     * @param email Email of the user to enroll.
+     */
+    public void addSelected(UUID eventID, String email) {
+        addEntrantToList(eventID, email, "selectedEntrants");
+    }
+
+    /**
+     * Add a user to the accepted list of an event.
+     * @param eventID Target event.
+     * @param email Email of the user to enroll.
+     */
+    public void addAccepted(UUID eventID, String email) {
+        addEntrantToList(eventID, email, "acceptedEntrants");
+    }
+
+    /**
+     * Add a user to the cancelled list of an event.
+     * @param eventID Target event.
+     * @param email Email of the user to enroll.
+     */
+    public void addCancelled(UUID eventID, String email) {
+        addEntrantToList(eventID, email, "cancelledEntrants");
+    }
+
+    // Helper to add a user to one of the lists.
+    private void addEntrantToList(UUID eventID, String email, String field) {
+        final var updateMap = new HashMap<String, Object>();
+        updateMap.put(field, FieldValue.arrayUnion(email));
+        eventEntrantsRef.document(eventID.toString()).update(updateMap);
     }
 
     /**
@@ -128,9 +183,7 @@ public class EventsDB {
      * @param onException A callback for the onFailureListener
      */
     public void fetchEventsByOrganizers(
-            String organizer,
-            Consumer<Collection<Event>> onSuccess,
-            Consumer<Exception> onException) {
+            String organizer, Consumer<List<Event>> onSuccess, Consumer<Exception> onException) {
         eventsRef
                 .whereEqualTo("organizer", organizer)
                 .get()
@@ -156,7 +209,7 @@ public class EventsDB {
      */
     public void fetchEventsByDate(
             Timestamp dateConstraint,
-            Consumer<Collection<Event>> onSuccess,
+            Consumer<List<Event>> onSuccess,
             Consumer<Exception> onException,
             boolean isStart) {
         Query query;
@@ -275,5 +328,21 @@ public class EventsDB {
      */
     public void deleteEvent(String eventID) {
         eventsRef.document(eventID).delete();
+    }
+
+    @TestOnly
+    public Task<Void> nuke() {
+        return eventsRef
+                .get()
+                .onSuccessTask(eventDocs -> eventEntrantsRef
+                        .get()
+                        .onSuccessTask(eventEntrantDocs -> Tasks.forResult(Stream.concat(
+                                eventDocs.getDocuments().stream(),
+                                eventEntrantDocs.getDocuments().stream()))))
+                .onSuccessTask(docs -> {
+                    WriteBatch batch = FirebaseFirestore.getInstance().batch();
+                    docs.forEach(doc -> batch.delete(doc.getReference()));
+                    return batch.commit();
+                });
     }
 }
