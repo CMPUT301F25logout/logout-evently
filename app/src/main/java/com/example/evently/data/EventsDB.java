@@ -1,5 +1,7 @@
 package com.example.evently.data;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -91,11 +93,9 @@ public class EventsDB {
      */
     public void storeEvent(Event event) {
         DocumentReference docRef = eventsRef.document(event.eventID().toString());
-        docRef.set(event.toHashMap()).onSuccessTask(v -> {
-            final var eventId = event.eventID();
-            final var ref = eventEntrantsRef.document(eventId.toString());
-            return ref.set(new EventEntrants(eventId).toHashMap());
-        });
+        docRef.set(event.toHashMap());
+        DocumentReference ref = eventEntrantsRef.document(event.eventID().toString());
+        ref.set(new EventEntrants(event.eventID()).toHashMap());
     }
 
     /**
@@ -183,7 +183,7 @@ public class EventsDB {
      */
     public void fetchEventsByOrganizers(
             String organizer,
-            Consumer<Collection<Event>> onSuccess,
+            Consumer<List<Event>> onSuccess,
             Consumer<Exception> onException) {
         eventsRef
                 .whereEqualTo("organizer", organizer)
@@ -210,7 +210,7 @@ public class EventsDB {
      */
     public void fetchEventsByDate(
             Timestamp dateConstraint,
-            Consumer<Collection<Event>> onSuccess,
+            Consumer<List<Event>> onSuccess,
             Consumer<Exception> onException,
             boolean isStart) {
         Query query;

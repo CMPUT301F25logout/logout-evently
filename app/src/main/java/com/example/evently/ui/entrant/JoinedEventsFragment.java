@@ -6,11 +6,16 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
+
 import androidx.core.content.ContextCompat;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.evently.data.EventsDB;
+import com.example.evently.utils.FirebaseAuthUtils;
 import com.google.firebase.Timestamp;
 
 import com.example.evently.R;
@@ -58,35 +63,9 @@ public class JoinedEventsFragment extends EventsFragment {
 
     @Override
     protected void initEvents(Consumer<List<Event>> callback) {
-        var joined = new ArrayList<Event>();
-        joined.add(new Event(
-                "Community Piano for Beginners",
-                "Intro series for absolute beginners.",
-                Category.SPORTS,
-                new Timestamp(Instant.parse("2025-12-10T23:59:00Z")),
-                new Timestamp(Instant.parse("2026-01-15T18:30:00Z")),
-                "orgEmail",
-                30));
-
-        joined.add(new Event(
-                "Canoe Safety Night",
-                "Dryland basics & safety briefing.",
-                Category.SPORTS,
-                new Timestamp(Instant.parse("2025-11-30T23:59:00Z")),
-                new Timestamp(Instant.parse("2026-02-05T19:00:00Z")),
-                "orgEmail",
-                50));
-
-        joined.add(new Event(
-                "Yoga Flow Level 1",
-                "Gentle strength and stretch.",
-                Category.SPORTS,
-                new Timestamp(Instant.parse("2025-12-08T23:59:00Z")),
-                new Timestamp(Instant.parse("2026-02-20T09:00:00Z")),
-                "orgEmail",
-                25,
-                25L));
-
-        callback.accept(joined);
+        new EventsDB().fetchEventsByEnrolled(FirebaseAuthUtils.getCurrentEmail(), callback, e -> {
+            Log.e("JoinedEvents", e.toString());
+            Toast.makeText(requireContext(), "Something went wrong...", Toast.LENGTH_SHORT).show();
+        });
     }
 }

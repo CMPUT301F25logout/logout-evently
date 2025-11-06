@@ -1,5 +1,6 @@
 package com.example.evently.ui.organizer;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,6 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.evently.utils.FirebaseAuthUtils;
 import com.google.firebase.Timestamp;
 
 import com.example.evently.R;
@@ -99,14 +101,14 @@ public class CreateEventFragment extends Fragment {
                 return;
             }
 
-            // For now, eventTime == selectionTime (until organizer add event date/time fields)
+            // For now, eventTime == selectionTime + 2 days (until organizer add event date/time fields)
             Event created = new Event(
                     name,
                     desc,
                     Category.SPORTS,
                     new Timestamp(selectionTime),
-                    new Timestamp(selectionTime),
-                    "orgEmail",
+                    new Timestamp(selectionTime.plus(Duration.ofDays(2))),
+                    FirebaseAuthUtils.getCurrentEmail(),
                     winners,
                     wait.orElse(null));
 
