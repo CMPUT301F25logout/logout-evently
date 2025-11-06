@@ -118,5 +118,8 @@ dependencies {
     androidTestImplementation(libs.runner)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    androidTestImplementation(libs.espresso.contrib)
+    androidTestImplementation(libs.espresso.contrib) {
+        // https://github.com/android/android-test/issues/999
+        exclude(group = "com.google.protobuf", module = "protobuf-lite")
+    }
 }
