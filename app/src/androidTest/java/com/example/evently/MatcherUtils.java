@@ -23,7 +23,8 @@ public final class MatcherUtils {
         return new Pair<>(first, second);
     }
 
-    public static void assertRecylerViewItem(
+    @SafeVarargs
+    public static void assertRecyclerViewItem(
             @IdRes int recyclerViewId, Pair<Integer, String>... expectedDescendants) {
         final var matchers = new ArrayList<Matcher<? super View>>();
         for (Pair<Integer, String> pair : expectedDescendants) {
