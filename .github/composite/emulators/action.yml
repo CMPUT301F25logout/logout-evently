@@ -58,4 +58,4 @@ runs:
         emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
         disable-animations: true
         working-directory: ./firebase
-        script: firebase emulators:exec "../gradlew connectedCheck -p ../"
+        script: firebase emulators:exec "../gradlew connectedAndroidTest --fail-fast --no-parallel -p ../"
