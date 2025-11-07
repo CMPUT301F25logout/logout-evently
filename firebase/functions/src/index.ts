@@ -8,6 +8,14 @@ import {
 import { initializeApp } from "firebase-admin/app";
 import { FieldPath, getFirestore } from "firebase-admin/firestore";
 
+// Constants for safe usage.
+const EVENTS_COLL = "events";
+const EVENT_ENTRANTS_COLL = "eventEntrants";
+const NOTIFS_COLL = "notifications";
+
+// The key for selection limit as stored in the database.
+const EVENT_SELECTION_LIMIT_KEY = "selectionLimit";
+
 type Channel = "All" | "Winners" | "Losers" | "Cancelled";
 
 interface Notification {
@@ -31,7 +39,7 @@ const app = initializeApp();
 const db = getFirestore(app);
 
 export const createNotification = onDocumentCreated(
-  "notifications/{notificationID}",
+  `${NOTIFS_COLL}/{notificationID}`,
   async (event) => {
     const notificationID = event.params.notificationID;
     logger.info(`Executing createNotification for ID: ${notificationID}`);
@@ -43,7 +51,7 @@ export const createNotification = onDocumentCreated(
     const notif = snapshot.data() as Notification;
 
     const eventEntrantsDoc = await db
-      .collection("eventEntrants")
+      .collection(EVENT_ENTRANTS_COLL)
       .doc(notif.eventId)
       .get();
     if (!eventEntrantsDoc.exists) {
@@ -74,7 +82,7 @@ class BenignError extends Error {
 
 // Redraw winners when someone cancels.
 export const redrawSelected = onDocumentUpdated(
-  "eventsEntrants/{eventID}",
+  `${EVENT_ENTRANTS_COLL}/{eventID}`,
   async (fsEvent) => {
     // Wish there was a way to fire only if the cancelledEntrants field was updated...
     const eventID = fsEvent.params.eventID;
@@ -94,28 +102,29 @@ export const redrawSelected = onDocumentUpdated(
     const diff = newCancelled.difference(oldCancelled);
     if (diff.size === 0) {
       // No change in cancelled set. Nohing to do.
+      logger.info("Nothing to do");
       return;
     }
 
-    const eventDoc = await db.collection("events").doc(eventID).get();
+    const eventDoc = await db.collection(EVENTS_COLL).doc(eventID).get();
     if (!eventDoc.exists) {
       logger.error(
         `EventEntrants references non existent event with ID: ${eventID}`
       );
       return;
     }
-    const selectionLimit = eventDoc.get("selectionLimit") as number;
+    const selectionLimit = eventDoc.get(EVENT_SELECTION_LIMIT_KEY) as number;
 
     // Redraw (but be wary of concurrency bugs indeed)!
     // Note: Multiple instances of this function may be called
     // around the same time if two users cancel around the same time.
     // Thus: One must be wise in implementing redraw.
     const selfRef = db
-      .collection("eventEntrants")
+      .collection(EVENT_ENTRANTS_COLL)
       .where(FieldPath.documentId(), "==", eventID)
       // It's important to be as specific as possible in what we're reading in a transaction.
       // We don't want the transaction to be retried just because an irrelevant part of the document was updated.
-      .select("enrolledEntrants", "selectedEntrants", "cancelledEntrants")
+      .select(entrantsKey("enrolledEntrants"), entrantsKey("selectedEntrants"), entrantsKey("cancelledEntrants"))
       .limit(1);
     db.runTransaction(async (tx) => {
       const selfEntrantsRes = await tx.get(selfRef);
@@ -144,8 +153,8 @@ export const redrawSelected = onDocumentUpdated(
       const remainingSlots = selectionLimit - eligibleWinners.size;
       const additionalWinners = draw([...eligible], remainingSlots);
       // Update the selected entrants list. It should remove the cancelled entrants and add in the new winners.
-      tx.update(db.collection("eventEntrants").doc(eventID), {
-        selectedEntrants: eligibleWinners.union(new Set(additionalWinners)),
+      tx.update(db.collection(EVENT_ENTRANTS_COLL).doc(eventID), {
+        selectedEntrants: [...eligibleWinners.union(new Set(additionalWinners))],
       });
     }).catch((e) => {
       if (!(e instanceof BenignError)) {
@@ -253,4 +262,9 @@ function chooseNRandom<T>(arr: T[], n: number): T[] {
     taken[x] = --len in taken ? taken[len] : len;
   }
   return result;
+}
+
+// Type safe way to use the property names of the EventEntrants type as string.
+function entrantsKey(name: keyof EventEntrants) {
+    return name;
 }
