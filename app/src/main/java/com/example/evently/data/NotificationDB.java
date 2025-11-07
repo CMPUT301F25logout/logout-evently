@@ -2,8 +2,7 @@ package com.example.evently.data;
 
 import static com.example.evently.data.generic.Promise.promise;
 
-import android.util.Pair;
-
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,9 +23,21 @@ import org.jetbrains.annotations.TestOnly;
 
 import com.example.evently.data.generic.Promise;
 import com.example.evently.data.model.Event;
+import com.example.evently.data.model.EventEntrants;
 import com.example.evently.data.model.Notification;
 
 public class NotificationDB {
+    /**
+     * Helper for fetchUserNotifications down below.
+     * @param notifications Notifications obtained from DB.
+     * @param eventEntrants EventEntrants associated to the events.
+     * @param eventMap EventID to Event mapping.
+     */
+    private record EventNotificationsInfo(
+            QuerySnapshot notifications,
+            List<EventEntrants> eventEntrants,
+            Map<String, Event> eventMap) {}
+    ;
 
     private final CollectionReference notificationsRef;
 
@@ -139,25 +150,31 @@ public class NotificationDB {
                 .then(pair -> {
                     final var events = pair.first;
                     final var eventEntrantsList = pair.second;
-                    if (events.isEmpty()) {
-                        // TRAP: There is unfortunately no way to return an empty list as query
-                        // snapshot....
-                        return Promise.of(new Pair<>(null, eventEntrantsList));
-                    }
 
                     // Construct an eventID to event map for use later.
                     final Map<String, Event> eventMap = events.stream()
                             .collect(Collectors.toMap(x -> x.eventID().toString(), x -> x));
+
+                    if (events.isEmpty()) {
+                        // TRAP: There is unfortunately no way to return an empty list as query
+                        // snapshot....
+                        return Promise.of(
+                                new EventNotificationsInfo(null, eventEntrantsList, eventMap));
+                    }
+
                     // Gets the notifications for the events a user has enrolled..
                     // TODO (chase): Fix this whereIn. It only supports max 30 eventIds.
                     return promise(notificationsRef
                                     // Note: Must be a list of strings.
                                     .whereIn("eventId", new ArrayList<>(eventMap.keySet()))
-                                    .get()).with(Promise.of(eventEntrantsList));
+                                    .get())
+                            .map(res ->
+                                    new EventNotificationsInfo(res, eventEntrantsList, eventMap));
                 })
-                .map(pair -> {
-                    final var allDocsSnapshot = pair.first;
-                    final var eventEntrantsList = pair.second;
+                .map(eventNotificationsInfo -> {
+                    final var allDocsSnapshot = eventNotificationsInfo.notifications;
+                    final var eventEntrantsList = eventNotificationsInfo.eventEntrants;
+                    final var eventMap = eventNotificationsInfo.eventMap;
 
                     final var notifications = new ArrayList<Notification>();
                     // This check is needed due to the scenario above.
@@ -168,13 +185,17 @@ public class NotificationDB {
                     // Tracking which channel "state" an entrant satisfied for an event.
                     // Note: All entrants satisfy the "all" channel state. This is not
                     // tracked separately.
+                    final var now = Instant.now();
                     HashMap<UUID, Notification.Channel> entrantChannelInEvent = new HashMap<>();
                     for (final var eventEntrants : eventEntrantsList) {
+                        final var event = eventMap.get(eventEntrants.eventID().toString());
+                        assert event != null;
+                        final var selectionTime = event.selectionTime().toInstant();
 
                         if (eventEntrants.selected().contains(email)) {
                             entrantChannelInEvent.put(
                                     eventEntrants.eventID(), Notification.Channel.Winners);
-                        } else if (!eventEntrants.selected().isEmpty()) {
+                        } else if (selectionTime.isBefore(now)) {
                             entrantChannelInEvent.put(
                                     eventEntrants.eventID(), Notification.Channel.Losers);
                         }
