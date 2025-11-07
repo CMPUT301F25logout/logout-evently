@@ -64,7 +64,6 @@ public class OwnEventsFragment extends EventsFragment {
             create.setOnClickListener(v ->
                     NavHostFragment.findNavController(this).navigate(R.id.navigate_create_events));
         }
-
     }
 
     /**
@@ -77,14 +76,13 @@ public class OwnEventsFragment extends EventsFragment {
     protected void initEvents(Consumer<List<Event>> callback) {
 
         new EventsDB()
-            .fetchEventsByOrganizers(FirebaseAuthUtils.getCurrentEmail())
-            .thenRun(callback)
-            .catchE(e -> {
-                Log.e("OwnEvents", e.toString());
-                Toast.makeText(requireContext(),"Something went wrong...", Toast.LENGTH_SHORT)
-                        .show();
-                callback.accept(java.util.List.of());
-            });
-
+                .fetchEventsByOrganizers(FirebaseAuthUtils.getCurrentEmail())
+                .thenRun(callback)
+                .catchE(e -> {
+                    Log.e("OwnEvents", e.toString());
+                    Toast.makeText(requireContext(), "Something went wrong...", Toast.LENGTH_SHORT)
+                            .show();
+                    callback.accept(java.util.List.of());
+                });
     }
 }
