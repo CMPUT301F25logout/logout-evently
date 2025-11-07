@@ -2,24 +2,52 @@ package com.example.evently.data.generic;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import android.content.Context;
 import android.util.Pair;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.annotations.concurrent.Background;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * A fluent API for working with firestore concurrent tasks.
  * @param <T> Type of value the promise resolves to.
  */
 public sealed class Promise<T> permits PromiseOpt {
+    @ApiStatus.Experimental
+    public record InBackground<R>(Executor onSuccessExecutor, CompletableFuture<R> future) {
+        /**
+         * Attach a listener to invoke when the background task is complete.
+         * The listener action will be run on the main UI thread.
+         * @param act Action to run in the UI thread.
+         */
+        @ApiStatus.Experimental
+        public void onSuccess(Consumer<R> act) {
+            future.thenApplyAsync(
+                    x -> {
+                        act.accept(x);
+                        return null;
+                    },
+                    onSuccessExecutor);
+        }
+    }
+
+    private static final ExecutorService backgroundExecutor = Executors.newSingleThreadExecutor();
+
     protected final Task<T> task;
 
     /**
@@ -51,6 +79,44 @@ public sealed class Promise<T> permits PromiseOpt {
     @SafeVarargs
     public static <T> Promise<List<T>> all(Promise<T>... promises) {
         return all(Arrays.stream(promises));
+    }
+
+    /**
+     * Perform some expensive IO operations in a background thread.
+     * <p>
+     * The supplied action MUST NOT access the UI. It is ran in a non-UI thread.
+     * </p>
+     * Example of call inside a fragment:
+     * <pre>
+     * {@code
+     * var task = Promise.launch(requireContext(), () -> {
+     *      var event = eventsDB.fetchEvent(eventId).await();
+     *      var user = accountsDB.fetchAccount(email).await();
+     *      var notifs = notificationsDB.fetchUserNotifications(email).await();
+     *      return foo(event, user, notifs);
+     * });
+     * task.onSuccess(res -> doSomethingOnUI(res));
+     * }
+     * </pre>
+     * @param context The context we're running in.
+     * @param action The expensive action to perform in background.
+     * @return An {@link InBackground} which will resolve once the task is completed in background.
+     *         Remember to use .onSuccess on it to attach a listener!
+     * @param <R> Type of the return value the action yields to.
+     * @see InBackground
+     */
+    @ApiStatus.Experimental
+    public static <R> InBackground<R> launch(Context context, Callable<R> action) {
+        final var fut = CompletableFuture.supplyAsync(
+                () -> {
+                    try {
+                        return action.call();
+                    } catch (Exception e) {
+                        throw new CompletionException(e);
+                    }
+                },
+                backgroundExecutor);
+        return new InBackground<>(context.getMainExecutor(), fut);
     }
 
     protected Promise(Task<T> task) {
