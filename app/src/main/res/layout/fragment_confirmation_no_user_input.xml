@@ -4,46 +4,43 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:weightSum="100">
+    android:weightSum="8">
     <TextView
         android:id="@+id/confirmation_no_user_input_header"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="5"
-        android:text="placeholder"
+        android:layout_weight="2"
         android:gravity="center_vertical"
-        android:textSize="25sp"
+        android:textSize="20sp"
         android:textStyle="bold"
+        android:layout_marginBottom="5dp"
         android:layout_marginHorizontal="15dp">
     </TextView>
     <TextView
         android:id="@+id/confirmation_no_user_input_message"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="10"
-        android:text="placeholder"
+        android:layout_weight="2"
         android:gravity="start"
-        android:textSize="18sp"
+        android:textSize="15sp"
         android:layout_marginHorizontal="15dp">
     </TextView>
-    <Button
-        android:id="@+id/confirmation_no_user_input_confirm_button"
+    <FrameLayout
+        android:id="@+id/confirmation_no_user_input_action_frame"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="10"
+        android:layout_weight="2"
         android:layout_marginHorizontal="15dp"
         android:gravity="center"
-        android:text="ConfirmPlaceholder"
-        app:cornerRadius="4dp">
-    </Button>
+        app:cornerRadius="4dp"/>
     <Button
         android:id="@+id/confirmation_no_user_input_cancel_button"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="10"
+        android:layout_weight="2"
         android:layout_marginHorizontal="15dp"
+        android:layout_marginBottom="10dp"
         android:gravity="center"
-        android:text="CancelPlaceholder"
         app:cornerRadius="4dp">
     </Button>
 </LinearLayout>

@@ -46,6 +46,7 @@
         android:text="@string/profile_page_name_header"
         android:gravity="center_vertical"
         android:layout_marginStart="15dp"
+        android:layout_marginTop="10dp"
         android:textSize="16sp">
     </TextView>
     <LinearLayout
@@ -58,6 +59,7 @@
         android:background="#f0f0f5"
         android:weightSum="100">
         <TextView
+            android:id="@+id/edit_profile_name_text"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="80"
@@ -88,6 +90,7 @@
         android:background="#f0f0f5"
         android:weightSum="100">
         <TextView
+            android:id="@+id/edit_profile_email_text"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="80"
@@ -126,6 +129,7 @@
         android:background="#f0f0f5"
         android:weightSum="100">
         <TextView
+            android:id="@+id/edit_profile_phone_text"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="80"
