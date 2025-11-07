@@ -12,12 +12,14 @@ import android.widget.Button;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.evently.R;
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.common.EventsFragment;
+import com.example.evently.ui.entrant.BrowseEventsFragmentDirections;
 import com.example.evently.utils.FirebaseAuthUtils;
 
 /**
@@ -31,7 +33,12 @@ public class OwnEventsFragment extends EventsFragment {
      * @param event The structural representation of the Event view that was clicked.
      */
     @Override
-    protected void onEventClick(Event event) {}
+    protected void onEventClick(Event event) {
+        var action = OwnEventsFragmentDirections.actionNavHomeToEventDetails(
+                event.eventID().toString());
+        NavController navController = NavHostFragment.findNavController(this);
+        navController.navigate(action);
+    }
 
     /**
      * Supplies the layout resource used by this fragment
