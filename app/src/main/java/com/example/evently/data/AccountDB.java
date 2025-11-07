@@ -1,13 +1,19 @@
 package com.example.evently.data;
 
+import static com.example.evently.data.generic.Promise.promise;
+import static com.example.evently.data.generic.PromiseOpt.promiseOpt;
+
 import java.util.Optional;
-import java.util.function.Consumer;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.WriteBatch;
+import org.jetbrains.annotations.TestOnly;
 
+import com.example.evently.data.generic.Promise;
+import com.example.evently.data.generic.PromiseOpt;
 import com.example.evently.data.model.Account;
 
 /**
@@ -52,151 +58,70 @@ public class AccountDB {
     /**
      * Stores an account in the database.
      * @param a The account stored in the database.
+     * @return Reference to the concurrent task.
      */
-    public void storeAccount(Account a) {
+    public Promise<Void> storeAccount(Account a) {
         DocumentReference docRef = accountsRef.document(a.email());
-        docRef.set(a.toHashMap());
-    }
-
-    /**
-     * Stores an account in the database.
-     * @param a The account stored in the database.
-     * @param onSuccess A callback for the onSuccessListener
-     * @param onException A callback for the onFailureListener
-     */
-    public void storeAccount(Account a, Consumer<Void> onSuccess, Consumer<Exception> onException) {
-        DocumentReference docRef = accountsRef.document(a.email());
-        docRef.set(a.toHashMap())
-                .addOnSuccessListener(onSuccess::accept)
-                .addOnFailureListener(onException::accept);
+        return promise(docRef.set(a.toHashMap()));
     }
 
     /**
      * Returns an account based based on an email. Also takes in onSuccess, and onFailure listeners.
      * @param email The email of the target account
-     * @param onSuccess A callback for the onSuccessListener
-     * @param onException A callback for the onFailureListener
+     * @return Reference to the concurrent task yielding to an account (if found).
      */
-    public void fetchAccount(
-            String email, Consumer<Optional<Account>> onSuccess, Consumer<Exception> onException) {
-
-        // The following part of the code is from Anthropic, Claude Sonnet 4.5, prompt: "I have a
-        // Consumer<DocumentSnapshot> callback in a function which is used when fetching a document
-        // from my DB, but I want to have it as a Consumer<Account>, by mapping my documentSnapshot
-        // to an account using my accountFromSnapshot function. How to do this?"
-        // Code from Claude which I used:
-        // "docSnapshot -> accountConsumer.accept(accountFromSnapshot(docSnapshot)"
-        accountsRef
-                .document(email)
-                .get()
-                .addOnSuccessListener(
-                        docSnapshot -> onSuccess.accept(getAccountFromSnapshot(docSnapshot)))
-                .addOnFailureListener(onException::accept);
+    public PromiseOpt<Account> fetchAccount(String email) {
+        return promiseOpt(
+                promise(accountsRef.document(email).get()).map(AccountDB::getAccountFromSnapshot));
     }
 
     /**
      * Delete an account from the database by email
      * @param email The email of the target account
+     * @return Reference to the concurrent task.
      */
-    public void deleteAccount(String email) {
-
-        // The following code is from the firebase documentation on deleting documents:
-        // https://firebase.google.com/docs/firestore/manage-data/delete-data
-        accountsRef.document(email).delete();
-    }
-
-    /**
-     * Delete an account from the database by email
-     * @param email The email of the target account
-     * @param onSuccess A callback for the onSuccessListener
-     * @param onException A callback for the onFailureListener
-     */
-    public void deleteAccount(
-            String email, Consumer<Void> onSuccess, Consumer<Exception> onException) {
-
-        // The following code is from the firebase documentation on deleting documents:
-        // https://firebase.google.com/docs/firestore/manage-data/delete-data
-        accountsRef
-                .document(email)
-                .delete()
-                .addOnSuccessListener(onSuccess::accept)
-                .addOnFailureListener(onException::accept);
+    public Promise<Void> deleteAccount(String email) {
+        return promise(accountsRef.document(email).delete());
     }
 
     /**
      * Updates an accounts phone number in the database based on the email primary key.
      * @param email The email of the user
      * @param phoneNumber The new phone number
+     * @return Reference to the concurrent task.
      */
-    public void updatePhoneNumber(String email, String phoneNumber) {
-
-        // Gets an account based on the email
-        DocumentReference docRef = accountsRef.document(email);
-
-        // The following code is from the firebase docs on how to update a field in the DB:
-        // https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
-        docRef.update("phoneNumber", phoneNumber);
-    }
-
-    /**
-     * Updates an accounts phone number in the database based on the email primary key.
-     * Has a callback for onSuccess, and onException
-     * @param email The email of the user
-     * @param phoneNumber The new phone number
-     * @param onSuccess A callback for the onSuccessListener
-     * @param onException A callback for the onFailureListener
-     */
-    public void updatePhoneNumber(
-            String email,
-            String phoneNumber,
-            Consumer<Void> onSuccess,
-            Consumer<Exception> onException) {
-
-        // Gets an account based on the email
-        DocumentReference docRef = accountsRef.document(email);
-
-        // The following code is from the firebase docs on how to update a field in the DB:
-        // https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
-        docRef.update("phoneNumber", phoneNumber)
-                .addOnSuccessListener(onSuccess::accept)
-                .addOnFailureListener(onException::accept);
-    }
-
-    /**
-     * Updates an accounts visible email in the database.
-     * @param primaryEmail The original email of the user for login.
-     * @param newVisibleEmail The new visible email
-     */
-    public void updateVisibleEmail(String primaryEmail, String newVisibleEmail) {
-
-        // Gets an account based on the email
-        DocumentReference docRef = accountsRef.document(primaryEmail);
-
-        // The following code is from the firebase docs on how to update a field in the DB:
-        // https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
-        docRef.update("visibleEmail", newVisibleEmail);
+    public Promise<Void> updatePhoneNumber(String email, String phoneNumber) {
+        return updateField(email, "phoneNumber", phoneNumber);
     }
 
     /**
      * Updates an accounts visible email in the database. Has a callback for onSuccess, and onException
      * @param primaryEmail The original email of the user for login.
      * @param newVisibleEmail The new visible email
-     * @param onSuccess A callback for the onSuccessListener
-     * @param onException A callback for the onFailureListener
+     * @return Reference to the concurrent task.
      */
-    public void updateVisibleEmail(
-            String primaryEmail,
-            String newVisibleEmail,
-            Consumer<Void> onSuccess,
-            Consumer<Exception> onException) {
+    public Promise<Void> updateVisibleEmail(String primaryEmail, String newVisibleEmail) {
+        return updateField(primaryEmail, "visibleEmail", newVisibleEmail);
+    }
 
+    // Helper for updating any field for an account.
+    private Promise<Void> updateField(String email, String field, Object newValue) {
         // Gets an account based on the email
-        DocumentReference docRef = accountsRef.document(primaryEmail);
+        DocumentReference docRef = accountsRef.document(email);
+        return promise(docRef.update(field, newValue));
+    }
 
-        // The following code is from the firebase docs on how to update a field in the DB:
-        // https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
-        docRef.update("visibleEmail", newVisibleEmail)
-                .addOnSuccessListener(onSuccess::accept)
-                .addOnFailureListener(onException::accept);
+    /**
+     * Nuke the accounts collection and all associated data.
+     */
+    @TestOnly
+    public Promise<Void> nuke() {
+        return promise(accountsRef.get()).then(docs -> {
+            WriteBatch batch = FirebaseFirestore.getInstance().batch();
+            for (var doc : docs) {
+                batch.delete(doc.getReference());
+            }
+            return promise(batch.commit());
+        });
     }
 }

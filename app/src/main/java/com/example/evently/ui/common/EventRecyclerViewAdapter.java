@@ -26,20 +26,44 @@ import com.example.evently.databinding.FragmentEventBinding;
 public class EventRecyclerViewAdapter
         extends RecyclerView.Adapter<EventRecyclerViewAdapter.EventViewHolder> {
 
+    public interface EventOnClickListener {
+        void accept(Event n);
+    }
+
     private static final DateTimeFormatter some_date =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("UTC"));
     private final List<Event> mValues;
+    private final EventOnClickListener onEventClick;
 
-    public EventRecyclerViewAdapter(List<Event> items) {
+    /**
+     * Creates an adapter for rendering {@link Event} items and handling per-item clicks.
+     * @param items list of events to display; retained by reference.
+     * @param onEventClick callback invoked when the item's “Details” button is pressed.
+     */
+    public EventRecyclerViewAdapter(List<Event> items, EventOnClickListener onEventClick) {
         mValues = items;
+        this.onEventClick = onEventClick;
     }
 
+    /**
+     * Inflates the event row layout and creates a new {@link EventViewHolder}.
+     *
+     * @param parent   The ViewGroup into which the new View will be added after it is bound to
+     *                 an adapter position.
+     * @param viewType The view type of the new View.
+     * @return a freshly constructed {@link EventViewHolder} wrapping the inflated binding.
+     */
     @NonNull @Override
     public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new EventViewHolder(FragmentEventBinding.inflate(
                 LayoutInflater.from(parent.getContext()), parent, false));
     }
 
+    /**
+     * Called by RecyclerView to display the data at the specified position.
+     * @param holder
+     * @param position
+     */
     @Override
     public void onBindViewHolder(final EventViewHolder holder, int position) {
         // Attach the Event to the view.
@@ -59,7 +83,8 @@ public class EventRecyclerViewAdapter
             case OPEN -> {
                 binding.txtStatus.setText("Open");
                 binding.txtselectionDate.setText(MessageFormat.format(
-                        "Selection on {0}", some_date.format(holder.mItem.selectionTime())));
+                        "Selection on {0}",
+                        some_date.format(holder.mItem.selectionTime().toInstant())));
             }
             case CLOSED -> {
                 binding.txtStatus.setText("Closed");
@@ -69,22 +94,33 @@ public class EventRecyclerViewAdapter
         binding.txtselectionDate.setVisibility(android.view.View.VISIBLE);
 
         // Event date
-        binding.txtDate.setText(some_date.format(holder.mItem.eventTime()));
+        binding.txtDate.setText(some_date.format(holder.mItem.eventTime().toInstant()));
 
-        // Details button with no click logic
-        binding.btnDetails.setOnClickListener(null);
-        binding.btnDetails.setClickable(false);
+        // Details button with given click logic.
+        binding.btnDetails.setOnClickListener(v -> onEventClick.accept(holder.mItem));
     }
 
+    /**
+     * Returns the number of {@link Event} items currently held by the adapter.
+     * @return the total item count to be rendered.
+     */
     @Override
     public int getItemCount() {
         return mValues.size();
     }
 
+    /**
+     * ViewHolder for a single Event row.
+     */
     public static class EventViewHolder extends RecyclerView.ViewHolder {
         public final FragmentEventBinding binding;
         public Event mItem;
 
+        /**
+         * Constructs a new ViewHolder using the provided ViewBinding.
+         * The binding's root view is passed to the RecyclerView base class.
+         * @param binding the binding for the row layout inflated from {@code fragment_event.xml}.
+         */
         public EventViewHolder(FragmentEventBinding binding) {
             super(binding.getRoot());
             this.binding = binding;

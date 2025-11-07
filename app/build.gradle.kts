@@ -2,9 +2,9 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
-
     id("com.diffplug.spotless")
     id("com.google.gms.google-services")
+    id("androidx.navigation.safeargs")
 }
 
 android {
@@ -34,6 +34,26 @@ android {
             name = "GOOGLE_CLIENT_ID",
             value = gclientID
         )
+
+        // Load emulator connection preference
+        val preferencesFile = project.rootProject.file("preferences.properties")
+        if (preferencesFile.exists()) {
+            val properties = Properties()
+            properties.load(preferencesFile.inputStream())
+
+            val hookEmulator = properties.getProperty("HOOK_EMULATOR") ?: "true"
+            buildConfigField(
+                type = "Boolean",
+                name = "HOOK_EMULATOR",
+                value = hookEmulator
+            )
+        } else {
+            buildConfigField(
+                type = "Boolean",
+                name = "HOOK_EMULATOR",
+                value = "true"
+            )
+        }
     }
 
     buildTypes {
@@ -52,6 +72,16 @@ android {
     buildFeatures {
         buildConfig = true
         viewBinding = true
+    }
+
+    lint {
+        checkAllWarnings = true
+        abortOnError = true
+        warningsAsErrors = false
+    }
+
+    tasks.withType<JavaCompile> {
+        options.compilerArgs.add("-Xlint:deprecation")
     }
 }
 
@@ -93,18 +123,30 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.messaging)
 
     implementation(libs.credentials)
     implementation(libs.credentials.play.services.auth)
     implementation(libs.googleid)
     implementation(libs.play.services.auth)
 
+    implementation(libs.recyclerview)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
-    implementation(libs.recyclerview)
+    implementation(libs.fragment)
+    implementation(libs.espresso.core)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.runner)
     androidTestImplementation(libs.ext.junit)
+    androidTestImplementation(libs.rules)
+    androidTestImplementation(libs.navigation.testing)
+    androidTestImplementation(libs.fragment.testing)
     androidTestImplementation(libs.espresso.core)
+    androidTestImplementation(libs.espresso.contrib) {
+        // https://github.com/android/android-test/issues/999
+        exclude(group = "com.google.protobuf", module = "protobuf-lite")
+    }
+
+    debugImplementation(libs.fragment.testing.manifest)
 }

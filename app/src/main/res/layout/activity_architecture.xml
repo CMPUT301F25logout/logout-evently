@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,6 +8,22 @@
     android:orientation="vertical"
     android:fitsSystemWindows="true"
     tools:context=".ui.common.ArchitectureActivity">
+
+    <!-- Top bar: global Switch Role button -->
+    <LinearLayout
+        android:id="@+id/top_role_switcher_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:paddingBottom="4dp"
+        android:gravity="center_horizontal">
+
+        <Button
+            android:id="@+id/btnSwitchRole"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Switch Role" />
+    </LinearLayout>
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nav_host_fragment"
@@ -16,7 +33,13 @@
         app:defaultNavHost="true"
         android:layout_weight="1" />
 
-    <include
-        layout="@layout/navbar"
-        android:id="@+id/include_navbar" />
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/navbar"
+        android:layout_width="match_parent"
+        android:layout_height="62dp"
+        android:layout_gravity="bottom"
+        app:elevation="3dp"
+        app:itemIconSize="28dp"
+        app:menu="@menu/navbar"
+        app:labelVisibilityMode="unlabeled" />
 </LinearLayout>

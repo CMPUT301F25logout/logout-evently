@@ -1,7 +1,12 @@
 package com.example.evently.data.model;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
+
+import com.google.firebase.Timestamp;
 
 /**
  * A memorized record of a notification in the app.
@@ -22,6 +27,7 @@ import java.util.UUID;
  *                Use the events collection to figure out which entrants fall under which channel(s).
  * @param title Title of the notification. This goes into the notification payload.
  * @param description Description of the notification. This goes into the notification payload.
+ * @param creationTime Time this notification was initially created (i.e stored in the database).
  * @param seenBy Tracker of all the intended entrants who have "seen" this notification (clicked on).
  */
 public record Notification(
@@ -30,12 +36,24 @@ public record Notification(
         Channel channel,
         String title,
         String description,
+        Instant creationTime,
         HashSet<String> seenBy) {
     public enum Channel {
         All,
         Winners,
         Losers,
         Cancelled
+    }
+
+    public Notification(UUID eventID, Channel channel, String title, String description) {
+        this(
+                UUID.randomUUID(),
+                eventID,
+                channel,
+                title,
+                description,
+                Instant.now(),
+                new HashSet<>());
     }
 
     /**
@@ -55,6 +73,32 @@ public record Notification(
     public Notification addSeen(String email) {
         var seenByCopy = new HashSet<>(seenBy);
         seenByCopy.add(email.trim().toLowerCase());
-        return new Notification(id, eventId, channel, title, description, seenByCopy);
+        return new Notification(id, eventId, channel, title, description, creationTime, seenByCopy);
+    }
+
+    /**
+     * Returns a hashMap of the given notification, excluding the UUID of the notification.
+     * The notification UUID is excluded, as it is the primary key for storing the notification
+     * in the DB.
+     * @return A HashMap of the location
+     */
+    public HashMap<String, Object> toHashMap() {
+        HashMap<String, Object> hashMap = new HashMap<>();
+
+        hashMap.put("eventId", eventId.toString());
+        hashMap.put("channel", channel.toString());
+        hashMap.put("title", title);
+        hashMap.put("description", description);
+
+        ArrayList<String> listSeenBy = new ArrayList<>(seenBy);
+        hashMap.put("seenBy", listSeenBy);
+
+        // The following line code is from Anthropic, Claude Sonnet 4.5:
+        // Query: How to store a timestamp in Firebase? I currently
+        // have an "Instant" object, and want to store it in a firestore.
+        Timestamp timestamp = new Timestamp(creationTime);
+        hashMap.put("creationTime", timestamp);
+
+        return hashMap;
     }
 }
