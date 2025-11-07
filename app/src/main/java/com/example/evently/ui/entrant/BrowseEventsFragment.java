@@ -49,7 +49,7 @@ public class BrowseEventsFragment extends EventsFragment {
      */
     @Override
     protected int getLayoutRes() {
-        return R.layout.fragment_event_list_tabbed;
+        return R.layout.fragment_event_list;
     }
 
     /**

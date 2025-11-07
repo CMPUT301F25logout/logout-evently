@@ -21,6 +21,7 @@ import com.example.evently.data.AccountDB;
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.databinding.FragmentEventDetailsBinding;
+import com.example.evently.utils.FirebaseAuthUtils;
 
 /**
  * Fragment that displays the event information as well as the entrants that have been waitlisted.
@@ -78,8 +79,6 @@ public abstract class EventDetailsFragment<F extends Fragment> extends Fragment 
         super.onViewCreated(view, savedInstanceState);
 
         final var eventsDB = new EventsDB();
-        final var accountsDB = new AccountDB();
-        List<String> accounts = new ArrayList<>();
 
         final var eventID = getEventID();
         eventsDB.fetchEvent(eventID)
@@ -89,7 +88,8 @@ public abstract class EventDetailsFragment<F extends Fragment> extends Fragment 
                             // TODO (chase): Decouple. Event information loading SHOULD NOT need
                             // EventEntrants.
                             // Only the entrants fragment should need it.
-                            loadEventInformation(event, eventEntrantsInfo.all().size());
+                            final var joined = eventEntrantsInfo.all().contains(FirebaseAuthUtils.getCurrentEmail());
+                            loadEventInformation(event, eventEntrantsInfo.all().size(), joined);
                             loadEntrants();
                         }));
 
@@ -103,7 +103,7 @@ public abstract class EventDetailsFragment<F extends Fragment> extends Fragment 
      * @param event The event object to load into the page
      * @param currEntrants The number of entrants to display the amount of people that entered
      */
-    public void loadEventInformation(Event event, int currEntrants) {
+    public void loadEventInformation(Event event, int currEntrants, boolean joined) {
         TextView eventName = binding.eventName;
         ImageView image = binding.eventPicture;
         TextView desc = binding.eventDescription;
