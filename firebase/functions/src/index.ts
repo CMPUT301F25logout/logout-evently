@@ -5,7 +5,7 @@ import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import { initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 
-type Channel = "All" | "Winners" | "Cancelled";
+type Channel = "All" | "Winners" | "Losers" | "Cancelled";
 
 // TODO (chase): Make sure this lines up with notifications DB integration work once done.
 interface Notification {
@@ -98,6 +98,12 @@ async function getTokensForChannel(
       return getTokensByEmails(entrants.entrants);
     case "Winners":
       return getTokensByEmails(entrants.winners);
+    case "Losers": {
+      const allSet = new Set(entrants.entrants);
+      // All the cancelled entrants were also winners at one point, not loser.
+      const effectiveWinnersSet = new Set(entrants.winners.concat(entrants.cancelled));
+      return getTokensByEmails([...allSet.difference(effectiveWinnersSet)]);
+    }
     case "Cancelled":
       return getTokensByEmails(entrants.cancelled);
   }
