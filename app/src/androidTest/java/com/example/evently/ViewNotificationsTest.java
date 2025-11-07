@@ -11,6 +11,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.example.evently.MatcherUtils.assertRecyclerViewItem;
 import static com.example.evently.MatcherUtils.p;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -286,72 +287,90 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
 
     @Test
     public void acceptInvitation_markSeen() throws InterruptedException, ExecutionException {
-        //        // Accepting an invitation should put self in the accepted list of entrants
-        //        // and mark the notification as seen.
-        //        Notification invite = templateNotification(2, Notification.Channel.Winners);
-        //        List<UUID> eventIDs = new ArrayList<>();
-        //        eventIDs.add(invite.eventId());
-        //
-        //        Thread.sleep(2000);
-        //        //
-        //        // Confirms notification is not yet accepted.
-        ////        List<EventEntrants> eventEntrantsList =
-        //        eventsDB.fetchEventEntrants(eventIDs).await().get(0);
-        //
-        //        if (eventEntrantsList.isEmpty()) fail();
-        //        assertFalse(eventEntrantsList.get(0).accepted().contains(mockAccount.email()));
-        //
-        //        Thread.sleep(2000);
-        //
-        //        // Clicks on a winning notification
-        //        onView(withId(R.id.notif_list))
-        //                .perform(actionOnItem(hasDescendant(withText(invite.title())), click()));
-        //        Thread.sleep(1000);
-        //
-        //        // Accepts the winning notification
-        //        onView(withText("Accept")).perform(click());
-        //
-        //        Thread.sleep(2000);
-        //
-        //        // Confirms notification is accepted.
-        //        eventEntrantsList = eventsDB.fetchEventEntrants(eventIDs).await();
-        //        if (eventEntrantsList.isEmpty()) fail();
-        //        assertTrue(eventEntrantsList.get(0).accepted().contains(mockAccount.email()));
-        //
-        //        // Confirms notification is seen.
-        //        // TODO: Confirm notification is seen
-        //        // TODO: My new fetch notification function by notification ID is not working :(
-        //        //        Optional<Notification> optionalNotification =
-        //
-        //        Optional<Notification> optionalNotification =
-        // notificationDB.fetchNotification(invite.id()).await();
-        //        Thread.sleep(3000);
-        //        if (!optionalNotification.isPresent()) fail();
-        //        Notification fetchedNotification = optionalNotification.get();
-        //        assert(fetchedNotification.hasSeen(mockAccount.email()));
+        // Accepting an invitation should put self in the accepted list of entrants
+        // and mark the notification as seen.
+        Notification invite = templateNotification(7, Notification.Channel.Winners);
+        Thread.sleep(3000);
+
+        // Gets the amount of times we are seen, to confirm later that we have been seen once more.
+        List<Notification> notifications = notificationDB.fetchEventNotifications(invite.eventId())
+                .await();
+        int seenCount = 0;
+        Thread.sleep(2000);
+        for (Notification n : notifications){
+            if (n.hasSeen(mockAccount.email())){
+                seenCount++;
+            }
+        }
+
+        // Confirms notification are not yet accepted.
+        List<String> canceledUsers = eventsDB.fetchEventEntrants(List.of(invite.eventId()))
+                .await()
+                .getFirst()
+                .accepted();
+        Thread.sleep(1000);
+        assertFalse(canceledUsers.contains(mockAccount.email()));
+
+        // Clicks on a winning notification
+        onView(withId(R.id.notif_list))
+                .perform(actionOnItem(hasDescendant(withText(invite.title())), click()));
+        Thread.sleep(1000);
+
+        // Declines the winning notification
+        onView(withText("Accept")).perform(click());
+
+        // Confirms notification is accepted.
+        canceledUsers = eventsDB.fetchEventEntrants(List.of(invite.eventId()))
+                .await()
+                .getFirst()
+                .accepted();
+        Thread.sleep(2000);
+        assertTrue(canceledUsers.contains(mockAccount.email()));
+
+        // Confirms notification is seen once more than previously.
+        notifications = notificationDB.fetchEventNotifications(invite.eventId())
+                .await();
+        for (Notification n : notifications){
+            if (n.hasSeen(mockAccount.email())){
+                seenCount--;
+            }
+        }
+        assertEquals(-1, seenCount);
+        Thread.sleep(2000);
     }
+
+
 
     @Test
     public void declineInvitation_markSeen_expectNotification_cancelled()
             throws ExecutionException, InterruptedException {
         // Declining an invitation should put self in the cancelled list of entrants
         // and mark the notification as seen. Also expose any cancelled channel notifications.
-        Notification invite = templateNotification(3, Notification.Channel.Winners);
-        Thread.sleep(3000);
+        Notification invite = templateNotification(2, Notification.Channel.Winners);
+        Thread.sleep(1000);
+
+        List<Notification> notifications = notificationDB.fetchEventNotifications(invite.eventId())
+                .await();
+        int seenCount = 0;
+        Thread.sleep(2000);
+        for (Notification n : notifications){
+            if (n.hasSeen(mockAccount.email())){
+                seenCount++;
+            }
+        }
 
         // Confirms notification are not yet canceled.
         List<String> canceledUsers = eventsDB.fetchEventEntrants(List.of(invite.eventId()))
                 .await()
                 .getFirst()
                 .cancelled();
+        Thread.sleep(2000);
         assertFalse(canceledUsers.contains(mockAccount.email()));
-
-        Thread.sleep(3000);
 
         // Clicks on a winning notification
         onView(withId(R.id.notif_list))
                 .perform(actionOnItem(hasDescendant(withText(invite.title())), click()));
-        //        Thread.sleep(2000);
+        Thread.sleep(1000);
 
         // Declines the winning notification
         onView(withText("Decline")).perform(click());
@@ -361,17 +380,19 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
                 .await()
                 .getFirst()
                 .cancelled();
+        Thread.sleep(2000);
         assertTrue(canceledUsers.contains(mockAccount.email()));
 
-        //        // Confirms notification is seen.
-        //        List<Notification> notifications = notificationDB.fetchEventNotifications();
-        //        Thread.sleep(2000);
-        //
-        //
-        //
-        //        if (!optionalNotification.isPresent()) fail();
-        //        Notification fetchedNotification = optionalNotification.get();
-        //        assert(fetchedNotification.hasSeen(mockAccount.email()));
+        // Confirms notification is seen.
+        notifications = notificationDB.fetchEventNotifications(invite.eventId())
+                .await();
+        for (Notification n : notifications){
+            if (n.hasSeen(mockAccount.email())){
+                seenCount--;
+            }
+        }
+        assertEquals(-1, seenCount);
+        Thread.sleep(2000);
     }
 
     @Test
