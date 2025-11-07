@@ -75,7 +75,7 @@ public class NotificationDB {
         ArrayList<String> seenByList = (ArrayList<String>) snapshot.get("seenBy");
 
         return new Notification(
-                UUID.fromString(snapshot.getString(snapshot.getId())),
+                UUID.fromString(snapshot.getId()),
                 UUID.fromString(snapshot.getString("eventId")),
                 // Converts the channel back to an ENUM.
                 Notification.Channel.valueOf(snapshot.getString("channel")),
@@ -164,8 +164,8 @@ public class NotificationDB {
                 eventCollection -> {
 
                     // Adds fetched eventID's to a list.
-                    ArrayList<UUID> eventIDs = new ArrayList<>();
-                    for (Event e : eventCollection) eventIDs.add(e.eventID());
+                    ArrayList<String> eventIDs = new ArrayList<>();
+                    for (Event e : eventCollection) eventIDs.add(e.eventID().toString());
 
                     notificationsRef
                             .whereIn("eventId", eventIDs)
@@ -243,6 +243,9 @@ public class NotificationDB {
                                                 eventEntrants.eventID(),
                                                 Notification.Channel.Winners);
                                     } else if (!eventEntrants.selected().isEmpty()) {
+                                        // TODO (chase): It's better to check if the selection time
+                                        // has happened
+                                        //  instead of checking isEmpty. Especially in testing.
                                         entrantChannelInEvent.put(
                                                 eventEntrants.eventID(),
                                                 Notification.Channel.Losers);
@@ -253,10 +256,15 @@ public class NotificationDB {
                                                 Notification.Channel.Cancelled);
                                     }
                                 }
+                                // For some reason, the query doesn't work with List<UUID>. Probably
+                                // because Java's generic system sucks.
+                                final var eventIdStrs = eventIds.stream()
+                                        .map(UUID::toString)
+                                        .collect(Collectors.toList());
                                 // Gets the notifications for the events a user has enrolled..
                                 // TODO (chase): Fix this whereIn. It only supports max 30 eventIds.
                                 notificationsRef
-                                        .whereIn("eventId", eventIds)
+                                        .whereIn("eventId", eventIdStrs)
                                         .get()
                                         .addOnSuccessListener(allDocsSnapshot -> {
                                             ArrayList<Notification> notifications =
