@@ -1,5 +1,7 @@
 package com.example.evently.ui.common;
 
+import java.util.Optional;
+
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -16,8 +18,11 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import com.example.evently.data.AccountDB;
+import com.example.evently.data.model.Account;
 import com.example.evently.databinding.ActivityArchitectureBinding;
 import com.example.evently.utils.FirebaseMessagingUtils;
 
@@ -56,31 +61,42 @@ public abstract class ArchitectureActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = ActivityArchitectureBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        // Skip login and go straight into account
+        FirebaseAuth.getInstance().createUserWithEmailAndPassword("example@email.com", "password");
+        new AccountDB()
+                .storeAccount(new Account(
+                        "example@email.com", "Foo bar", Optional.empty(), "example@email.com"));
+        FirebaseAuth.getInstance()
+                .signInWithEmailAndPassword("example@email.com", "password")
+                .addOnSuccessListener(v -> {
+                    Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show();
+                    binding = ActivityArchitectureBinding.inflate(getLayoutInflater());
+                    setContentView(binding.getRoot());
 
-        // Set the navbar.
-        final var navBar = binding.navbar;
-        final var fragmentContainer = binding.navHostFragment;
-        NavHostFragment navHostFragment = (NavHostFragment)
-                getSupportFragmentManager().findFragmentById(fragmentContainer.getId());
-        assert navHostFragment != null;
-        navController = navHostFragment.getNavController();
-        navController.setGraph(this.getGraph());
-        NavigationUI.setupWithNavController(navBar, navController, false);
+                    // Set the navbar.
+                    final var navBar = binding.navbar;
+                    final var fragmentContainer = binding.navHostFragment;
+                    NavHostFragment navHostFragment = (NavHostFragment)
+                            getSupportFragmentManager().findFragmentById(fragmentContainer.getId());
+                    assert navHostFragment != null;
+                    navController = navHostFragment.getNavController();
+                    navController.setGraph(this.getGraph());
+                    NavigationUI.setupWithNavController(navBar, navController, false);
 
-        askNotificationPermission();
+                    askNotificationPermission();
 
-        // Get the currently usable token and update it in Database if need be.
-        // This is a setup that needs to exist at least once every time the app starts (and
-        // authenticates).
-        FirebaseMessaging.getInstance()
-                .getToken()
-                .addOnSuccessListener(FirebaseMessagingUtils::storeToken);
-        // TODO (chase): Maybe also schedule a periodic task that refreshes the token?
-        // See: https://firebase.google.com/docs/cloud-messaging/manage-tokens
+                    // Get the currently usable token and update it in Database if need be.
+                    // This is a setup that needs to exist at least once every time the app starts
+                    // (and
+                    // authenticates).
+                    FirebaseMessaging.getInstance()
+                            .getToken()
+                            .addOnSuccessListener(FirebaseMessagingUtils::storeToken);
+                    // TODO (chase): Maybe also schedule a periodic task that refreshes the token?
+                    // See: https://firebase.google.com/docs/cloud-messaging/manage-tokens
 
-        setupSwitchRoleButton(binding.btnSwitchRole);
+                    setupSwitchRoleButton(binding.btnSwitchRole);
+                });
     }
 
     /**
