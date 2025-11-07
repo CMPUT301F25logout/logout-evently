@@ -16,10 +16,10 @@ interface Notification {
   seenBy: string[];
 }
 
-// TODO (chase): Verify collection structure.
 interface EventEntrants {
   enrolledEntrants: string[];
   selectedEntrants: string[];
+  acceptedEntrants: string[];
   cancelledEntrants: string[];
 }
 
@@ -39,14 +39,14 @@ export const createNotification = onDocumentCreated(
     }
     const notif = snapshot.data() as Notification;
 
-    const eventDoc = await db.collection("events").doc(notif.eventId).get();
-    if (!eventDoc.exists) {
+    const eventEntrantsDoc = await db.collection("eventEntrants").doc(notif.eventId).get();
+    if (!eventEntrantsDoc.exists) {
       logger.error(
         `Notification references non existent event with ID: ${notif.eventId}`
       );
       return;
     }
-    const eventEntrants = eventDoc.data() as EventEntrants;
+    const eventEntrants = eventEntrantsDoc.data() as EventEntrants;
 
     const tokens = await getTokensForChannel(notif.channel, eventEntrants);
     logger.info(`Sending to ${tokens.length} devices`);
