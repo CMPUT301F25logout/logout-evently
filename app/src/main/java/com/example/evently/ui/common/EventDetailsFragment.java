@@ -141,6 +141,7 @@ public abstract class EventDetailsFragment<F extends Fragment> extends Fragment 
     public void displayWaitlistAction(boolean joined) {
         Button waitlistAction = binding.waitlistAction;
         binding.waitlistAction.setVisibility(View.VISIBLE);
+        waitlistAction.setEnabled(true);
         String wlActionText;
         if (joined) {
             wlActionText = "LEAVE WAITLIST";
@@ -149,6 +150,22 @@ public abstract class EventDetailsFragment<F extends Fragment> extends Fragment 
         }
 
         waitlistAction.setText(wlActionText);
+        waitlistAction.setOnClickListener(v -> {
+            waitlistAction.setEnabled(false);
+            if (joined) {
+                new EventsDB().unenroll(getEventID(), FirebaseAuthUtils.getCurrentEmail())
+                        .thenRun(vu -> {
+                            displayWaitlistAction(false);
+                            reloadEntrants();
+                        });
+            } else {
+                new EventsDB().enroll(getEventID(), FirebaseAuthUtils.getCurrentEmail())
+                        .thenRun(vu -> {
+                            displayWaitlistAction(true);
+                            reloadEntrants();
+                        });
+            }
+        });
     }
 
     /**

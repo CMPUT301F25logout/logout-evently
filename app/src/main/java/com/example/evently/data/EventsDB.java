@@ -111,8 +111,14 @@ public class EventsDB {
         return addEntrantToList(eventID, email, "enrolledEntrants");
     }
 
-    public void unenroll(UUID eventID, String email) {
-        removeEntrantFromList(eventID, email, "enrolledEntrants");
+    /**
+     * Remove user from waitlist of event.
+     * @param eventID Target event.
+     * @param email Target user email
+     * @return Promise.
+     */
+    public Promise<Void> unenroll(UUID eventID, String email) {
+        return removeEntrantFromList(eventID, email, "enrolledEntrants");
     }
 
     /**
