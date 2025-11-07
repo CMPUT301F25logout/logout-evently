@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
 
 import com.google.firebase.Timestamp;
 import org.junit.AfterClass;
@@ -22,6 +23,8 @@ import com.example.evently.data.generic.Promise;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 
+// NOTE: Large tests are not run in CI. Firebase functions take too long to fire in emulator.
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class RedrawTest extends FirebaseEmulatorTest {
     private static final EventsDB eventsDB = new EventsDB();
