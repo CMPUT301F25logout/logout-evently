@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.evently.data.EventsDB;
 import com.google.firebase.Timestamp;
 
 import com.example.evently.R;
@@ -130,6 +131,8 @@ public class CreateEventFragment extends Fragment {
                 return;
             }
 
+            String organizer = FirebaseAuthUtils.getCurrentEmail();
+
             // For now, eventTime == selectionTime + 2 days (until organizer add event date/time
             // fields)
             Event created = new Event(
@@ -142,11 +145,18 @@ public class CreateEventFragment extends Fragment {
                     winners,
                     wait.orElse(null));
 
-            var nav = NavHostFragment.findNavController(this);
-            // Send result back to the previous fragment (OwnEventsFragment)
-            nav.getPreviousBackStackEntry().getSavedStateHandle().set("new_event", created);
+            v.findViewById(R.id.btnCreate).setEnabled(false);
 
-            nav.navigateUp();
+            new EventsDB()
+                    .storeEvent(created)
+                    .thenRun(_v -> {
+                        toast("Event created.");
+                        NavHostFragment.findNavController(this).navigateUp();
+                    })
+                    .catchE(e -> {
+                        v.findViewById(R.id.btnCreate).setEnabled(true);
+                        toast("Failed to save event. Try again.");
+                    });
         });
     }
 
