@@ -1,7 +1,183 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:weightSum="100">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="10"
+        android:layout_marginStart="25dp"
+        android:text="@string/default_user_profile_header"
+        android:gravity="center_vertical"
+        android:textSize="30sp">
+
+    </TextView>
+
+    <ImageView
+        android:id="@+id/edit_profile_profile_picture"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="15"
+        android:contentDescription="@string/profile_page_picture_description"
+        android:src="@drawable/ic_account">
+
+    </ImageView>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="4"
+        android:text="@string/profile_page_credentials"
+        android:gravity="center_vertical"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="10dp"
+        android:textStyle="bold"
+        android:textSize="16sp">
+    </TextView>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="4"
+        android:text="@string/profile_page_name_header"
+        android:gravity="center_vertical"
+        android:layout_marginStart="15dp"
+        android:textSize="16sp">
+    </TextView>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="40dp"
+        android:layout_weight="6"
+        android:background="#f0f0f5"
+        android:weightSum="100">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="80"
+            android:gravity="center_vertical"
+            android:layout_marginHorizontal="10dp"
+            android:text="placeholder">
+
+        </TextView>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="4"
+        android:text="@string/profile_page_email_header"
+        android:gravity="center_vertical"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="10dp"
+        android:textSize="16sp">
+    </TextView>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="40dp"
+        android:layout_weight="6"
+        android:background="#f0f0f5"
+        android:weightSum="100">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="80"
+            android:gravity="center_vertical"
+            android:layout_marginHorizontal="10dp"
+            android:text="placeholder">
+
+        </TextView>
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="18"
+            android:id="@+id/edit_profile_email_button"
+            android:text="@string/profile_page_edit_button_text"
+            android:padding="0dp">
+        </Button>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="4"
+        android:text="@string/profile_page_phone_header"
+        android:gravity="center_vertical"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="10dp"
+        android:textSize="16sp">
+    </TextView>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="40dp"
+        android:layout_weight="6"
+        android:background="#f0f0f5"
+        android:weightSum="100">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="80"
+            android:gravity="center_vertical"
+            android:layout_marginHorizontal="10dp"
+            android:text="placeholder">
+
+        </TextView>
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="18"
+            android:id="@+id/edit_profile_phone_button"
+            android:text="@string/profile_page_edit_button_text"
+            android:padding="0dp">
+
+        </Button>
+
+    </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="12">
+
+    </View>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="8"
+        android:orientation="horizontal"
+        android:weightSum="100">
+
+        <Button
+            android:id="@+id/edit_profile_delete_account_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="50"
+            android:layout_marginHorizontal="10dp"
+            android:layout_gravity="center_vertical"
+            android:text="@string/action_delete_account"
+            app:cornerRadius="1dp">
+        </Button>
+        <Button
+            android:id="@+id/edit_profile_sign_out_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="50"
+            android:layout_marginHorizontal="10dp"
+            android:layout_gravity="center_vertical"
+            android:text="@string/action_sign_out"
+            app:cornerRadius="1dp">
+        </Button>
+    </LinearLayout>
 
 </LinearLayout>
