@@ -135,7 +135,6 @@ dependencies {
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
     implementation(libs.recyclerview)
-    implementation(libs.firebase.database)
     implementation(libs.fragment)
     implementation(libs.espresso.core)
 

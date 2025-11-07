@@ -20,7 +20,6 @@ espressoContrib = "3.7.0"
 rules = "1.7.0"
 navigationTesting = "2.9.5"
 fragment = "1.8.9"
-firebaseDatabase = "22.0.1"
 
 [libraries]
 credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentialsPlayServicesAuth" }
@@ -48,7 +47,6 @@ navigation-testing = { group = "androidx.navigation", name = "navigation-testing
 fragment = { group = "androidx.fragment", name = "fragment", version.ref = "fragment" }
 fragment-testing-manifest = { group = "androidx.fragment", name = "fragment-testing-manifest", version.ref = "fragment" }
 fragment-testing = { group = "androidx.fragment", name = "fragment-testing", version.ref = "fragment" }
-firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
