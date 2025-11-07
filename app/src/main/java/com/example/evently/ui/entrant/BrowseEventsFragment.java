@@ -35,7 +35,6 @@ public class BrowseEventsFragment extends EventsFragment {
      */
     @Override
     protected void onEventClick(Event event) {
-        // TODO (chase): Navigate to the event details fragment and attach the event ID argument!
         var action = BrowseEventsFragmentDirections.actionNavHomeToEventDetails(
                 event.eventID().toString());
         NavController navController = NavHostFragment.findNavController(this);
@@ -48,7 +47,7 @@ public class BrowseEventsFragment extends EventsFragment {
      */
     @Override
     protected int getLayoutRes() {
-        return R.layout.fragment_event_entrants_list;
+        return R.layout.fragment_event_list_tabbed;
     }
 
     /**
@@ -98,17 +97,12 @@ public class BrowseEventsFragment extends EventsFragment {
     @Override
     protected void initEvents(Consumer<List<Event>> callback) {
         new EventsDB()
-                .fetchEventsByDate(
-                        Timestamp.now(),
-                        callback,
-                        e -> {
-                            Log.e("BrowseEvents", e.toString());
-                            Toast.makeText(
-                                            requireContext(),
-                                            "Something went wrong...",
-                                            Toast.LENGTH_SHORT)
-                                    .show();
-                        },
-                        true);
+                .fetchEventsByDate(Timestamp.now(), true)
+                .thenRun(callback)
+                .catchE(e -> {
+                    Log.e("BrowseEvents", e.toString());
+                    Toast.makeText(requireContext(), "Something went wrong...", Toast.LENGTH_SHORT)
+                            .show();
+                });
     }
 }

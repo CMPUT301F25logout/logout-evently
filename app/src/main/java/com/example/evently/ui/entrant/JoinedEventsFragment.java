@@ -40,7 +40,7 @@ public class JoinedEventsFragment extends EventsFragment {
      */
     @Override
     protected int getLayoutRes() {
-        return R.layout.fragment_event_entrants_list;
+        return R.layout.fragment_event_list_tabbed;
     }
 
     /**
@@ -91,10 +91,13 @@ public class JoinedEventsFragment extends EventsFragment {
      */
     @Override
     protected void initEvents(Consumer<List<Event>> callback) {
-        new EventsDB().fetchEventsByEnrolled(FirebaseAuthUtils.getCurrentEmail(), callback, e -> {
-            Log.e("JoinedEvents", e.toString());
-            Toast.makeText(requireContext(), "Something went wrong...", Toast.LENGTH_SHORT)
-                    .show();
-        });
+        new EventsDB()
+                .fetchEventsByEnrolled(FirebaseAuthUtils.getCurrentEmail())
+                .thenRun(callback)
+                .catchE(e -> {
+                    Log.e("JoinedEvents", e.toString());
+                    Toast.makeText(requireContext(), "Something went wrong...", Toast.LENGTH_SHORT)
+                            .show();
+                });
     }
 }

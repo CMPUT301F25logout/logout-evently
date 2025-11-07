@@ -7,7 +7,10 @@ import java.util.function.Consumer;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.example.evently.data.model.Notification;
 import com.example.evently.ui.common.NotificationsFragment;
@@ -15,6 +18,12 @@ import com.example.evently.utils.FirebaseAuthUtils;
 import com.example.evently.utils.IntentConstants;
 
 public class ViewNotificationsFragment extends NotificationsFragment {
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        handleNotificationClickIntent();
+    }
+
     protected void onNotificationClick(Notification notif) {
         final var dialog =
                 switch (notif.channel()) {
@@ -33,9 +42,8 @@ public class ViewNotificationsFragment extends NotificationsFragment {
     }
 
     protected void initNotifications(Consumer<List<Notification>> callback) {
-        // TODO (chase): Obtain the real notifications from database.
         String email = FirebaseAuthUtils.getCurrentEmail();
-        notificationDB.fetchUnseenNotificationsByUser(email, callback, e -> {
+        notificationDB.fetchUserNotifications(email).thenRun(callback).catchE(e -> {
             Log.e("ViewNotificationsFragment", e.toString());
             Toast.makeText(requireContext(), "Something went wrong...", Toast.LENGTH_SHORT)
                     .show();
