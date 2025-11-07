@@ -1,9 +1,12 @@
 import { getMessaging } from "firebase-admin/messaging";
 import * as logger from "firebase-functions/logger";
-import { onDocumentCreated } from "firebase-functions/v2/firestore";
+import {
+  onDocumentCreated,
+  onDocumentUpdated,
+} from "firebase-functions/v2/firestore";
 
 import { initializeApp } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
+import { FieldPath, getFirestore } from "firebase-admin/firestore";
 
 type Channel = "All" | "Winners" | "Losers" | "Cancelled";
 
@@ -39,7 +42,10 @@ export const createNotification = onDocumentCreated(
     }
     const notif = snapshot.data() as Notification;
 
-    const eventEntrantsDoc = await db.collection("eventEntrants").doc(notif.eventId).get();
+    const eventEntrantsDoc = await db
+      .collection("eventEntrants")
+      .doc(notif.eventId)
+      .get();
     if (!eventEntrantsDoc.exists) {
       logger.error(
         `Notification references non existent event with ID: ${notif.eventId}`
@@ -60,6 +66,95 @@ export const createNotification = onDocumentCreated(
   }
 );
 
+class BenignError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}
+
+// Redraw winners when someone cancels.
+export const redrawSelected = onDocumentUpdated(
+  "eventsEntrants/{eventID}",
+  async (fsEvent) => {
+    // Wish there was a way to fire only if the cancelledEntrants field was updated...
+    const eventID = fsEvent.params.eventID;
+    logger.info(`Executing redrawSelected for ID: ${eventID}`);
+    const snapshot = fsEvent.data;
+    if (!snapshot) {
+      logger.warn("No data associated with document updation event");
+      return;
+    }
+    const oldEventEntrants = snapshot.before.data() as EventEntrants;
+    const newEventEntrants = snapshot.after.data() as EventEntrants;
+
+    const oldCancelled = new Set(oldEventEntrants.cancelledEntrants);
+    const newCancelled = new Set(newEventEntrants.cancelledEntrants);
+    // Note: New cancelled should strictly be a superset of oldCancelled.
+    // Cancelled entrants are not supposed to be removed, only added.
+    const diff = newCancelled.difference(oldCancelled);
+    if (diff.size === 0) {
+      // No change in cancelled set. Nohing to do.
+      return;
+    }
+
+    const eventDoc = await db.collection("events").doc(eventID).get();
+    if (!eventDoc.exists) {
+      logger.error(
+        `EventEntrants references non existent event with ID: ${eventID}`
+      );
+      return;
+    }
+    const selectionLimit = eventDoc.get("selectionLimit") as number;
+
+    // Redraw (but be wary of concurrency bugs indeed)!
+    // Note: Multiple instances of this function may be called
+    // around the same time if two users cancel around the same time.
+    // Thus: One must be wise in implementing redraw.
+    const selfRef = db
+      .collection("eventEntrants")
+      .where(FieldPath.documentId(), "==", eventID)
+      // It's important to be as specific as possible in what we're reading in a transaction.
+      // We don't want the transaction to be retried just because an irrelevant part of the document was updated.
+      .select("enrolledEntrants", "selectedEntrants", "cancelledEntrants")
+      .limit(1);
+    db.runTransaction(async (tx) => {
+      const selfEntrantsRes = await tx.get(selfRef);
+      if (selfEntrantsRes.empty) {
+        throw new Error("EventEntrants selfRef query found no results");
+      }
+
+      const selfEntrants = selfEntrantsRes.docs[0].data() as Omit<
+        EventEntrants,
+        "acceptedEntrants"
+      >;
+      const currentWinners = new Set(selfEntrants.selectedEntrants);
+      const cancelled = new Set(selfEntrants.cancelledEntrants);
+      const eligibleWinners = currentWinners.difference(cancelled);
+      if (eligibleWinners.size == selectionLimit) {
+        // Another concurrent redraw has run and selected new winners. Nothing to be done.
+        // We must cancel the transaction by throwing an error. It should be caught later and ignored.
+        throw new BenignError("Redraw has already run!");
+      }
+
+      // Our chance to shine!
+      const all = new Set(selfEntrants.enrolledEntrants);
+      // People who already won (including those who cancelled) are not eligible.
+      const eligible = all.difference(currentWinners.union(cancelled));
+      // Draw for the remaining number of slots.
+      const remainingSlots = selectionLimit - eligibleWinners.size;
+      const additionalWinners = draw([...eligible], remainingSlots);
+      // Update the selected entrants list. It should remove the cancelled entrants and add in the new winners.
+      tx.update(db.collection("eventEntrants").doc(eventID), {
+        selectedEntrants: eligibleWinners.union(new Set(additionalWinners)),
+      });
+    }).catch((e) => {
+      if (!(e instanceof BenignError)) {
+        throw e;
+      }
+    });
+  }
+);
+
 // Send push notification to devices identified by given tokens.
 async function sendNotification(
   registrationTokens: string[],
@@ -70,7 +165,7 @@ async function sendNotification(
   const message = {
     tokens: registrationTokens,
     notification: { title, body },
-    data: { notificationID }
+    data: { notificationID },
   };
 
   const response = await getMessaging().sendEachForMulticast(message);
@@ -99,7 +194,9 @@ async function getTokensForChannel(
     case "Losers": {
       const allSet = new Set(entrants.enrolledEntrants);
       // All the cancelled entrants were also winners at one point, not loser.
-      const effectiveWinnersSet = new Set(entrants.selectedEntrants.concat(entrants.cancelledEntrants));
+      const effectiveWinnersSet = new Set(
+        entrants.selectedEntrants.concat(entrants.cancelledEntrants)
+      );
       return getTokensByEmails([...allSet.difference(effectiveWinnersSet)]);
     }
     case "Cancelled":
@@ -128,4 +225,32 @@ async function getTokensByEmails(emails: string[]): Promise<string[]> {
     )
   );
   return res.flat();
+}
+
+// Helper to draw N elements from given input array.
+function draw<T>(input: T[], selectionN: number): T[] {
+  if (input.length <= selectionN) {
+    // No need to draw if the entire input fits under the limit.
+    return input;
+  } else {
+    // Otherwise, choose N random elements.
+    return chooseNRandom(input, selectionN);
+  }
+}
+
+// Based on: https://stackoverflow.com/a/19270021/10305477
+// This is Knuth shuffle: https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
+function chooseNRandom<T>(arr: T[], n: number): T[] {
+  const result = new Array(n);
+  let len = arr.length;
+  const taken = new Array(len);
+  if (n > len) {
+    throw new RangeError("chooseNRandom: more elements taken than available");
+  }
+  while (n--) {
+    const x = Math.floor(Math.random() * len);
+    result[n] = arr[x in taken ? taken[x] : x];
+    taken[x] = --len in taken ? taken[len] : len;
+  }
+  return result;
 }
