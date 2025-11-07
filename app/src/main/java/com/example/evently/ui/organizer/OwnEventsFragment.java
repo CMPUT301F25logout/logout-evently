@@ -1,6 +1,5 @@
 package com.example.evently.ui.organizer;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -25,9 +24,6 @@ import com.example.evently.utils.FirebaseAuthUtils;
  * Fragment that displays the organizer's own events
  */
 public class OwnEventsFragment extends EventsFragment {
-
-    // Local, mutable list backing the adapter
-    private final ArrayList<Event> events = new ArrayList<>();
 
     /**
      * Handles clicks on an event row in the organizer list

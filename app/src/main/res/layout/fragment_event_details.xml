@@ -49,6 +49,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="JOIN WAITLIST"
+            android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/eventDescription" />
@@ -91,20 +92,19 @@
             android:layout_marginTop="13dp"
             android:layout_marginBottom="9dp"
             android:background="@android:color/darker_gray"
-            app:layout_constraintBottom_toTopOf="@+id/entrantList"
+            app:layout_constraintBottom_toTopOf="@+id/entrantListContainer"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/entryCountText" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/entrantList"
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/entrantListContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/entryCountText" />
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
