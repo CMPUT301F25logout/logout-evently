@@ -1,9 +1,11 @@
 package com.example.evently.ui.common;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -77,13 +79,62 @@ public abstract class ArchitectureActivity extends AppCompatActivity {
                 .addOnSuccessListener(FirebaseMessagingUtils::storeToken);
         // TODO (chase): Maybe also schedule a periodic task that refreshes the token?
         // See: https://firebase.google.com/docs/cloud-messaging/manage-tokens
+
+        setupSwitchRoleButton(binding.btnSwitchRole);
     }
 
+    /**
+     * Configures the “Switch Role” button for the current Activity.
+     * <p>
+     * If called from {@code EntrantActivity}, the button text is set to
+     * "Switch to Organizer” and tapping it starts {@code OrganizerActivity}.
+     * If called from {@code OrganizerActivity}, the button text is set to
+     * “Switch to Entrant” and tapping it starts {@code EntrantActivity}.
+     * If invoked from any other Activity type, the button is hidden.
+     * </p>
+     * @param b the button to configure; may be {@code null}.
+     *
+     */
+    private void setupSwitchRoleButton(Button b) {
+        if (b == null) return;
+
+        if (this instanceof com.example.evently.ui.entrant.EntrantActivity) {
+            b.setText("Switch to Organizer");
+            b.setOnClickListener(_x -> {
+                Intent i =
+                        new Intent(this, com.example.evently.ui.organizer.OrganizerActivity.class);
+                startActivity(i);
+            });
+        } else if (this instanceof com.example.evently.ui.organizer.OrganizerActivity) {
+            b.setText("Switch to Entrant");
+            b.setOnClickListener(_x -> {
+                Intent i = new Intent(this, com.example.evently.ui.entrant.EntrantActivity.class);
+                startActivity(i);
+            });
+        } else {
+            // Unknown role: hide
+            b.setOnClickListener(null);
+            b.setVisibility(android.view.View.GONE);
+        }
+    }
+
+    /**
+     * Handles the Action Bar "Up" button press.
+     * <p>
+     * Delegates to the Activity's {@link androidx.navigation.NavController} first; if it
+     * can navigate up in its back stack, that result is used. Otherwise, falls back to the
+     * default {@link androidx.appcompat.app.AppCompatActivity#onSupportNavigateUp()} behavior.
+     * @return true if the NavController (or the super implementation) handled the
+     * navigation or false otherwise.
+     */
     @Override
     public boolean onSupportNavigateUp() {
         return navController.navigateUp() || super.onSupportNavigateUp();
     }
 
+    /**
+     *
+     */
     private void askNotificationPermission() {
         // This is only necessary for API Level > 33 (TIRAMISU)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
