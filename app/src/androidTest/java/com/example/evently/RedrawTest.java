@@ -104,17 +104,20 @@ public class RedrawTest extends FirebaseEmulatorTest {
 
         // The function should fire, and should select ONE of the remaining entrants.
         // Might have to wait a bit for the function to fire;
-        Thread.sleep(5000);
+        Thread.sleep(10000);
         final var entrantsInfo =
                 eventsDB.fetchEventEntrants(List.of(targetEventID)).await().get(0);
 
-        // Cancelled user should be in the cancelled list.
-        assertTrue(entrantsInfo.cancelled().contains(canceller));
-        // They should be removed from the winners list.
-        assertFalse(entrantsInfo.selected().contains(canceller));
-        // One of the losers should be added to the winners list now.
+        assertTrue(
+                "Cancelled user should be in the cancelled list",
+                entrantsInfo.cancelled().contains(canceller));
+        assertFalse(
+                "They should be removed from the winners list",
+                entrantsInfo.selected().contains(canceller));
         final var losers = List.of("bar@bar.com", "ipsum@bar.com");
-        assertTrue(entrantsInfo.selected().stream().anyMatch(losers::contains));
+        assertTrue(
+                "One of the losers should be added to the winners list now",
+                entrantsInfo.selected().stream().anyMatch(losers::contains));
     }
 
     @Test
@@ -127,15 +130,18 @@ public class RedrawTest extends FirebaseEmulatorTest {
 
         // The function should fire, and should select ONE of the remaining entrants.
         // Might have to wait a bit for the function to fire;
-        Thread.sleep(5000);
+        Thread.sleep(10000);
         final var entrantsInfo =
                 eventsDB.fetchEventEntrants(List.of(targetEventID)).await().get(0);
 
-        // Cancelled user should be in the cancelled list.
-        assertTrue(entrantsInfo.cancelled().contains(canceller));
-        // They should be removed from the winners list.
-        assertFalse(entrantsInfo.selected().contains(canceller));
-        // There is only one loser; should be trivially added!
-        assertTrue(entrantsInfo.selected().contains("baz@bar.com"));
+        assertTrue(
+                "Cancelled user should be in the cancelled list",
+                entrantsInfo.cancelled().contains(canceller));
+        assertFalse(
+                "They should be removed from the winners list",
+                entrantsInfo.selected().contains(canceller));
+        assertTrue(
+                "There is only one loser; should be trivially added!",
+                entrantsInfo.selected().contains("baz@bar.com"));
     }
 }
