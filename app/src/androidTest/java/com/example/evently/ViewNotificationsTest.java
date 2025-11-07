@@ -359,7 +359,7 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
         // Confirms notification are not yet canceled.
         List<String> canceledUsers = eventsDB.fetchEventEntrants(List.of(invite.eventId()))
                 .await()
-                .getFirst()
+                .get(0)
                 .cancelled();
         Thread.sleep(2000);
         assertFalse(canceledUsers.contains(mockAccount.email()));
@@ -375,7 +375,7 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
         // Confirms notification is not canceled.
         canceledUsers = eventsDB.fetchEventEntrants(List.of(invite.eventId()))
                 .await()
-                .getFirst()
+                .get(0)
                 .cancelled();
         Thread.sleep(2000);
         assertTrue(canceledUsers.contains(mockAccount.email()));
