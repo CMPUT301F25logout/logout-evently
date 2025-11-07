@@ -1,12 +1,9 @@
 package com.example.evently;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ExecutionException;
 
 import androidx.annotation.NavigationRes;
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentFactory;
 import androidx.fragment.app.testing.FragmentScenario;
 import androidx.navigation.Navigation;
 import androidx.navigation.testing.TestNavHostController;
@@ -41,36 +38,16 @@ public abstract class EmulatedFragmentTest<T extends Fragment> extends FirebaseE
             login();
         }
 
-        // See: https://developer.android.com/guide/navigation/testings
-        TestNavHostController navController =
-                new TestNavHostController(ApplicationProvider.getApplicationContext());
+        // https://developer.android.com/guide/navigation/testing#java
+        var navController = new TestNavHostController(ApplicationProvider.getApplicationContext());
 
-        final var clazz = getFragmentClass();
-        scenario = FragmentScenario.launchInContainer(clazz, null, new FragmentFactory() {
-            @NonNull @Override
-            public Fragment instantiate(
-                    @NonNull ClassLoader classLoader, @NonNull String className) {
-                T frag;
-                try {
-                    frag = clazz.getDeclaredConstructor().newInstance();
-                } catch (IllegalAccessException
-                        | InstantiationException
-                        | InvocationTargetException
-                        | NoSuchMethodException e) {
-                    throw new IllegalArgumentException(
-                            "getFragmentClass returned invalid fragment class", e);
-                }
+        // Create a graphical FragmentScenario for the TitleScreen
+        scenario =
+                FragmentScenario.launchInContainer(getFragmentClass(), null, R.style.Theme_Evently);
 
-                final T finalFrag = frag;
-                frag.getViewLifecycleOwnerLiveData().observeForever(viewLifecycleOwner -> {
-                    // The fragment’s view has just been created
-                    if (viewLifecycleOwner != null) {
-                        navController.setGraph(getGraph());
-                        Navigation.setViewNavController(finalFrag.requireView(), navController);
-                    }
-                });
-                return frag;
-            }
+        scenario.onFragment(fragment -> {
+            navController.setGraph(getGraph());
+            Navigation.setViewNavController(fragment.requireView(), navController);
         });
     }
 
