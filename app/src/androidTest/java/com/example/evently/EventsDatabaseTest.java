@@ -133,11 +133,11 @@ public class EventsDatabaseTest extends FirebaseEmulatorTest {
         db.storeEvent(event2).await();
 
         var eventCollection =
-                db.fetchEventsByDate(new Timestamp(timeCheck), false).await();
+                db.fetchEventsByDate(new Timestamp(timeCheck), true).await();
         assertFalse(eventCollection.contains(event1));
         assertTrue(eventCollection.contains(event2));
 
-        eventCollection = db.fetchEventsByDate(new Timestamp(timeCheck), true).await();
+        eventCollection = db.fetchEventsByDate(new Timestamp(timeCheck), false).await();
 
         assertTrue(eventCollection.contains(event1));
         assertFalse(eventCollection.contains(event2));
