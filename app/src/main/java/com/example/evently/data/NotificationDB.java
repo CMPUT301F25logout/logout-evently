@@ -80,7 +80,7 @@ public class NotificationDB {
                 // Converts the channel back to an ENUM.
                 Notification.Channel.valueOf(snapshot.getString("channel")),
                 snapshot.getString("title"),
-                snapshot.getString("desc"),
+                snapshot.getString("description"),
                 snapshot.getTimestamp("creationTime").toInstant(),
                 new HashSet<>(seenByList));
     }
