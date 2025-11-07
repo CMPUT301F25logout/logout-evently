@@ -8,6 +8,9 @@ inputs:
   GOOGLE_CLIENT_ID:
     description: 'GOOGLE_CLIENT_ID from secrets'
     required: true
+  DEBUG_KEYSTORE:
+    description: 'Android debug keystore'
+    required: true
 
 runs:
   using: "composite"
@@ -31,3 +34,12 @@ runs:
         GOOGLE_CLIENT_ID: ${{ inputs.GOOGLE_CLIENT_ID }}
       run: echo "GOOGLE_CLIENT_ID=\"$GOOGLE_CLIENT_ID\"" > keys.properties
       shell: bash
+
+    - name: Create ~/.android directory for keystore
+      run: mkdir -p ~/.android
+
+    - name: Decode and write debug keystore
+      run: |
+        echo "$DEBUG_KEYSTORE" | base64 -di > ~/.android/debug.keystore
+      env:
+        DEBUG_KEYSTORE: ${{ inputs.DEBUG_KEYSTORE }}
