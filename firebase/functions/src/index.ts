@@ -7,7 +7,6 @@ import { getFirestore } from "firebase-admin/firestore";
 
 type Channel = "All" | "Winners" | "Losers" | "Cancelled";
 
-// TODO (chase): Make sure this lines up with notifications DB integration work once done.
 interface Notification {
   eventId: string;
   channel: Channel;
@@ -19,9 +18,9 @@ interface Notification {
 
 // TODO (chase): Verify collection structure.
 interface EventEntrants {
-  entrants: string[];
-  winners: string[];
-  cancelled: string[];
+  enrolledEntrants: string[];
+  selectedEntrants: string[];
+  cancelledEntrants: string[];
 }
 
 const app = initializeApp();
@@ -40,7 +39,6 @@ export const createNotification = onDocumentCreated(
     }
     const notif = snapshot.data() as Notification;
 
-    // TODO (chase): Verify collection name.
     const eventDoc = await db.collection("events").doc(notif.eventId).get();
     if (!eventDoc.exists) {
       logger.error(
@@ -95,17 +93,17 @@ async function getTokensForChannel(
 ): Promise<string[]> {
   switch (channel) {
     case "All":
-      return getTokensByEmails(entrants.entrants);
+      return getTokensByEmails(entrants.enrolledEntrants);
     case "Winners":
-      return getTokensByEmails(entrants.winners);
+      return getTokensByEmails(entrants.selectedEntrants);
     case "Losers": {
-      const allSet = new Set(entrants.entrants);
+      const allSet = new Set(entrants.enrolledEntrants);
       // All the cancelled entrants were also winners at one point, not loser.
-      const effectiveWinnersSet = new Set(entrants.winners.concat(entrants.cancelled));
+      const effectiveWinnersSet = new Set(entrants.selectedEntrants.concat(entrants.cancelledEntrants));
       return getTokensByEmails([...allSet.difference(effectiveWinnersSet)]);
     }
     case "Cancelled":
-      return getTokensByEmails(entrants.cancelled);
+      return getTokensByEmails(entrants.cancelledEntrants);
   }
 }
 
