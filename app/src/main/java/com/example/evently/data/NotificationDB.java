@@ -1,7 +1,6 @@
 package com.example.evently.data;
 
 import static com.example.evently.data.generic.Promise.promise;
-import static com.example.evently.data.generic.PromiseOpt.promiseOpt;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -25,7 +24,6 @@ import com.google.firebase.firestore.WriteBatch;
 import org.jetbrains.annotations.TestOnly;
 
 import com.example.evently.data.generic.Promise;
-import com.example.evently.data.generic.PromiseOpt;
 import com.example.evently.data.model.Event;
 import com.example.evently.data.model.EventEntrants;
 import com.example.evently.data.model.Notification;
@@ -121,10 +119,9 @@ public class NotificationDB {
      * @param notificationID the id of the notification
      * @return Reference to the concurrent task yielding to an account (if found).
      */
-    public PromiseOpt<Notification> fetchNotification(UUID notificationID) {
-        return promiseOpt(
-                promise(notificationsRef.document(notificationID.toString()).get())
-                        .map(NotificationDB::parseDocumentSnapshot));
+    public Promise<Optional<Notification>> fetchNotification(UUID notificationID) {
+        return promise(notificationsRef.document(notificationID.toString()).get())
+                .map(NotificationDB::parseDocumentSnapshot);
     }
 
     /**
