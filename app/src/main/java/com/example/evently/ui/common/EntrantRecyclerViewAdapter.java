@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.evently.databinding.FragmentEventEntrantBinding;
 
 /**
- * RecyclerView adapter that displays each entrant as a row with their profile picture and name.
+ * Recycler view that displays each entrant as a row with their profile picture and name
  */
 public class EntrantRecyclerViewAdapter
         extends RecyclerView.Adapter<EntrantRecyclerViewAdapter.EntrantViewHolder> {
@@ -25,27 +25,29 @@ public class EntrantRecyclerViewAdapter
 
         public EntrantViewHolder(FragmentEventEntrantBinding binding) {
             super(binding.getRoot());
+            // Can define click listeners here
             this.binding = binding;
         }
     }
 
     @NonNull @Override
     public EntrantViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        FragmentEventEntrantBinding binding =
-                FragmentEventEntrantBinding.inflate(inflater, parent, false);
-        return new EntrantViewHolder(binding);
+        return new EntrantViewHolder(FragmentEventEntrantBinding.inflate(
+                LayoutInflater.from(parent.getContext()), parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull EntrantViewHolder holder, int position) {
+    public void onBindViewHolder(final EntrantViewHolder holder, int position) {
+        var binding = holder.binding;
+        // Define the names
         String name = entrants.get(position);
-        holder.binding.entrantName.setText(name);
-        // Future: load profile picture, handle clicks, etc.
+
+        // Set the name of each person
+        binding.entrantName.setText(name);
     }
 
     @Override
     public int getItemCount() {
-        return entrants != null ? entrants.size() : 0;
+        return entrants.size();
     }
 }

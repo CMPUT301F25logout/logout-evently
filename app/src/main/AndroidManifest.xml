@@ -30,7 +30,7 @@
             android:value="false" />
 
         <activity
-            android:name=".ui.organizer.OrganizerActivity"
+            android:name=".ui.auth.AuthActivity"
             android:exported="true">
 
             <intent-filter>
@@ -46,7 +46,7 @@
         </activity>
 
         <activity
-            android:name=".ui.auth.AuthActivity"
+            android:name=".ui.organizer.OrganizerActivity"
             android:exported="true" />
 
         <activity
