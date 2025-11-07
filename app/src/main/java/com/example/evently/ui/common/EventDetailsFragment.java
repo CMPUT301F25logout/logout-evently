@@ -2,7 +2,6 @@ package com.example.evently.ui.common;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import android.os.Bundle;
@@ -91,7 +90,8 @@ public class EventDetailsFragment extends Fragment {
 
         // TODO Implement logic to determine whether or not the user has joined the event from the
         // database by comparing the users name to see if it's in the entrant list (Use joined)
-        accountsDB.fetchAccount(FirebaseAuthUtils.getCurrentEmail())
+        accountsDB
+                .fetchAccount(FirebaseAuthUtils.getCurrentEmail())
                 .optionally(user -> compareUserToList(user));
 
         // Waitlist Action button pressed
@@ -99,12 +99,10 @@ public class EventDetailsFragment extends Fragment {
         wlAction.setOnClickListener(v -> updateEventInformation());
     }
 
-    public void compareUserToList(Account user)
-    {
+    public void compareUserToList(Account user) {
         this.user = user;
-        for (var entrant : entrants)
-        {
-			joined = entrant.equals(user.name());
+        for (var entrant : entrants) {
+            joined = entrant.equals(user.name());
         }
 
         displayWaitlistAction();
@@ -140,9 +138,7 @@ public class EventDetailsFragment extends Fragment {
     /**
      * Updates information on the database when the user leaves or joins the event.
      */
-    public void updateDB() {
-
-    }
+    public void updateDB() {}
 
     /**
      * Loads the event information into the fragment

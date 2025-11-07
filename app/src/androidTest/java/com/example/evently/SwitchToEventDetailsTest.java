@@ -100,8 +100,10 @@ public class SwitchToEventDetailsTest extends EmulatedFragmentTest<BrowseEventsF
                 p(R.id.txtDate, some_date.format(expectedEvent.eventTime().toInstant())));
 
         onView(ViewMatchers.withId(R.id.btnDetails)).perform(ViewActions.click());
-        assertEquals(navController.getCurrentBackStackEntry().getDestination().getId(), R.id.fragment_event_details);
-        //assertEquals(navController.getCurrentDestination().getId(), R.id.fragment_event_details);
+        assertEquals(
+                navController.getCurrentBackStackEntry().getDestination().getId(),
+                R.id.fragment_event_details);
+        // assertEquals(navController.getCurrentDestination().getId(), R.id.fragment_event_details);
 
         onView(withText(mockEvents[0].description())).check(matches(isDisplayed()));
 
