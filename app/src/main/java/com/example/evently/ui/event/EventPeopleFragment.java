@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -13,9 +12,10 @@ import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.evently.R;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+
+import com.example.evently.R;
 
 /**
  * Fragment that displays the tabs for event participants in different categories.
@@ -24,6 +24,7 @@ import com.google.android.material.tabs.TabLayoutMediator;
 public class EventPeopleFragment extends Fragment {
     private TabLayout tablayout;
     private ViewPager2 viewPager;
+
     public EventPeopleFragment() {}
 
     /**
@@ -39,11 +40,11 @@ public class EventPeopleFragment extends Fragment {
      *
      * @return
      */
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                         @Nullable ViewGroup container,
-                         @Nullable Bundle savedInstanceState) {
+    @Nullable @Override
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_event_people, container, false);
         tablayout = view.findViewById(R.id.eventPeopleTabLayout);
         viewPager = view.findViewById(R.id.eventPeopleViewPager);
@@ -51,18 +52,19 @@ public class EventPeopleFragment extends Fragment {
         viewPager.setAdapter(new EventPeopleAdapter(getChildFragmentManager(), getLifecycle()));
 
         new TabLayoutMediator(tablayout, viewPager, (tab, position) -> {
-            switch (position) {
-                case 0:
-                    tab.setText("Enrolled");
-                    break;
-                case 1:
-                    tab.setText("Cancelled");
-                    break;
-                case 2:
-                    tab.setText("Selected");
-                    break;
-            }
-        }).attach();
+                    switch (position) {
+                        case 0:
+                            tab.setText("Enrolled");
+                            break;
+                        case 1:
+                            tab.setText("Cancelled");
+                            break;
+                        case 2:
+                            tab.setText("Selected");
+                            break;
+                    }
+                })
+                .attach();
 
         return view;
     }
@@ -71,7 +73,8 @@ public class EventPeopleFragment extends Fragment {
      * Adapter that provides the fragments for each tab (Enrolled, Selected, Cancalled)
      */
     private static class EventPeopleAdapter extends FragmentStateAdapter {
-        public EventPeopleAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
+        public EventPeopleAdapter(
+                @NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
             super(fragmentManager, lifecycle);
         }
 
@@ -80,8 +83,7 @@ public class EventPeopleFragment extends Fragment {
          * @param position Position of the tab
          * @return The corresponding fragment
          */
-        @NonNull
-        @Override
+        @NonNull @Override
         public Fragment createFragment(int position) {
             return switch (position) {
                 case 0 -> new AllEntrantFragment.EnrolledPeopleFragment();
@@ -95,7 +97,5 @@ public class EventPeopleFragment extends Fragment {
         public int getItemCount() {
             return 3;
         }
-
     }
-
 }
