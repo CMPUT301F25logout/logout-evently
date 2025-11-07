@@ -189,6 +189,18 @@ public sealed class Promise<T> permits PromiseOpt {
     }
 
     /**
+     * Compose one promise with another, in sequence, and use both of their results in the end.
+     * @param otherFunc The function that, when applied with this promise's result, yields another promise
+     * @return A new promise that is a sequential composition of the two.
+     * @param <U> Type the second promise resolves to.
+     * @apiNote For the functional programmers, indeed this is the bind function nested.
+     */
+    public <U> Promise<Pair<T, U>> thenWith(Function<T, Promise<U>> otherFunc) {
+        return promise(task.onSuccessTask(x ->
+                otherFunc.apply(x).task.onSuccessTask(y -> Tasks.forResult(new Pair<>(x, y)))));
+    }
+
+    /**
      * Run an action once this promise succeeds.
      * @apiNote Meant to be called once at the end of a promise chain.
      *          Using this multiple times will attach several consumers that will all be fired.

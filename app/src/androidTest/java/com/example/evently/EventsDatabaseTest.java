@@ -7,9 +7,8 @@ import static org.junit.Assert.assertTrue;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 
-import android.util.Log;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -69,112 +68,58 @@ public class EventsDatabaseTest extends FirebaseEmulatorTest {
      * Tests the store, and fetch account operations.
      */
     @Test
-    public void testStoreAndFetchEvent() throws InterruptedException {
-
-        // The idea for using CountDownLatches for synchronization is from the article below:
-        // Article: https://stackoverflow.com/questions/15938538/how-can-i-make-a-junit-test-wait
-        // Title: "How can I make a JUnit test wait?"
-        // Answer: https://stackoverflow.com/a/64645442
-        // License: CC BY-SA 4.0
-        CountDownLatch addEventLatch = new CountDownLatch(1);
-
+    public void testStoreAndFetchEvent() throws InterruptedException, ExecutionException {
         EventsDB db = new EventsDB();
 
         Event event = testEvent();
-        db.storeEvent(event, v -> addEventLatch.countDown(), e -> {});
-        addEventLatch.await();
+        db.storeEvent(event).await();
 
-        CountDownLatch fetchLatch = new CountDownLatch(1);
-        db.fetchEvent(
-                event.eventID(),
-                fetchedEvent -> {
-                    fetchLatch.countDown();
-
-                    assertTrue(fetchedEvent.isPresent());
-                    assertEquals(fetchedEvent.get().toHashMap(), event.toHashMap());
-                },
-                e -> {
-                    Log.d("FETCH Event", "testStoreAndFetchEvent: Failed to fetch event");
-                });
-
-        fetchLatch.await();
-        assertTrue(true);
+        var fetchedEvent = db.fetchEvent(event.eventID()).await();
+        assertTrue(fetchedEvent.isPresent());
+        assertEquals(fetchedEvent.get().toHashMap(), event.toHashMap());
     }
 
     /**
      * Test for the deleteEvent function
      */
     @Test
-    public void testDeleteEvent() throws InterruptedException {
-        CountDownLatch addEventLatch = new CountDownLatch(1);
-
+    public void testDeleteEvent() throws InterruptedException, ExecutionException {
         EventsDB db = new EventsDB();
 
         Event event = testEvent();
-        db.storeEvent(event, v -> addEventLatch.countDown(), e -> {});
-        addEventLatch.await();
+        db.storeEvent(event).await();
 
-        CountDownLatch deleteEventLatch = new CountDownLatch(1);
-        db.deleteEvent(event.eventID(), v -> deleteEventLatch.countDown(), e -> {});
-        deleteEventLatch.await();
+        db.deleteEvent(event.eventID()).await();
 
-        CountDownLatch fetchLatch = new CountDownLatch(1);
-
-        db.fetchEvent(
-                event.eventID(),
-                optionalEvent -> {
-                    assertFalse(optionalEvent.isPresent());
-                    fetchLatch.countDown();
-                },
-                e -> {});
-        fetchLatch.await();
+        var optionalEvent = db.fetchEvent(event.eventID()).await();
+        assertFalse(optionalEvent.isPresent());
     }
 
     /**
      * Tests fetching events by organizer
      */
     @Test
-    public void testFetchEventByOrganizer() throws InterruptedException {
-        CountDownLatch addEventLatch = new CountDownLatch(1);
-
+    public void testFetchEventByOrganizer() throws InterruptedException, ExecutionException {
         EventsDB db = new EventsDB();
 
         Event event1 = testEvent(1);
         Event event2 = testEvent(2);
-        db.storeEvent(event1, v -> addEventLatch.countDown(), e -> {});
-        addEventLatch.await();
+        db.storeEvent(event1).await();
+        db.storeEvent(event2).await();
 
-        db.storeEvent(event2, v -> addEventLatch.countDown(), e -> {});
-        addEventLatch.await();
+        var eventCollection = db.fetchEventsByOrganizers(event1.organizer()).await();
+        assertTrue(eventCollection.contains(event1));
+        assertFalse(eventCollection.contains(event2));
 
-        CountDownLatch fetchLatch = new CountDownLatch(1);
-
-        db.fetchEventsByOrganizers(
-                event1.organizer(),
-                eventCollection -> {
-                    assertTrue(eventCollection.contains(event1));
-                    assertFalse(eventCollection.contains(event2));
-                    fetchLatch.countDown();
-                },
-                e -> {});
-        fetchLatch.await();
-
-        db.fetchEventsByOrganizers(
-                "notAnOrganizer",
-                eventCollection -> {
-                    assertTrue(eventCollection.isEmpty());
-                    fetchLatch.countDown();
-                },
-                e -> {});
-        fetchLatch.await();
+        eventCollection = db.fetchEventsByOrganizers("notAnOrganizer").await();
+        assertTrue(eventCollection.isEmpty());
     }
 
     /**
      * Tests fetching events by date
      */
     @Test
-    public void testFetchEventByDate() throws InterruptedException {
-        CountDownLatch addEventLatch = new CountDownLatch(1);
+    public void testFetchEventByDate() throws InterruptedException, ExecutionException {
         Instant timeCheck = LocalDate.of(2027, 2, 1)
                 .atStartOfDay()
                 .atZone(ZoneId.systemDefault())
@@ -184,34 +129,17 @@ public class EventsDatabaseTest extends FirebaseEmulatorTest {
 
         Event event1 = testEvent(1);
         Event event2 = testEvent(2);
-        db.storeEvent(event1, v -> addEventLatch.countDown(), e -> {});
-        addEventLatch.await();
+        db.storeEvent(event1).await();
+        db.storeEvent(event2).await();
 
-        db.storeEvent(event2, v -> addEventLatch.countDown(), e -> {});
-        addEventLatch.await();
+        var eventCollection =
+                db.fetchEventsByDate(new Timestamp(timeCheck), false).await();
+        assertFalse(eventCollection.contains(event1));
+        assertTrue(eventCollection.contains(event2));
 
-        CountDownLatch fetchLatch = new CountDownLatch(1);
+        eventCollection = db.fetchEventsByDate(new Timestamp(timeCheck), true).await();
 
-        db.fetchEventsByDate(
-                new Timestamp(timeCheck),
-                eventCollection -> {
-                    assertFalse(eventCollection.contains(event1));
-                    assertTrue(eventCollection.contains(event2));
-                    fetchLatch.countDown();
-                },
-                e -> {},
-                true);
-        fetchLatch.await();
-
-        db.fetchEventsByDate(
-                new Timestamp(timeCheck),
-                eventCollection -> {
-                    assertTrue(eventCollection.contains(event1));
-                    assertFalse(eventCollection.contains(event2));
-                    fetchLatch.countDown();
-                },
-                e -> {},
-                false);
-        fetchLatch.await();
+        assertTrue(eventCollection.contains(event1));
+        assertFalse(eventCollection.contains(event2));
     }
 }

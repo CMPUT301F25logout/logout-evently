@@ -90,7 +90,9 @@ public class OwnEventsFragment extends EventsFragment {
         // TODO (chase): Get list of own events by organizer.
         if (events.isEmpty()) {
             new EventsDB()
-                    .fetchEventsByOrganizers(FirebaseAuthUtils.getCurrentEmail(), callback, e -> {
+                    .fetchEventsByOrganizers(FirebaseAuthUtils.getCurrentEmail())
+                    .thenRun(callback)
+                    .catchE(e -> {
                         Log.e("OwnEvents", e.toString());
                         Toast.makeText(
                                         requireContext(),
