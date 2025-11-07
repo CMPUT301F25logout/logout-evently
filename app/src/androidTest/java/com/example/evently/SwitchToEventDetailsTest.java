@@ -16,13 +16,19 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ExecutionException;
 
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.action.ViewActions;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.rule.GrantPermissionRule;
 
+import com.example.evently.ui.common.EntrantsFragment;
+import com.example.evently.ui.entrant.EntrantActivity;
+import com.example.evently.ui.organizer.OrganizerActivity;
 import com.google.firebase.Timestamp;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -62,6 +68,7 @@ public class SwitchToEventDetailsTest extends EmulatedFragmentTest<BrowseEventsF
         eventsDB.storeEvent(mockEvents[0]).await();
     }
 
+    // Test event details button
     @Test
     public void testSwitchingToEventDetails() throws InterruptedException {
         Thread.sleep(2000);
@@ -76,11 +83,16 @@ public class SwitchToEventDetailsTest extends EmulatedFragmentTest<BrowseEventsF
                 p(R.id.txtselection_date, "Waitlist closed"),
                 p(R.id.txtDate, some_date.format(expectedEvent.eventTime().toInstant())));
 
-        onView(ViewMatchers.withId(R.id.btnDetails)).perform(ViewActions.click());
-        assertEquals(navController.getCurrentDestination().getId(), R.id.fragment_event_details);
+        try (ActivityScenario<EntrantActivity> scenario = ActivityScenario.launch(EntrantActivity.class))
+        {
+            onView(ViewMatchers.withId(R.id.btnDetails)).perform(ViewActions.click());
+            Thread.sleep(2000);
+            onView(withText(mockEvents[0].description())).check(matches(isDisplayed()));
+            onView(withId(R.id.buttonBack)).perform(click());
+        };
     }
 
-    // Test event details button
+    // Test switching to event details and going back
     @Test
     public void testSwitchingToEventDetailsFromJoinedEvents()
             throws ExecutionException, InterruptedException {
@@ -99,15 +111,13 @@ public class SwitchToEventDetailsTest extends EmulatedFragmentTest<BrowseEventsF
                 p(R.id.txtselection_date, "Waitlist closed"),
                 p(R.id.txtDate, some_date.format(expectedEvent.eventTime().toInstant())));
 
-        onView(ViewMatchers.withId(R.id.btnDetails)).perform(ViewActions.click());
-        assertEquals(
-                navController.getCurrentBackStackEntry().getDestination().getId(),
-                R.id.fragment_event_details);
-        // assertEquals(navController.getCurrentDestination().getId(), R.id.fragment_event_details);
-
-        onView(withText(mockEvents[0].description())).check(matches(isDisplayed()));
-
-        onView(withId(R.id.buttonBack)).perform(click());
+        try (ActivityScenario<EntrantActivity> scenario = ActivityScenario.launch(EntrantActivity.class))
+        {
+            onView(ViewMatchers.withId(R.id.btnDetails)).perform(ViewActions.click());
+            Thread.sleep(2000);
+            onView(withText(mockEvents[0].description())).check(matches(isDisplayed()));
+            onView(withId(R.id.buttonBack)).perform(click());
+        };
 
         assertRecyclerViewItem(
                 R.id.event_list,
@@ -115,6 +125,10 @@ public class SwitchToEventDetailsTest extends EmulatedFragmentTest<BrowseEventsF
                 p(R.id.txtselection_date, "Waitlist closed"),
                 p(R.id.txtDate, some_date.format(expectedEvent.eventTime().toInstant())));
     }
+
+    @Rule
+    public GrantPermissionRule grantPostNotif =
+            GrantPermissionRule.grant(android.Manifest.permission.POST_NOTIFICATIONS);
 
     @AfterClass
     public static void tearDownEvents() throws ExecutionException, InterruptedException {

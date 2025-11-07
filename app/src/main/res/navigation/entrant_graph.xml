@@ -20,7 +20,7 @@
 
     <fragment
         android:id="@+id/event_details"
-        android:name="com.example.evently.ui.common.EventDetailsFragment"
+        android:name="com.example.evently.ui.entrant.ViewEventDetailsFragment"
         android:label="fragment_event_details"
         tools:layout="@layout/fragment_event_details">
         <argument
@@ -38,7 +38,7 @@
         android:id="@+id/nav_joined"
         android:name="com.example.evently.ui.entrant.JoinedEventsFragment"
         android:label="Joined"
-        tools:layout="@layout/fragment_event_entrants_list">
+        tools:layout="@layout/fragment_event_list_tabbed">
         <action
             android:id="@+id/action_joined_to_browse"
             app:destination="@id/nav_home" />

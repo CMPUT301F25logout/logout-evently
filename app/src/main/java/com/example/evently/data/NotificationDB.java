@@ -8,11 +8,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -80,7 +82,7 @@ public class NotificationDB {
                 // Converts the channel back to an ENUM.
                 Notification.Channel.valueOf(snapshot.getString("channel")),
                 snapshot.getString("title"),
-                snapshot.getString("desc"),
+                snapshot.getString("description"),
                 snapshot.getTimestamp("creationTime").toInstant(),
                 new HashSet<>(seenByList));
     }
@@ -110,6 +112,16 @@ public class NotificationDB {
                         .whereEqualTo("eventId", eventID.toString())
                         .get())
                 .map(NotificationDB::parseQuerySnapshot);
+    }
+
+    /**
+     * Makes a concurrent task for fetching notification by ID.
+     * @param notificationID the id of the notification
+     * @return Reference to the concurrent task yielding to an account (if found).
+     */
+    public Promise<Optional<Notification>> fetchNotification(UUID notificationID) {
+        return promise(notificationsRef.document(notificationID.toString()).get())
+                .map(NotificationDB::parseDocumentSnapshot);
     }
 
     /**
@@ -253,5 +265,23 @@ public class NotificationDB {
             }
         }
         return notifications;
+    }
+
+    private static Optional<Notification> parseDocumentSnapshot(DocumentSnapshot snapshot) {
+
+        if (!snapshot.exists()) {
+            return Optional.empty();
+        }
+        ArrayList<String> seenByList = (ArrayList<String>) snapshot.get("seenBy");
+
+        return Optional.of(new Notification(
+                UUID.fromString(snapshot.getId()),
+                UUID.fromString(snapshot.getString("eventId")),
+                // Converts the channel back to an ENUM.
+                Notification.Channel.valueOf(snapshot.getString("channel")),
+                snapshot.getString("title"),
+                snapshot.getString("description"),
+                snapshot.getTimestamp("creationTime").toInstant(),
+                new HashSet<>(seenByList)));
     }
 }

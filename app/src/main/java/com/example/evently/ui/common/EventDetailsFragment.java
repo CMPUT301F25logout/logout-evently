@@ -1,5 +1,6 @@
 package com.example.evently.ui.common;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -15,38 +16,48 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.evently.R;
 import com.example.evently.data.AccountDB;
 import com.example.evently.data.EventsDB;
-import com.example.evently.data.model.Account;
 import com.example.evently.data.model.Event;
 import com.example.evently.databinding.FragmentEventDetailsBinding;
-import com.example.evently.utils.FirebaseAuthUtils;
 
 /**
  * Fragment that displays the event information as well as the entrants that have been waitlisted.
  *
+ * <p>
  * Things to implement:
  * Images for the event and accounts
  * QR Code
  * Extending the description if it's too long
- *
+ * <p>
  * Layout: fragment_event_details.xml
  * @Author Vinson Lou
  */
-public class EventDetailsFragment extends Fragment {
+public abstract class EventDetailsFragment<F extends Fragment> extends Fragment {
     private FragmentEventDetailsBinding binding;
 
-    UUID eventID;
-    private Event event;
-    private List<String> entrants;
-    private EntrantListAdapter entrantsAdapter;
-    private Account user;
+    /**
+     * Override this function if the resulting fragment shouldn't display the waitlist button.
+     * @return Whether or not to display the "join/leave waitlist" button.
+     */
+    protected boolean shouldDisplayActionBtn() {
+        return true;
+    }
 
-    private Boolean joined = false;
+    /**
+     * Implementors should note which fragment to fill in the fragment container.
+     * @return Class of the fragment.
+     */
+    protected abstract Class<F> getFragmentForEntrantListContainer();
+
+    /**
+     * Implementors should return the eventID they may get passed via navigation args.
+     * Must be a trivial getter.
+     * @return event id for the associated event.
+     */
+    protected abstract UUID getEventID();
 
     @Override
     public View onCreateView(
@@ -54,10 +65,6 @@ public class EventDetailsFragment extends Fragment {
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         binding = FragmentEventDetailsBinding.inflate(getLayoutInflater(), container, false);
-
-        // Receive the event ID string
-        eventID = UUID.fromString(
-                EventDetailsFragmentArgs.fromBundle(getArguments()).getEventId());
 
         return binding.getRoot();
     }
@@ -74,71 +81,24 @@ public class EventDetailsFragment extends Fragment {
 
         final var eventsDB = new EventsDB();
         final var accountsDB = new AccountDB();
+        List<String> accounts = new ArrayList<>();
 
+        final var eventID = getEventID();
         eventsDB.fetchEvent(eventID)
                 .optionally(event -> eventsDB.fetchEventEntrants(Collections.singletonList(eventID))
                         .thenRun(eventEntrants -> {
                             final var eventEntrantsInfo = eventEntrants.get(0);
+                            // TODO (chase): Decouple. Event information loading SHOULD NOT need
+                            // EventEntrants.
+                            // Only the entrants fragment should need it.
                             loadEventInformation(event, eventEntrantsInfo.all().size());
-                            loadEntrants(eventEntrantsInfo.all());
-                            entrants = eventEntrantsInfo.all();
+                            loadEntrants();
                         }));
 
         // Back Button logic
         Button back = view.findViewById(R.id.buttonBack);
         back.setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
-
-        // TODO Implement logic to determine whether or not the user has joined the event from the
-        // database by comparing the users name to see if it's in the entrant list (Use joined)
-        accountsDB
-                .fetchAccount(FirebaseAuthUtils.getCurrentEmail())
-                .optionally(user -> compareUserToList(user));
-
-        // Waitlist Action button pressed
-        Button wlAction = view.findViewById(R.id.waitlistAction);
-        wlAction.setOnClickListener(v -> updateEventInformation());
     }
-
-    public void compareUserToList(Account user) {
-        this.user = user;
-        for (var entrant : entrants) {
-            joined = entrant.equals(user.name());
-        }
-
-        displayWaitlistAction();
-    }
-
-    /**
-     * Update the information on the fragment to reflect the user leaving or joining the waitlist.
-     * Updates information on the database as well. (Maybe?)
-     * Need Account information to update the list accordingly
-     */
-    public void updateEventInformation() {
-
-        // If the user is on the waitlist list, leave the waitlist, update information accordingly
-        if (joined) {
-            // Update the list of entrants and notifyDataSetChanged();
-            entrants.remove(user.name());
-            entrantsAdapter.notifyDataSetChanged();
-
-        }
-        // If the user is not on the waitlist, join the waitlist, update information accordingly
-        else {
-            // Update the list of entrants and notifyDataSetChanged();
-            entrants.add(user.name());
-            entrantsAdapter.notifyDataSetChanged();
-        }
-
-        joined = !joined;
-        displayWaitlistAction();
-        loadEventInformation(event, entrants.size());
-        updateDB();
-    }
-
-    /**
-     * Updates information on the database when the user leaves or joins the event.
-     */
-    public void updateDB() {}
 
     /**
      * Loads the event information into the fragment
@@ -167,7 +127,6 @@ public class EventDetailsFragment extends Fragment {
             }
         }
 
-        // Update with respective information
         entrantCount.setText(entrantCountStr);
         eventName.setText(event.name());
         desc.setText(event.description());
@@ -175,11 +134,11 @@ public class EventDetailsFragment extends Fragment {
 
     /**
      * Change the display of the Button on the waitlist depending on if the user joined the event or not
+     * @param joined Whether or not the user has joined the event
      */
-    // Not sure if we plan on updating the page or just the Entrant List and the button
-    // Whenever the user joins the event, so it's a function for now
-    public void displayWaitlistAction() {
+    public void displayWaitlistAction(boolean joined) {
         Button waitlistAction = binding.waitlistAction;
+        binding.waitlistAction.setVisibility(View.VISIBLE);
         String wlActionText;
         if (joined) {
             wlActionText = "LEAVE WAITLIST";
@@ -191,14 +150,30 @@ public class EventDetailsFragment extends Fragment {
     }
 
     /**
-     * Loads the entrants into the fragment using a recycler view
-     * Uses the event_entrants_list_content.xml for the recycler view rows
-     * @param entrants The list of entrants for this given event
+     * Loads the entrant list fragment which handles the entrant lists to show.
      */
-    public void loadEntrants(List<String> entrants) {
-        RecyclerView entrantList = binding.entrantList;
-        entrantList.setLayoutManager(new LinearLayoutManager(this.getContext()));
-        entrantsAdapter = new EntrantListAdapter(entrants);
-        entrantList.setAdapter(entrantsAdapter);
+    public void loadEntrants() {
+        // Load the recycler view fragment with event ID.
+        final var bundle = new Bundle();
+        bundle.putSerializable("eventID", getEventID());
+        getChildFragmentManager()
+                .beginTransaction()
+                .setReorderingAllowed(true)
+                .add(R.id.entrantListContainer, getFragmentForEntrantListContainer(), bundle)
+                .commit();
+    }
+
+    /**
+     * Reloads the entrant list
+     */
+    public void reloadEntrants() {
+        // Load the recycler view fragment with event ID.
+        final var bundle = new Bundle();
+        bundle.putSerializable("eventID", getEventID());
+        getChildFragmentManager()
+                .beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.entrantListContainer, getFragmentForEntrantListContainer(), bundle)
+                .commit();
     }
 }
