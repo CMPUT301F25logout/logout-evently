@@ -1,7 +1,6 @@
 package com.example.evently.ui.common;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
 import android.os.Bundle;
@@ -13,28 +12,45 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.evently.R;
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.databinding.FragmentEventDetailsBinding;
 
 /**
  * Fragment that displays the event information as well as the entrants that have been waitlisted.
- *
- * TODO Use the eventID string to get the event from the database
+ * <p>
  * Things to implement:
  * Images for the event and accounts
  * QR Code
  * Extending the description if it's too long
- *
+ * <p>
  * Layout: fragment_event_details.xml
  */
-public class EventDetailsFragment extends Fragment {
+public abstract class EventDetailsFragment<F extends Fragment> extends Fragment {
     private FragmentEventDetailsBinding binding;
 
-    UUID eventID;
+    /**
+     * Override this function if the resulting fragment shouldn't display the waitlist button.
+     * @return Whether or not to display the "join/leave waitlist" button.
+     */
+    protected boolean shouldDisplayActionBtn() {
+        return true;
+    }
+
+    /**
+     * Implementors should note which fragment to fill in the fragment container.
+     * @return Class of the fragment.
+     */
+    protected abstract Class<F> getFragmentForEntrantListContainer();
+
+    /**
+     * Implementors should return the eventID they may get passed via navigation args.
+     * Must be a trivial getter.
+     * @return event id for the associated event.
+     */
+    protected abstract UUID getEventID();
 
     @Override
     public View onCreateView(
@@ -42,10 +58,6 @@ public class EventDetailsFragment extends Fragment {
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         binding = FragmentEventDetailsBinding.inflate(getLayoutInflater(), container, false);
-
-        // Receive the event ID string
-        eventID = UUID.fromString(
-                EventDetailsFragmentArgs.fromBundle(getArguments()).getEventId());
 
         return binding.getRoot();
     }
@@ -62,12 +74,16 @@ public class EventDetailsFragment extends Fragment {
 
         final var eventsDB = new EventsDB();
 
+        final var eventID = getEventID();
         eventsDB.fetchEvent(eventID)
                 .optionally(event -> eventsDB.fetchEventEntrants(Collections.singletonList(eventID))
                         .thenRun(eventEntrants -> {
                             final var eventEntrantsInfo = eventEntrants.get(0);
+                            // TODO (chase): Decouple. Event information loading SHOULD NOT need
+                            // EventEntrants.
+                            // Only the entrants fragment should need it.
                             loadEventInformation(event, eventEntrantsInfo.all().size(), true);
-                            loadEntrants(eventEntrantsInfo.all());
+                            loadEntrants();
                         }));
     }
 
@@ -98,7 +114,9 @@ public class EventDetailsFragment extends Fragment {
             }
         }
 
-        displayWaitlistAction(joined);
+        if (shouldDisplayActionBtn()) {
+            displayWaitlistAction(joined);
+        }
 
         entrantCount.setText(entrantCountStr);
         eventName.setText(event.name());
@@ -113,6 +131,7 @@ public class EventDetailsFragment extends Fragment {
     // Whenever the user joins the event, so it's a function for now
     public void displayWaitlistAction(boolean joined) {
         Button waitlistAction = binding.waitlistAction;
+        binding.waitlistAction.setVisibility(View.VISIBLE);
         String wlActionText;
         if (joined) {
             wlActionText = "LEAVE WAITLIST";
@@ -124,13 +143,16 @@ public class EventDetailsFragment extends Fragment {
     }
 
     /**
-     * Loads the entrants into the fragment using a recycler view
-     * Uses the event_entrants_list_content.xml for the recycler view rows
-     * @param entrants The list of entrants for this given event
+     * Loads the entrant list fragment which handles the entrant lists to show.
      */
-    public void loadEntrants(List<String> entrants) {
-        RecyclerView entrantList = binding.entrantList;
-        entrantList.setLayoutManager(new LinearLayoutManager(this.getContext()));
-        entrantList.setAdapter(new EntrantListAdapter(entrants));
+    public void loadEntrants() {
+        // Load the recycler view fragment with event ID.
+        final var bundle = new Bundle();
+        bundle.putSerializable("eventID", getEventID());
+        getChildFragmentManager()
+                .beginTransaction()
+                .setReorderingAllowed(true)
+                .add(R.id.entrantListContainer, getFragmentForEntrantListContainer(), bundle)
+                .commit();
     }
 }
