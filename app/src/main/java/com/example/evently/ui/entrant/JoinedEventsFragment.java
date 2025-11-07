@@ -1,33 +1,55 @@
 package com.example.evently.ui.entrant;
 
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 import androidx.core.content.ContextCompat;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.google.firebase.Timestamp;
-
 import com.example.evently.R;
-import com.example.evently.data.model.Category;
+import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.common.EventsFragment;
+import com.example.evently.utils.FirebaseAuthUtils;
 
+/**
+ * A fragment representing a list of events that an entrant has joined
+ *
+ */
 public class JoinedEventsFragment extends EventsFragment {
 
+    /**
+     * Handles clicks on a joined event item.
+     *
+     * @param event the clicked {@link Event}.
+     */
     @Override
     protected void onEventClick(Event event) {}
 
+    /**
+     * Supplies the layout used by this fragment.
+     *
+     * @return the layout resource id for the “Joined” tab UI and list.
+     */
     @Override
     protected int getLayoutRes() {
         return R.layout.fragment_event_entrants_list;
     }
 
+    /**
+     * Connects top tab buttons and navigation after view inflation.
+     *
+     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -46,6 +68,12 @@ public class JoinedEventsFragment extends EventsFragment {
         btnJoined.setOnClickListener(v -> {});
     }
 
+    /**
+     * Applies selected/unselected styling to a tab button.
+     *
+     * @param b the button to style
+     * @param selected true to show the selected style; false for unselected.
+     */
     private void styleSelected(Button b, boolean selected) {
         if (selected) {
             b.setBackgroundResource(R.drawable.bg_tab_selected);
@@ -56,37 +84,20 @@ public class JoinedEventsFragment extends EventsFragment {
         }
     }
 
+    /**
+     * Supplies the “Joined” list with placeholder events.
+     *
+     * @param callback Callback that will be passed the events into.
+     */
     @Override
     protected void initEvents(Consumer<List<Event>> callback) {
-        var joined = new ArrayList<Event>();
-        joined.add(new Event(
-                "Community Piano for Beginners",
-                "Intro series for absolute beginners.",
-                Category.SPORTS,
-                new Timestamp(Instant.parse("2025-12-10T23:59:00Z")),
-                new Timestamp(Instant.parse("2026-01-15T18:30:00Z")),
-                "orgEmail",
-                30));
-
-        joined.add(new Event(
-                "Canoe Safety Night",
-                "Dryland basics & safety briefing.",
-                Category.SPORTS,
-                new Timestamp(Instant.parse("2025-11-30T23:59:00Z")),
-                new Timestamp(Instant.parse("2026-02-05T19:00:00Z")),
-                "orgEmail",
-                50));
-
-        joined.add(new Event(
-                "Yoga Flow Level 1",
-                "Gentle strength and stretch.",
-                Category.SPORTS,
-                new Timestamp(Instant.parse("2025-12-08T23:59:00Z")),
-                new Timestamp(Instant.parse("2026-02-20T09:00:00Z")),
-                "orgEmail",
-                25,
-                25L));
-
-        callback.accept(joined);
+        new EventsDB()
+                .fetchEventsByEnrolled(FirebaseAuthUtils.getCurrentEmail())
+                .thenRun(callback)
+                .catchE(e -> {
+                    Log.e("JoinedEvents", e.toString());
+                    Toast.makeText(requireContext(), "Something went wrong...", Toast.LENGTH_SHORT)
+                            .show();
+                });
     }
 }

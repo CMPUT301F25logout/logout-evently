@@ -1,10 +1,16 @@
 package com.example.evently.ui.entrant;
 
+import java.util.UUID;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
+
+import com.example.evently.data.EventsDB;
+import com.example.evently.data.NotificationDB;
+import com.example.evently.utils.FirebaseAuthUtils;
 
 /**
  * Dialog shown for "Winner" notifications. i.e invited to event.
@@ -14,6 +20,9 @@ public class NotificationWinnerDialog extends DialogFragment {
     @NonNull @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+        final var eventsDB = new EventsDB();
+        final var notificationDB = new NotificationDB();
+        final var self = FirebaseAuthUtils.getCurrentEmail();
 
         var args = getArguments();
         if (args == null) {
@@ -21,17 +30,20 @@ public class NotificationWinnerDialog extends DialogFragment {
             return builder.create();
         }
 
+        var notificationID = (UUID) args.getSerializable("id");
+        var eventID = (UUID) args.getSerializable("eventID");
+        assert notificationID != null;
         var title = args.getString("title");
         var message = args.getString("description");
         builder.setTitle(title)
                 .setMessage(message)
                 .setPositiveButton("Accept", (dialog, id) -> {
-                    // TODO (chase): Store this entrant in the accepted list for this event.
-                    // TODO (chase): Store this entrant in the "seenBy" list of this notification.
+                    eventsDB.addAccepted(eventID, self);
+                    notificationDB.markSeen(notificationID, self);
                 })
                 .setNegativeButton("Decline", (dialog, id) -> {
-                    // TODO (chase): Store this entrant in the cancelled list for this event.
-                    // TODO (chase): Store this entrant in the "seenBy" list of this notification.
+                    eventsDB.addCancelled(eventID, self);
+                    notificationDB.markSeen(notificationID, FirebaseAuthUtils.getCurrentEmail());
                 });
         return builder.create();
     }

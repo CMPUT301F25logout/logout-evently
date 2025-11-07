@@ -7,16 +7,15 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.evently.data.model.Account;
 import com.example.evently.databinding.FragmentEventEntrantBinding;
 
 /**
  * Recycler view that displays each entrant as a row with their profile picture and name
  */
 public class EntrantListAdapter extends RecyclerView.Adapter<EntrantListAdapter.EntrantViewHolder> {
-    private final List<Account> entrants;
+    private final List<String> entrants;
 
-    public EntrantListAdapter(List<Account> entrants) {
+    public EntrantListAdapter(List<String> entrants) {
         this.entrants = entrants;
     }
 
@@ -40,7 +39,7 @@ public class EntrantListAdapter extends RecyclerView.Adapter<EntrantListAdapter.
     public void onBindViewHolder(final EntrantViewHolder holder, int position) {
         var binding = holder.binding;
         // Define the names
-        String name = entrants.get(position).name();
+        String name = entrants.get(position);
 
         // Set the name of each person
         binding.entrantName.setText(name);

@@ -1,5 +1,6 @@
 package com.example.evently.ui.organizer;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,9 +25,32 @@ import com.google.firebase.Timestamp;
 import com.example.evently.R;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
+import com.example.evently.utils.FirebaseAuthUtils;
 
+/**
+ * Fragment that collects input to create a new organizer-owned {@link Event}
+ * <p>
+ * It inflates {@code R.layout.fragment_create_event}, performs simple client-side
+ * validation, and on success constructs an {@link Event} object and returns it to
+ * the previous fragment via the Navigation component's {@code SavedStateHandle}
+ * under the key {@code "new_event"}, then calls {@code navigateUp()} to return.
+ * Persistence is handled by the receiving screen.
+ */
 public class CreateEventFragment extends Fragment {
 
+    /**
+     * Inflates the "Create Event" form
+     *
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return the view of the inflated form
+     */
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater,
@@ -35,6 +59,13 @@ public class CreateEventFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_create_event, container, false);
     }
 
+    /**
+     * Builds up a form, validates input, builds an {@link Event}, returns it, and navigates up
+     *
+     * @param v The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here
+     */
     @Override
     public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
@@ -99,14 +130,15 @@ public class CreateEventFragment extends Fragment {
                 return;
             }
 
-            // For now, eventTime == selectionTime (until organizer add event date/time fields)
+            // For now, eventTime == selectionTime + 2 days (until organizer add event date/time
+            // fields)
             Event created = new Event(
                     name,
                     desc,
                     Category.SPORTS,
                     new Timestamp(selectionTime),
-                    new Timestamp(selectionTime),
-                    "orgEmail",
+                    new Timestamp(selectionTime.plus(Duration.ofDays(2))),
+                    FirebaseAuthUtils.getCurrentEmail(),
                     winners,
                     wait.orElse(null));
 
@@ -118,6 +150,10 @@ public class CreateEventFragment extends Fragment {
         });
     }
 
+    /**
+     * Shows a short-length {@link Toast} with the given message in this Fragment's context
+     * @param msg message to display to the user
+     */
     private void toast(String msg) {
         Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show();
     }

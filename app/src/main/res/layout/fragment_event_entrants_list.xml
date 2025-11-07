@@ -7,6 +7,7 @@
     android:paddingLeft="16dp"
     android:paddingRight="16dp">
 
+    <!-- Top tabs -->
     <LinearLayout
         android:id="@+id/topTabs"
         android:layout_width="match_parent"
@@ -34,7 +35,10 @@
             android:textAllCaps="false"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"/>
+
     </LinearLayout>
+
+    <!-- List of Events -->
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/event_list"

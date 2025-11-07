@@ -1,22 +1,29 @@
 package com.example.evently.data;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import static com.example.evently.data.generic.Promise.promise;
+import static com.example.evently.data.generic.PromiseOpt.promiseOpt;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import com.google.android.gms.tasks.Tasks;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
+import org.jetbrains.annotations.TestOnly;
 
+import com.example.evently.data.generic.Promise;
+import com.example.evently.data.generic.PromiseOpt;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.data.model.EventEntrants;
@@ -87,193 +94,167 @@ public class EventsDB {
      * Stores an event in the database.
      * @param event event to be stored
      */
-    public void storeEvent(Event event) {
+    public Promise<Void> storeEvent(Event event) {
         DocumentReference docRef = eventsRef.document(event.eventID().toString());
-        docRef.set(event.toHashMap());
+        return promise(docRef.set(event.toHashMap())).then(x -> {
+            DocumentReference ref = eventEntrantsRef.document(event.eventID().toString());
+            return promise(ref.set(new EventEntrants(event.eventID()).toHashMap()));
+        });
     }
 
     /**
-     * Stores an event in the database.
-     * @param event event to be stored
-     * @param onSuccess A callback for the onSuccessListener
-     * @param onException A callback for the onFailureListener
+     * Add a user to the enrolled list of an event.
+     * @param eventID Target event.
+     * @param email Email of the user to enroll.
      */
-    public void storeEvent(Event event, Consumer<Void> onSuccess, Consumer<Exception> onException) {
-        DocumentReference docRef = eventsRef.document(event.eventID().toString());
-        docRef.set(event.toHashMap())
-                .addOnSuccessListener(onSuccess::accept)
-                .addOnFailureListener(onException::accept);
+    public Promise<Void> enroll(UUID eventID, String email) {
+        return addEntrantToList(eventID, email, "enrolledEntrants");
+    }
+
+    /**
+     * Add a user to the selected list of an event.
+     * @param eventID Target event.
+     * @param email Email of the user to enroll.
+     */
+    public Promise<Void> addSelected(UUID eventID, String email) {
+        return addEntrantToList(eventID, email, "selectedEntrants");
+    }
+
+    /**
+     * Add a user to the accepted list of an event.
+     * @param eventID Target event.
+     * @param email Email of the user to enroll.
+     */
+    public Promise<Void> addAccepted(UUID eventID, String email) {
+        return addEntrantToList(eventID, email, "acceptedEntrants");
+    }
+
+    /**
+     * Add a user to the cancelled list of an event.
+     * @param eventID Target event.
+     * @param email Email of the user to enroll.
+     */
+    public Promise<Void> addCancelled(UUID eventID, String email) {
+        return addEntrantToList(eventID, email, "cancelledEntrants");
+    }
+
+    // Helper to add a user to one of the lists.
+    private Promise<Void> addEntrantToList(UUID eventID, String email, String field) {
+        final var updateMap = new HashMap<String, Object>();
+        updateMap.put(field, FieldValue.arrayUnion(email));
+        return promise(eventEntrantsRef.document(eventID.toString()).update(updateMap));
     }
 
     /**
      * Fetch an event from database by UUID.
      * @param eventID UUID of the event
-     * @param onSuccess A callback for the onSuccessListener
-     * @param onException A callback for the onFailureListener
      */
-    public void fetchEvent(
-            UUID eventID, Consumer<Optional<Event>> onSuccess, Consumer<Exception> onException) {
-        eventsRef
-                .document(eventID.toString())
-                .get()
-                .addOnSuccessListener(
-                        docSnapshot -> onSuccess.accept(getEventFromSnapshot(docSnapshot)))
-                .addOnFailureListener(onException::accept);
+    public PromiseOpt<Event> fetchEvent(UUID eventID) {
+        return promiseOpt(promise(eventsRef.document(eventID.toString()).get())
+                .map(EventsDB::getEventFromSnapshot));
     }
 
     /**
      * Fetch events from database by organizer email.
      * @param organizer email of the event's organizer
-     * @param onSuccess A callback for the onSuccessListener
-     * @param onException A callback for the onFailureListener
      */
-    public void fetchEventsByOrganizers(
-            String organizer,
-            Consumer<Collection<Event>> onSuccess,
-            Consumer<Exception> onException) {
-        eventsRef
-                .whereEqualTo("organizer", organizer)
-                .get()
-                .addOnSuccessListener(querySnapshot -> {
-                    List<Event> events = new ArrayList<>();
-                    for (DocumentSnapshot docSnapshot : querySnapshot.getDocuments()) {
-                        Optional<Event> event = getEventFromSnapshot(docSnapshot);
-                        if (event.isEmpty()) continue;
-                        events.add(event.get());
-                    }
-
-                    onSuccess.accept(events);
-                })
-                .addOnFailureListener(onException::accept);
+    public Promise<List<Event>> fetchEventsByOrganizers(String organizer) {
+        return promise(eventsRef.whereEqualTo("organizer", organizer).get())
+                .map(querySnapshot -> querySnapshot.getDocuments().stream()
+                        .map(EventsDB::getEventFromSnapshot)
+                        .flatMap(Optional::stream)
+                        .collect(Collectors.toList()));
     }
 
     /**
      * Fetch events before or after a given date
      * @param dateConstraint date to constrain events by
-     * @param onSuccess A callback for the onSuccessListener
-     * @param onException A callback for the onFailureListener
      * @param isStart {@code true} for events after constraint, {@code false} for events before.
      */
-    public void fetchEventsByDate(
-            Timestamp dateConstraint,
-            Consumer<Collection<Event>> onSuccess,
-            Consumer<Exception> onException,
-            boolean isStart) {
-        Query query;
+    public Promise<List<Event>> fetchEventsByDate(Timestamp dateConstraint, boolean isStart) {
+        final Query query;
         if (isStart) {
             query = eventsRef.whereGreaterThan("eventTime", dateConstraint);
         } else {
             query = eventsRef.whereLessThan("eventTime", dateConstraint);
         }
-        query.get()
-                .addOnSuccessListener(querySnapshot -> {
-                    List<Event> events = new ArrayList<>();
-                    for (DocumentSnapshot docSnapshot : querySnapshot.getDocuments()) {
-                        Optional<Event> event = getEventFromSnapshot(docSnapshot);
-                        if (event.isEmpty()) continue;
-                        events.add(event.get());
-                    }
-
-                    onSuccess.accept(events);
-                })
-                .addOnFailureListener(onException::accept);
+        return parseQuerySnapShots(query.get());
     }
 
     /**
      * Fetch events from database in a date range.
      * @param startTime Date range start
      * @param endTime Date range end
-     * @param onSuccess A callback for the onSuccessListener
-     * @param onException A callback for the onFailureListener
      */
-    public void fetchEventsByDate(
-            Timestamp startTime,
-            Timestamp endTime,
-            Consumer<QuerySnapshot> onSuccess,
-            Consumer<Exception> onException) {
-        eventsRef
+    public Promise<List<Event>> fetchEventsByDate(Timestamp startTime, Timestamp endTime) {
+        return parseQuerySnapShots(eventsRef
                 .whereGreaterThan("eventTime", startTime)
                 .whereLessThan("eventTime", endTime)
-                .get()
-                .addOnSuccessListener(onSuccess::accept)
-                .addOnFailureListener(onException::accept);
+                .get());
     }
 
     /**
      * Fetch events with an account enrolled.
      * @param enrollee email of enrolled account
-     * @param onSuccess A callback for the onSuccessListener
-     * @param onException A callback for the onFailureListener
      */
-    public void fetchEventsByEnrolled(
-            String enrollee, Consumer<List<Event>> onSuccess, Consumer<Exception> onException) {
-        eventEntrantsRef
-                .whereArrayContains("enrolledEntrants", enrollee)
-                .get()
-                .onSuccessTask(x -> {
+    public Promise<List<Event>> fetchEventsByEnrolled(String enrollee) {
+        return promise(eventEntrantsRef
+                        .whereArrayContains("enrolledEntrants", enrollee)
+                        .get())
+                .then(x -> {
                     final var eventIds = x.getDocuments().stream().map(DocumentSnapshot::getId);
                     // TODO: Maybe use ::whereIn (but it can only take 30 elements as match input).
                     final var eventGetTasks = eventIds.map(
-                                    entrantId -> eventsRef.document(entrantId).get())
-                            .collect(Collectors.toList());
-                    return Tasks.<DocumentSnapshot>whenAllSuccess(eventGetTasks);
+                            entrantId -> promise(eventsRef.document(entrantId).get()));
+                    return Promise.all(eventGetTasks);
                 })
-                .addOnSuccessListener(x -> {
-                    final var matchingEvents = x.stream()
-                            .map(EventsDB::getEventFromSnapshot)
-                            .flatMap(Optional::stream)
-                            .collect(Collectors.toList());
-                    onSuccess.accept(matchingEvents);
-                })
-                .addOnFailureListener(onException::accept);
+                .map(x -> x.stream()
+                        .map(EventsDB::getEventFromSnapshot)
+                        .flatMap(Optional::stream)
+                        .collect(Collectors.toList()));
     }
 
-    public void fetchEventEntrants(
-            List<UUID> eventIds,
-            Consumer<List<EventEntrants>> onSuccess,
-            Consumer<Exception> onException) {
+    public Promise<List<EventEntrants>> fetchEventEntrants(List<UUID> eventIds) {
         final var eventEntrantGetTasks = eventIds.stream()
-                .map(eventId -> eventEntrantsRef.document(eventId.toString()).get())
-                .collect(Collectors.toList());
-        Tasks.<DocumentSnapshot>whenAllSuccess(eventEntrantGetTasks)
-                .addOnSuccessListener(x -> {
-                    final var matchingEvents = x.stream()
-                            .map(EventsDB::getEventEntrantsFromSnapshot)
-                            .flatMap(Optional::stream)
-                            .collect(Collectors.toList());
-                    onSuccess.accept(matchingEvents);
+                .map(eventId ->
+                        promise(eventEntrantsRef.document(eventId.toString()).get()));
+        return Promise.all(eventEntrantGetTasks).map(x -> x.stream()
+                .map(EventsDB::getEventEntrantsFromSnapshot)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList()));
+    }
+
+    /**
+     * Remove given event from DB
+     * @param eventID UUID of event
+     */
+    public Promise<Void> deleteEvent(UUID eventID) {
+        return promise(eventsRef.document(eventID.toString()).delete());
+    }
+
+    @TestOnly
+    public Promise<Void> nuke() {
+        return promise(eventsRef.get())
+                .with(promise(eventEntrantsRef.get()))
+                .map(pair -> {
+                    final var eventDocs = pair.first;
+                    final var eventEntrantDocs = pair.second;
+                    return Stream.concat(
+                            eventDocs.getDocuments().stream(),
+                            eventEntrantDocs.getDocuments().stream());
                 })
-                .addOnFailureListener(onException::accept);
+                .then(docs -> {
+                    WriteBatch batch = FirebaseFirestore.getInstance().batch();
+                    docs.forEach(doc -> batch.delete(doc.getReference()));
+                    return promise(batch.commit());
+                });
     }
 
-    /**
-     * Remove given event from DB
-     * @param eventID UUID of event
-     */
-    public void deleteEvent(UUID eventID) {
-        eventsRef.document(eventID.toString()).delete();
-    }
-
-    /**
-     * Remove given event from DB
-     * @param eventID UUID of event
-     * @param onSuccess A callback for the onSuccessListener
-     * @param onException A callback for the onFailureListener
-     */
-    public void deleteEvent(
-            UUID eventID, Consumer<Void> onSuccess, Consumer<Exception> onException) {
-        eventsRef
-                .document(eventID.toString())
-                .delete()
-                .addOnSuccessListener(onSuccess::accept)
-                .addOnFailureListener(onException::accept);
-    }
-
-    /**
-     * Remove given event with String id from DB
-     * @param eventID String ID of event
-     */
-    public void deleteEvent(String eventID) {
-        eventsRef.document(eventID).delete();
+    // Helper for parsing a QuerySnapshot yielding task.
+    private Promise<List<Event>> parseQuerySnapShots(Task<QuerySnapshot> task) {
+        return promise(task).map(querySnapshot -> querySnapshot.getDocuments().stream()
+                .map(EventsDB::getEventFromSnapshot)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList()));
     }
 }
