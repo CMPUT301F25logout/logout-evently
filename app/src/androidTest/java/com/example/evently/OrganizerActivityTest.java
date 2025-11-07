@@ -52,15 +52,10 @@ public class OrganizerActivityTest extends FirebaseEmulatorTest {
                 5L);
     }
 
-    @Rule
-    public GrantPermissionRule grantPostNotif =
-            GrantPermissionRule.grant(android.Manifest.permission.POST_NOTIFICATIONS);
+
 
     @Test
     public void switchRoleButtonTest() throws Exception {
-        // Ensure we are logged in BEFORE launching the Activity
-        login();
-
         try (ActivityScenario<OrganizerActivity> scenario =
                 ActivityScenario.launch(OrganizerActivity.class)) {
             onView(withId(R.id.btnSwitchRole))
@@ -70,7 +65,6 @@ public class OrganizerActivityTest extends FirebaseEmulatorTest {
 
     @Test
     public void createButtonTest() throws Exception {
-        login();
 
         try (ActivityScenario<OrganizerActivity> scenario =
                 ActivityScenario.launch(OrganizerActivity.class)) {
@@ -82,7 +76,6 @@ public class OrganizerActivityTest extends FirebaseEmulatorTest {
 
     @Test
     public void EventsPersistenceTest() throws Exception {
-        login();
         final String self = FirebaseAuthUtils.getCurrentEmail();
 
         // Create two events for the current organizer

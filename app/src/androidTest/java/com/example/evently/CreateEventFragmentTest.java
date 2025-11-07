@@ -34,19 +34,13 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
 
     private static final EventsDB eventsDB = new EventsDB();
 
-    @Before
-    public void loginBeforeEach() throws ExecutionException, InterruptedException {
-        FirebaseEmulatorTest.login(); // ensures FirebaseAuthUtils.getCurrentEmail()
-    }
+
 
     @AfterClass
     public static void tearDown() throws ExecutionException, InterruptedException {
         eventsDB.nuke().await();
     }
 
-    @Rule
-    public GrantPermissionRule grantPostNotif =
-            GrantPermissionRule.grant(android.Manifest.permission.POST_NOTIFICATIONS);
 
     @Test
     public void createEvent_SuccessfulFirebaseStoreTest() throws Exception {
