@@ -1,13 +1,11 @@
 package com.example.evently;
 
-import static org.junit.Assert.assertTrue;
-
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 
@@ -60,27 +58,16 @@ public class NotificationDatabaseTest extends FirebaseEmulatorTest {
      * Creates an a notification, and stores it in the BD
      */
     @Test
-    public void testStoreNotification() throws InterruptedException {
-
+    public void testStoreNotification() throws InterruptedException, ExecutionException {
         NotificationDB notificationDB = new NotificationDB();
         EventsDB eventsDB = new EventsDB();
 
         // Adds an event to the DB.
-        CountDownLatch addEventLatch = new CountDownLatch(1);
         Event event = testEvent();
-        eventsDB.storeEvent(event, v -> addEventLatch.countDown(), e -> {});
-        addEventLatch.await();
+        eventsDB.storeEvent(event).await();
 
         // Stores a notification in the DB
-        CountDownLatch addNotificationLatch = new CountDownLatch(1);
         Notification n = getTestNotification(event);
-        notificationDB.storeNotification(
-                n,
-                v -> {
-                    addNotificationLatch.countDown();
-                },
-                e -> {});
-        addNotificationLatch.await();
-        assertTrue(true);
+        notificationDB.storeNotification(n).await();
     }
 }
