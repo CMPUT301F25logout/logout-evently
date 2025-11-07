@@ -206,7 +206,7 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
     }
 
     @Test
-    public void expectNotification_all() {
+    public void expectNotification_all() throws InterruptedException {
         // Any notifications sent to the All channel for participated event IDs should show up.
         // See the setUpNotifications to figure out which notifications we're expecting here.
         final var expectedNotifications = new Notification[] {
@@ -214,6 +214,9 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
             templateNotification(3, Notification.Channel.All),
             templateNotification(7, Notification.Channel.All)
         };
+
+        // TODO (chase): This is a TERRIBLE way to wait for data to show up.
+        Thread.sleep(2000);
 
         // For each of the expected notifications, scroll to it and make sure it shows properly.
         for (final var expectedNotification : expectedNotifications) {
@@ -268,7 +271,7 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
                 mockEvents[idx].eventID(),
                 channel,
                 channel + " channel " + idx,
-                "Description " + idx);
+                "Description (" + channel + ") " + idx);
     }
 
     @Override
