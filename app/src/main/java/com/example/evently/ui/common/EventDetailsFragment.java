@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.UUID;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +13,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -64,31 +62,13 @@ public class EventDetailsFragment extends Fragment {
 
         final var eventsDB = new EventsDB();
 
-        eventsDB.fetchEvent(
-                eventID,
-                event -> {
-                    if (event.isEmpty()) {
-                        // This should never happen.
-                        Log.w("EventDetailsFragment", "Received non existent event ID: " + eventID);
-                        NavHostFragment.findNavController(this).navigateUp();
-                        return;
-                    }
-
-                    eventsDB.fetchEventEntrants(
-                            Collections.singletonList(eventID),
-                            eventEntrants -> {
-                                final var eventEntrantsInfo = eventEntrants.get(0);
-                                loadEventInformation(
-                                        event.get(), eventEntrantsInfo.all().size(), true);
-                                loadEntrants(eventEntrantsInfo.all());
-                            },
-                            e -> {
-                                Log.e("EventDetails", e.toString());
-                            });
-                },
-                e -> {
-                    Log.e("EventDetails", e.toString());
-                });
+        eventsDB.fetchEvent(eventID)
+                .optionally(event -> eventsDB.fetchEventEntrants(Collections.singletonList(eventID))
+                        .thenRun(eventEntrants -> {
+                            final var eventEntrantsInfo = eventEntrants.get(0);
+                            loadEventInformation(event, eventEntrantsInfo.all().size(), true);
+                            loadEntrants(eventEntrantsInfo.all());
+                        }));
     }
 
     /**

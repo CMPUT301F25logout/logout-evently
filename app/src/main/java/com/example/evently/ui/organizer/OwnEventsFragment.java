@@ -70,11 +70,12 @@ public class OwnEventsFragment extends EventsFragment {
                 .<Event>getLiveData("new_event")
                 .observe(getViewLifecycleOwner(), event -> {
                     if (event != null) {
-                        new EventsDB().storeEvent(event);
-                        events.add(event);
-                        if (adapter != null) {
-                            adapter.notifyItemInserted(events.size() - 1);
-                        }
+                        new EventsDB().storeEvent(event).thenRun(v -> {
+                            events.add(event);
+                            if (adapter != null) {
+                                adapter.notifyItemInserted(events.size() - 1);
+                            }
+                        });
                     }
                 });
     }
@@ -90,7 +91,9 @@ public class OwnEventsFragment extends EventsFragment {
         // TODO (chase): Get list of own events by organizer.
         if (events.isEmpty()) {
             new EventsDB()
-                    .fetchEventsByOrganizers(FirebaseAuthUtils.getCurrentEmail(), callback, e -> {
+                    .fetchEventsByOrganizers(FirebaseAuthUtils.getCurrentEmail())
+                    .thenRun(callback)
+                    .catchE(e -> {
                         Log.e("OwnEvents", e.toString());
                         Toast.makeText(
                                         requireContext(),

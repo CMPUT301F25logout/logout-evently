@@ -79,7 +79,7 @@ public abstract class FirebaseEmulatorTest {
         // Register these accounts in the DB.
         final var accountDB = new AccountDB();
         for (final var acc : accounts) {
-            accountDB.storeAccount(acc);
+            accountDB.storeAccount(acc).await();
         }
     }
 

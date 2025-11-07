@@ -11,7 +11,6 @@ import java.util.concurrent.ExecutionException;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -20,6 +19,7 @@ import org.junit.runner.RunWith;
 
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.NotificationDB;
+import com.example.evently.data.generic.Promise;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.data.model.Notification;
@@ -112,64 +112,108 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
     };
 
     @BeforeClass
-    public static void setUpNotifications() {
+    public static void setUpNotifications() throws ExecutionException, InterruptedException {
+        // TODO (chase): We need batch writes. No reason for there to be so many independent writes.
+        // TODO (chase): Also, no need for every single one of these to be sequential.
         final var self = FirebaseEmulatorTest.mockAccount.email();
 
         // Store events into DB.
         for (final var mockEvent : mockEvents) {
-            eventsDB.storeEvent(mockEvent);
+            eventsDB.storeEvent(mockEvent).await();
         }
 
         // Enroll self into some of these (not all!).
-        eventsDB.enroll(mockEvents[1].eventID(), self);
-        eventsDB.enroll(mockEvents[2].eventID(), self);
-        eventsDB.enroll(mockEvents[3].eventID(), self);
-        eventsDB.enroll(mockEvents[4].eventID(), self);
-        eventsDB.enroll(mockEvents[5].eventID(), self);
-        eventsDB.enroll(mockEvents[6].eventID(), self);
-        eventsDB.enroll(mockEvents[7].eventID(), self);
+        eventsDB.enroll(mockEvents[1].eventID(), self).await();
+        eventsDB.enroll(mockEvents[2].eventID(), self).await();
+        eventsDB.enroll(mockEvents[3].eventID(), self).await();
+        eventsDB.enroll(mockEvents[4].eventID(), self).await();
+        eventsDB.enroll(mockEvents[5].eventID(), self).await();
+        eventsDB.enroll(mockEvents[6].eventID(), self).await();
+        eventsDB.enroll(mockEvents[7].eventID(), self).await();
 
         // Send a few notifications to all channel.
-        notificationDB.storeNotification(templateNotification(0, Notification.Channel.All));
-        notificationDB.storeNotification(templateNotification(1, Notification.Channel.All));
-        notificationDB.storeNotification(templateNotification(3, Notification.Channel.All));
-        notificationDB.storeNotification(templateNotification(7, Notification.Channel.All));
-        notificationDB.storeNotification(templateNotification(8, Notification.Channel.All));
+        notificationDB
+                .storeNotification(templateNotification(0, Notification.Channel.All))
+                .await();
+        notificationDB
+                .storeNotification(templateNotification(1, Notification.Channel.All))
+                .await();
+        notificationDB
+                .storeNotification(templateNotification(3, Notification.Channel.All))
+                .await();
+        notificationDB
+                .storeNotification(templateNotification(7, Notification.Channel.All))
+                .await();
+        notificationDB
+                .storeNotification(templateNotification(8, Notification.Channel.All))
+                .await();
 
         // Also mark self as winner for some of those.
-        eventsDB.addSelected(mockEvents[2].eventID(), self);
-        eventsDB.addSelected(mockEvents[3].eventID(), self);
-        eventsDB.addSelected(mockEvents[4].eventID(), self);
-        eventsDB.addSelected(mockEvents[5].eventID(), self);
-        eventsDB.addSelected(mockEvents[6].eventID(), self);
-        eventsDB.addSelected(mockEvents[7].eventID(), self);
+        eventsDB.addSelected(mockEvents[2].eventID(), self).await();
+        eventsDB.addSelected(mockEvents[3].eventID(), self).await();
+        eventsDB.addSelected(mockEvents[4].eventID(), self).await();
+        eventsDB.addSelected(mockEvents[5].eventID(), self).await();
+        eventsDB.addSelected(mockEvents[6].eventID(), self).await();
+        eventsDB.addSelected(mockEvents[7].eventID(), self).await();
 
         // Notifications to the winners channel (for every event).
-        notificationDB.storeNotification(templateNotification(1, Notification.Channel.Winners));
-        notificationDB.storeNotification(templateNotification(2, Notification.Channel.Winners));
-        notificationDB.storeNotification(templateNotification(3, Notification.Channel.Winners));
-        notificationDB.storeNotification(templateNotification(4, Notification.Channel.Winners));
-        notificationDB.storeNotification(templateNotification(5, Notification.Channel.Winners));
-        notificationDB.storeNotification(templateNotification(6, Notification.Channel.Winners));
-        notificationDB.storeNotification(templateNotification(7, Notification.Channel.Winners));
-        notificationDB.storeNotification(templateNotification(8, Notification.Channel.Winners));
+        notificationDB
+                .storeNotification(templateNotification(1, Notification.Channel.Winners))
+                .await();
+        notificationDB
+                .storeNotification(templateNotification(2, Notification.Channel.Winners))
+                .await();
+        notificationDB
+                .storeNotification(templateNotification(3, Notification.Channel.Winners))
+                .await();
+        notificationDB
+                .storeNotification(templateNotification(4, Notification.Channel.Winners))
+                .await();
+        notificationDB
+                .storeNotification(templateNotification(5, Notification.Channel.Winners))
+                .await();
+        notificationDB
+                .storeNotification(templateNotification(6, Notification.Channel.Winners))
+                .await();
+        notificationDB
+                .storeNotification(templateNotification(7, Notification.Channel.Winners))
+                .await();
+        notificationDB
+                .storeNotification(templateNotification(8, Notification.Channel.Winners))
+                .await();
 
         // Some notifications for the losers channel (for a few events).
-        notificationDB.storeNotification(templateNotification(1, Notification.Channel.Losers));
-        notificationDB.storeNotification(templateNotification(2, Notification.Channel.Losers));
-        notificationDB.storeNotification(templateNotification(3, Notification.Channel.Losers));
-        notificationDB.storeNotification(templateNotification(7, Notification.Channel.Losers));
+        notificationDB
+                .storeNotification(templateNotification(1, Notification.Channel.Losers))
+                .await();
+        notificationDB
+                .storeNotification(templateNotification(2, Notification.Channel.Losers))
+                .await();
+        notificationDB
+                .storeNotification(templateNotification(3, Notification.Channel.Losers))
+                .await();
+        notificationDB
+                .storeNotification(templateNotification(7, Notification.Channel.Losers))
+                .await();
 
         // And some notifications for the cancelled channel (for a few events).
-        notificationDB.storeNotification(templateNotification(1, Notification.Channel.Cancelled));
-        notificationDB.storeNotification(templateNotification(2, Notification.Channel.Cancelled));
-        notificationDB.storeNotification(templateNotification(3, Notification.Channel.Cancelled));
-        notificationDB.storeNotification(templateNotification(5, Notification.Channel.Cancelled));
+        notificationDB
+                .storeNotification(templateNotification(1, Notification.Channel.Cancelled))
+                .await();
+        notificationDB
+                .storeNotification(templateNotification(2, Notification.Channel.Cancelled))
+                .await();
+        notificationDB
+                .storeNotification(templateNotification(3, Notification.Channel.Cancelled))
+                .await();
+        notificationDB
+                .storeNotification(templateNotification(5, Notification.Channel.Cancelled))
+                .await();
     }
 
     @AfterClass
     public static void tearDownNotifications() throws ExecutionException, InterruptedException {
-        Tasks.await(Tasks.whenAllSuccess(notificationDB.nuke(), eventsDB.nuke()));
+        Promise.all(notificationDB.nuke(), eventsDB.nuke()).await();
     }
 
     @Test

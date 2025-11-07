@@ -98,17 +98,12 @@ public class BrowseEventsFragment extends EventsFragment {
     @Override
     protected void initEvents(Consumer<List<Event>> callback) {
         new EventsDB()
-                .fetchEventsByDate(
-                        Timestamp.now(),
-                        callback,
-                        e -> {
-                            Log.e("BrowseEvents", e.toString());
-                            Toast.makeText(
-                                            requireContext(),
-                                            "Something went wrong...",
-                                            Toast.LENGTH_SHORT)
-                                    .show();
-                        },
-                        true);
+                .fetchEventsByDate(Timestamp.now(), true)
+                .thenRun(callback)
+                .catchE(e -> {
+                    Log.e("BrowseEvents", e.toString());
+                    Toast.makeText(requireContext(), "Something went wrong...", Toast.LENGTH_SHORT)
+                            .show();
+                });
     }
 }
