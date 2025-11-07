@@ -12,11 +12,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -34,13 +31,10 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
 
     private static final EventsDB eventsDB = new EventsDB();
 
-
-
     @AfterClass
     public static void tearDown() throws ExecutionException, InterruptedException {
         eventsDB.nuke().await();
     }
-
 
     @Test
     public void createEvent_SuccessfulFirebaseStoreTest() throws Exception {

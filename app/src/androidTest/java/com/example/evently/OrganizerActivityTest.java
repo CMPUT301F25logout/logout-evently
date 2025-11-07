@@ -16,11 +16,9 @@ import java.util.concurrent.ExecutionException;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.rule.GrantPermissionRule;
 
 import com.google.firebase.Timestamp;
 import org.junit.After;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -51,8 +49,6 @@ public class OrganizerActivityTest extends FirebaseEmulatorTest {
                 organizer,
                 5L);
     }
-
-
 
     @Test
     public void switchRoleButtonTest() throws Exception {
