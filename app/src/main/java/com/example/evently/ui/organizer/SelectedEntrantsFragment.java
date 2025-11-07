@@ -1,11 +1,11 @@
 package com.example.evently.ui.organizer;
 
-import com.example.evently.data.EventsDB;
-import com.example.evently.ui.common.EntrantsFragment;
-
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
+
+import com.example.evently.data.EventsDB;
+import com.example.evently.ui.common.EntrantsFragment;
 
 public class SelectedEntrantsFragment extends EntrantsFragment {
 

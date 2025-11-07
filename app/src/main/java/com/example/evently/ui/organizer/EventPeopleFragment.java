@@ -1,5 +1,7 @@
 package com.example.evently.ui.organizer;
 
+import java.util.UUID;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,13 +14,11 @@ import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.evently.ui.common.EnrolledEntrantsFragment;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import com.example.evently.R;
-
-import java.util.UUID;
+import com.example.evently.ui.common.EnrolledEntrantsFragment;
 
 /**
  * Fragment that displays the tabs for event participants:
@@ -46,7 +46,8 @@ public class EventPeopleFragment extends Fragment {
         tabLayout = view.findViewById(R.id.eventPeopleTabLayout);
         viewPager = view.findViewById(R.id.eventPeopleViewPager);
 
-        viewPager.setAdapter(new EventPeopleAdapter(getChildFragmentManager(), getLifecycle(), eventID));
+        viewPager.setAdapter(
+                new EventPeopleAdapter(getChildFragmentManager(), getLifecycle(), eventID));
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
                     switch (position) {
@@ -68,7 +69,9 @@ public class EventPeopleFragment extends Fragment {
         private final UUID eventID;
 
         public EventPeopleAdapter(
-                @NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, @NonNull UUID eventID) {
+                @NonNull FragmentManager fragmentManager,
+                @NonNull Lifecycle lifecycle,
+                @NonNull UUID eventID) {
             super(fragmentManager, lifecycle);
 
             this.eventID = eventID;
@@ -78,13 +81,14 @@ public class EventPeopleFragment extends Fragment {
         public Fragment createFragment(int position) {
             final var bundle = new Bundle();
             bundle.putSerializable("eventID", eventID);
-            final var frag = switch (position) {
-                case 0 -> new EnrolledEntrantsFragment();
-                case 1 -> new SelectedEntrantsFragment();
-                case 2 -> new AcceptedEntrantsFragment();
-                case 3 -> new CancelledEntrantsFragment();
-                default -> new Fragment();
-            };
+            final var frag =
+                    switch (position) {
+                        case 0 -> new EnrolledEntrantsFragment();
+                        case 1 -> new SelectedEntrantsFragment();
+                        case 2 -> new AcceptedEntrantsFragment();
+                        case 3 -> new CancelledEntrantsFragment();
+                        default -> new Fragment();
+                    };
             frag.setArguments(bundle);
             return frag;
         }

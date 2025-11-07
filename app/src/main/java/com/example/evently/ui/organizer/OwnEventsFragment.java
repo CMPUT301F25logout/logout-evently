@@ -19,7 +19,6 @@ import com.example.evently.R;
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.common.EventsFragment;
-import com.example.evently.ui.entrant.BrowseEventsFragmentDirections;
 import com.example.evently.utils.FirebaseAuthUtils;
 
 /**
