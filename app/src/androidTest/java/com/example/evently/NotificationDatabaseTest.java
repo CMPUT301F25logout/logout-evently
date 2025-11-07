@@ -1,9 +1,12 @@
 package com.example.evently;
 
+import static org.junit.Assert.assertTrue;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -69,5 +72,32 @@ public class NotificationDatabaseTest extends FirebaseEmulatorTest {
         // Stores a notification in the DB
         Notification n = getTestNotification(event);
         notificationDB.storeNotification(n).await();
+    }
+
+    /**
+     * Creates an a notification, and stores it in the BD
+     */
+    @Test
+    public void testFetchEventNotifications() throws InterruptedException, ExecutionException {
+        NotificationDB notificationDB = new NotificationDB();
+        EventsDB eventsDB = new EventsDB();
+
+        // Adds an event to the DB.
+        Event event = testEvent();
+        eventsDB.storeEvent(event).await();
+
+        // Stores a notification in the DB
+        Notification n = getTestNotification(event);
+        notificationDB.storeNotification(n).await();
+
+        // Tests fetch event by event ID
+        List<Notification> notificationList =
+                notificationDB.fetchEventNotifications(event.eventID()).await();
+        assertTrue(notificationList.contains(n));
+
+        // Tests fetch notification by eventID
+        notificationList =
+                notificationDB.fetchEventNotifications(event.eventID()).await();
+        assertTrue(notificationList.contains(n));
     }
 }
