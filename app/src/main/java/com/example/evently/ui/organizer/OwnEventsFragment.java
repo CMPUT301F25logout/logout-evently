@@ -70,11 +70,12 @@ public class OwnEventsFragment extends EventsFragment {
                 .<Event>getLiveData("new_event")
                 .observe(getViewLifecycleOwner(), event -> {
                     if (event != null) {
-                        new EventsDB().storeEvent(event);
-                        events.add(event);
-                        if (adapter != null) {
-                            adapter.notifyItemInserted(events.size() - 1);
-                        }
+                        new EventsDB().storeEvent(event).thenRun(v -> {
+                            events.add(event);
+                            if (adapter != null) {
+                                adapter.notifyItemInserted(events.size() - 1);
+                            }
+                        });
                     }
                 });
     }
