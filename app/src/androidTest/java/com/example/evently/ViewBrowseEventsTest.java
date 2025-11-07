@@ -118,17 +118,6 @@ public class ViewBrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragm
                 50)
     };
 
-    private static final Event[] mockEventDetail = new Event[] {
-        new Event(
-                "name",
-                "description",
-                Category.EDUCATIONAL,
-                selectionTime,
-                eventTime,
-                "orgEmail",
-                50)
-    };
-
     @BeforeClass
     public static void storeEvents() throws ExecutionException, InterruptedException {
         final var self = FirebaseEmulatorTest.mockAccount.email();
@@ -149,8 +138,7 @@ public class ViewBrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragm
         final DateTimeFormatter some_date =
                 DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("UTC"));
 
-        // Test if each event added shows up on the recyclerview, one of the events has a closed
-        // waitlist
+        // Test if each event added shows up on the recyclerview, one of the events is closed
         for (final var expectedEvent : mockEvents) {
             if (expectedEvent.name().equals("name")) {
                 assertRecyclerViewItem(
@@ -179,11 +167,13 @@ public class ViewBrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragm
     }
 
     @Test
-    public void testViewingJoinedEvents() throws ExecutionException, InterruptedException {
+    public void testViewingJoinedEvents() throws InterruptedException {
+
         Thread.sleep(2000);
         final DateTimeFormatter some_date =
                 DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("UTC"));
 
+        // Test if each enrolled event shows up on the joined event fragment
         onView(withId(R.id.btnJoined)).perform(click());
 
         Event[] expectedEvents = new Event[] {

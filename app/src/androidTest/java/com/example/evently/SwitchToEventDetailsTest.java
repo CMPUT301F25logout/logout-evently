@@ -33,7 +33,7 @@ import com.example.evently.data.model.Event;
 import com.example.evently.ui.entrant.BrowseEventsFragment;
 
 /**
- * Test switching to the event details
+ * Test switching to the event details from browsing and joined events
  * @author Vinson Lou
  */
 @RunWith(AndroidJUnit4.class)
@@ -59,9 +59,7 @@ public class SwitchToEventDetailsTest extends EmulatedFragmentTest<BrowseEventsF
 
     @BeforeClass
     public static void storeEvents() throws ExecutionException, InterruptedException {
-        final var self = FirebaseEmulatorTest.mockAccount.email();
         eventsDB.storeEvent(mockEvents[0]).await();
-        eventsDB.enroll(mockEvents[0].eventID(), self).await();
     }
 
     @Test
@@ -84,8 +82,11 @@ public class SwitchToEventDetailsTest extends EmulatedFragmentTest<BrowseEventsF
 
     // Test event details button
     @Test
-    public void testSwitchingToEventDetailsAndBack()
+    public void testSwitchingToEventDetailsFromJoinedEvents()
             throws ExecutionException, InterruptedException {
+        final var self = FirebaseEmulatorTest.mockAccount.email();
+        eventsDB.enroll(mockEvents[0].eventID(), self).await();
+
         Thread.sleep(2000);
         final DateTimeFormatter some_date =
                 DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("UTC"));
@@ -99,7 +100,8 @@ public class SwitchToEventDetailsTest extends EmulatedFragmentTest<BrowseEventsF
                 p(R.id.txtDate, some_date.format(expectedEvent.eventTime().toInstant())));
 
         onView(ViewMatchers.withId(R.id.btnDetails)).perform(ViewActions.click());
-        assertEquals(navController.getCurrentDestination().getId(), R.id.fragment_event_details);
+        assertEquals(navController.getCurrentBackStackEntry().getDestination().getId(), R.id.fragment_event_details);
+        //assertEquals(navController.getCurrentDestination().getId(), R.id.fragment_event_details);
 
         onView(withText(mockEvents[0].description())).check(matches(isDisplayed()));
 

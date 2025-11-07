@@ -38,6 +38,11 @@ public class EntrantListAdapter extends RecyclerView.Adapter<EntrantListAdapter.
 
     @Override
     public void onBindViewHolder(final EntrantViewHolder holder, int position) {
+        // Only set the names if the entrant list is not empty
+        if (entrants.isEmpty())
+        {
+            return;
+        }
         var binding = holder.binding;
         // Define the names
         String name = entrants.get(position);

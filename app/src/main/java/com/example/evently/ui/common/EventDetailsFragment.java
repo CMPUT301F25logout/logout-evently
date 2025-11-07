@@ -2,6 +2,7 @@ package com.example.evently.ui.common;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import android.os.Bundle;
@@ -19,14 +20,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.evently.R;
+import com.example.evently.data.AccountDB;
 import com.example.evently.data.EventsDB;
+import com.example.evently.data.model.Account;
 import com.example.evently.data.model.Event;
 import com.example.evently.databinding.FragmentEventDetailsBinding;
+import com.example.evently.utils.FirebaseAuthUtils;
 
 /**
  * Fragment that displays the event information as well as the entrants that have been waitlisted.
  *
- * TODO Use the eventID string to get the event from the database
  * Things to implement:
  * Images for the event and accounts
  * QR Code
@@ -42,6 +45,7 @@ public class EventDetailsFragment extends Fragment {
     private Event event;
     private List<String> entrants;
     private EntrantListAdapter entrantsAdapter;
+    private Account user;
 
     private Boolean joined = false;
 
@@ -70,6 +74,7 @@ public class EventDetailsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         final var eventsDB = new EventsDB();
+        final var accountsDB = new AccountDB();
 
         eventsDB.fetchEvent(eventID)
                 .optionally(event -> eventsDB.fetchEventEntrants(Collections.singletonList(eventID))
@@ -86,10 +91,23 @@ public class EventDetailsFragment extends Fragment {
 
         // TODO Implement logic to determine whether or not the user has joined the event from the
         // database by comparing the users name to see if it's in the entrant list (Use joined)
+        accountsDB.fetchAccount(FirebaseAuthUtils.getCurrentEmail())
+                .optionally(user -> compareUserToList(user));
 
         // Waitlist Action button pressed
         Button wlAction = view.findViewById(R.id.waitlistAction);
         wlAction.setOnClickListener(v -> updateEventInformation());
+    }
+
+    public void compareUserToList(Account user)
+    {
+        this.user = user;
+        for (var entrant : entrants)
+        {
+			joined = entrant.equals(user.name());
+        }
+
+        displayWaitlistAction();
     }
 
     /**
@@ -102,23 +120,29 @@ public class EventDetailsFragment extends Fragment {
         // If the user is on the waitlist list, leave the waitlist, update information accordingly
         if (joined) {
             // Update the list of entrants and notifyDataSetChanged();
+            entrants.remove(user.name());
             entrantsAdapter.notifyDataSetChanged();
+
         }
         // If the user is not on the waitlist, join the waitlist, update information accordingly
         else {
             // Update the list of entrants and notifyDataSetChanged();
+            entrants.add(user.name());
             entrantsAdapter.notifyDataSetChanged();
         }
 
         joined = !joined;
         displayWaitlistAction();
+        loadEventInformation(event, entrants.size());
         updateDB();
     }
 
     /**
-     * Updates information on the database.
+     * Updates information on the database when the user leaves or joins the event.
      */
-    public void updateDB() {}
+    public void updateDB() {
+
+    }
 
     /**
      * Loads the event information into the fragment
@@ -148,7 +172,6 @@ public class EventDetailsFragment extends Fragment {
         }
 
         // Update with respective information
-        displayWaitlistAction();
         entrantCount.setText(entrantCountStr);
         eventName.setText(event.name());
         desc.setText(event.description());
