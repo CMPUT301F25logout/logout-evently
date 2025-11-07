@@ -1,13 +1,10 @@
 package com.example.evently.ui.common;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,12 +18,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.evently.utils.FirebaseAuthUtils;
-import com.google.firebase.Timestamp;
-
 import com.example.evently.R;
-import com.example.evently.data.model.Account;
-import com.example.evently.data.model.Category;
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.databinding.FragmentEventDetailsBinding;
@@ -88,19 +80,17 @@ public class EventDetailsFragment extends Fragment {
                             entrants = eventEntrantsInfo.all();
                         }));
 
-		// Back Button logic
-		Button back = view.findViewById(R.id.buttonBack);
-		back.setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
+        // Back Button logic
+        Button back = view.findViewById(R.id.buttonBack);
+        back.setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
 
-		// TODO Implement logic to determine whether or not the user has joined the event from the
-		// database by comparing the users name to see if it's in the entrant list (Use joined)
-
-
+        // TODO Implement logic to determine whether or not the user has joined the event from the
+        // database by comparing the users name to see if it's in the entrant list (Use joined)
 
         // Waitlist Action button pressed
         Button wlAction = view.findViewById(R.id.waitlistAction);
         wlAction.setOnClickListener(v -> updateEventInformation());
-	}
+    }
 
     /**
      * Update the information on the fragment to reflect the user leaving or joining the waitlist.

@@ -44,8 +44,7 @@ public abstract class EmulatedFragmentTest<T extends Fragment> extends FirebaseE
         }
 
         // See: https://developer.android.com/guide/navigation/testings
-        navController =
-                new TestNavHostController(ApplicationProvider.getApplicationContext());
+        navController = new TestNavHostController(ApplicationProvider.getApplicationContext());
 
         final var clazz = getFragmentClass();
         scenario = FragmentScenario.launchInContainer(clazz, null, new FragmentFactory() {

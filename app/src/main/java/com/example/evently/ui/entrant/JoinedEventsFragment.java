@@ -1,7 +1,5 @@
 package com.example.evently.ui.entrant;
 
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -15,8 +13,6 @@ import android.widget.Toast;
 import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
-
-import com.google.firebase.Timestamp;
 
 import com.example.evently.R;
 import com.example.evently.data.EventsDB;
