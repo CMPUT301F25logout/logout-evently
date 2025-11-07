@@ -42,7 +42,7 @@ public abstract class EmulatedFragmentTest<T extends Fragment> extends FirebaseE
         }
 
         // https://developer.android.com/guide/navigation/testing#java
-        navController = new TestNavHostController(ApplicationProvider.getApplicationContext());
+        var navController = new TestNavHostController(ApplicationProvider.getApplicationContext());
 
         // Create a graphical FragmentScenario for the TitleScreen
         scenario =

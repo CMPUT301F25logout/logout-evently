@@ -2,7 +2,6 @@ package com.example.evently.ui.common;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
 import android.os.Bundle;
@@ -25,7 +24,6 @@ import com.example.evently.databinding.FragmentEventDetailsBinding;
 
 /**
  * Fragment that displays the event information as well as the entrants that have been waitlisted.
- *
  * <p>
  * Things to implement:
  * Images for the event and accounts
@@ -125,6 +123,10 @@ public abstract class EventDetailsFragment<F extends Fragment> extends Fragment 
                 String waitlistFull = "Event is full.";
                 waitlistAction.setText(waitlistFull);
             }
+        }
+
+        if (shouldDisplayActionBtn()) {
+            displayWaitlistAction(joined);
         }
 
         entrantCount.setText(entrantCountStr);

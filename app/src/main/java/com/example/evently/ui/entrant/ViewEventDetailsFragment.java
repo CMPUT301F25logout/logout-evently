@@ -12,8 +12,6 @@ public class ViewEventDetailsFragment extends EventDetailsFragment<EnrolledEntra
         return EnrolledEntrantsFragment.class;
     }
 
-
-
     @Override
     protected UUID getEventID() {
         if (eventID == null) {
