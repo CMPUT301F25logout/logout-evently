@@ -143,18 +143,18 @@ public class AuthActivity extends AppCompatActivity {
                             // This device does not support credential manager.
                             // Our app simply cannot work on this device.
                             // TODO (chase): Might be worth showing an alert dialog here.
-                            Toast.makeText(this, "Device unsupported; Sorry!", Toast.LENGTH_SHORT)
-                                    .show();
+                                Toast.makeText(this, "Device unsupported; Sorry!", Toast.LENGTH_SHORT)
+                                        .show();
                         case NoCredentialException ne -> {
                             // This is likely a totally new user and must register first.
                             // Hand off to the register fragment.
                             showRegisterForm();
                         }
                         default ->
-                            Log.e(
-                                    "AuthActivity.GetCredentialCustomException",
-                                    Objects.requireNonNullElse(
-                                            e.getLocalizedMessage(), e.toString()));
+                                Log.e(
+                                        "AuthActivity.GetCredentialCustomException",
+                                        Objects.requireNonNullElse(
+                                                e.getLocalizedMessage(), e.toString()));
                     }
                 },
                 this::unrecoverableError);

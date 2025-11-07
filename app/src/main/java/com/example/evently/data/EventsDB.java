@@ -111,6 +111,10 @@ public class EventsDB {
         return addEntrantToList(eventID, email, "enrolledEntrants");
     }
 
+    public void unenroll(UUID eventID, String email){
+        removeEntrantFromList(eventID, email, "enrolledEntrants");
+    }
+
     /**
      * Add a user to the selected list of an event.
      * @param eventID Target event.
@@ -142,6 +146,13 @@ public class EventsDB {
     private Promise<Void> addEntrantToList(UUID eventID, String email, String field) {
         final var updateMap = new HashMap<String, Object>();
         updateMap.put(field, FieldValue.arrayUnion(email));
+        return promise(eventEntrantsRef.document(eventID.toString()).update(updateMap));
+    }
+
+    // Helper to remove a user from one of the lists
+    private Promise<Void> removeEntrantFromList(UUID eventID, String email, String field){
+        final var updateMap = new HashMap<String, Object>();
+        updateMap.put(field, FieldValue.arrayRemove(email));
         return promise(eventEntrantsRef.document(eventID.toString()).update(updateMap));
     }
 

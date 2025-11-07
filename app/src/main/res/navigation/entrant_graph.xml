@@ -42,6 +42,9 @@
         <action
             android:id="@+id/action_joined_to_browse"
             app:destination="@id/nav_home" />
+        <action
+            android:id="@+id/action_nav_joined_to_event_details"
+            app:destination="@id/event_details" />
     </fragment>
 
 </navigation>

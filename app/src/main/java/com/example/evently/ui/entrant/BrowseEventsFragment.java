@@ -35,7 +35,8 @@ public class BrowseEventsFragment extends EventsFragment {
      */
     @Override
     protected void onEventClick(Event event) {
-        // TODO (chase): Navigate to the event details fragment and attach the event ID argument!
+        // The action for clicking on the event, pass the event ID to the next event details
+        // fragment
         var action = BrowseEventsFragmentDirections.actionNavHomeToEventDetails(
                 event.eventID().toString());
         NavController navController = NavHostFragment.findNavController(this);

@@ -34,6 +34,8 @@ public abstract class EmulatedFragmentTest<T extends Fragment> extends FirebaseE
 
     protected abstract Class<T> getFragmentClass();
 
+    protected TestNavHostController navController;
+
     @Before
     public void setUpFragment() throws ExecutionException, InterruptedException {
         // We're gonna sign in (AuthActivity is skipped) before spawning the fragment.
@@ -42,7 +44,7 @@ public abstract class EmulatedFragmentTest<T extends Fragment> extends FirebaseE
         }
 
         // See: https://developer.android.com/guide/navigation/testings
-        TestNavHostController navController =
+        navController =
                 new TestNavHostController(ApplicationProvider.getApplicationContext());
 
         final var clazz = getFragmentClass();

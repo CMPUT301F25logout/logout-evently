@@ -1,5 +1,7 @@
 package com.example.evently.ui.entrant;
 
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -11,7 +13,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 import androidx.core.content.ContextCompat;
+import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
+
+import com.google.firebase.Timestamp;
 
 import com.example.evently.R;
 import com.example.evently.data.EventsDB;
@@ -31,7 +36,14 @@ public class JoinedEventsFragment extends EventsFragment {
      * @param event the clicked {@link Event}.
      */
     @Override
-    protected void onEventClick(Event event) {}
+    protected void onEventClick(Event event) {
+        // The action for clicking on the event, pass the event ID to the next event details
+        // fragment
+        var action = JoinedEventsFragmentDirections.actionNavJoinedToEventDetails(
+                event.eventID().toString());
+        NavController navController = NavHostFragment.findNavController(this);
+        navController.navigate(action);
+    }
 
     /**
      * Supplies the layout used by this fragment.

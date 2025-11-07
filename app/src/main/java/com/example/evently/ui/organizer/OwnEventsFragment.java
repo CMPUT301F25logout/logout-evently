@@ -2,8 +2,6 @@ package com.example.evently.ui.organizer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.function.Consumer;
 
 import android.os.Bundle;
@@ -60,10 +58,12 @@ public class OwnEventsFragment extends EventsFragment {
         super.onViewCreated(view, savedInstanceState);
 
         Button create = view.findViewById(R.id.btnCreateEvent);
+        /*
         if (create != null) {
             create.setOnClickListener(v ->
                     NavHostFragment.findNavController(this).navigate(R.id.navigate_create_events));
         }
+         */
 
         // Receive result from CreateEventFragment
         var nav = NavHostFragment.findNavController(this);
