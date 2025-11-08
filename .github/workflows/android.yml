@@ -21,8 +21,14 @@ jobs:
       with:
         GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+        DEBUG_KEYSTORE: ${{ secrets.DEBUG_KEYSTORE }}
     - name: Build the project (no tests, no lint etc)
       run: ./gradlew assemble
+    - name: Upload the APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: evently-debug.apk
+        path: app/build/outputs/apk/debug/app-debug.apk
 
   lint:
     runs-on: ubuntu-latest
@@ -32,6 +38,7 @@ jobs:
       with:
         GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+        DEBUG_KEYSTORE: ${{ secrets.DEBUG_KEYSTORE }}
     - name: Lint with Gradle
       run: ./gradlew lint
 
@@ -43,6 +50,7 @@ jobs:
       with:
         GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+        DEBUG_KEYSTORE: ${{ secrets.DEBUG_KEYSTORE }}
     - name: Spotless with Gradle
       run: ./gradlew spotlessCheck
 
@@ -54,6 +62,7 @@ jobs:
       with:
         GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+        DEBUG_KEYSTORE: ${{ secrets.DEBUG_KEYSTORE }}
     - name: Test with Gradle
       run: ./gradlew test
     - name: Upload test report in case of failure
