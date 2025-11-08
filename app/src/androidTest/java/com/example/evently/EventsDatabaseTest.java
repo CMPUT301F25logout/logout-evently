@@ -23,10 +23,6 @@ import com.example.evently.data.model.Event;
 
 @RunWith(AndroidJUnit4.class)
 public class EventsDatabaseTest extends FirebaseEmulatorTest {
-    @Rule
-    public ActivityScenarioRule<MainActivity> scenario =
-            new ActivityScenarioRule<MainActivity>(MainActivity.class);
-
     /**
      * Creates an event for testing
      * @return created event

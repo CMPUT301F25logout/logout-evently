@@ -20,10 +20,6 @@ import com.example.evently.data.model.Account;
 
 @RunWith(AndroidJUnit4.class)
 public class AccountDatabaseTest extends FirebaseEmulatorTest {
-    @Rule
-    public ActivityScenarioRule<MainActivity> scenario =
-            new ActivityScenarioRule<>(MainActivity.class);
-
     @After
     public void cleanUpAccounts() throws ExecutionException, InterruptedException {
         new AccountDB().nuke().await();

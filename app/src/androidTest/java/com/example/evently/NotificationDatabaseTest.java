@@ -23,11 +23,6 @@ import com.example.evently.data.model.Event;
 import com.example.evently.data.model.Notification;
 
 public class NotificationDatabaseTest extends FirebaseEmulatorTest {
-
-    @Rule
-    public ActivityScenarioRule<MainActivity> scenario =
-            new ActivityScenarioRule<MainActivity>(MainActivity.class);
-
     /**
      * Creates an event for testing
      * @return created event
