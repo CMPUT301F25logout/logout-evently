@@ -18,7 +18,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import com.example.evently.R;
-import com.example.evently.ui.common.EnrolledEntrantsFragment;
+import com.example.evently.ui.entrant.EnrolledEntrantsFragment;
 
 /**
  * Fragment that displays the tabs for event participants:
