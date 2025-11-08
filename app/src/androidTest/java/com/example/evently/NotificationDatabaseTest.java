@@ -10,10 +10,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
-
 import com.google.firebase.Timestamp;
-import org.junit.Rule;
 import org.junit.Test;
 
 import com.example.evently.data.EventsDB;

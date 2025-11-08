@@ -9,11 +9,9 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.concurrent.ExecutionException;
 
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.firebase.Timestamp;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
