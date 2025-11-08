@@ -61,6 +61,12 @@ public class NotificationDB {
         return promise(docRef.set(notification.toHashMap()));
     }
 
+    /**
+     * Mark a notification as seen by given email.
+     * @param notificationID Notification ID target.
+     * @param email User target.
+     * @return Promise.
+     */
     public Promise<Void> markSeen(UUID notificationID, String email) {
         final var updateMap = new HashMap<String, Object>();
         updateMap.put("seenBy", FieldValue.arrayUnion(email));
@@ -240,6 +246,10 @@ public class NotificationDB {
                 });
     }
 
+    /**
+     * Drop the collection.
+     * @return Promise.
+     */
     @TestOnly
     public Promise<Void> nuke() {
         return promise(notificationsRef.get().onSuccessTask(docs -> {

@@ -49,10 +49,6 @@
             android:name=".ui.organizer.OrganizerActivity"
             android:exported="true" />
 
-        <activity
-            android:name=".MainActivity"
-            android:exported="true" />
-
         <service
             android:name=".FirebaseNotificationService"
             android:exported="false">
