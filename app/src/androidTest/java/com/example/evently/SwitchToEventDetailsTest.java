@@ -8,7 +8,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.example.evently.MatcherUtils.assertRecyclerViewItem;
 import static com.example.evently.MatcherUtils.p;
-import static org.junit.Assert.assertEquals;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -20,15 +19,10 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.action.ViewActions;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.rule.GrantPermissionRule;
 
-import com.example.evently.ui.common.EntrantsFragment;
-import com.example.evently.ui.entrant.EntrantActivity;
-import com.example.evently.ui.organizer.OrganizerActivity;
 import com.google.firebase.Timestamp;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -37,6 +31,7 @@ import com.example.evently.data.generic.Promise;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.entrant.BrowseEventsFragment;
+import com.example.evently.ui.entrant.EntrantActivity;
 
 /**
  * Test switching to the event details from browsing and joined events
@@ -83,13 +78,14 @@ public class SwitchToEventDetailsTest extends EmulatedFragmentTest<BrowseEventsF
                 p(R.id.txtselection_date, "Waitlist closed"),
                 p(R.id.txtDate, some_date.format(expectedEvent.eventTime().toInstant())));
 
-        try (ActivityScenario<EntrantActivity> scenario = ActivityScenario.launch(EntrantActivity.class))
-        {
+        try (ActivityScenario<EntrantActivity> scenario =
+                ActivityScenario.launch(EntrantActivity.class)) {
             onView(ViewMatchers.withId(R.id.btnDetails)).perform(ViewActions.click());
             Thread.sleep(2000);
             onView(withText(mockEvents[0].description())).check(matches(isDisplayed()));
             onView(withId(R.id.buttonBack)).perform(click());
-        };
+        }
+        ;
     }
 
     // Test switching to event details and going back
@@ -111,13 +107,14 @@ public class SwitchToEventDetailsTest extends EmulatedFragmentTest<BrowseEventsF
                 p(R.id.txtselection_date, "Waitlist closed"),
                 p(R.id.txtDate, some_date.format(expectedEvent.eventTime().toInstant())));
 
-        try (ActivityScenario<EntrantActivity> scenario = ActivityScenario.launch(EntrantActivity.class))
-        {
+        try (ActivityScenario<EntrantActivity> scenario =
+                ActivityScenario.launch(EntrantActivity.class)) {
             onView(ViewMatchers.withId(R.id.btnDetails)).perform(ViewActions.click());
             Thread.sleep(2000);
             onView(withText(mockEvents[0].description())).check(matches(isDisplayed()));
             onView(withId(R.id.buttonBack)).perform(click());
-        };
+        }
+        ;
 
         assertRecyclerViewItem(
                 R.id.event_list,
@@ -125,10 +122,6 @@ public class SwitchToEventDetailsTest extends EmulatedFragmentTest<BrowseEventsF
                 p(R.id.txtselection_date, "Waitlist closed"),
                 p(R.id.txtDate, some_date.format(expectedEvent.eventTime().toInstant())));
     }
-
-    @Rule
-    public GrantPermissionRule grantPostNotif =
-            GrantPermissionRule.grant(android.Manifest.permission.POST_NOTIFICATIONS);
 
     @AfterClass
     public static void tearDownEvents() throws ExecutionException, InterruptedException {

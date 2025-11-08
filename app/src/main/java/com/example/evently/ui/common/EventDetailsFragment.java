@@ -1,6 +1,5 @@
 package com.example.evently.ui.common;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -17,7 +16,6 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.evently.R;
-import com.example.evently.data.AccountDB;
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.databinding.FragmentEventDetailsBinding;
@@ -81,17 +79,18 @@ public abstract class EventDetailsFragment<F extends Fragment> extends Fragment 
         final var eventsDB = new EventsDB();
 
         final var eventID = getEventID();
-        eventsDB.fetchEvent(eventID)
-                .optionally(event -> eventsDB.fetchEventEntrants(Collections.singletonList(eventID))
-                        .thenRun(eventEntrants -> {
-                            final var eventEntrantsInfo = eventEntrants.get(0);
-                            // TODO (chase): Decouple. Event information loading SHOULD NOT need
-                            // EventEntrants.
-                            // Only the entrants fragment should need it.
-                            final var joined = eventEntrantsInfo.all().contains(FirebaseAuthUtils.getCurrentEmail());
-                            loadEventInformation(event, eventEntrantsInfo.all().size(), joined);
-                            loadEntrants();
-                        }));
+        eventsDB.fetchEvent(eventID).optionally(event -> eventsDB.fetchEventEntrants(
+                        Collections.singletonList(eventID))
+                .thenRun(eventEntrants -> {
+                    final var eventEntrantsInfo = eventEntrants.get(0);
+                    // TODO (chase): Decouple. Event information loading SHOULD NOT need
+                    // EventEntrants.
+                    // Only the entrants fragment should need it.
+                    final var joined =
+                            eventEntrantsInfo.all().contains(FirebaseAuthUtils.getCurrentEmail());
+                    loadEventInformation(event, eventEntrantsInfo.all().size(), joined);
+                    loadEntrants();
+                }));
 
         // Back Button logic
         Button back = view.findViewById(R.id.buttonBack);
@@ -153,13 +152,15 @@ public abstract class EventDetailsFragment<F extends Fragment> extends Fragment 
         waitlistAction.setOnClickListener(v -> {
             waitlistAction.setEnabled(false);
             if (joined) {
-                new EventsDB().unenroll(getEventID(), FirebaseAuthUtils.getCurrentEmail())
+                new EventsDB()
+                        .unenroll(getEventID(), FirebaseAuthUtils.getCurrentEmail())
                         .thenRun(vu -> {
                             displayWaitlistAction(false);
                             reloadEntrants();
                         });
             } else {
-                new EventsDB().enroll(getEventID(), FirebaseAuthUtils.getCurrentEmail())
+                new EventsDB()
+                        .enroll(getEventID(), FirebaseAuthUtils.getCurrentEmail())
                         .thenRun(vu -> {
                             displayWaitlistAction(true);
                             reloadEntrants();
