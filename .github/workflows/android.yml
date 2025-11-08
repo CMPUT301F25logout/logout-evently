@@ -22,6 +22,8 @@ jobs:
         GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
         DEBUG_KEYSTORE: ${{ secrets.DEBUG_KEYSTORE }}
+    - name: Check signing report
+      run: ./gradlew signingReport
     - name: Build the project (no tests, no lint etc)
       run: ./gradlew assemble
     - name: Upload the APK
