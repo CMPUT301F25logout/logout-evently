@@ -37,8 +37,7 @@ public class BrowseEventsFragment extends EventsFragment {
     protected void onEventClick(Event event) {
         // The action for clicking on the event, pass the event ID to the next event details
         // fragment
-        var action = BrowseEventsFragmentDirections.actionNavHomeToEventDetails(
-                event.eventID().toString());
+        var action = BrowseEventsFragmentDirections.actionNavHomeToEventDetails(event.eventID());
         NavController navController = NavHostFragment.findNavController(this);
         navController.navigate(action);
     }

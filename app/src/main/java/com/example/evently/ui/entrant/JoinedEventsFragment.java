@@ -35,8 +35,7 @@ public class JoinedEventsFragment extends EventsFragment {
     protected void onEventClick(Event event) {
         // The action for clicking on the event, pass the event ID to the next event details
         // fragment
-        var action = JoinedEventsFragmentDirections.actionNavJoinedToEventDetails(
-                event.eventID().toString());
+        var action = JoinedEventsFragmentDirections.actionNavJoinedToEventDetails(event.eventID());
         NavController navController = NavHostFragment.findNavController(this);
         navController.navigate(action);
     }
