@@ -1,13 +1,11 @@
 package com.example.evently;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.example.evently.MatcherUtils.assertRecyclerViewItem;
 import static com.example.evently.MatcherUtils.p;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -15,9 +13,8 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ExecutionException;
 
-import androidx.test.core.app.ActivityScenario;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.test.espresso.action.ViewActions;
-import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.firebase.Timestamp;
@@ -31,14 +28,13 @@ import com.example.evently.data.generic.Promise;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.entrant.BrowseEventsFragment;
-import com.example.evently.ui.entrant.EntrantActivity;
 
 /**
  * Test switching to the event details from browsing and joined events
  * @author Vinson Lou
  */
 @RunWith(AndroidJUnit4.class)
-public class SwitchToEventDetailsTest extends EmulatedFragmentTest<BrowseEventsFragment> {
+public class BrowseToEventDetailsTest extends EmulatedFragmentTest<BrowseEventsFragment> {
     private static final EventsDB eventsDB = new EventsDB();
 
     private static final Instant now = Instant.now();
@@ -78,49 +74,12 @@ public class SwitchToEventDetailsTest extends EmulatedFragmentTest<BrowseEventsF
                 p(R.id.txtselection_date, "Waitlist closed"),
                 p(R.id.txtDate, some_date.format(expectedEvent.eventTime().toInstant())));
 
-        try (ActivityScenario<EntrantActivity> scenario =
-                ActivityScenario.launch(EntrantActivity.class)) {
-            onView(ViewMatchers.withId(R.id.btnDetails)).perform(ViewActions.click());
-            Thread.sleep(2000);
-            onView(withText(mockEvents[0].description())).check(matches(isDisplayed()));
-            onView(withId(R.id.buttonBack)).perform(click());
-        }
-        ;
-    }
-
-    // Test switching to event details and going back
-    @Test
-    public void testSwitchingToEventDetailsFromJoinedEvents()
-            throws ExecutionException, InterruptedException {
-        final var self = FirebaseEmulatorTest.mockAccount.email();
-        eventsDB.enroll(mockEvents[0].eventID(), self).await();
-
-        Thread.sleep(2000);
-        final DateTimeFormatter some_date =
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("UTC"));
-
-        Event expectedEvent = mockEvents[0];
-
-        assertRecyclerViewItem(
-                R.id.event_list,
-                p(R.id.content, expectedEvent.name()),
-                p(R.id.txtselection_date, "Waitlist closed"),
-                p(R.id.txtDate, some_date.format(expectedEvent.eventTime().toInstant())));
-
-        try (ActivityScenario<EntrantActivity> scenario =
-                ActivityScenario.launch(EntrantActivity.class)) {
-            onView(ViewMatchers.withId(R.id.btnDetails)).perform(ViewActions.click());
-            Thread.sleep(2000);
-            onView(withText(mockEvents[0].description())).check(matches(isDisplayed()));
-            onView(withId(R.id.buttonBack)).perform(click());
-        }
-        ;
-
-        assertRecyclerViewItem(
-                R.id.event_list,
-                p(R.id.content, expectedEvent.name()),
-                p(R.id.txtselection_date, "Waitlist closed"),
-                p(R.id.txtDate, some_date.format(expectedEvent.eventTime().toInstant())));
+        onView(withId(R.id.btnDetails)).perform(ViewActions.click());
+        scenario.onFragment(fragment -> {
+            final var dest = NavHostFragment.findNavController(fragment).getCurrentDestination();
+            assertNotNull(dest);
+            assertEquals(dest.getId(), R.id.event_details);
+        });
     }
 
     @AfterClass

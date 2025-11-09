@@ -10,6 +10,7 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.firestore.FirebaseFirestore;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
@@ -82,6 +83,9 @@ public abstract class FirebaseEmulatorTest {
             accountDB.storeAccount(acc).await();
         }
     }
+
+    @After
+    public void tearDownAccount() throws ExecutionException, InterruptedException {}
 
     /**
      * Login with the default account and plug it into FirebaseAuth as "currentUser.

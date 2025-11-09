@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import androidx.navigation.NavGraph;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.firebase.Timestamp;
@@ -434,6 +435,11 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
     @Override
     protected int getGraph() {
         return R.navigation.entrant_graph;
+    }
+
+    @Override
+    protected int getSelfDestination(NavGraph graph) {
+        return R.id.nav_notifs;
     }
 
     @Override
