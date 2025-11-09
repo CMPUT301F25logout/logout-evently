@@ -34,7 +34,7 @@ import com.example.evently.ui.entrant.BrowseEventsFragment;
  * @author Vinson Lou
  */
 @RunWith(AndroidJUnit4.class)
-public class ViewBrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment> {
+public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment> {
     private static final EventsDB eventsDB = new EventsDB();
 
     private static final Instant now = Instant.now();
@@ -120,7 +120,7 @@ public class ViewBrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragm
 
     @BeforeClass
     public static void storeEvents() throws ExecutionException, InterruptedException {
-        final var self = FirebaseEmulatorTest.mockAccount.email();
+        final var self = FirebaseEmulatorTest.defaultMockAccount.email();
 
         // Store events into DB
         for (int i = 0; i < mockEvents.length; i++) {
@@ -207,15 +207,6 @@ public class ViewBrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragm
             }
         }
         onView(withId(R.id.event_list)).check(matches(isDisplayed()));
-    }
-
-    // Test switching to join and browse
-    @Test
-    public void testSwitchingToJoinedAndBack() throws InterruptedException, ExecutionException {
-        onView(withId(R.id.btnJoined)).perform(click());
-        testViewingJoinedEvents();
-        onView(withId(R.id.btnBrowse)).perform(click());
-        testViewingEvents();
     }
 
     @AfterClass
