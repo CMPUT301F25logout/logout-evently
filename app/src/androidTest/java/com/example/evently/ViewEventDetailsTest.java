@@ -9,32 +9,31 @@ import static com.example.evently.MatcherUtils.p;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
-import androidx.test.core.app.ActivityScenario;
-import androidx.test.espresso.action.ViewActions;
-import androidx.test.espresso.matcher.ViewMatchers;
-import androidx.test.rule.GrantPermissionRule;
+import android.os.Bundle;
+import androidx.navigation.NavGraph;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.firebase.Timestamp;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import com.example.evently.data.AccountDB;
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.generic.Promise;
 import com.example.evently.data.model.Account;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
-import com.example.evently.ui.entrant.BrowseEventsFragment;
-import com.example.evently.ui.entrant.EntrantActivity;
+import com.example.evently.ui.entrant.ViewEventDetailsFragment;
 
-public class ViewEventDetailsTest extends EmulatedFragmentTest<BrowseEventsFragment> {
+@RunWith(AndroidJUnit4.class)
+public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsFragment> {
     private static final EventsDB eventsDB = new EventsDB();
-    private static final AccountDB accountsDB = new AccountDB();
 
     private static final Instant now = Instant.now();
     // We can use the same times for these tests.
@@ -44,7 +43,7 @@ public class ViewEventDetailsTest extends EmulatedFragmentTest<BrowseEventsFragm
     private static final Event mockEvent = new Event(
             "name", "description", Category.EDUCATIONAL, selectionTime, eventTime, "orgEmail", 50);
 
-    private static final Account[] mockAccounts = new Account[] {
+    private static final Account[] extraAccounts = new Account[] {
         new Account("email@gmail.com", "User", Optional.empty(), "email@gmail.com"),
         new Account("email1@gmail.com", "User1", Optional.empty(), "email1@gmail.com"),
         new Account("email2@gmail.com", "User2", Optional.empty(), "email2@gmail.com"),
@@ -53,52 +52,43 @@ public class ViewEventDetailsTest extends EmulatedFragmentTest<BrowseEventsFragm
         new Account("email6@gmail.com", "User6", Optional.empty(), "email6@gmail.com")
     };
 
-    @BeforeClass
-    public static void storeEventsAndAccounts() throws ExecutionException, InterruptedException {
-        final var self = FirebaseEmulatorTest.mockAccount.email();
+    @Override
+    public List<Account> extraMockAccounts() {
+        return Arrays.asList(extraAccounts);
+    }
 
+    @BeforeClass
+    public static void setUpEventEnroll() throws ExecutionException, InterruptedException {
+        // Store the events.
         eventsDB.storeEvent(mockEvent).await();
 
-        // Store events into DB
-        for (int i = 0; i < mockAccounts.length; i++) {
-            accountsDB.storeAccount(mockAccounts[i]).await();
-
+        // Enroll a few accounts into the event.
+        for (int i = 0; i < extraAccounts.length; i++) {
             if (i % 2 == 0) {
-                eventsDB.enroll(mockEvent.eventID(), mockAccounts[i].email()).await();
+                eventsDB.enroll(mockEvent.eventID(), extraAccounts[i].email()).await();
             }
         }
     }
 
-    @Rule
-    public GrantPermissionRule grantPostNotif =
-            GrantPermissionRule.grant(android.Manifest.permission.POST_NOTIFICATIONS);
-
     @AfterClass
-    public static void tearDownEvents() throws ExecutionException, InterruptedException {
-        Promise.all(eventsDB.nuke(), accountsDB.nuke()).await();
+    public static void tearDownEventEnroll() throws ExecutionException, InterruptedException {
+        Promise.all(eventsDB.nuke()).await();
     }
 
     @Test
-    public void testViewingEventDetails() throws ExecutionException, InterruptedException {
+    public void testViewingEventDetails() throws InterruptedException {
         Thread.sleep(2000);
 
-        try (ActivityScenario<EntrantActivity> scenario =
-                ActivityScenario.launch(EntrantActivity.class)) {
-            onView(ViewMatchers.withId(R.id.btnDetails)).perform(ViewActions.click());
-            Thread.sleep(2000);
-            onView(withText(mockEvent.description())).check(matches(isDisplayed()));
+        onView(withText(mockEvent.description())).check(matches(isDisplayed()));
 
-            Account[] expectedAccounts =
-                    new Account[] {mockAccounts[0], mockAccounts[2], mockAccounts[4]};
+        Account[] expectedAccounts =
+                new Account[] {extraAccounts[0], extraAccounts[2], extraAccounts[4]};
 
-            // Test if the account's name show up on the recycler view
-            for (int i = 0; i < expectedAccounts.length; i++) {
-                var expectedAccount = mockAccounts[i * 2];
-                assertRecyclerViewItem(
-                        R.id.entrantListContainer, p(R.id.entrant_name, expectedAccount.name()));
-            }
+        // Test if the account's name show up on the recycler view
+        for (final var expectedAccount : expectedAccounts) {
+            assertRecyclerViewItem(
+                    R.id.entrantListContainer, p(R.id.entrant_name, expectedAccount.name()));
         }
-        ;
     }
 
     @Override
@@ -107,7 +97,19 @@ public class ViewEventDetailsTest extends EmulatedFragmentTest<BrowseEventsFragm
     }
 
     @Override
-    protected Class<BrowseEventsFragment> getFragmentClass() {
-        return BrowseEventsFragment.class;
+    protected int getSelfDestination(NavGraph graph) {
+        return R.id.event_details;
+    }
+
+    @Override
+    protected Bundle getSelfDestinationArgs() {
+        final var bundle = new Bundle();
+        bundle.putSerializable("eventID", mockEvent.eventID());
+        return bundle;
+    }
+
+    @Override
+    protected Class<ViewEventDetailsFragment> getFragmentClass() {
+        return ViewEventDetailsFragment.class;
     }
 }
