@@ -1,13 +1,9 @@
 package com.example.evently;
 
-import java.lang.reflect.InvocationTargetException;
-
 import android.os.Bundle;
 import androidx.annotation.IdRes;
 import androidx.annotation.NavigationRes;
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentFactory;
 import androidx.fragment.app.testing.FragmentScenario;
 import androidx.navigation.NavGraph;
 import androidx.navigation.Navigation;
@@ -59,7 +55,8 @@ public abstract class EmulatedFragmentTest<T extends Fragment> extends FirebaseE
                 new TestNavHostController(ApplicationProvider.getApplicationContext());
 
         // Create a graphical FragmentScenario for the fragment.
-        scenario = FragmentScenario.launchInContainer(getFragmentClass(), getSelfDestinationArgs(), R.style.Theme_Evently);
+        scenario = FragmentScenario.launchInContainer(
+                getFragmentClass(), getSelfDestinationArgs(), R.style.Theme_Evently);
 
         scenario.onFragment(fragment -> {
             navController.setGraph(getGraph());
