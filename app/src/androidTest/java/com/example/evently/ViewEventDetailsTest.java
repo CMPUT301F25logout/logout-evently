@@ -84,10 +84,10 @@ public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsF
         Account[] expectedAccounts =
                 new Account[] {extraAccounts[0], extraAccounts[2], extraAccounts[4]};
 
-        // Test if the account's name show up on the recycler view
+        // Test if the account's emails shows up on the recycler view
         for (final var expectedAccount : expectedAccounts) {
             assertRecyclerViewItem(
-                    R.id.entrantListContainer, p(R.id.entrant_name, expectedAccount.name()));
+                    R.id.entrantList, p(R.id.entrant_name, expectedAccount.email()));
         }
     }
 
