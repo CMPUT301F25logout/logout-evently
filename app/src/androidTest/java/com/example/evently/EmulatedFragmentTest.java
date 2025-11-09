@@ -60,6 +60,7 @@ public abstract class EmulatedFragmentTest<T extends Fragment> extends FirebaseE
 
         scenario.onFragment(fragment -> {
             navController.setGraph(getGraph());
+            navController.setCurrentDestination(getSelfDestination(navController.getGraph()));
             Navigation.setViewNavController(fragment.requireView(), navController);
         });
     }
