@@ -58,7 +58,7 @@ public class JoinedToEventDetailsTest extends EmulatedFragmentTest<JoinedEventsF
     @BeforeClass
     public static void setupEvents() throws ExecutionException, InterruptedException {
         eventsDB.storeEvent(mockEvents[0]).await();
-        eventsDB.enroll(mockEvents[0].eventID(), FirebaseEmulatorTest.mockAccount.email())
+        eventsDB.enroll(mockEvents[0].eventID(), FirebaseEmulatorTest.defaultMockAccount.email())
                 .await();
     }
 

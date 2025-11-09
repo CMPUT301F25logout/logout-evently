@@ -1,7 +1,6 @@
 package com.example.evently;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.concurrent.ExecutionException;
 
 import android.os.Bundle;
 import androidx.annotation.IdRes;
@@ -15,7 +14,6 @@ import androidx.navigation.Navigation;
 import androidx.navigation.testing.TestNavHostController;
 import androidx.test.core.app.ApplicationProvider;
 
-import com.google.firebase.auth.FirebaseAuth;
 import org.junit.After;
 import org.junit.Before;
 
@@ -70,12 +68,7 @@ public abstract class EmulatedFragmentTest<T extends Fragment> extends FirebaseE
     }
 
     @Before
-    public void setUpFragment() throws ExecutionException, InterruptedException {
-        // We're gonna sign in (AuthActivity is skipped) before spawning the fragment.
-        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-            login();
-        }
-
+    public void setUpFragment() {
         // https://developer.android.com/guide/navigation/testing#java
         final var navController =
                 new TestNavHostController(ApplicationProvider.getApplicationContext());

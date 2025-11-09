@@ -43,6 +43,7 @@ import com.example.evently.ui.entrant.ViewNotificationsFragment;
 public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotificationsFragment> {
     private static final EventsDB eventsDB = new EventsDB();
     private static final NotificationDB notificationDB = new NotificationDB();
+    private static final String self = FirebaseEmulatorTest.defaultMockAccount.email();
 
     private static final Instant now = Instant.now();
     // We can use the same times for these tests.
@@ -128,7 +129,6 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
     @BeforeClass
     public static void setUpNotifications() throws ExecutionException, InterruptedException {
         // TODO (chase): We need batch writes. No reason for there to be so many independent writes.
-        final var self = FirebaseEmulatorTest.mockAccount.email();
 
         // Store events into DB.
         Promise.all(Arrays.stream(mockEvents).map(eventsDB::storeEvent)).await();
@@ -299,7 +299,7 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
         int seenCount = 0;
         Thread.sleep(2000);
         for (Notification n : notifications) {
-            if (n.hasSeen(mockAccount.email())) {
+            if (n.hasSeen(self)) {
                 seenCount++;
             }
         }
@@ -310,7 +310,7 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
                 .get(0)
                 .accepted();
         Thread.sleep(1000);
-        assertFalse(canceledUsers.contains(mockAccount.email()));
+        assertFalse(canceledUsers.contains(self));
 
         // Clicks on a winning notification
         onView(withId(R.id.notif_list))
@@ -326,12 +326,12 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
                 .get(0)
                 .accepted();
         Thread.sleep(2000);
-        assertTrue(canceledUsers.contains(mockAccount.email()));
+        assertTrue(canceledUsers.contains(self));
 
         // Confirms notification is seen once more than previously.
         notifications = notificationDB.fetchEventNotifications(invite.eventId()).await();
         for (Notification n : notifications) {
-            if (n.hasSeen(mockAccount.email())) {
+            if (n.hasSeen(self)) {
                 seenCount--;
             }
         }
@@ -352,7 +352,7 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
         int seenCount = 0;
         Thread.sleep(2000);
         for (Notification n : notifications) {
-            if (n.hasSeen(mockAccount.email())) {
+            if (n.hasSeen(self)) {
                 seenCount++;
             }
         }
@@ -363,7 +363,7 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
                 .get(0)
                 .cancelled();
         Thread.sleep(2000);
-        assertFalse(canceledUsers.contains(mockAccount.email()));
+        assertFalse(canceledUsers.contains(self));
 
         // Clicks on a winning notification
         onView(withId(R.id.notif_list))
@@ -379,12 +379,12 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
                 .get(0)
                 .cancelled();
         Thread.sleep(2000);
-        assertTrue(canceledUsers.contains(mockAccount.email()));
+        assertTrue(canceledUsers.contains(self));
 
         // Confirms notification is seen.
         notifications = notificationDB.fetchEventNotifications(invite.eventId()).await();
         for (Notification n : notifications) {
-            if (n.hasSeen(mockAccount.email())) {
+            if (n.hasSeen(self)) {
                 seenCount--;
             }
         }
