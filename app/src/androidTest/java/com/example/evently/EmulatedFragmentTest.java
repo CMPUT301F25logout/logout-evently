@@ -52,21 +52,6 @@ public abstract class EmulatedFragmentTest<T extends Fragment> extends FirebaseE
 
     protected abstract Class<T> getFragmentClass();
 
-    /**
-     * Helper for constructing an instance of the given fragment class.
-     * @return Instance of given fragment class.
-     */
-    private T getFragmentInstance() {
-        try {
-            return getFragmentClass().getDeclaredConstructor().newInstance();
-        } catch (NoSuchMethodException
-                | IllegalAccessException
-                | InstantiationException
-                | InvocationTargetException e) {
-            throw new IllegalArgumentException("Invalid fragment class", e);
-        }
-    }
-
     @Before
     public void setUpFragment() {
         // https://developer.android.com/guide/navigation/testing#java
@@ -74,30 +59,12 @@ public abstract class EmulatedFragmentTest<T extends Fragment> extends FirebaseE
                 new TestNavHostController(ApplicationProvider.getApplicationContext());
 
         // Create a graphical FragmentScenario for the fragment.
-        scenario = FragmentScenario.launchInContainer(
-                getFragmentClass(), null, R.style.Theme_Evently, new FragmentFactory() {
-                    @NonNull @Override
-                    public Fragment instantiate(
-                            @NonNull ClassLoader classLoader, @NonNull String className) {
-                        final T frag = getFragmentInstance();
+        scenario = FragmentScenario.launchInContainer(getFragmentClass(), getSelfDestinationArgs(), R.style.Theme_Evently);
 
-                        // In addition to returning a new instance of our fragment,
-                        // get a callback whenever the fragment’s view is created
-                        // or destroyed so that we can set the NavController
-                        frag.getViewLifecycleOwnerLiveData().observeForever(viewLifecycleOwner -> {
-                            // The fragment’s view has just been created
-                            if (viewLifecycleOwner != null) {
-                                navController.setGraph(getGraph());
-                                // Current destination setting can be overriden by implementor.
-                                navController.setCurrentDestination(
-                                        getSelfDestination(navController.getGraph()),
-                                        getSelfDestinationArgs());
-                                Navigation.setViewNavController(frag.requireView(), navController);
-                            }
-                        });
-                        return frag;
-                    }
-                });
+        scenario.onFragment(fragment -> {
+            navController.setGraph(getGraph());
+            Navigation.setViewNavController(fragment.requireView(), navController);
+        });
     }
 
     @After
