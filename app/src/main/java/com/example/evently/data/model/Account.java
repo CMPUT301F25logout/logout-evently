@@ -15,9 +15,11 @@ import java.util.Optional;
 public record Account(
         String email, String name, Optional<String> phoneNumber, String visibleEmail) {
 
-    // Converts an account to a hashMap for storing in the DB. Since the email
-    // is the primary key of the account, it is not added to the hashMap
-    // @return A hashmap of the account's contents.
+    /**
+     * Converts an account to a hashMap for storing in the DB. Since the email
+     * is the primary key of the account, it is not added to the hashMap
+     * @return A hashmap of the account's contents.
+     */
     public HashMap<String, Object> toHashMap() {
 
         // Creates the hashMap

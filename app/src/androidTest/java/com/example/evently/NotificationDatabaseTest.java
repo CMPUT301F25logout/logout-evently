@@ -10,10 +10,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
-
 import com.google.firebase.Timestamp;
-import org.junit.Rule;
 import org.junit.Test;
 
 import com.example.evently.data.EventsDB;
@@ -23,11 +20,6 @@ import com.example.evently.data.model.Event;
 import com.example.evently.data.model.Notification;
 
 public class NotificationDatabaseTest extends FirebaseEmulatorTest {
-
-    @Rule
-    public ActivityScenarioRule<MainActivity> scenario =
-            new ActivityScenarioRule<MainActivity>(MainActivity.class);
-
     /**
      * Creates an event for testing
      * @return created event

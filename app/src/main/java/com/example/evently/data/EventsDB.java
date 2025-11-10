@@ -249,6 +249,10 @@ public class EventsDB {
         return promise(eventsRef.document(eventID.toString()).delete());
     }
 
+    /**
+     * Clear the whole collection.
+     * @return Promise.
+     */
     @TestOnly
     public Promise<Void> nuke() {
         return promise(eventsRef.get())

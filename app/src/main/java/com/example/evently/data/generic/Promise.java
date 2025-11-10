@@ -71,11 +71,25 @@ public sealed class Promise<T> permits PromiseOpt {
         return promise(Tasks.forResult(pure));
     }
 
+    /**
+     * Compose a stream of promises into one.
+     * Completing them asynchronously with no specified order.
+     * @param promises Stream of promises.
+     * @return A promise that resolves when all given promises succeed.
+     * @param <T> Return type.
+     */
     public static <T> Promise<List<T>> all(Stream<Promise<T>> promises) {
         final var tasks = promises.map(x -> x.task).collect(Collectors.toList());
         return promise(Tasks.whenAllSuccess(tasks));
     }
 
+    /**
+     * Compose a varargs of promises into one.
+     * Completing them asynchronously with no specified order.
+     * @param promises varargs of promises.
+     * @return A promise that resolves when all given promises succeed.
+     * @param <T> Return type.
+     */
     @SafeVarargs
     public static <T> Promise<List<T>> all(Promise<T>... promises) {
         return all(Arrays.stream(promises));
