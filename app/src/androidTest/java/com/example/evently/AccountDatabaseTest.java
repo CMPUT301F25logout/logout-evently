@@ -108,4 +108,25 @@ public class AccountDatabaseTest extends FirebaseEmulatorTest {
         final var optionalAccount = db.fetchAccount("hi@gmail.com").await();
         assertFalse(optionalAccount.isPresent());
     }
+
+
+    /**
+     *
+     */
+    @Test
+    public void testAdminAccount() throws ExecutionException, InterruptedException {
+        AccountDB db = new AccountDB();
+
+        Account addedAccount = new Account(
+                "hi@gmail.com",
+                "AlexBradley",
+                Optional.of("123-456-7890"),
+                "my_visible_email@yahoo.com");
+
+        db.storeAccount(addedAccount).await();
+        assertFalse(db.isAdmin(addedAccount.email()).await());
+
+        db.setAdmin(addedAccount.email());
+        assertTrue(db.isAdmin(addedAccount.email()).await());
+    }
 }

@@ -3,6 +3,7 @@ package com.example.evently.data;
 import static com.example.evently.data.generic.Promise.promise;
 import static com.example.evently.data.generic.PromiseOpt.promiseOpt;
 
+import java.util.HashMap;
 import java.util.Optional;
 
 import com.google.firebase.firestore.CollectionReference;
@@ -23,6 +24,7 @@ import com.example.evently.data.model.Account;
 public class AccountDB {
 
     // Reference to the accounts collection
+    private final FirebaseFirestore db;
     private final CollectionReference accountsRef;
 
     /**
@@ -30,7 +32,7 @@ public class AccountDB {
      */
     public AccountDB() {
         // Defines the reference to the accounts collection
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db = FirebaseFirestore.getInstance();
         accountsRef = db.collection("accounts");
     }
 
@@ -112,10 +114,33 @@ public class AccountDB {
     }
 
     /**
+     * The following method checks if an account is an admin account
+     * @param email The email of the account being verified
+     * @return A boolean about if the account is admin or not.
+     */
+    public Promise<Boolean> isAdmin(String email) {
+        return promise(db.collection("admin").document(email).get()).map(DocumentSnapshot::exists);
+    }
+
+    /**
+     * The following method sets an account as an Admin, only to be used for testing.
+     * For non-testing, admins should be created through the firebase console
+     * @param email The email of the account being turned admin
+     * @return A promise that the account will become an admin account.
+     */
+    @TestOnly
+    public Promise<Void> setAdmin(String email) {
+
+        HashMap<String, Object> emptyHashMap = new HashMap<>();
+        return promise(db.collection("admin").document(email).set(emptyHashMap));
+    }
+
+    /**
      * Nuke the accounts collection and all associated data.
      */
     @TestOnly
     public Promise<Void> nuke() {
+        // TODO (Alex): Also nuke the adminDB.
         return promise(accountsRef.get()).then(docs -> {
             WriteBatch batch = FirebaseFirestore.getInstance().batch();
             for (var doc : docs) {
