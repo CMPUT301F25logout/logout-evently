@@ -19,6 +19,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -132,16 +133,6 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
                 50)
     };
 
-    // The following array is used for fetching winning enrolled notifications in test 6 and 7.
-    private static final Notification[] winningEnrolledNotifications = {
-        templateNotification(2, Notification.Channel.Winners),
-        templateNotification(3, Notification.Channel.Winners),
-        templateNotification(4, Notification.Channel.Winners),
-        templateNotification(5, Notification.Channel.Winners),
-        templateNotification(6, Notification.Channel.Winners),
-        templateNotification(7, Notification.Channel.Winners)
-    };
-
     @BeforeClass
     public static void setUpNotifications() throws ExecutionException, InterruptedException {
         // TODO (chase): We need batch writes. No reason for there to be so many independent writes.
@@ -164,15 +155,15 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
         // Send a few notifications to all channel.
         Promise.all(
                         notificationDB.storeNotification(
-                                templateNotification(0, Notification.Channel.All)),
+                                templateNotification(0, Notification.Channel.All, 0)),
                         notificationDB.storeNotification(
-                                templateNotification(1, Notification.Channel.All)),
+                                templateNotification(1, Notification.Channel.All, 0)),
                         notificationDB.storeNotification(
-                                templateNotification(3, Notification.Channel.All)),
+                                templateNotification(3, Notification.Channel.All, 0)),
                         notificationDB.storeNotification(
-                                templateNotification(7, Notification.Channel.All)),
+                                templateNotification(7, Notification.Channel.All, 0)),
                         notificationDB.storeNotification(
-                                templateNotification(8, Notification.Channel.All)))
+                                templateNotification(8, Notification.Channel.All, 0)))
                 .await();
 
         // Also mark self as winner for some of those.
@@ -191,35 +182,41 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
         final var promises = new ArrayList<Promise<Void>>();
         // Notifications to the winners channel (for every event).
         promises.add(notificationDB.storeNotification(
-                templateNotification(1, Notification.Channel.Winners)));
-        promises.add(notificationDB.storeNotification(winningEnrolledNotifications[0]));
-        promises.add(notificationDB.storeNotification(winningEnrolledNotifications[1]));
-        promises.add(notificationDB.storeNotification(winningEnrolledNotifications[2]));
-        promises.add(notificationDB.storeNotification(winningEnrolledNotifications[3]));
-        promises.add(notificationDB.storeNotification(winningEnrolledNotifications[4]));
-        promises.add(notificationDB.storeNotification(winningEnrolledNotifications[5]));
+                templateNotification(1, Notification.Channel.Winners, 0)));
         promises.add(notificationDB.storeNotification(
-                templateNotification(8, Notification.Channel.Winners)));
+                templateNotification(2, Notification.Channel.Winners, 0)));
+        promises.add(notificationDB.storeNotification(
+                templateNotification(3, Notification.Channel.Winners, 0)));
+        promises.add(notificationDB.storeNotification(
+                templateNotification(4, Notification.Channel.Winners, 0)));
+        promises.add(notificationDB.storeNotification(
+                templateNotification(5, Notification.Channel.Winners, 0)));
+        promises.add(notificationDB.storeNotification(
+                templateNotification(6, Notification.Channel.Winners, 0)));
+        promises.add(notificationDB.storeNotification(
+                templateNotification(7, Notification.Channel.Winners, 0)));
+        promises.add(notificationDB.storeNotification(
+                templateNotification(8, Notification.Channel.Winners, 0)));
 
         // Some notifications for the losers channel (for a few events).
         promises.add(notificationDB.storeNotification(
-                templateNotification(1, Notification.Channel.Losers)));
+                templateNotification(1, Notification.Channel.Losers, 0)));
         promises.add(notificationDB.storeNotification(
-                templateNotification(2, Notification.Channel.Losers)));
+                templateNotification(2, Notification.Channel.Losers, 0)));
         promises.add(notificationDB.storeNotification(
-                templateNotification(3, Notification.Channel.Losers)));
+                templateNotification(3, Notification.Channel.Losers, 0)));
         promises.add(notificationDB.storeNotification(
-                templateNotification(7, Notification.Channel.Losers)));
+                templateNotification(7, Notification.Channel.Losers, 0)));
 
         // And some notifications for the cancelled channel (for a few events).
         promises.add(notificationDB.storeNotification(
-                templateNotification(1, Notification.Channel.Cancelled)));
+                templateNotification(1, Notification.Channel.Cancelled, 0)));
         promises.add(notificationDB.storeNotification(
-                templateNotification(2, Notification.Channel.Cancelled)));
+                templateNotification(2, Notification.Channel.Cancelled, 0)));
         promises.add(notificationDB.storeNotification(
-                templateNotification(3, Notification.Channel.Cancelled)));
+                templateNotification(3, Notification.Channel.Cancelled, 0)));
         promises.add(notificationDB.storeNotification(
-                templateNotification(5, Notification.Channel.Cancelled)));
+                templateNotification(5, Notification.Channel.Cancelled, 0)));
 
         Promise.all(promises.stream()).await();
     }
@@ -234,9 +231,9 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
         // Any notifications sent to the All channel for participated event IDs should show up.
         // See the setUpNotifications to figure out which notifications we're expecting here.
         final var expectedNotifications = new Notification[] {
-            templateNotification(1, Notification.Channel.All),
-            templateNotification(3, Notification.Channel.All),
-            templateNotification(7, Notification.Channel.All)
+            templateNotification(1, Notification.Channel.All, 0),
+            templateNotification(3, Notification.Channel.All, 0),
+            templateNotification(7, Notification.Channel.All, 0)
         };
 
         // TODO (chase): This is a TERRIBLE way to wait for data to show up.
@@ -256,12 +253,12 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
     public void test2_expectNotification_winner() throws InterruptedException {
         // Notifications sent to the Winner channel for won event IDs should show up.
         final var expectedNotifications = new Notification[] {
-            templateNotification(2, Notification.Channel.Winners),
-            templateNotification(3, Notification.Channel.Winners),
-            templateNotification(4, Notification.Channel.Winners),
-            templateNotification(5, Notification.Channel.Winners),
-            templateNotification(6, Notification.Channel.Winners),
-            templateNotification(7, Notification.Channel.Winners)
+            templateNotification(2, Notification.Channel.Winners, 0),
+            templateNotification(3, Notification.Channel.Winners, 0),
+            templateNotification(4, Notification.Channel.Winners, 0),
+            templateNotification(5, Notification.Channel.Winners, 0),
+            templateNotification(6, Notification.Channel.Winners, 0),
+            templateNotification(7, Notification.Channel.Winners, 0)
         };
 
         Thread.sleep(2000);
@@ -280,9 +277,10 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
     @Test
     public void test3_noExpectNotification_otherEvent() throws InterruptedException {
         // Notifications from non-participated event should NOT show up.
-        Notification nonParticipatedEvent1 = templateNotification(8, Notification.Channel.Winners);
-        Notification nonParticipatedEvent2 = templateNotification(8, Notification.Channel.All);
-        Notification nonParticipatedEvent3 = templateNotification(0, Notification.Channel.All);
+        Notification nonParticipatedEvent1 =
+                templateNotification(8, Notification.Channel.Winners, 0);
+        Notification nonParticipatedEvent2 = templateNotification(8, Notification.Channel.All, 0);
+        Notification nonParticipatedEvent3 = templateNotification(0, Notification.Channel.All, 0);
 
         // Checks that no notifications for non-enrolled events show up.
         Thread.sleep(2000);
@@ -295,10 +293,10 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
     public void test4_noExpectNotification_otherChannel() throws InterruptedException {
         // checks that no notifications are shown when the event is participated in, but enterant is
         // in a different channel:
-        Notification notification1 = templateNotification(2, Notification.Channel.Losers);
-        Notification notification2 = templateNotification(3, Notification.Channel.Losers);
-        Notification notification3 = templateNotification(7, Notification.Channel.Losers);
-        Notification notification4 = templateNotification(1, Notification.Channel.Winners);
+        Notification notification1 = templateNotification(2, Notification.Channel.Losers, 0);
+        Notification notification2 = templateNotification(3, Notification.Channel.Losers, 0);
+        Notification notification3 = templateNotification(7, Notification.Channel.Losers, 0);
+        Notification notification4 = templateNotification(1, Notification.Channel.Winners, 0);
 
         // Confirms that none of the notifications whee found.
         Thread.sleep(2000);
@@ -313,7 +311,7 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
         // Any notifications sent to the Loser channel for lost event IDs should show up.
         // Notifications sent to the Winner channel for won event IDs should show up.
         final var expectedNotifications =
-                new Notification[] {templateNotification(1, Notification.Channel.Losers)};
+                new Notification[] {templateNotification(1, Notification.Channel.Losers, 0)};
 
         Thread.sleep(2000);
 
@@ -331,7 +329,7 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
     @Test
     public void test6_acceptInvitation_markSeen() throws InterruptedException, ExecutionException {
         // Gets a winning notification, from an enrolled event.
-        Notification invite = winningEnrolledNotifications[0];
+        Notification invite = templateNotification(2, Notification.Channel.Winners, 0);
 
         // Asserts that we haven't seen the notification
         assertFalse(notificationDB
@@ -372,7 +370,7 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
     public void test7_declineInvitation_markSeen_expectNotification_cancelled()
             throws ExecutionException, InterruptedException {
         // Gets a winning notification, from an enrolled event.
-        Notification invite = winningEnrolledNotifications[1];
+        Notification invite = templateNotification(3, Notification.Channel.Winners, 0);
 
         // Asserts that we haven't seen the new notification
         assertFalse(notificationDB
@@ -409,9 +407,30 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
                 .hasSeen(mockAccount.email()));
     }
 
-    // Helper function to create a notification from the event index and target channel.
-    private static Notification templateNotification(Integer idx, Notification.Channel channel) {
+    /**
+     * Helper function to create a notification from the event index and target channel.
+     * @param idx The index of the event for the notification
+     * @param channel The channel of the communication
+     * @param offset The notification number, to allow for multiple notifications for events with
+     *               the same channel.
+     * @return a notification for the selected event.
+     */
+    private static Notification templateNotification(
+            Integer idx, Notification.Channel channel, Integer offset) {
+
+        /**
+         * The following code is for generating a UUID based on the inputs to this function, and
+         * is based on the following stack overflow reply:
+         * Title: "Is there any way to generate the same UUID from a String"
+         * Author: Adam Lee
+         * Response Author: "uraimo"
+         * Response Link: https://stackoverflow.com/a/29059595
+         */
+        String notification_input = idx.toString() + channel.toString() + offset.toString();
+        UUID notificationID = UUID.nameUUIDFromBytes(notification_input.getBytes());
+
         return new Notification(
+                notificationID,
                 mockEvents[idx].eventID(),
                 channel,
                 channel + " channel " + idx,
