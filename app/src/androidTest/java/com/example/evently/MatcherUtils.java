@@ -33,6 +33,7 @@ public final class MatcherUtils {
         Matcher<View> allDescendantsMatcher = Matchers.allOf(matchers);
 
         // Scroll to the item with given descendants.
+        onView(withId(recyclerViewId)).check(matches(isDisplayed()));
         onView(withId(recyclerViewId)).perform(RecyclerViewActions.scrollTo(allDescendantsMatcher));
 
         // Make sure all the expected descendants are displayed.

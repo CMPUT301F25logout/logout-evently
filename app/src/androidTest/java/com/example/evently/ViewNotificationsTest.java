@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
+import androidx.navigation.NavGraph;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.firebase.Timestamp;
@@ -52,6 +53,7 @@ import com.example.evently.ui.entrant.ViewNotificationsFragment;
 public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotificationsFragment> {
     private static final EventsDB eventsDB = new EventsDB();
     private static final NotificationDB notificationDB = new NotificationDB();
+
     private static final Instant now = Instant.now();
     // We can use the same times for these tests.
     private static final Timestamp selectionTime = new Timestamp(now.plus(Duration.ofMillis(100)));
@@ -136,7 +138,6 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
     @BeforeClass
     public static void setUpNotifications() throws ExecutionException, InterruptedException {
         // TODO (chase): We need batch writes. No reason for there to be so many independent writes.
-        final var self = FirebaseEmulatorTest.mockAccount.email();
 
         // Store events into DB.
         Promise.all(Arrays.stream(mockEvents).map(eventsDB::storeEvent)).await();
@@ -436,6 +437,11 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
     @Override
     protected int getGraph() {
         return R.navigation.entrant_graph;
+    }
+
+    @Override
+    protected int getSelfDestination(NavGraph graph) {
+        return R.id.nav_notifs;
     }
 
     @Override
