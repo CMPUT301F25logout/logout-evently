@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
+import androidx.navigation.NavGraph;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.firebase.Timestamp;
@@ -35,6 +36,7 @@ import org.junit.runners.MethodSorters;
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.NotificationDB;
 import com.example.evently.data.generic.Promise;
+import com.example.evently.data.model.Account;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.data.model.Notification;
@@ -56,6 +58,7 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
     // We can use the same times for these tests.
     private static final Timestamp selectionTime = new Timestamp(now.plus(Duration.ofMillis(100)));
     private static final Timestamp eventTime = new Timestamp(now.plus(Duration.ofMinutes(10)));
+    private static final Account mockAccount = defaultMockAccount;
 
     // Create a few events.
     private static final Event[] mockEvents = new Event[] {
@@ -136,20 +139,19 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
     @BeforeClass
     public static void setUpNotifications() throws ExecutionException, InterruptedException {
         // TODO (chase): We need batch writes. No reason for there to be so many independent writes.
-        final var self = FirebaseEmulatorTest.mockAccount.email();
 
         // Store events into DB.
         Promise.all(Arrays.stream(mockEvents).map(eventsDB::storeEvent)).await();
 
         // Enroll self into some of these (not all!).
         Promise.all(
-                        eventsDB.enroll(mockEvents[1].eventID(), self),
-                        eventsDB.enroll(mockEvents[2].eventID(), self),
-                        eventsDB.enroll(mockEvents[3].eventID(), self),
-                        eventsDB.enroll(mockEvents[4].eventID(), self),
-                        eventsDB.enroll(mockEvents[5].eventID(), self),
-                        eventsDB.enroll(mockEvents[6].eventID(), self),
-                        eventsDB.enroll(mockEvents[7].eventID(), self))
+                        eventsDB.enroll(mockEvents[1].eventID(), mockAccount.email()),
+                        eventsDB.enroll(mockEvents[2].eventID(), mockAccount.email()),
+                        eventsDB.enroll(mockEvents[3].eventID(), mockAccount.email()),
+                        eventsDB.enroll(mockEvents[4].eventID(), mockAccount.email()),
+                        eventsDB.enroll(mockEvents[5].eventID(), mockAccount.email()),
+                        eventsDB.enroll(mockEvents[6].eventID(), mockAccount.email()),
+                        eventsDB.enroll(mockEvents[7].eventID(), mockAccount.email()))
                 .await();
 
         // Send a few notifications to all channel.
@@ -168,12 +170,12 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
 
         // Also mark self as winner for some of those.
         Promise.all(
-                        eventsDB.addSelected(mockEvents[2].eventID(), self),
-                        eventsDB.addSelected(mockEvents[3].eventID(), self),
-                        eventsDB.addSelected(mockEvents[4].eventID(), self),
-                        eventsDB.addSelected(mockEvents[5].eventID(), self),
-                        eventsDB.addSelected(mockEvents[6].eventID(), self),
-                        eventsDB.addSelected(mockEvents[7].eventID(), self))
+                        eventsDB.addSelected(mockEvents[2].eventID(), mockAccount.email()),
+                        eventsDB.addSelected(mockEvents[3].eventID(), mockAccount.email()),
+                        eventsDB.addSelected(mockEvents[4].eventID(), mockAccount.email()),
+                        eventsDB.addSelected(mockEvents[5].eventID(), mockAccount.email()),
+                        eventsDB.addSelected(mockEvents[6].eventID(), mockAccount.email()),
+                        eventsDB.addSelected(mockEvents[7].eventID(), mockAccount.email()))
                 .await();
 
         // Since there are enrolled people who have been selected, those who are not winners of an
@@ -436,6 +438,11 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
     @Override
     protected int getGraph() {
         return R.navigation.entrant_graph;
+    }
+
+    @Override
+    protected int getSelfDestination(NavGraph graph) {
+        return R.id.nav_notifs;
     }
 
     @Override
