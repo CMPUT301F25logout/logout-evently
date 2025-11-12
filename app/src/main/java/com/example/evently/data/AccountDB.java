@@ -4,6 +4,7 @@ import static com.example.evently.data.generic.Promise.promise;
 import static com.example.evently.data.generic.PromiseOpt.promiseOpt;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -118,9 +119,10 @@ public class AccountDB {
     public Promise<Void> nuke() {
         return promise(accountsRef.get()).then(docs -> {
             WriteBatch batch = FirebaseFirestore.getInstance().batch();
-            for (var doc : docs) {
-                batch.delete(doc.getReference());
-            }
+            Stream.concat(docs.getDocuments().stream(), docs.getDocuments().stream())
+                    .forEach(doc -> {
+                        batch.delete(doc.getReference());
+                    });
             return promise(batch.commit());
         });
     }

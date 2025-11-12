@@ -305,9 +305,9 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
         }
 
         // Confirms notification are not yet accepted.
-        List<String> canceledUsers = eventsDB.fetchEventEntrants(List.of(invite.eventId()))
+        List<String> canceledUsers = eventsDB.fetchEventEntrants(invite.eventId())
                 .await()
-                .get(0)
+                .orElseThrow()
                 .accepted();
         Thread.sleep(1000);
         assertFalse(canceledUsers.contains(self));
@@ -321,9 +321,9 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
         onView(withText("Accept")).perform(click());
 
         // Confirms notification is accepted.
-        canceledUsers = eventsDB.fetchEventEntrants(List.of(invite.eventId()))
+        canceledUsers = eventsDB.fetchEventEntrants(invite.eventId())
                 .await()
-                .get(0)
+                .orElseThrow()
                 .accepted();
         Thread.sleep(2000);
         assertTrue(canceledUsers.contains(self));
@@ -358,9 +358,9 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
         }
 
         // Confirms notification are not yet canceled.
-        List<String> canceledUsers = eventsDB.fetchEventEntrants(List.of(invite.eventId()))
+        List<String> canceledUsers = eventsDB.fetchEventEntrants(invite.eventId())
                 .await()
-                .get(0)
+                .orElseThrow()
                 .cancelled();
         Thread.sleep(2000);
         assertFalse(canceledUsers.contains(self));
@@ -374,9 +374,9 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
         onView(withText("Decline")).perform(click());
 
         // Confirms notification is not canceled.
-        canceledUsers = eventsDB.fetchEventEntrants(List.of(invite.eventId()))
+        canceledUsers = eventsDB.fetchEventEntrants(invite.eventId())
                 .await()
-                .get(0)
+                .orElseThrow()
                 .cancelled();
         Thread.sleep(2000);
         assertTrue(canceledUsers.contains(self));
