@@ -163,7 +163,7 @@ public class NotificationDB {
         EventsDB eventsDB = new EventsDB();
 
         return eventsDB.fetchEventsByEnrolled(email)
-                .thenWith(eventList -> eventsDB.fetchEventEntrants(
+                .thenWith(eventList -> eventsDB.fetchEventsEntrants(
                         eventList.stream().map(Event::eventID).collect(Collectors.toList())))
                 .then(pair -> {
                     final var events = pair.first;
