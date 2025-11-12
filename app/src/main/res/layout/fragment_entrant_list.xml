@@ -6,4 +6,4 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="24dp"
-    tools:listitem="@layout/fragment_event" />
+    tools:listitem="@layout/fragment_event_entrant" />
