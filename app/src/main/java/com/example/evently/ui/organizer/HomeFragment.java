@@ -13,8 +13,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.example.evently.databinding.FragmentOrganizerHomeBinding;
 
 /**
- * A tab layout fragment to encapsulate both "Browse events" and "View Joined events" fragments.
- * This is used as the home screen for entrant activity.
+ * Home page for organizers. This holds the events they created as well as a button to create more events.
  */
 public class HomeFragment extends Fragment {
     private FragmentOrganizerHomeBinding binding;
