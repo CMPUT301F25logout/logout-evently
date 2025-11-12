@@ -87,7 +87,10 @@ public abstract class EventDetailsFragment<F extends Fragment> extends Fragment 
                             eventEntrantsInfo.all().contains(FirebaseAuthUtils.getCurrentEmail());
                     loadEventInformation(event, eventEntrantsInfo.all().size(), joined);
                 }));
-        loadEntrants();
+        if (savedInstanceState == null) {
+            // Load the entrants list fragment if we were not recreated.
+            loadEntrants();
+        }
 
         // Back Button logic
         Button back = view.findViewById(R.id.buttonBack);
