@@ -1,5 +1,10 @@
 package com.example.evently.ui.organizer;
 
+import static com.example.evently.ui.common.EntrantsFragment.AcceptedEntrantsFragment;
+import static com.example.evently.ui.common.EntrantsFragment.CancelledEntrantsFragment;
+import static com.example.evently.ui.common.EntrantsFragment.EnrolledEntrantsFragment;
+import static com.example.evently.ui.common.EntrantsFragment.SelectedEntrantsFragment;
+
 import java.util.UUID;
 
 import android.os.Bundle;
@@ -18,7 +23,6 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import com.example.evently.R;
-import com.example.evently.ui.entrant.EnrolledEntrantsFragment;
 
 /**
  * Fragment that displays the tabs for event participants:
@@ -26,9 +30,6 @@ import com.example.evently.ui.entrant.EnrolledEntrantsFragment;
  * Uses ViewPager2 and TabLayout.
  */
 public class EventPeopleFragment extends Fragment {
-
-    private TabLayout tabLayout;
-    private ViewPager2 viewPager;
 
     public EventPeopleFragment() {}
 
@@ -42,9 +43,10 @@ public class EventPeopleFragment extends Fragment {
         final var args = getArguments();
         assert args != null;
         final var eventID = (UUID) args.getSerializable("eventID");
+        assert eventID != null;
 
-        tabLayout = view.findViewById(R.id.eventPeopleTabLayout);
-        viewPager = view.findViewById(R.id.eventPeopleViewPager);
+        final TabLayout tabLayout = view.findViewById(R.id.eventPeopleTabLayout);
+        final ViewPager2 viewPager = view.findViewById(R.id.eventPeopleViewPager);
 
         viewPager.setAdapter(
                 new EventPeopleAdapter(getChildFragmentManager(), getLifecycle(), eventID));
@@ -87,6 +89,7 @@ public class EventPeopleFragment extends Fragment {
                         case 1 -> new SelectedEntrantsFragment();
                         case 2 -> new AcceptedEntrantsFragment();
                         case 3 -> new CancelledEntrantsFragment();
+                        // This should never happen. See getItemCount.
                         default -> new Fragment();
                     };
             frag.setArguments(bundle);

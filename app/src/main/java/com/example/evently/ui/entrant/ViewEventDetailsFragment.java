@@ -1,5 +1,7 @@
 package com.example.evently.ui.entrant;
 
+import static com.example.evently.ui.common.EntrantsFragment.EnrolledEntrantsFragment;
+
 import java.util.UUID;
 
 import com.example.evently.ui.common.EventDetailsFragment;
