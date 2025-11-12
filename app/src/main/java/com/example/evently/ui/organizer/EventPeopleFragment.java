@@ -22,7 +22,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
-import com.example.evently.R;
+import com.example.evently.databinding.FragmentEventPeopleBinding;
 
 /**
  * Fragment that displays the tabs for event participants:
@@ -31,22 +31,21 @@ import com.example.evently.R;
  */
 public class EventPeopleFragment extends Fragment {
 
-    public EventPeopleFragment() {}
-
     @Nullable @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_event_people, container, false);
+        final var binding =
+                FragmentEventPeopleBinding.inflate(getLayoutInflater(), container, false);
 
         final var args = getArguments();
         assert args != null;
         final var eventID = (UUID) args.getSerializable("eventID");
         assert eventID != null;
 
-        final TabLayout tabLayout = view.findViewById(R.id.eventPeopleTabLayout);
-        final ViewPager2 viewPager = view.findViewById(R.id.eventPeopleViewPager);
+        final TabLayout tabLayout = binding.eventPeopleTabLayout;
+        final ViewPager2 viewPager = binding.eventPeopleViewPager;
 
         viewPager.setAdapter(
                 new EventPeopleAdapter(getChildFragmentManager(), getLifecycle(), eventID));
@@ -61,7 +60,7 @@ public class EventPeopleFragment extends Fragment {
                 })
                 .attach();
 
-        return view;
+        return binding.getRoot();
     }
 
     /**
