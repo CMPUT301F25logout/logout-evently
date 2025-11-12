@@ -131,6 +131,11 @@ public class AccountDB {
     @TestOnly
     public Promise<Void> setAdmin(String email) {
 
+        /**
+         * The following 2 lines of code are based on a response from the LLM Claude Sonnet 4.5 by
+         * Anthropic: "how to store only document IDs in firebase from android with java? No data
+         * needs to be stored. Only the documentID"
+         */
         HashMap<String, Object> emptyHashMap = new HashMap<>();
         return promise(db.collection("admin").document(email).set(emptyHashMap));
     }
@@ -140,13 +145,21 @@ public class AccountDB {
      */
     @TestOnly
     public Promise<Void> nuke() {
-        // TODO (Alex): Also nuke the adminDB.
-        return promise(accountsRef.get()).then(docs -> {
-            WriteBatch batch = FirebaseFirestore.getInstance().batch();
-            for (var doc : docs) {
-                batch.delete(doc.getReference());
-            }
-            return promise(batch.commit());
-        });
+        return promise(accountsRef.get())
+                .then(docs -> {
+                    WriteBatch batch = FirebaseFirestore.getInstance().batch();
+                    for (var doc : docs) {
+                        batch.delete(doc.getReference());
+                    }
+                    return promise(batch.commit());
+                })
+                // Also nukes the list of admins
+                .alongside(promise(db.collection("admin").get()).then(docs -> {
+                    WriteBatch batch = FirebaseFirestore.getInstance().batch();
+                    for (var doc : docs) {
+                        batch.delete(doc.getReference());
+                    }
+                    return promise(batch.commit());
+                }));
     }
 }
