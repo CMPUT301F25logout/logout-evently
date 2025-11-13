@@ -24,7 +24,7 @@ import com.example.evently.data.model.Account;
 public class AccountDB {
 
     // Reference to the accounts collection
-    private final FirebaseFirestore db;
+    private final CollectionReference adminRef;
     private final CollectionReference accountsRef;
 
     /**
@@ -32,8 +32,9 @@ public class AccountDB {
      */
     public AccountDB() {
         // Defines the reference to the accounts collection
-        db = FirebaseFirestore.getInstance();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
         accountsRef = db.collection("accounts");
+        adminRef = db.collection("admin");
     }
 
     /**
@@ -119,7 +120,7 @@ public class AccountDB {
      * @return A boolean about if the account is admin or not.
      */
     public Promise<Boolean> isAdmin(String email) {
-        return promise(db.collection("admin").document(email).get()).map(DocumentSnapshot::exists);
+        return promise(adminRef.document(email).get()).map(DocumentSnapshot::exists);
     }
 
     /**
@@ -143,7 +144,7 @@ public class AccountDB {
         emptyHashMap.put("exists", true);
 
         // Creates the document in the admin account list, saying that it exists.
-        return promise(db.collection("admin").document(email).set(emptyHashMap));
+        return promise(adminRef.document(email).set(emptyHashMap));
     }
 
     /**
@@ -160,7 +161,7 @@ public class AccountDB {
                     return promise(batch.commit());
                 })
                 // Also nukes the list of admins
-                .alongside(promise(db.collection("admin").get()).then(docs -> {
+                .alongside(promise(adminRef.get()).then(docs -> {
                     WriteBatch batch = FirebaseFirestore.getInstance().batch();
                     for (var doc : docs) {
                         batch.delete(doc.getReference());
