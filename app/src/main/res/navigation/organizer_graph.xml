@@ -21,7 +21,7 @@
     <fragment
         android:id="@+id/event_details"
         android:name="com.example.evently.ui.organizer.EditEventDetailsFragment"
-        android:label="fragment_event_details"
+        android:label="Manage Event"
         tools:layout="@layout/fragment_event_details">
         <argument
             android:name="eventId"
