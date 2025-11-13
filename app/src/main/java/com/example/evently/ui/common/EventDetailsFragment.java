@@ -8,15 +8,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.evently.R;
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.databinding.FragmentEventDetailsBinding;
+import com.example.evently.utils.FirebaseAuthUtils;
 
 /**
  * Fragment that displays the event information as well as the entrants that have been waitlisted.
@@ -27,6 +30,7 @@ import com.example.evently.databinding.FragmentEventDetailsBinding;
  * Extending the description if it's too long
  * <p>
  * Layout: fragment_event_details.xml
+ * @Author Vinson Lou
  */
 public abstract class EventDetailsFragment<F extends Fragment> extends Fragment {
     private FragmentEventDetailsBinding binding;
@@ -75,16 +79,22 @@ public abstract class EventDetailsFragment<F extends Fragment> extends Fragment 
         final var eventsDB = new EventsDB();
 
         final var eventID = getEventID();
-        eventsDB.fetchEvent(eventID)
-                .optionally(event -> eventsDB.fetchEventEntrants(Collections.singletonList(eventID))
-                        .thenRun(eventEntrants -> {
-                            final var eventEntrantsInfo = eventEntrants.get(0);
-                            // TODO (chase): Decouple. Event information loading SHOULD NOT need
-                            // EventEntrants.
-                            // Only the entrants fragment should need it.
-                            loadEventInformation(event, eventEntrantsInfo.all().size(), true);
-                            loadEntrants();
-                        }));
+        eventsDB.fetchEvent(eventID).optionally(event -> eventsDB.fetchEventEntrants(
+                        Collections.singletonList(eventID))
+                .thenRun(eventEntrants -> {
+                    final var eventEntrantsInfo = eventEntrants.get(0);
+                    // TODO (chase): Decouple. Event information loading SHOULD NOT need
+                    // EventEntrants.
+                    // Only the entrants fragment should need it.
+                    final var joined =
+                            eventEntrantsInfo.all().contains(FirebaseAuthUtils.getCurrentEmail());
+                    loadEventInformation(event, eventEntrantsInfo.all().size(), joined);
+                    loadEntrants();
+                }));
+
+        // Back Button logic
+        Button back = view.findViewById(R.id.buttonBack);
+        back.setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
     }
 
     /**
@@ -94,7 +104,7 @@ public abstract class EventDetailsFragment<F extends Fragment> extends Fragment 
      */
     public void loadEventInformation(Event event, int currEntrants, boolean joined) {
         TextView eventName = binding.eventName;
-        TextView image = binding.eventPicture;
+        ImageView image = binding.eventPicture;
         TextView desc = binding.eventDescription;
         TextView entrantCount = binding.entryCount;
         Button waitlistAction = binding.waitlistAction;
@@ -127,11 +137,10 @@ public abstract class EventDetailsFragment<F extends Fragment> extends Fragment 
      * Change the display of the Button on the waitlist depending on if the user joined the event or not
      * @param joined Whether or not the user has joined the event
      */
-    // Not sure if we plan on updating the page or just the Entrant List and the button
-    // Whenever the user joins the event, so it's a function for now
     public void displayWaitlistAction(boolean joined) {
         Button waitlistAction = binding.waitlistAction;
         binding.waitlistAction.setVisibility(View.VISIBLE);
+        waitlistAction.setEnabled(true);
         String wlActionText;
         if (joined) {
             wlActionText = "LEAVE WAITLIST";
@@ -140,6 +149,24 @@ public abstract class EventDetailsFragment<F extends Fragment> extends Fragment 
         }
 
         waitlistAction.setText(wlActionText);
+        waitlistAction.setOnClickListener(v -> {
+            waitlistAction.setEnabled(false);
+            if (joined) {
+                new EventsDB()
+                        .unenroll(getEventID(), FirebaseAuthUtils.getCurrentEmail())
+                        .thenRun(vu -> {
+                            displayWaitlistAction(false);
+                            reloadEntrants();
+                        });
+            } else {
+                new EventsDB()
+                        .enroll(getEventID(), FirebaseAuthUtils.getCurrentEmail())
+                        .thenRun(vu -> {
+                            displayWaitlistAction(true);
+                            reloadEntrants();
+                        });
+            }
+        });
     }
 
     /**
@@ -153,6 +180,20 @@ public abstract class EventDetailsFragment<F extends Fragment> extends Fragment 
                 .beginTransaction()
                 .setReorderingAllowed(true)
                 .add(R.id.entrantListContainer, getFragmentForEntrantListContainer(), bundle)
+                .commit();
+    }
+
+    /**
+     * Reloads the entrant list
+     */
+    public void reloadEntrants() {
+        // Load the recycler view fragment with event ID.
+        final var bundle = new Bundle();
+        bundle.putSerializable("eventID", getEventID());
+        getChildFragmentManager()
+                .beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.entrantListContainer, getFragmentForEntrantListContainer(), bundle)
                 .commit();
     }
 }

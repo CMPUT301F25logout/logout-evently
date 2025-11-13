@@ -15,8 +15,7 @@ public class ViewEventDetailsFragment extends EventDetailsFragment<EnrolledEntra
     @Override
     protected UUID getEventID() {
         if (eventID == null) {
-            eventID = UUID.fromString(
-                    ViewEventDetailsFragmentArgs.fromBundle(getArguments()).getEventId());
+            eventID = ViewEventDetailsFragmentArgs.fromBundle(getArguments()).getEventID();
         }
         return eventID;
     }

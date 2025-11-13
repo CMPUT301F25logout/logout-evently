@@ -11,7 +11,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.example.evently.MatcherUtils.assertRecyclerViewItem;
 import static com.example.evently.MatcherUtils.p;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -20,25 +19,38 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
+import androidx.navigation.NavGraph;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.firebase.Timestamp;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.NotificationDB;
 import com.example.evently.data.generic.Promise;
+import com.example.evently.data.model.Account;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.data.model.Notification;
 import com.example.evently.ui.entrant.ViewNotificationsFragment;
 
+/**
+ * The order of the tests is important for this class, as pressing on a notification can change
+ * the accepted, canceled, or seen status of a notification, so FixMethodOrder is used from the
+ * following article on ordering Junit tests:
+ * "The Order of Tests in JUnit", by Fatos Morina.
+ * https://www.baeldung.com/junit-5-test-order
+ */
 @RunWith(AndroidJUnit4.class)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotificationsFragment> {
     private static final EventsDB eventsDB = new EventsDB();
     private static final NotificationDB notificationDB = new NotificationDB();
@@ -47,6 +59,7 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
     // We can use the same times for these tests.
     private static final Timestamp selectionTime = new Timestamp(now.plus(Duration.ofMillis(100)));
     private static final Timestamp eventTime = new Timestamp(now.plus(Duration.ofMinutes(10)));
+    private static final Account mockAccount = defaultMockAccount;
 
     // Create a few events.
     private static final Event[] mockEvents = new Event[] {
@@ -127,20 +140,19 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
     @BeforeClass
     public static void setUpNotifications() throws ExecutionException, InterruptedException {
         // TODO (chase): We need batch writes. No reason for there to be so many independent writes.
-        final var self = FirebaseEmulatorTest.mockAccount.email();
 
         // Store events into DB.
         Promise.all(Arrays.stream(mockEvents).map(eventsDB::storeEvent)).await();
 
         // Enroll self into some of these (not all!).
         Promise.all(
-                        eventsDB.enroll(mockEvents[1].eventID(), self),
-                        eventsDB.enroll(mockEvents[2].eventID(), self),
-                        eventsDB.enroll(mockEvents[3].eventID(), self),
-                        eventsDB.enroll(mockEvents[4].eventID(), self),
-                        eventsDB.enroll(mockEvents[5].eventID(), self),
-                        eventsDB.enroll(mockEvents[6].eventID(), self),
-                        eventsDB.enroll(mockEvents[7].eventID(), self))
+                        eventsDB.enroll(mockEvents[1].eventID(), mockAccount.email()),
+                        eventsDB.enroll(mockEvents[2].eventID(), mockAccount.email()),
+                        eventsDB.enroll(mockEvents[3].eventID(), mockAccount.email()),
+                        eventsDB.enroll(mockEvents[4].eventID(), mockAccount.email()),
+                        eventsDB.enroll(mockEvents[5].eventID(), mockAccount.email()),
+                        eventsDB.enroll(mockEvents[6].eventID(), mockAccount.email()),
+                        eventsDB.enroll(mockEvents[7].eventID(), mockAccount.email()))
                 .await();
 
         // Send a few notifications to all channel.
@@ -159,12 +171,12 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
 
         // Also mark self as winner for some of those.
         Promise.all(
-                        eventsDB.addSelected(mockEvents[2].eventID(), self),
-                        eventsDB.addSelected(mockEvents[3].eventID(), self),
-                        eventsDB.addSelected(mockEvents[4].eventID(), self),
-                        eventsDB.addSelected(mockEvents[5].eventID(), self),
-                        eventsDB.addSelected(mockEvents[6].eventID(), self),
-                        eventsDB.addSelected(mockEvents[7].eventID(), self))
+                        eventsDB.addSelected(mockEvents[2].eventID(), mockAccount.email()),
+                        eventsDB.addSelected(mockEvents[3].eventID(), mockAccount.email()),
+                        eventsDB.addSelected(mockEvents[4].eventID(), mockAccount.email()),
+                        eventsDB.addSelected(mockEvents[5].eventID(), mockAccount.email()),
+                        eventsDB.addSelected(mockEvents[6].eventID(), mockAccount.email()),
+                        eventsDB.addSelected(mockEvents[7].eventID(), mockAccount.email()))
                 .await();
 
         // Since there are enrolled people who have been selected, those who are not winners of an
@@ -218,7 +230,7 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
     }
 
     @Test
-    public void expectNotification_all() throws InterruptedException {
+    public void test1_expectNotification_all() throws InterruptedException {
         // Any notifications sent to the All channel for participated event IDs should show up.
         // See the setUpNotifications to figure out which notifications we're expecting here.
         final var expectedNotifications = new Notification[] {
@@ -241,15 +253,15 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
     }
 
     @Test
-    public void expectNotification_winner() throws InterruptedException {
+    public void test2_expectNotification_winner() throws InterruptedException {
         // Notifications sent to the Winner channel for won event IDs should show up.
         final var expectedNotifications = new Notification[] {
-            //            templateNotification(2, Notification.Channel.Winners),
+            templateNotification(2, Notification.Channel.Winners),
             templateNotification(3, Notification.Channel.Winners),
             templateNotification(4, Notification.Channel.Winners),
             templateNotification(5, Notification.Channel.Winners),
-            templateNotification(6, Notification.Channel.Winners)
-            //            templateNotification(7, Notification.Channel.Winners)
+            templateNotification(6, Notification.Channel.Winners),
+            templateNotification(7, Notification.Channel.Winners)
         };
 
         Thread.sleep(2000);
@@ -266,7 +278,38 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
     }
 
     @Test
-    public void expectNotification_loser() throws InterruptedException {
+    public void test3_noExpectNotification_otherEvent() throws InterruptedException {
+        // Notifications from non-participated event should NOT show up.
+        Notification nonParticipatedEvent1 = templateNotification(8, Notification.Channel.Winners);
+        Notification nonParticipatedEvent2 = templateNotification(8, Notification.Channel.All);
+        Notification nonParticipatedEvent3 = templateNotification(0, Notification.Channel.All);
+
+        // Checks that no notifications for non-enrolled events show up.
+        Thread.sleep(2000);
+        onView(withText(nonParticipatedEvent1.title())).check(doesNotExist());
+        onView(withText(nonParticipatedEvent2.title())).check(doesNotExist());
+        onView(withText(nonParticipatedEvent3.title())).check(doesNotExist());
+    }
+
+    @Test
+    public void test4_noExpectNotification_otherChannel() throws InterruptedException {
+        // checks that no notifications are shown when the event is participated in, but enterant is
+        // in a different channel:
+        Notification notification1 = templateNotification(2, Notification.Channel.Losers);
+        Notification notification2 = templateNotification(3, Notification.Channel.Losers);
+        Notification notification3 = templateNotification(7, Notification.Channel.Losers);
+        Notification notification4 = templateNotification(1, Notification.Channel.Winners);
+
+        // Confirms that none of the notifications whee found.
+        Thread.sleep(2000);
+        onView(withText(notification1.title())).check(doesNotExist());
+        onView(withText(notification2.title())).check(doesNotExist());
+        onView(withText(notification3.title())).check(doesNotExist());
+        onView(withText(notification4.title())).check(doesNotExist());
+    }
+
+    @Test
+    public void test5_expectNotification_loser() throws InterruptedException {
         // Any notifications sent to the Loser channel for lost event IDs should show up.
         // Notifications sent to the Winner channel for won event IDs should show up.
         final var expectedNotifications =
@@ -286,145 +329,107 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
     }
 
     @Test
-    public void acceptInvitation_markSeen() throws InterruptedException, ExecutionException {
-        // Accepting an invitation should put self in the accepted list of entrants
-        // and mark the notification as seen.
-        Notification invite = templateNotification(7, Notification.Channel.Winners);
-        Thread.sleep(3000);
+    public void test6_acceptInvitation_markSeen() throws InterruptedException, ExecutionException {
+        // Gets a winning notification, from an enrolled event.
+        Notification invite = templateNotification(2, Notification.Channel.Winners);
 
-        // Gets the amount of times we are seen, to confirm later that we have been seen once more.
-        List<Notification> notifications =
-                notificationDB.fetchEventNotifications(invite.eventId()).await();
-        int seenCount = 0;
-        Thread.sleep(2000);
-        for (Notification n : notifications) {
-            if (n.hasSeen(mockAccount.email())) {
-                seenCount++;
-            }
-        }
+        // Asserts that we haven't seen the notification
+        assertFalse(notificationDB
+                .fetchNotification(invite.id())
+                .await()
+                .get()
+                .hasSeen(mockAccount.email()));
 
         // Confirms notification are not yet accepted.
-        List<String> canceledUsers = eventsDB.fetchEventEntrants(List.of(invite.eventId()))
+        assertFalse(eventsDB.fetchEventEntrants(List.of(invite.eventId()))
                 .await()
                 .get(0)
-                .accepted();
+                .accepted()
+                .contains(mockAccount.email()));
         Thread.sleep(1000);
-        assertFalse(canceledUsers.contains(mockAccount.email()));
 
-        // Clicks on a winning notification
+        // Clicks on a winning notification, and accepts it.
         onView(withId(R.id.notif_list))
                 .perform(actionOnItem(hasDescendant(withText(invite.title())), click()));
-        Thread.sleep(1000);
-
-        // Declines the winning notification
         onView(withText("Accept")).perform(click());
 
         // Confirms notification is accepted.
-        canceledUsers = eventsDB.fetchEventEntrants(List.of(invite.eventId()))
+        assertTrue(eventsDB.fetchEventEntrants(List.of(invite.eventId()))
                 .await()
                 .get(0)
-                .accepted();
-        Thread.sleep(2000);
-        assertTrue(canceledUsers.contains(mockAccount.email()));
+                .accepted()
+                .contains(mockAccount.email()));
 
-        // Confirms notification is seen once more than previously.
-        notifications = notificationDB.fetchEventNotifications(invite.eventId()).await();
-        for (Notification n : notifications) {
-            if (n.hasSeen(mockAccount.email())) {
-                seenCount--;
-            }
-        }
-        assertEquals(-1, seenCount);
-        Thread.sleep(2000);
+        // Confirms notification is seen
+        assertTrue(notificationDB
+                .fetchNotification(invite.id())
+                .await()
+                .get()
+                .hasSeen(mockAccount.email()));
     }
 
     @Test
-    public void declineInvitation_markSeen_expectNotification_cancelled()
+    public void test7_declineInvitation_markSeen_expectNotification_cancelled()
             throws ExecutionException, InterruptedException {
-        // Declining an invitation should put self in the cancelled list of entrants
-        // and mark the notification as seen. Also expose any cancelled channel notifications.
-        Notification invite = templateNotification(2, Notification.Channel.Winners);
-        Thread.sleep(1000);
+        // Gets a winning notification, from an enrolled event.
+        Notification invite = templateNotification(3, Notification.Channel.Winners);
 
-        List<Notification> notifications =
-                notificationDB.fetchEventNotifications(invite.eventId()).await();
-        int seenCount = 0;
-        Thread.sleep(2000);
-        for (Notification n : notifications) {
-            if (n.hasSeen(mockAccount.email())) {
-                seenCount++;
-            }
-        }
+        // Asserts that we haven't seen the new notification
+        assertFalse(notificationDB
+                .fetchNotification(invite.id())
+                .await()
+                .get()
+                .hasSeen(mockAccount.email()));
 
-        // Confirms notification are not yet canceled.
-        List<String> canceledUsers = eventsDB.fetchEventEntrants(List.of(invite.eventId()))
+        // Confirms notification is not yet canceled.
+        assertFalse(eventsDB.fetchEventEntrants(List.of(invite.eventId()))
                 .await()
                 .get(0)
-                .cancelled();
-        Thread.sleep(2000);
-        assertFalse(canceledUsers.contains(mockAccount.email()));
+                .cancelled()
+                .contains(mockAccount.email()));
+        Thread.sleep(1000);
 
-        // Clicks on a winning notification
+        // Clicks on a winning notification, and declines it.
         onView(withId(R.id.notif_list))
                 .perform(actionOnItem(hasDescendant(withText(invite.title())), click()));
-        Thread.sleep(1000);
-
-        // Declines the winning notification
         onView(withText("Decline")).perform(click());
 
-        // Confirms notification is not canceled.
-        canceledUsers = eventsDB.fetchEventEntrants(List.of(invite.eventId()))
+        // Confirms notification is canceled.
+        assertTrue(eventsDB.fetchEventEntrants(List.of(invite.eventId()))
                 .await()
                 .get(0)
-                .cancelled();
-        Thread.sleep(2000);
-        assertTrue(canceledUsers.contains(mockAccount.email()));
+                .cancelled()
+                .contains(mockAccount.email()));
 
         // Confirms notification is seen.
-        notifications = notificationDB.fetchEventNotifications(invite.eventId()).await();
-        for (Notification n : notifications) {
-            if (n.hasSeen(mockAccount.email())) {
-                seenCount--;
-            }
-        }
-        assertEquals(-1, seenCount);
-        Thread.sleep(2000);
+        assertTrue(notificationDB
+                .fetchNotification(invite.id())
+                .await()
+                .get()
+                .hasSeen(mockAccount.email()));
     }
 
-    @Test
-    public void noExpectNotification_otherEvent() throws InterruptedException {
-        // Notifications from non-participated event should NOT show up.
-        Notification nonParticipatedEvent1 = templateNotification(8, Notification.Channel.Winners);
-        Notification nonParticipatedEvent2 = templateNotification(8, Notification.Channel.All);
-        Notification nonParticipatedEvent3 = templateNotification(0, Notification.Channel.All);
-
-        // Checks that no notifications for non-enrolled events show up.
-        Thread.sleep(2000);
-        onView(withText(nonParticipatedEvent1.title())).check(doesNotExist());
-        onView(withText(nonParticipatedEvent2.title())).check(doesNotExist());
-        onView(withText(nonParticipatedEvent3.title())).check(doesNotExist());
-    }
-
-    @Test
-    public void noExpectNotification_otherChannel() throws InterruptedException {
-        // checks that no notifications are shown when the event is participated in, but enterant is
-        // in a different channel:
-        Notification notification1 = templateNotification(2, Notification.Channel.Losers);
-        Notification notification2 = templateNotification(3, Notification.Channel.Losers);
-        Notification notification3 = templateNotification(7, Notification.Channel.Losers);
-        Notification notification4 = templateNotification(1, Notification.Channel.Winners);
-
-        // Confirms that none of the notifications whee found.
-        Thread.sleep(2000);
-        onView(withText(notification1.title())).check(doesNotExist());
-        onView(withText(notification2.title())).check(doesNotExist());
-        onView(withText(notification3.title())).check(doesNotExist());
-        onView(withText(notification4.title())).check(doesNotExist());
-    }
-
-    // Helper function to create a notification from the event index and target channel.
+    /**
+     * Helper function to create a notification from the event index and target channel.
+     * @param idx The index of the event for the notification
+     * @param channel The channel of the communication
+     * @return a notification for the selected event.
+     */
     private static Notification templateNotification(Integer idx, Notification.Channel channel) {
+
+        /**
+         * The following code is for generating a UUID based on the inputs to this function, and
+         * is based on the following stack overflow reply:
+         * Title: "Is there any way to generate the same UUID from a String"
+         * Author: Adam Lee
+         * Response Author: "uraimo"
+         * Response Link: https://stackoverflow.com/a/29059595
+         */
+        String notification_input = idx.toString() + channel.toString();
+        UUID notificationID = UUID.nameUUIDFromBytes(notification_input.getBytes());
+
         return new Notification(
+                notificationID,
                 mockEvents[idx].eventID(),
                 channel,
                 channel + " channel " + idx,
@@ -434,6 +439,11 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
     @Override
     protected int getGraph() {
         return R.navigation.entrant_graph;
+    }
+
+    @Override
+    protected int getSelfDestination(NavGraph graph) {
+        return R.id.nav_notifs;
     }
 
     @Override

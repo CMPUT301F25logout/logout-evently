@@ -45,6 +45,11 @@ public record Notification(
         Cancelled
     }
 
+    public Notification(
+            UUID notificationID, UUID eventID, Channel channel, String title, String description) {
+        this(notificationID, eventID, channel, title, description, Instant.now(), new HashSet<>());
+    }
+
     public Notification(UUID eventID, Channel channel, String title, String description) {
         this(
                 UUID.randomUUID(),

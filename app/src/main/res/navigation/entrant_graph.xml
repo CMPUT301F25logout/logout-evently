@@ -24,8 +24,8 @@
         android:label="fragment_event_details"
         tools:layout="@layout/fragment_event_details">
         <argument
-            android:name="eventId"
-            app:argType="string" />
+            android:name="eventID"
+            app:argType="java.util.UUID" />
     </fragment>
 
     <fragment
@@ -42,6 +42,9 @@
         <action
             android:id="@+id/action_joined_to_browse"
             app:destination="@id/nav_home" />
+        <action
+            android:id="@+id/action_nav_joined_to_event_details"
+            app:destination="@id/event_details" />
     </fragment>
 
 </navigation>
