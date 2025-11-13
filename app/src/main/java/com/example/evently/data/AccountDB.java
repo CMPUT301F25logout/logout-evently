@@ -5,6 +5,7 @@ import static com.example.evently.data.generic.PromiseOpt.promiseOpt;
 
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -152,21 +153,15 @@ public class AccountDB {
      */
     @TestOnly
     public Promise<Void> nuke() {
-        return promise(accountsRef.get())
-                .then(docs -> {
-                    WriteBatch batch = FirebaseFirestore.getInstance().batch();
-                    for (var doc : docs) {
+        final var accountsGetP = promise(accountsRef.get());
+        final var adminGetP = promise(adminRef.get());
+        return accountsGetP.with(adminGetP, (accountDocs, adminDocs) -> {
+            WriteBatch batch = FirebaseFirestore.getInstance().batch();
+            Stream.concat(accountDocs.getDocuments().stream(), adminDocs.getDocuments().stream())
+                    .forEach(doc -> {
                         batch.delete(doc.getReference());
-                    }
-                    return promise(batch.commit());
-                })
-                // Also nukes the list of admins
-                .alongside(promise(adminRef.get()).then(docs -> {
-                    WriteBatch batch = FirebaseFirestore.getInstance().batch();
-                    for (var doc : docs) {
-                        batch.delete(doc.getReference());
-                    }
-                    return promise(batch.commit());
-                }));
+                    });
+            return promise(batch.commit());
+        });
     }
 }
