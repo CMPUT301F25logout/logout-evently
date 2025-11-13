@@ -1,8 +1,9 @@
 package com.example.evently.ui.common;
 
-import static com.example.evently.data.model.Role.AdminRole;
 import static com.example.evently.data.model.Role.EntrantRole;
 import static com.example.evently.data.model.Role.OrganizerRole;
+
+import java.util.List;
 
 import android.Manifest;
 import android.content.Intent;
@@ -11,7 +12,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -22,17 +22,13 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
-import com.example.evently.data.model.Role;
-import com.example.evently.ui.entrant.EntrantActivity;
-import com.example.evently.ui.organizer.OrganizerActivity;
-import com.example.evently.utils.FirebaseAuthUtils;
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import com.example.evently.data.model.Role;
 import com.example.evently.databinding.ActivityArchitectureBinding;
+import com.example.evently.ui.entrant.EntrantActivity;
+import com.example.evently.ui.organizer.OrganizerActivity;
 import com.example.evently.utils.FirebaseMessagingUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Abstract class that is the heart of all core activities of Evently: EntrantActivity, OrganizerActivity etc.
@@ -46,12 +42,14 @@ import java.util.List;
  * @implNote The activity implements OnItemSelectedListener meant for the role selector spinner.
  * @see com.example.evently.ui.organizer.OrganizerActivity
  */
-public abstract class ArchitectureActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public abstract class ArchitectureActivity extends AppCompatActivity
+        implements AdapterView.OnItemSelectedListener {
     private ActivityArchitectureBinding binding;
     protected NavController navController;
 
-    private static Role[] DefaultRoles = new Role[] { EntrantRole, OrganizerRole };
-    // Track the role selected by the role spinner so we can avoid switching when we're already there!
+    private static Role[] DefaultRoles = new Role[] {EntrantRole, OrganizerRole};
+    // Track the role selected by the role spinner so we can avoid switching when we're already
+    // there!
     private int currentlySelectedRole = rolePosition();
 
     private final ActivityResultLauncher<String> requestPermissionLauncher =
@@ -78,7 +76,7 @@ public abstract class ArchitectureActivity extends AppCompatActivity implements 
      * @implNote Entrant=0, Organizer=1, Admin>1
      */
     protected int rolePosition() {
-        return switch(this) {
+        return switch (this) {
             case EntrantActivity ignored -> 0;
             case OrganizerActivity ignored -> 1;
             // Admin activity.
@@ -162,12 +160,13 @@ public abstract class ArchitectureActivity extends AppCompatActivity implements 
             // Nothing to do.
             return;
         }
-        final var intent = switch (position) {
-            case 0 -> new Intent(this, EntrantActivity.class);
-            case 1 -> new Intent(this, OrganizerActivity.class);
-            // TODO (chase): Admin activity intent here.
-            default -> throw new RuntimeException("Admin activity not implemented yet");
-        };
+        final var intent =
+                switch (position) {
+                    case 0 -> new Intent(this, EntrantActivity.class);
+                    case 1 -> new Intent(this, OrganizerActivity.class);
+                    // TODO (chase): Admin activity intent here.
+                    default -> throw new RuntimeException("Admin activity not implemented yet");
+                };
         currentlySelectedRole = position;
         startActivity(intent);
         finish();

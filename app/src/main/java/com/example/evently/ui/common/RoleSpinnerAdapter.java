@@ -1,5 +1,7 @@
 package com.example.evently.ui.common;
 
+import java.util.List;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,13 +9,10 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 
 import com.example.evently.R;
 import com.example.evently.data.model.Role;
-
-import java.util.List;
 
 /**
  * Adapter for the role selector dropdown. Provide it with the select-able roles.
@@ -28,8 +27,7 @@ public class RoleSpinnerAdapter extends ArrayAdapter<Role> {
         inflater = LayoutInflater.from(context);
     }
 
-    @NonNull
-    @Override
+    @NonNull @Override
     public View getView(int position, View existingView, @NonNull ViewGroup parent) {
         final var item = getItem(position);
         assert item != null;
@@ -70,4 +68,3 @@ public class RoleSpinnerAdapter extends ArrayAdapter<Role> {
         return targetView;
     }
 }
-
