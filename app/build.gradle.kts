@@ -137,6 +137,8 @@ dependencies {
     implementation(libs.recyclerview)
     implementation(libs.fragment)
     implementation(libs.espresso.core)
+    implementation(libs.firebase.storage)
+    implementation(libs.firebase.ui.storage)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.runner)

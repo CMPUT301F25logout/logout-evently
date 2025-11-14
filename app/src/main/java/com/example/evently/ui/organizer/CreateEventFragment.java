@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -77,6 +78,7 @@ public class CreateEventFragment extends Fragment {
         EditText etWinners = v.findViewById(R.id.etWinners);
         EditText etRegDate = v.findViewById(R.id.etRegDate);
         EditText etRegTime = v.findViewById(R.id.etRegTime);
+        ImageButton imageSelector = v.findViewById(R.id.btnPickPoster); // Adds the image selector
 
         v.findViewById(R.id.btnCancel)
                 .setOnClickListener(
