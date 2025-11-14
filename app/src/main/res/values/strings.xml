@@ -15,4 +15,6 @@
     <string name="notif_description_sample">You have been invited to the event.</string>
     <string name="notif_date_sample">2025-08-12</string>
     <string name="default_notif_channel">fcm_channel_default</string>
+    <string name="create_event_btn_description">Create event</string>
+    <string name="selected_role_icon_description">Currently selected role</string>
 </resources>

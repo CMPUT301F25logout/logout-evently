@@ -1,11 +1,17 @@
 package com.example.evently.ui.common;
 
+import static com.example.evently.data.model.Role.EntrantRole;
+import static com.example.evently.data.model.Role.OrganizerRole;
+
+import java.util.List;
+
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.widget.Button;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -18,7 +24,10 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import com.example.evently.data.model.Role;
 import com.example.evently.databinding.ActivityArchitectureBinding;
+import com.example.evently.ui.entrant.EntrantActivity;
+import com.example.evently.ui.organizer.OrganizerActivity;
 import com.example.evently.utils.FirebaseMessagingUtils;
 
 /**
@@ -27,11 +36,21 @@ import com.example.evently.utils.FirebaseMessagingUtils;
  * Extending activities must implement getGraph to attach their own navigation graphs.
  * This allows each activity to have their own fragments to differentiate each other, while
  * sharing common functionality.
+ * <p>
+ * Extending activities should take care to put good labels on their navigation graph destinations.
+ * This label is used as the title for the screen (top left).
+ * @implNote The activity implements OnItemSelectedListener meant for the role selector spinner.
  * @see com.example.evently.ui.organizer.OrganizerActivity
  */
-public abstract class ArchitectureActivity extends AppCompatActivity {
+public abstract class ArchitectureActivity extends AppCompatActivity
+        implements AdapterView.OnItemSelectedListener {
     private ActivityArchitectureBinding binding;
     protected NavController navController;
+
+    private static Role[] DefaultRoles = new Role[] {EntrantRole, OrganizerRole};
+    // Track the role selected by the role spinner so we can avoid switching when we're already
+    // there!
+    private int currentlySelectedRole = rolePosition();
 
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(
@@ -52,12 +71,32 @@ public abstract class ArchitectureActivity extends AppCompatActivity {
     @NavigationRes
     protected abstract int getGraph();
 
+    /**
+     * Role index for the implementing activity.
+     * @implNote Entrant=0, Organizer=1, Admin>1
+     */
+    protected int rolePosition() {
+        return switch (this) {
+            case EntrantActivity ignored -> 0;
+            case OrganizerActivity ignored -> 1;
+            // Admin activity.
+            default -> 2;
+        };
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         binding = ActivityArchitectureBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        // Attach the role selector adapter to the spinner.
+        final var availableRoles = List.of(DefaultRoles);
+        // TODO (chase): Add the admin role if logged in account is an admin.
+        binding.roleSelector.setAdapter(new RoleSpinnerAdapter(this, availableRoles));
+        binding.roleSelector.setOnItemSelectedListener(this);
+        binding.roleSelector.setSelection(rolePosition());
 
         // Set the navbar.
         final var navBar = binding.navbar;
@@ -68,6 +107,12 @@ public abstract class ArchitectureActivity extends AppCompatActivity {
         navController = navHostFragment.getNavController();
         navController.setGraph(this.getGraph());
         NavigationUI.setupWithNavController(navBar, navController, false);
+        navController.addOnDestinationChangedListener((navController, destination, args) -> {
+            // Set the title
+            if (destination.getLabel() != null) {
+                binding.homeTitle.setText(destination.getLabel());
+            }
+        });
 
         askNotificationPermission();
 
@@ -79,45 +124,6 @@ public abstract class ArchitectureActivity extends AppCompatActivity {
                 .addOnSuccessListener(FirebaseMessagingUtils::storeToken);
         // TODO (chase): Maybe also schedule a periodic task that refreshes the token?
         // See: https://firebase.google.com/docs/cloud-messaging/manage-tokens
-
-        setupSwitchRoleButton(binding.btnSwitchRole);
-    }
-
-    /**
-     * Configures the “Switch Role” button for the current Activity.
-     * <p>
-     * If called from {@code EntrantActivity}, the button text is set to
-     * "Switch to Organizer” and tapping it starts {@code OrganizerActivity}.
-     * If called from {@code OrganizerActivity}, the button text is set to
-     * “Switch to Entrant” and tapping it starts {@code EntrantActivity}.
-     * If invoked from any other Activity type, the button is hidden.
-     * </p>
-     * @param b the button to configure; may be {@code null}.
-     *
-     */
-    private void setupSwitchRoleButton(Button b) {
-        if (b == null) return;
-
-        if (this instanceof com.example.evently.ui.entrant.EntrantActivity) {
-            b.setText("Switch to Organizer");
-            b.setOnClickListener(_x -> {
-                Intent i =
-                        new Intent(this, com.example.evently.ui.organizer.OrganizerActivity.class);
-                startActivity(i);
-                finish();
-            });
-        } else if (this instanceof com.example.evently.ui.organizer.OrganizerActivity) {
-            b.setText("Switch to Entrant");
-            b.setOnClickListener(_x -> {
-                Intent i = new Intent(this, com.example.evently.ui.entrant.EntrantActivity.class);
-                startActivity(i);
-                finish();
-            });
-        } else {
-            // Unknown role: hide
-            b.setOnClickListener(null);
-            b.setVisibility(android.view.View.GONE);
-        }
     }
 
     /**
@@ -135,7 +141,7 @@ public abstract class ArchitectureActivity extends AppCompatActivity {
     }
 
     /**
-     *
+     * Set up notification permission request for the user to approve.
      */
     private void askNotificationPermission() {
         // This is only necessary for API Level > 33 (TIRAMISU)
@@ -146,5 +152,29 @@ public abstract class ArchitectureActivity extends AppCompatActivity {
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
             }
         }
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        if (currentlySelectedRole == position) {
+            // Nothing to do.
+            return;
+        }
+        final var intent =
+                switch (position) {
+                    case 0 -> new Intent(this, EntrantActivity.class);
+                    case 1 -> new Intent(this, OrganizerActivity.class);
+                    // TODO (chase): Admin activity intent here.
+                    default -> throw new RuntimeException("Admin activity not implemented yet");
+                };
+        currentlySelectedRole = position;
+        startActivity(intent);
+        finish();
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+        // This is unlikely to be called for a spinner.
+        currentlySelectedRole = rolePosition();
     }
 }
