@@ -8,10 +8,10 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
 
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +19,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -47,6 +48,18 @@ public class CreateEventFragment extends Fragment {
 
     private Uri imageUri;
     private ImageButton imageButton;
+
+    // Picks a launcher to pick a picture. For more details, see
+    // https://developer.android.com/training/data-storage/shared/photo-picker
+    ActivityResultLauncher<PickVisualMediaRequest> pickPoster =
+            registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+                if (uri != null) {
+                    imageUri = uri;
+                    Glide.with(getContext()).load(imageUri).into(imageButton);
+                } else {
+                    Log.d("Poster Picker", "No poster selected");
+                }
+            });
 
     /**
      * Inflates the "Create Event" form
@@ -88,12 +101,11 @@ public class CreateEventFragment extends Fragment {
         EditText etRegTime = v.findViewById(R.id.etRegTime);
         imageButton = v.findViewById(R.id.btnPickPoster);
 
-        imageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Picks an image
-                pickImage();
-            }
+        // Launches the poster picker when clicked.
+        imageButton.setOnClickListener(view -> {
+            pickPoster.launch(new PickVisualMediaRequest.Builder()
+                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                    .build());
         });
 
         v.findViewById(R.id.btnCancel)
@@ -188,33 +200,4 @@ public class CreateEventFragment extends Fragment {
     private void toast(String msg) {
         Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show();
     }
-
-    /**
-     * The following two sections of code are based on the code from the following Youtube
-     * tutorial:
-     * Title: "Uploading Image and text data into firebase FireStaore android studio (java)."
-     * Author: "Coding Canvas"
-     * Link: "https://www.youtube.com/watch?v=c9tU6Mp-Aik"
-     */
-    private void pickImage() {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        launcher.launch(intent);
-    }
-
-    ActivityResultLauncher<Intent> launcher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() == OrganizerActivity.RESULT_OK) {
-                    Intent data = result.getData();
-
-                    if (data != null && data.getData() != null) {
-                        // Saves the URI for later storing in the DB, and sets
-                        // the button to the selected image.
-                        imageUri = data.getData();
-                        Glide.with(getContext()).load(imageUri).into(imageButton);
-                    }
-                }
-            });
-    // End of tutorial based code.
 }

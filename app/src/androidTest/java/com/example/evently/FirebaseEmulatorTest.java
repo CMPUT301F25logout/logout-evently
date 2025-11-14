@@ -9,6 +9,7 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -50,6 +51,7 @@ public abstract class FirebaseEmulatorTest {
             try {
                 FirebaseAuth.getInstance().useEmulator("10.0.2.2", 9099);
                 FirebaseFirestore.getInstance().useEmulator("10.0.2.2", 8080);
+                FirebaseStorage.getInstance().useEmulator("10.0.2.2", 9199);
             } catch (IllegalStateException e) {
                 // Emulators have already been set up.
             }
