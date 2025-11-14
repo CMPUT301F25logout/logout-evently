@@ -43,7 +43,7 @@ import com.example.evently.data.model.EventEntrants;
 public class EventsDB {
     private final CollectionReference eventsRef;
     private final CollectionReference eventEntrantsRef;
-    private final StorageReference posterRef;
+    private final StorageReference storageRef;
 
     /**
      * Constructor for EventsDB
@@ -52,7 +52,7 @@ public class EventsDB {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
         eventEntrantsRef = db.collection("eventEntrants");
-        posterRef = FirebaseStorage.getInstance().getReference("posters");
+        storageRef = FirebaseStorage.getInstance().getReference();
     }
 
     /**
@@ -295,9 +295,11 @@ public class EventsDB {
      * @param uri the uri of the image
      * @return a promise of the upload task
      */
-    private Promise<UploadTask.TaskSnapshot> uploadPoster(UUID eventID, Uri uri) {
-        StorageReference imageRef = posterRef.child(eventID.toString());
-        return promise(imageRef.putFile(uri));
+    public Promise<UploadTask.TaskSnapshot> storePoster(UUID eventID, Uri uri) {
+        StorageReference imageRef = storageRef.child("posters/" + eventID.toString());
+
+        var posterRef = imageRef.putFile(uri);
+        return promise(posterRef);
     }
 
     /**
@@ -306,11 +308,11 @@ public class EventsDB {
      * @param context the context of the image view
      * @param imageView the imageView
      */
-    private void loadIntoImageView(UUID eventID, Context context, ImageView imageView) {
+    public void showPoster(UUID eventID, Context context, ImageView imageView) {
 
         // The following code is based on the downloading files section from the firebase docs:
         // https://firebase.google.com/docs/storage/android/download-files?_gl=1
-        StorageReference imageRef = posterRef.child(eventID.toString());
+        StorageReference imageRef = storageRef.child("posters/" + eventID.toString());
 
         Glide.with(context).load(imageRef).into(imageView);
     }
