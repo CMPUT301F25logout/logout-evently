@@ -18,7 +18,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -340,9 +339,9 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
                 .hasSeen(mockAccount.email()));
 
         // Confirms notification are not yet accepted.
-        assertFalse(eventsDB.fetchEventEntrants(List.of(invite.eventId()))
+        assertFalse(eventsDB.fetchEventEntrants(invite.eventId())
                 .await()
-                .get(0)
+                .orElseThrow()
                 .accepted()
                 .contains(mockAccount.email()));
         Thread.sleep(1000);
@@ -353,9 +352,9 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
         onView(withText("Accept")).perform(click());
 
         // Confirms notification is accepted.
-        assertTrue(eventsDB.fetchEventEntrants(List.of(invite.eventId()))
+        assertTrue(eventsDB.fetchEventEntrants(invite.eventId())
                 .await()
-                .get(0)
+                .orElseThrow()
                 .accepted()
                 .contains(mockAccount.email()));
 
@@ -381,9 +380,9 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
                 .hasSeen(mockAccount.email()));
 
         // Confirms notification is not yet canceled.
-        assertFalse(eventsDB.fetchEventEntrants(List.of(invite.eventId()))
+        assertFalse(eventsDB.fetchEventEntrants(invite.eventId())
                 .await()
-                .get(0)
+                .orElseThrow()
                 .cancelled()
                 .contains(mockAccount.email()));
         Thread.sleep(1000);
@@ -394,9 +393,9 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
         onView(withText("Decline")).perform(click());
 
         // Confirms notification is canceled.
-        assertTrue(eventsDB.fetchEventEntrants(List.of(invite.eventId()))
+        assertTrue(eventsDB.fetchEventEntrants(invite.eventId())
                 .await()
-                .get(0)
+                .orElseThrow()
                 .cancelled()
                 .contains(mockAccount.email()));
 

@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.evently.databinding.FragmentEventEntrantBinding;
+import com.example.evently.databinding.FragmentEntrantBinding;
 
 /**
  * Recycler view that displays each entrant as a row with their profile picture and name
@@ -22,9 +22,9 @@ public class EntrantRecyclerViewAdapter
     }
 
     public static class EntrantViewHolder extends RecyclerView.ViewHolder {
-        public final FragmentEventEntrantBinding binding;
+        public final FragmentEntrantBinding binding;
 
-        public EntrantViewHolder(FragmentEventEntrantBinding binding) {
+        public EntrantViewHolder(FragmentEntrantBinding binding) {
             super(binding.getRoot());
             // Can define click listeners here
             this.binding = binding;
@@ -33,7 +33,7 @@ public class EntrantRecyclerViewAdapter
 
     @NonNull @Override
     public EntrantViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new EntrantViewHolder(FragmentEventEntrantBinding.inflate(
+        return new EntrantViewHolder(FragmentEntrantBinding.inflate(
                 LayoutInflater.from(parent.getContext()), parent, false));
     }
 

@@ -97,7 +97,7 @@ public class JoinedToEventDetailsTest extends EmulatedFragmentTest<JoinedEventsF
 
     @Override
     protected int getSelfDestination(NavGraph graph) {
-        return R.id.nav_joined;
+        return R.id.nav_home;
     }
 
     @Override

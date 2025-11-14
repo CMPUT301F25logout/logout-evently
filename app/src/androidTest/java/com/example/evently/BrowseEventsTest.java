@@ -1,7 +1,6 @@
 package com.example.evently;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
@@ -140,49 +139,6 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
 
         // Test if each event added shows up on the recyclerview, one of the events is closed
         for (final var expectedEvent : mockEvents) {
-            if (expectedEvent.name().equals("name")) {
-                assertRecyclerViewItem(
-                        R.id.event_list,
-                        p(R.id.content, expectedEvent.name()),
-                        p(R.id.txtselection_date, "Waitlist closed"),
-                        p(
-                                R.id.txtDate,
-                                some_date.format(expectedEvent.eventTime().toInstant())));
-            } else {
-                assertRecyclerViewItem(
-                        R.id.event_list,
-                        p(R.id.content, expectedEvent.name()),
-                        p(
-                                R.id.txtselection_date,
-                                MessageFormat.format(
-                                        "Selection on {0}",
-                                        some_date.format(
-                                                expectedEvent.selectionTime().toInstant()))),
-                        p(
-                                R.id.txtDate,
-                                some_date.format(expectedEvent.eventTime().toInstant())));
-            }
-        }
-        onView(withId(R.id.event_list)).check(matches(isDisplayed()));
-    }
-
-    @Test
-    public void testViewingJoinedEvents() throws InterruptedException {
-
-        Thread.sleep(2000);
-        final DateTimeFormatter some_date =
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("UTC"));
-
-        // Test if each enrolled event shows up on the joined event fragment
-        onView(withId(R.id.btnJoined)).perform(click());
-
-        Event[] expectedEvents = new Event[] {
-            mockEvents[0], mockEvents[2], mockEvents[4], mockEvents[6], mockEvents[8],
-        };
-
-        // Test if every other event is enrolled by the user
-        for (int i = 0; i < expectedEvents.length; i++) {
-            var expectedEvent = mockEvents[i * 2];
             if (expectedEvent.name().equals("name")) {
                 assertRecyclerViewItem(
                         R.id.event_list,

@@ -1,6 +1,5 @@
 package com.example.evently.ui.common;
 
-import java.util.Collections;
 import java.util.UUID;
 
 import android.os.Bundle;
@@ -30,7 +29,7 @@ import com.example.evently.utils.FirebaseAuthUtils;
  * Extending the description if it's too long
  * <p>
  * Layout: fragment_event_details.xml
- * @Author Vinson Lou
+ * @author Vinson Lou
  */
 public abstract class EventDetailsFragment<F extends Fragment> extends Fragment {
     private FragmentEventDetailsBinding binding;
@@ -79,18 +78,19 @@ public abstract class EventDetailsFragment<F extends Fragment> extends Fragment 
         final var eventsDB = new EventsDB();
 
         final var eventID = getEventID();
-        eventsDB.fetchEvent(eventID).optionally(event -> eventsDB.fetchEventEntrants(
-                        Collections.singletonList(eventID))
-                .thenRun(eventEntrants -> {
-                    final var eventEntrantsInfo = eventEntrants.get(0);
+        eventsDB.fetchEvent(eventID).optionally(event -> eventsDB.fetchEventEntrants(eventID)
+                .optionally(eventEntrantsInfo -> {
                     // TODO (chase): Decouple. Event information loading SHOULD NOT need
                     // EventEntrants.
                     // Only the entrants fragment should need it.
                     final var joined =
                             eventEntrantsInfo.all().contains(FirebaseAuthUtils.getCurrentEmail());
                     loadEventInformation(event, eventEntrantsInfo.all().size(), joined);
-                    loadEntrants();
                 }));
+        if (savedInstanceState == null) {
+            // Load the entrants list fragment if we were not recreated.
+            loadEntrants();
+        }
 
         // Back Button logic
         Button back = view.findViewById(R.id.buttonBack);

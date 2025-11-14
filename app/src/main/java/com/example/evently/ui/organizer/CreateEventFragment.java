@@ -13,7 +13,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,10 +21,10 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.firebase.Timestamp;
 
-import com.example.evently.R;
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
+import com.example.evently.databinding.FragmentCreateEventBinding;
 import com.example.evently.utils.FirebaseAuthUtils;
 
 /**
@@ -38,6 +37,8 @@ import com.example.evently.utils.FirebaseAuthUtils;
  * Persistence is handled by the receiving screen.
  */
 public class CreateEventFragment extends Fragment {
+
+    private FragmentCreateEventBinding binding;
 
     /**
      * Inflates the "Create Event" form
@@ -57,7 +58,8 @@ public class CreateEventFragment extends Fragment {
             @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_create_event, container, false);
+        binding = FragmentCreateEventBinding.inflate(getLayoutInflater(), container, false);
+        return binding.getRoot();
     }
 
     /**
@@ -71,23 +73,17 @@ public class CreateEventFragment extends Fragment {
     public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
 
-        EditText etName = v.findViewById(R.id.etEventName);
-        EditText etDesc = v.findViewById(R.id.etDescription);
-        EditText etWaitLimit = v.findViewById(R.id.etWaitLimit);
-        EditText etWinners = v.findViewById(R.id.etWinners);
-        EditText etRegDate = v.findViewById(R.id.etRegDate);
-        EditText etRegTime = v.findViewById(R.id.etRegTime);
+        final var btnCreate = binding.btnCreate;
 
-        v.findViewById(R.id.btnCancel)
-                .setOnClickListener(
-                        _x -> NavHostFragment.findNavController(this).navigateUp());
+        binding.btnCancel.setOnClickListener(
+                _x -> NavHostFragment.findNavController(this).navigateUp());
 
-        v.findViewById(R.id.btnCreate).setOnClickListener(_x -> {
-            String name = etName.getText().toString().trim();
-            String desc = etDesc.getText().toString().trim();
-            String winnersStr = etWinners.getText().toString().trim();
-            String dateStr = etRegDate.getText().toString().trim();
-            String timeStr = etRegTime.getText().toString().trim();
+        btnCreate.setOnClickListener(_x -> {
+            String name = binding.etEventName.getText().toString().trim();
+            String desc = binding.etDescription.getText().toString().trim();
+            String winnersStr = binding.etWinners.getText().toString().trim();
+            String dateStr = binding.etRegDate.getText().toString().trim();
+            String timeStr = binding.etRegTime.getText().toString().trim();
 
             if (TextUtils.isEmpty(name)) {
                 toast("Please enter an event name.");
@@ -111,7 +107,7 @@ public class CreateEventFragment extends Fragment {
             }
 
             Optional<Long> wait = Optional.empty();
-            String w = etWaitLimit.getText().toString().trim();
+            String w = binding.etWaitLimit.getText().toString().trim();
             if (!TextUtils.isEmpty(w)) {
                 try {
                     wait = Optional.of(Long.parseLong(w));
@@ -145,7 +141,7 @@ public class CreateEventFragment extends Fragment {
                     winners,
                     wait.orElse(null));
 
-            v.findViewById(R.id.btnCreate).setEnabled(false);
+            btnCreate.setEnabled(false);
 
             new EventsDB()
                     .storeEvent(created)
@@ -154,7 +150,7 @@ public class CreateEventFragment extends Fragment {
                         NavHostFragment.findNavController(this).navigateUp();
                     })
                     .catchE(e -> {
-                        v.findViewById(R.id.btnCreate).setEnabled(true);
+                        btnCreate.setEnabled(true);
                         toast("Failed to save event. Try again.");
                     });
         });

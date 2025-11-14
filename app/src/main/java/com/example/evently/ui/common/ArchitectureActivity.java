@@ -104,12 +104,14 @@ public abstract class ArchitectureActivity extends AppCompatActivity {
                 Intent i =
                         new Intent(this, com.example.evently.ui.organizer.OrganizerActivity.class);
                 startActivity(i);
+                finish();
             });
         } else if (this instanceof com.example.evently.ui.organizer.OrganizerActivity) {
             b.setText("Switch to Entrant");
             b.setOnClickListener(_x -> {
                 Intent i = new Intent(this, com.example.evently.ui.entrant.EntrantActivity.class);
                 startActivity(i);
+                finish();
             });
         } else {
             // Unknown role: hide

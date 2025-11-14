@@ -109,7 +109,7 @@ public class RedrawTest extends FirebaseEmulatorTest {
         // Might have to wait a bit for the function to fire;
         Thread.sleep(10000);
         final var entrantsInfo =
-                eventsDB.fetchEventEntrants(List.of(targetEventID)).await().get(0);
+                eventsDB.fetchEventEntrants(targetEventID).await().orElseThrow();
 
         assertTrue(
                 "Cancelled user should be in the cancelled list",
@@ -135,7 +135,7 @@ public class RedrawTest extends FirebaseEmulatorTest {
         // Might have to wait a bit for the function to fire;
         Thread.sleep(10000);
         final var entrantsInfo =
-                eventsDB.fetchEventEntrants(List.of(targetEventID)).await().get(0);
+                eventsDB.fetchEventEntrants(targetEventID).await().orElseThrow();
 
         assertTrue(
                 "Cancelled user should be in the cancelled list",

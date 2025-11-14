@@ -39,40 +39,17 @@ public abstract class EventsFragment extends Fragment {
     protected abstract void onEventClick(Event event);
 
     /**
-     * Supplies the layout resource to inflate for this events list fragment.
-     * @return a valid layout resource id (e.g., {@code R.layout.fragment_event_list})
-     */
-    protected abstract int getLayoutRes();
-
-    /**
      * This method will be called by onCreateView to set up the events view.
      * It is guaranteed that the activity context will be available at the time of calling.
      * @param callback Callback that will be passed the events into.
      */
     protected abstract void initEvents(Consumer<List<Event>> callback);
 
-    /**
-     * Inflates the subclass-provided layout, locates the {@link RecyclerView}, connects
-     * everything to it
-     * @param inflater The LayoutInflater object that can be used to inflate
-     * any views in the fragment,
-     * @param container If non-null, this is the parent view that the fragment's
-     * UI should be attached to.  The fragment should not add the view itself,
-     * but this can be used to generate the LayoutParams of the view.
-     * @param savedInstanceState If non-null, this fragment is being re-constructed
-     * from a previous saved state as given here.
-     *
-     * @return the inflated root {@link View} of this fragment.
-     * @throws AssertionError if the inflated layout does not provide a RecyclerView
-     */
     @Override
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(getLayoutRes(), container, false);
-
-        RecyclerView recyclerView = (view instanceof RecyclerView)
-                ? (RecyclerView) view
-                : view.findViewById(R.id.event_list);
+        RecyclerView recyclerView =
+                (RecyclerView) inflater.inflate(R.layout.fragment_event_list, container, false);
 
         if (recyclerView == null) {
             throw new AssertionError("EventsFragment.onCreateView called with non RecyclerView");
@@ -87,6 +64,6 @@ public abstract class EventsFragment extends Fragment {
             recyclerView.setAdapter(adapter);
         });
 
-        return view;
+        return recyclerView;
     }
 }

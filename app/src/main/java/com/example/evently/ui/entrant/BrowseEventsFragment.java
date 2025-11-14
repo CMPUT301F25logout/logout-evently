@@ -3,20 +3,13 @@ package com.example.evently.ui.entrant;
 import java.util.List;
 import java.util.function.Consumer;
 
-import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.Toast;
-import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.firebase.Timestamp;
 
-import com.example.evently.R;
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.common.EventsFragment;
@@ -37,58 +30,9 @@ public class BrowseEventsFragment extends EventsFragment {
     protected void onEventClick(Event event) {
         // The action for clicking on the event, pass the event ID to the next event details
         // fragment
-        var action = BrowseEventsFragmentDirections.actionNavHomeToEventDetails(event.eventID());
+        var action = HomeFragmentDirections.actionNavHomeToEventDetails(event.eventID());
         NavController navController = NavHostFragment.findNavController(this);
         navController.navigate(action);
-    }
-
-    /**
-     * Provides the layout used by the Browse screen.
-     * @return the layout resource id for the Browse UI and list.
-     */
-    @Override
-    protected int getLayoutRes() {
-        return R.layout.fragment_event_list_tabbed;
-    }
-
-    /**
-     * Initializes the Browse tab UI after view inflation.
-     * Requires the layout to define {@code @id/btnJoined} and {@code @id/btnBrowse}.
-     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
-     * @param savedInstanceState If non-null, this fragment is being re-constructed
-     * from a previous saved state as given here.
-     */
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        Button btnJoined = view.findViewById(R.id.btnJoined);
-        Button btnBrowse = view.findViewById(R.id.btnBrowse);
-
-        styleSelected(btnJoined, false);
-        styleSelected(btnBrowse, true);
-
-        // Navigate to Joined via action id
-        btnJoined.setOnClickListener(v ->
-                NavHostFragment.findNavController(this).navigate(R.id.action_browse_to_joined));
-
-        // Already on Browse
-        btnBrowse.setOnClickListener(v -> {});
-    }
-
-    /**
-     * Applies selected/unselected styling to a top tab button.
-     * @param b the button to style
-     * @param selected true to show the “selected” style or false for unselected.
-     */
-    private void styleSelected(Button b, boolean selected) {
-        if (selected) {
-            b.setBackgroundResource(R.drawable.bg_tab_selected);
-            b.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white));
-        } else {
-            b.setBackgroundResource(R.drawable.bg_tab_unselected);
-            b.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black));
-        }
     }
 
     /**

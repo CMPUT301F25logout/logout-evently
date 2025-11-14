@@ -1,7 +1,6 @@
 package com.example.evently;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
@@ -140,9 +139,6 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
         final DateTimeFormatter some_date =
                 DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("UTC"));
 
-        // Test if each enrolled event shows up on the joined event fragment
-        onView(withId(R.id.btnJoined)).perform(click());
-
         Event[] expectedEvents = new Event[] {
             mockEvents[0], mockEvents[2], mockEvents[4], mockEvents[6], mockEvents[8],
         };
@@ -188,7 +184,7 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
 
     @Override
     protected int getSelfDestination(NavGraph graph) {
-        return R.id.nav_joined;
+        return R.id.nav_home;
     }
 
     @Override

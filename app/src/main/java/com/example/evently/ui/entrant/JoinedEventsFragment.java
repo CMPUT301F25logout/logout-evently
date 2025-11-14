@@ -3,11 +3,7 @@ package com.example.evently.ui.entrant;
 import java.util.List;
 import java.util.function.Consumer;
 
-import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 import androidx.core.content.ContextCompat;
@@ -35,44 +31,9 @@ public class JoinedEventsFragment extends EventsFragment {
     protected void onEventClick(Event event) {
         // The action for clicking on the event, pass the event ID to the next event details
         // fragment
-        var action = JoinedEventsFragmentDirections.actionNavJoinedToEventDetails(event.eventID());
+        var action = HomeFragmentDirections.actionNavHomeToEventDetails(event.eventID());
         NavController navController = NavHostFragment.findNavController(this);
         navController.navigate(action);
-    }
-
-    /**
-     * Supplies the layout used by this fragment.
-     *
-     * @return the layout resource id for the “Joined” tab UI and list.
-     */
-    @Override
-    protected int getLayoutRes() {
-        return R.layout.fragment_event_list_tabbed;
-    }
-
-    /**
-     * Connects top tab buttons and navigation after view inflation.
-     *
-     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
-     * @param savedInstanceState If non-null, this fragment is being re-constructed
-     * from a previous saved state as given here.
-     */
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        Button btnJoined = view.findViewById(R.id.btnJoined);
-        Button btnBrowse = view.findViewById(R.id.btnBrowse);
-
-        styleSelected(btnJoined, true);
-        styleSelected(btnBrowse, false);
-
-        // Navigate back to Browse via action id
-        btnBrowse.setOnClickListener(v ->
-                NavHostFragment.findNavController(this).navigate(R.id.action_joined_to_browse));
-
-        // Already on Joined
-        btnJoined.setOnClickListener(v -> {});
     }
 
     /**
