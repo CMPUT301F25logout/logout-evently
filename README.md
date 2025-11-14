@@ -54,6 +54,10 @@ To enable Google authentication for the Android Studio emulator, open the device
 
 Once installed, boot up the emulator, open the Play store, and then login to your Google account. Now, the emulator is prepared for Google authentication when the Evently is opened.
 
+## Allow QR code open the app
+
+In order for event QR code scans to redirect to the app, you must manually associate verify the app link. In your phone, go to App settings > Open by default > Add link > Select the link shown
+
 ## Test build
 
 Make sure you can run `gradlew assemble` from the command line (or `./gradlew assemble` on linux).

@@ -8,6 +8,7 @@ package com.example.evently.utils;
  */
 public final class IntentConstants {
     public static final String NOTIFICATION_INTENT_ID_KEY = "notificationID";
+    public static final String QR_EVENT_INTENT_ID_KEY = "eventID";
 
     private IntentConstants() {}
 }
