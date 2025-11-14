@@ -8,18 +8,25 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.Timestamp;
 
 import com.example.evently.R;
@@ -38,6 +45,21 @@ import com.example.evently.utils.FirebaseAuthUtils;
  * Persistence is handled by the receiving screen.
  */
 public class CreateEventFragment extends Fragment {
+
+    private Uri imageUri;
+    private ImageButton imageButton;
+
+    // Picks a launcher to pick a picture. For more details, see
+    // https://developer.android.com/training/data-storage/shared/photo-picker
+    ActivityResultLauncher<PickVisualMediaRequest> pickPoster =
+            registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+                if (uri != null) {
+                    imageUri = uri;
+                    Glide.with(getContext()).load(imageUri).into(imageButton);
+                } else {
+                    Log.d("Poster Picker", "No poster selected");
+                }
+            });
 
     /**
      * Inflates the "Create Event" form
@@ -77,6 +99,14 @@ public class CreateEventFragment extends Fragment {
         EditText etWinners = v.findViewById(R.id.etWinners);
         EditText etRegDate = v.findViewById(R.id.etRegDate);
         EditText etRegTime = v.findViewById(R.id.etRegTime);
+        imageButton = v.findViewById(R.id.btnPickPoster);
+
+        // Launches the poster picker when clicked.
+        imageButton.setOnClickListener(view -> {
+            pickPoster.launch(new PickVisualMediaRequest.Builder()
+                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                    .build());
+        });
 
         v.findViewById(R.id.btnCancel)
                 .setOnClickListener(
@@ -142,13 +172,13 @@ public class CreateEventFragment extends Fragment {
                     new Timestamp(selectionTime),
                     new Timestamp(selectionTime.plus(Duration.ofDays(2))),
                     FirebaseAuthUtils.getCurrentEmail(),
-                    winners,
-                    wait.orElse(null));
+                    winners);
 
             v.findViewById(R.id.btnCreate).setEnabled(false);
 
-            new EventsDB()
-                    .storeEvent(created)
+            EventsDB eventsDB = new EventsDB();
+
+            eventsDB.storeEvent(created)
                     .thenRun(_v -> {
                         toast("Event created.");
                         NavHostFragment.findNavController(this).navigateUp();
@@ -157,6 +187,9 @@ public class CreateEventFragment extends Fragment {
                         v.findViewById(R.id.btnCreate).setEnabled(true);
                         toast("Failed to save event. Try again.");
                     });
+
+            // Stores the poster
+            eventsDB.storePoster(created.eventID(), imageUri);
         });
     }
 

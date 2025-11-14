@@ -10,6 +10,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import android.content.Context;
+import android.net.Uri;
+import android.widget.ImageView;
+
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
@@ -20,6 +25,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import org.jetbrains.annotations.TestOnly;
 
 import com.example.evently.data.generic.Promise;
@@ -35,6 +43,7 @@ import com.example.evently.data.model.EventEntrants;
 public class EventsDB {
     private final CollectionReference eventsRef;
     private final CollectionReference eventEntrantsRef;
+    private final StorageReference storageRef;
 
     /**
      * Constructor for EventsDB
@@ -43,6 +52,7 @@ public class EventsDB {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
         eventEntrantsRef = db.collection("eventEntrants");
+        storageRef = FirebaseStorage.getInstance().getReference();
     }
 
     /**
@@ -277,5 +287,33 @@ public class EventsDB {
                 .map(EventsDB::getEventFromSnapshot)
                 .flatMap(Optional::stream)
                 .collect(Collectors.toList()));
+    }
+
+    /**
+     * Uploads a selected poster to firebase
+     * @param eventID the eventID of the poster.
+     * @param uri the uri of the image
+     * @return a promise of the upload task
+     */
+    public Promise<UploadTask.TaskSnapshot> storePoster(UUID eventID, Uri uri) {
+        StorageReference imageRef = storageRef.child("posters/" + eventID.toString());
+
+        var posterRef = imageRef.putFile(uri);
+        return promise(posterRef);
+    }
+
+    /**
+     * The code below loads a poster into an image view, if the poster is found
+     * @param eventID the eventID of the poster
+     * @param context the context of the image view
+     * @param imageView the imageView
+     */
+    public void showPoster(UUID eventID, Context context, ImageView imageView) {
+
+        // The following code is based on the downloading files section from the firebase docs:
+        // https://firebase.google.com/docs/storage/android/download-files?_gl=1
+        StorageReference imageRef = storageRef.child("posters/" + eventID.toString());
+
+        Glide.with(context).load(imageRef).into(imageView);
     }
 }
