@@ -8,6 +8,8 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -16,11 +18,14 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.Timestamp;
 
 import com.example.evently.R;
@@ -39,6 +44,9 @@ import com.example.evently.utils.FirebaseAuthUtils;
  * Persistence is handled by the receiving screen.
  */
 public class CreateEventFragment extends Fragment {
+
+    private Uri imageUri;
+    private ImageButton imageButton;
 
     /**
      * Inflates the "Create Event" form
@@ -78,7 +86,15 @@ public class CreateEventFragment extends Fragment {
         EditText etWinners = v.findViewById(R.id.etWinners);
         EditText etRegDate = v.findViewById(R.id.etRegDate);
         EditText etRegTime = v.findViewById(R.id.etRegTime);
-        ImageButton imageSelector = v.findViewById(R.id.btnPickPoster); // Adds the image selector
+        imageButton = v.findViewById(R.id.btnPickPoster);
+
+        imageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Picks an image
+                pickImage();
+            }
+        });
 
         v.findViewById(R.id.btnCancel)
                 .setOnClickListener(
@@ -144,13 +160,13 @@ public class CreateEventFragment extends Fragment {
                     new Timestamp(selectionTime),
                     new Timestamp(selectionTime.plus(Duration.ofDays(2))),
                     FirebaseAuthUtils.getCurrentEmail(),
-                    winners,
-                    wait.orElse(null));
+                    winners);
 
             v.findViewById(R.id.btnCreate).setEnabled(false);
 
-            new EventsDB()
-                    .storeEvent(created)
+            EventsDB eventsDB = new EventsDB();
+
+            eventsDB.storeEvent(created)
                     .thenRun(_v -> {
                         toast("Event created.");
                         NavHostFragment.findNavController(this).navigateUp();
@@ -159,6 +175,9 @@ public class CreateEventFragment extends Fragment {
                         v.findViewById(R.id.btnCreate).setEnabled(true);
                         toast("Failed to save event. Try again.");
                     });
+
+            // Stores the poster
+            eventsDB.storePoster(created.eventID(), imageUri);
         });
     }
 
@@ -169,4 +188,33 @@ public class CreateEventFragment extends Fragment {
     private void toast(String msg) {
         Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show();
     }
+
+    /**
+     * The following two sections of code are based on the code from the following Youtube
+     * tutorial:
+     * Title: "Uploading Image and text data into firebase FireStaore android studio (java)."
+     * Author: "Coding Canvas"
+     * Link: "https://www.youtube.com/watch?v=c9tU6Mp-Aik"
+     */
+    private void pickImage() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        launcher.launch(intent);
+    }
+
+    ActivityResultLauncher<Intent> launcher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == OrganizerActivity.RESULT_OK) {
+                    Intent data = result.getData();
+
+                    if (data != null && data.getData() != null) {
+                        // Saves the URI for later storing in the DB, and sets
+                        // the button to the selected image.
+                        imageUri = data.getData();
+                        Glide.with(getContext()).load(imageUri).into(imageButton);
+                    }
+                }
+            });
+    // End of tutorial based code.
 }
