@@ -1,6 +1,7 @@
 package com.example.evently.ui.common;
 
 import android.os.Bundle;
+import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +14,10 @@ import androidx.fragment.app.DialogFragment;
 import com.example.evently.R;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.util.function.Predicate;
+
 public class ConfirmFragmentTextInput extends DialogFragment {
+    final Predicate<String> validate;
     static final String headerKey = "header";
     static final String messageKey = "message";
     static final String cancelKey = "cancel";
@@ -22,10 +26,12 @@ public class ConfirmFragmentTextInput extends DialogFragment {
     public static final String requestKey = "confirmResult";
     public static final String inputKey = "input";
 
-    public ConfirmFragmentTextInput() {}
+    public ConfirmFragmentTextInput(Predicate<String> validate) {
+        this.validate = validate;
+    }
 
-    public static ConfirmFragmentTextInput newInstance(String headerText, String messageText, String hintText, String cancelText, String confirmText) {
-        ConfirmFragmentTextInput confirmFragment = new ConfirmFragmentTextInput();
+    public static ConfirmFragmentTextInput newInstance(String headerText, String messageText, String hintText, String cancelText, String confirmText, Predicate<String> validate) {
+        ConfirmFragmentTextInput confirmFragment = new ConfirmFragmentTextInput(validate);
         Bundle args = new Bundle();
         args.putString(headerKey, headerText);
         args.putString(messageKey, messageText);
@@ -36,8 +42,8 @@ public class ConfirmFragmentTextInput extends DialogFragment {
         return confirmFragment;
     }
 
-    public static ConfirmFragmentTextInput newInstance(String headerText, String messageText, String hintText) {
-        ConfirmFragmentTextInput confirmFragment = new ConfirmFragmentTextInput();
+    public static ConfirmFragmentTextInput newInstance(String headerText, String messageText, String hintText, Predicate<String> validate) {
+        ConfirmFragmentTextInput confirmFragment = new ConfirmFragmentTextInput(validate);
         Bundle args = new Bundle();
         args.putString(headerKey, headerText);
         args.putString(messageKey, messageText);
@@ -67,8 +73,17 @@ public class ConfirmFragmentTextInput extends DialogFragment {
 
         cancel.setOnClickListener(v -> dismiss());
         confirm.setOnClickListener(v -> {
+            Editable editText = textEdit.getText();
+            if (editText == null) {
+                dismiss();
+                return;
+            }
             Bundle input = new Bundle();
-            if (textEdit.getText() == null) dismiss();
+            String inputText = editText.toString();
+            if (!this.validate.test(inputText)) {
+                message.append("\nINVALID INPUT");
+                return;
+            }
             input.putString(inputKey, textEdit.getText().toString());
             getParentFragmentManager().setFragmentResult(requestKey, input);
             dismiss();

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +34,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
+
+import kotlin.text.UStringsKt;
 
 public class EditProfileFragment extends Fragment {
 
@@ -84,16 +87,18 @@ public class EditProfileFragment extends Fragment {
         db.fetchAccount(accountEmail).optionally(account -> {
             emailView.setText(account.visibleEmail());
             nameView.setText(account.name());
-            phoneView.setText(account.phoneNumber().orElse("None"));
-            headerView.setText(account.name() + "'s profile");
+            phoneView.setText(account.phoneNumber().map(this::formatPhoneNumber).orElse("None"));
+            headerView.setText(String.format("%s's Profile", account.name()));
         });
 
         editEmail.setOnClickListener(view -> {
             ConfirmFragmentTextInput confirmFragment = ConfirmFragmentTextInput.newInstance(
                     "Change Email",
                     "Please enter your new email below.",
-                    "New Email");
+                    "New Email",
+                    s -> Patterns.EMAIL_ADDRESS.matcher(s).matches());
             confirmFragment.show(getParentFragmentManager(), "confirmTextInput");
+
             getParentFragmentManager().setFragmentResultListener(ConfirmFragmentTextInput.requestKey, this, (requestKey, result) -> {
                 String newEmail = result.getString(ConfirmFragmentTextInput.inputKey);
                 db.updateVisibleEmail(accountEmail, newEmail);
@@ -105,10 +110,13 @@ public class EditProfileFragment extends Fragment {
             ConfirmFragmentTextInput confirmFragment = ConfirmFragmentTextInput.newInstance(
                     "Change Phone Number",
                     "Please enter your new phone number below.",
-                    "000-000-0000");
+                    "(000) 000-0000",
+                    s -> Patterns.PHONE.matcher(s).matches());
             confirmFragment.show(getParentFragmentManager(), "confirmTextInput");
+
             getParentFragmentManager().setFragmentResultListener(ConfirmFragmentTextInput.requestKey, this, (requestKey, result) -> {
                 String newPhoneNumber = result.getString(ConfirmFragmentTextInput.inputKey);
+                if (newPhoneNumber != null) newPhoneNumber = formatPhoneNumber(newPhoneNumber);
                 db.updatePhoneNumber(accountEmail, newPhoneNumber);
                 phoneView.setText(newPhoneNumber);
             });
@@ -131,16 +139,14 @@ public class EditProfileFragment extends Fragment {
                     SignOutFragment.class);
             confirmFragment.show(getParentFragmentManager(), "confirmNoInput");
         });
-
-
-
     }
 
-    /**
-     * Shows a short-length {@link Toast} with the given message in this Fragment's context
-     * @param msg message to display to the user
-     */
-    private void toast(String msg) {
-        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show();
+    private String formatPhoneNumber(String unformattedNumber) {
+        String phoneNum = unformattedNumber.replaceAll("\\D", "");
+        return String.format("(%s) %s-%s",
+                phoneNum.substring(0, 3),
+                phoneNum.substring(3, 6),
+                phoneNum.substring(6, 10));
     }
+
 }
