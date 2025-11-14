@@ -3,6 +3,7 @@ package com.example.evently.data;
 import static com.example.evently.data.generic.Promise.promise;
 import static com.example.evently.data.generic.PromiseOpt.promiseOpt;
 
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -24,6 +25,7 @@ import com.example.evently.data.model.Account;
 public class AccountDB {
 
     // Reference to the accounts collection
+    private final CollectionReference adminRef;
     private final CollectionReference accountsRef;
 
     /**
@@ -33,6 +35,7 @@ public class AccountDB {
         // Defines the reference to the accounts collection
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         accountsRef = db.collection("accounts");
+        adminRef = db.collection("admin");
     }
 
     /**
@@ -113,13 +116,48 @@ public class AccountDB {
     }
 
     /**
+     * The following method checks if an account is an admin account
+     * @param email The email of the account being verified
+     * @return A boolean about if the account is admin or not.
+     */
+    public Promise<Boolean> isAdmin(String email) {
+        return promise(adminRef.document(email).get()).map(DocumentSnapshot::exists);
+    }
+
+    /**
+     * The following method sets an account as an Admin, only to be used for testing.
+     * For non-testing, admins should be created through the firebase console
+     * @param email The email of the account being turned admin
+     * @return A promise that the account will become an admin account.
+     */
+    @TestOnly
+    public Promise<Void> setAdmin(String email) {
+
+        /**
+         * The following 2 lines of code are based on a response from the LLM Claude Sonnet 4.5 by
+         * Anthropic: "how to store only document IDs in firebase from android with java? No data
+         * needs to be stored. Only the documentID"
+         *
+         * According to the response, we need to add at least one field because Firestore does not
+         * support empty documents.
+         */
+        HashMap<String, Object> emptyHashMap = new HashMap<>();
+        emptyHashMap.put("exists", true);
+
+        // Creates the document in the admin account list, saying that it exists.
+        return promise(adminRef.document(email).set(emptyHashMap));
+    }
+
+    /**
      * Nuke the accounts collection and all associated data.
      */
     @TestOnly
     public Promise<Void> nuke() {
-        return promise(accountsRef.get()).then(docs -> {
+        final var accountsGetP = promise(accountsRef.get());
+        final var adminGetP = promise(adminRef.get());
+        return accountsGetP.with(adminGetP, (accountDocs, adminDocs) -> {
             WriteBatch batch = FirebaseFirestore.getInstance().batch();
-            Stream.concat(docs.getDocuments().stream(), docs.getDocuments().stream())
+            Stream.concat(accountDocs.getDocuments().stream(), adminDocs.getDocuments().stream())
                     .forEach(doc -> {
                         batch.delete(doc.getReference());
                     });

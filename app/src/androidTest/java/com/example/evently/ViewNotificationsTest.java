@@ -53,7 +53,6 @@ import com.example.evently.ui.entrant.ViewNotificationsFragment;
 public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotificationsFragment> {
     private static final EventsDB eventsDB = new EventsDB();
     private static final NotificationDB notificationDB = new NotificationDB();
-
     private static final Instant now = Instant.now();
     // We can use the same times for these tests.
     private static final Timestamp selectionTime = new Timestamp(now.plus(Duration.ofMillis(100)));
