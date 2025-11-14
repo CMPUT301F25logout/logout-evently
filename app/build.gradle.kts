@@ -136,8 +136,10 @@ dependencies {
     implementation(libs.navigation.ui)
     implementation(libs.recyclerview)
     implementation(libs.fragment)
-    implementation(libs.espresso.core)
 
+    implementation(libs.zxing.android.embedded)
+
+    implementation(libs.espresso.core)
     testImplementation(libs.junit)
     androidTestImplementation(libs.runner)
     androidTestImplementation(libs.ext.junit)
