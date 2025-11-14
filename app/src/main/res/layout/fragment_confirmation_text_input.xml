@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:weightSum="100">
+    android:layout_height="match_parent">
     <TextView
         android:id="@+id/confirmation_text_input_header"
         android:layout_width="match_parent"
@@ -32,6 +31,8 @@
         android:layout_height="0dp"
         android:layout_weight="10"
         android:background="#f2f0f9"
+        android:hint="placeholder"
+        android:textSize="18sp"
         android:layout_marginHorizontal="15dp">
     </com.google.android.material.textfield.TextInputEditText>
     <LinearLayout
@@ -39,13 +40,12 @@
         android:layout_height="0dp"
         android:layout_weight="10"
         android:orientation="horizontal"
-        android:weightSum="100"
         android:layout_marginHorizontal="15dp">
         <Button
             android:id="@+id/confirmation_text_input_cancel_button"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="50"
+            android:layout_weight="1"
             android:layout_marginEnd="5dp"
             android:gravity="center"
             android:text="CancelPlaceholder"
@@ -55,7 +55,7 @@
             android:id="@+id/confirmation_text_input_confirm_button"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="50"
+            android:layout_weight="1"
             android:layout_marginStart="5dp"
             android:gravity="center"
             android:text="ConfirmPlaceholder"

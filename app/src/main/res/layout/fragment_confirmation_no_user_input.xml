@@ -3,44 +3,47 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:weightSum="8">
+    android:layout_height="match_parent">
     <TextView
         android:id="@+id/confirmation_no_user_input_header"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="2"
+        android:layout_weight="20"
         android:gravity="center_vertical"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:layout_marginBottom="5dp"
-        android:layout_marginHorizontal="15dp">
-    </TextView>
+        android:layout_marginHorizontal="15dp"/>
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
     <TextView
         android:id="@+id/confirmation_no_user_input_message"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="2"
+        android:layout_weight="20"
         android:gravity="start"
         android:textSize="15sp"
-        android:layout_marginHorizontal="15dp">
-    </TextView>
+        android:layout_marginHorizontal="15dp"/>
     <FrameLayout
         android:id="@+id/confirmation_no_user_input_action_frame"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="2"
+        android:layout_weight="17"
         android:layout_marginHorizontal="15dp"
-        android:gravity="center"
-        app:cornerRadius="4dp"/>
+        android:gravity="center" />
     <Button
         android:id="@+id/confirmation_no_user_input_cancel_button"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="2"
+        android:layout_weight="20"
         android:layout_marginHorizontal="15dp"
-        android:layout_marginBottom="10dp"
         android:gravity="center"
-        app:cornerRadius="4dp">
-    </Button>
+        android:padding="0dp"
+        app:cornerRadius="4dp"/>
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
 </LinearLayout>

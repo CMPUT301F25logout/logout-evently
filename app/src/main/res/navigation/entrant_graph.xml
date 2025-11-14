@@ -49,7 +49,6 @@
         android:name="com.example.evently.ui.common.EditProfileFragment"
         android:label="Account"
         tools:layout="@layout/fragment_edit_profile">
-
     </fragment>
 
 </navigation>

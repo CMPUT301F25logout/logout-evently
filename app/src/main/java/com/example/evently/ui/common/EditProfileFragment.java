@@ -3,6 +3,7 @@ package com.example.evently.ui.common;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,8 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.evently.R;
+import com.example.evently.data.AccountDB;
+import com.example.evently.data.model.Account;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.auth.SignOutFragment;
@@ -33,8 +36,7 @@ import java.util.Optional;
 
 public class EditProfileFragment extends Fragment {
 
-    private Button deleteAccount;
-    private Button signOut;
+    private AccountDB db;
 
     /**
      * Inflates the "Create Event" form
@@ -54,6 +56,7 @@ public class EditProfileFragment extends Fragment {
             @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
+        db = new AccountDB();
         return inflater.inflate(R.layout.fragment_edit_profile, container, false);
     }
 
@@ -68,19 +71,50 @@ public class EditProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
 
+        TextView headerView = v.findViewById(R.id.edit_profile_header);
         TextView nameView = v.findViewById(R.id.edit_profile_name_text);
         TextView emailView = v.findViewById(R.id.edit_profile_email_text);
         TextView phoneView = v.findViewById(R.id.edit_profile_phone_text);
         Button editEmail = v.findViewById(R.id.edit_profile_email_button);
         Button editPhone = v.findViewById(R.id.edit_profile_phone_button);
-        this.deleteAccount = v.findViewById(R.id.edit_profile_delete_account_button);
-        this.signOut = v.findViewById(R.id.edit_profile_sign_out_button);
+        Button deleteAccount = v.findViewById(R.id.edit_profile_delete_account_button);
+        Button signOut = v.findViewById(R.id.edit_profile_sign_out_button);
 
-        editEmail.setOnClickListener(view -> {});
+        String accountEmail = FirebaseAuthUtils.getCurrentEmail();
+        db.fetchAccount(accountEmail).optionally(account -> {
+            emailView.setText(account.visibleEmail());
+            nameView.setText(account.name());
+            phoneView.setText(account.phoneNumber().orElse("None"));
+            headerView.setText(account.name() + "'s profile");
+        });
 
-        SignOutFragment signOutFragment = new SignOutFragment();
+        editEmail.setOnClickListener(view -> {
+            ConfirmFragmentTextInput confirmFragment = ConfirmFragmentTextInput.newInstance(
+                    "Change Email",
+                    "Please enter your new email below.",
+                    "New Email");
+            confirmFragment.show(getParentFragmentManager(), "confirmTextInput");
+            getParentFragmentManager().setFragmentResultListener(ConfirmFragmentTextInput.requestKey, this, (requestKey, result) -> {
+                String newEmail = result.getString(ConfirmFragmentTextInput.inputKey);
+                db.updateVisibleEmail(accountEmail, newEmail);
+                emailView.setText(newEmail);
+            });
+        });
 
-        this.signOut.setOnClickListener(view -> {
+        editPhone.setOnClickListener(view -> {
+            ConfirmFragmentTextInput confirmFragment = ConfirmFragmentTextInput.newInstance(
+                    "Change Phone Number",
+                    "Please enter your new phone number below.",
+                    "000-000-0000");
+            confirmFragment.show(getParentFragmentManager(), "confirmTextInput");
+            getParentFragmentManager().setFragmentResultListener(ConfirmFragmentTextInput.requestKey, this, (requestKey, result) -> {
+                String newPhoneNumber = result.getString(ConfirmFragmentTextInput.inputKey);
+                db.updatePhoneNumber(accountEmail, newPhoneNumber);
+                phoneView.setText(newPhoneNumber);
+            });
+        });
+
+        signOut.setOnClickListener(view -> {
             ConfirmFragmentNoInput confirmFragment = ConfirmFragmentNoInput.newInstance(
                     "CONFIRM SIGNING OUT",
                     "This action will sign you out!",
@@ -89,7 +123,7 @@ public class EditProfileFragment extends Fragment {
             confirmFragment.show(getParentFragmentManager(), "confirmNoInput");
         });
 
-        this.deleteAccount.setOnClickListener(view ->{
+        deleteAccount.setOnClickListener(view ->{
             ConfirmFragmentNoInput confirmFragment = ConfirmFragmentNoInput.newInstance(
                     "DELETE ACCOUNT",
                     "Are you sure you want to delete your account? This will log you out!",
@@ -97,6 +131,8 @@ public class EditProfileFragment extends Fragment {
                     SignOutFragment.class);
             confirmFragment.show(getParentFragmentManager(), "confirmNoInput");
         });
+
+
 
     }
 

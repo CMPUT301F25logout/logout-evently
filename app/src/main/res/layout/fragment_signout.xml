@@ -8,7 +8,6 @@
         android:id="@+id/signOut"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:autoSizeTextType="uniform"
         android:text="@string/action_sign_out" />
 
 </LinearLayout>
