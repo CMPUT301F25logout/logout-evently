@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.text.Editable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,17 +27,27 @@ public class ConfirmFragmentNoInput extends DialogFragment {
     static final String headerKey = "header";
     static final String messageKey = "message";
     static final String cancelKey = "cancel";
-    static final String fragmentKey = "fragmentClass";
+    static final String confirmKey = "confirm";
+    public static final String requestKey = "confirmResult";
+    public static final String inputKey = "input";
 
     public ConfirmFragmentNoInput() {}
 
-    public static ConfirmFragmentNoInput newInstance(String headerText, String messageText, String cancelText, Class<? extends Fragment> fragmentClass) {
+    public static ConfirmFragmentNoInput newInstance(String headerText, String messageText, String cancelText, String confirmText) {
         ConfirmFragmentNoInput confirmFragment = new ConfirmFragmentNoInput();
         Bundle args = new Bundle();
         args.putString(headerKey, headerText);
         args.putString(messageKey, messageText);
         args.putString(cancelKey, cancelText);
-        args.putString(fragmentKey, fragmentClass.getCanonicalName());
+        args.putString(confirmKey, confirmText);
+        confirmFragment.setArguments(args);
+        return confirmFragment;
+    }
+    public static ConfirmFragmentNoInput newInstance(String headerText, String messageText) {
+        ConfirmFragmentNoInput confirmFragment = new ConfirmFragmentNoInput();
+        Bundle args = new Bundle();
+        args.putString(headerKey, headerText);
+        args.putString(messageKey, messageText);
         confirmFragment.setArguments(args);
         return confirmFragment;
     }
@@ -47,6 +58,7 @@ public class ConfirmFragmentNoInput extends DialogFragment {
         TextView header = view.findViewById(R.id.confirmation_no_user_input_header);
         TextView message = view.findViewById(R.id.confirmation_no_user_input_message);
         Button cancel = view.findViewById(R.id.confirmation_no_user_input_cancel_button);
+        Button confirm = view.findViewById(R.id.confirmation_no_user_input_confirm_button);
         Bundle args = getArguments();
 
         if (args == null) throw new RuntimeException("Illegal createView Call made - ConfirmFragmentNoInput class");
@@ -54,59 +66,19 @@ public class ConfirmFragmentNoInput extends DialogFragment {
         header.setText(args.getString(headerKey));
         message.setText(args.getString(messageKey));
         cancel.setText(args.getString(cancelKey, "Cancel"));
+        confirm.setText(args.getString(confirmKey, "Confirm"));
 
-        cancel.setOnClickListener(v -> dismiss());
+        cancel.setOnClickListener(v -> returnResult(false));
+        confirm.setOnClickListener(v -> returnResult(true));
 
         return view;
     }
 
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        Bundle args = getArguments();
-
-        if (args == null) throw new RuntimeException("Illegal createView Call made - ConfirmFragmentNoInput class");
-        Fragment actionFragment;
-        try {
-            actionFragment = (Fragment) Class.forName(args.getString(fragmentKey)).newInstance();
-        } catch (ClassNotFoundException | IllegalAccessException | java.lang.InstantiationException e) {
-            throw new RuntimeException(e);
-        }
-
-        getChildFragmentManager().registerFragmentLifecycleCallbacks(
-                new FragmentManager.FragmentLifecycleCallbacks() {
-                    @Override
-                    public void onFragmentViewCreated(@NonNull FragmentManager fm,
-                                                      @NonNull Fragment f,
-                                                      @NonNull View v,
-                                                      Bundle savedInstanceState) {
-                        if (f == actionFragment) {
-                            View target = v.findViewWithTag("selectButton");
-
-                            if (target instanceof Button) {
-                                GradientDrawable buttonShape = new GradientDrawable();
-                                buttonShape.setCornerRadius(12f);
-                                target.setBackground(buttonShape);
-                                target.setPadding(0, 0, 0 ,0);
-                            } else {
-                                Log.w("ConfirmFragmentNoInput", "No 'selectButton' found in fragment " + f.getClass().getSimpleName());
-                            }
-
-                            // Cleanup to prevent repeated callbacks
-                            fm.unregisterFragmentLifecycleCallbacks(this);
-                        }
-                    }
-                },
-                false
-        );
-
-        getChildFragmentManager().beginTransaction().add(R.id.confirmation_no_user_input_action_frame, actionFragment).commit();
+    private void returnResult(boolean result) {
+        Bundle input = new Bundle();
+        input.putBoolean(inputKey, result);
+        getParentFragmentManager().setFragmentResult(requestKey, input);
+        dismiss();
     }
 
-    @NonNull
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        return super.onCreateDialog(savedInstanceState);
-
-    }
 }

@@ -1,6 +1,7 @@
 package com.example.evently.ui.common;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -18,11 +19,13 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.evently.MainActivity;
 import com.example.evently.R;
 import com.example.evently.data.AccountDB;
 import com.example.evently.data.model.Account;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
+import com.example.evently.ui.auth.AuthActivity;
 import com.example.evently.ui.auth.SignOutFragment;
 import com.example.evently.utils.FirebaseAuthUtils;
 import com.google.firebase.Timestamp;
@@ -87,7 +90,8 @@ public class EditProfileFragment extends Fragment {
         db.fetchAccount(accountEmail).optionally(account -> {
             emailView.setText(account.visibleEmail());
             nameView.setText(account.name());
-            phoneView.setText(account.phoneNumber().map(this::formatPhoneNumber).orElse("None"));
+
+            account.phoneNumber().ifPresentOrElse(n -> phoneView.setText(formatPhoneNumber(n)), () -> phoneView.setText("None"));
             headerView.setText(String.format("%s's Profile", account.name()));
         });
 
@@ -99,7 +103,10 @@ public class EditProfileFragment extends Fragment {
                     s -> Patterns.EMAIL_ADDRESS.matcher(s).matches());
             confirmFragment.show(getParentFragmentManager(), "confirmTextInput");
 
-            getParentFragmentManager().setFragmentResultListener(ConfirmFragmentTextInput.requestKey, this, (requestKey, result) -> {
+            getParentFragmentManager().setFragmentResultListener(
+                    ConfirmFragmentTextInput.requestKey,
+                    this,
+                    (requestKey, result) -> {
                 String newEmail = result.getString(ConfirmFragmentTextInput.inputKey);
                 db.updateVisibleEmail(accountEmail, newEmail);
                 emailView.setText(newEmail);
@@ -114,34 +121,73 @@ public class EditProfileFragment extends Fragment {
                     s -> Patterns.PHONE.matcher(s).matches());
             confirmFragment.show(getParentFragmentManager(), "confirmTextInput");
 
-            getParentFragmentManager().setFragmentResultListener(ConfirmFragmentTextInput.requestKey, this, (requestKey, result) -> {
-                String newPhoneNumber = result.getString(ConfirmFragmentTextInput.inputKey);
-                if (newPhoneNumber != null) newPhoneNumber = formatPhoneNumber(newPhoneNumber);
-                db.updatePhoneNumber(accountEmail, newPhoneNumber);
-                phoneView.setText(newPhoneNumber);
+            getParentFragmentManager().setFragmentResultListener(
+                    ConfirmFragmentTextInput.requestKey,
+                    this,
+                    (requestKey, result) -> {
+                String number = result.getString(ConfirmFragmentTextInput.inputKey);
+                if (number != null) number = formatPhoneNumber(number);
+                db.updatePhoneNumber(accountEmail, number);
+                phoneView.setText(number);
             });
         });
 
         signOut.setOnClickListener(view -> {
             ConfirmFragmentNoInput confirmFragment = ConfirmFragmentNoInput.newInstance(
                     "CONFIRM SIGNING OUT",
-                    "This action will sign you out!",
-                    "Cancel",
-                    SignOutFragment.class);
+                    "This action will sign you out!");
             confirmFragment.show(getParentFragmentManager(), "confirmNoInput");
+            getParentFragmentManager().setFragmentResultListener(
+                    ConfirmFragmentNoInput.requestKey,
+                    this,
+                    (requestKey, result) -> {
+                if (!result.getBoolean(ConfirmFragmentNoInput.inputKey)) return;
+                FirebaseAuthUtils.signOut(task -> {
+                    if (task.isSuccessful()) {
+                        Intent intent = new Intent(getActivity(), AuthActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                        return;
+                    }
+                    Log.w("EditProfileFragment", "Unable to log out: ", task.getException());
+                    Toast.makeText(
+                                    requireContext(),
+                                    "Unable to sign out",
+                                    Toast.LENGTH_SHORT)
+                            .show();
+                });
+            });
         });
 
         deleteAccount.setOnClickListener(view ->{
             ConfirmFragmentNoInput confirmFragment = ConfirmFragmentNoInput.newInstance(
                     "DELETE ACCOUNT",
-                    "Are you sure you want to delete your account? This will log you out!",
-                    "Cancel",
-                    SignOutFragment.class);
+                    "Are you sure you want to delete your account? This will log you out!");
             confirmFragment.show(getParentFragmentManager(), "confirmNoInput");
+            getParentFragmentManager().setFragmentResultListener(
+                    ConfirmFragmentNoInput.requestKey,
+                    this,
+                    (requestKey, result) -> {
+                        if (!result.getBoolean(ConfirmFragmentNoInput.inputKey)) return;
+                        FirebaseAuthUtils.deleteAccount(getActivity(),
+                                task -> {
+                                    Intent intent = new Intent(getActivity(), AuthActivity.class);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(intent);
+                                },
+                                e -> {
+                                    Log.w("EditProfileFragment", "Unable to delete account: ", e);
+                                    Toast.makeText(requireContext(),
+                                                    "Unable to delete account",
+                                                    Toast.LENGTH_SHORT)
+                                            .show();
+                                });
+                    });
         });
     }
 
     private String formatPhoneNumber(String unformattedNumber) {
+        if (!Patterns.PHONE.matcher(unformattedNumber).matches()) return "None";
         String phoneNum = unformattedNumber.replaceAll("\\D", "");
         return String.format("(%s) %s-%s",
                 phoneNum.substring(0, 3),

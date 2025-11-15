@@ -25,13 +25,15 @@
         android:gravity="start"
         android:textSize="15sp"
         android:layout_marginHorizontal="15dp"/>
-    <FrameLayout
-        android:id="@+id/confirmation_no_user_input_action_frame"
+    <Button
+        android:id="@+id/confirmation_no_user_input_confirm_button"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="17"
+        android:layout_weight="20"
         android:layout_marginHorizontal="15dp"
-        android:gravity="center" />
+        android:gravity="center"
+        android:padding="0dp"
+        app:cornerRadius="4dp"/>
     <Button
         android:id="@+id/confirmation_no_user_input_cancel_button"
         android:layout_width="match_parent"
