@@ -38,16 +38,34 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <!-- Ideally, scanning QR code should go to EntrantActivity Event Details directly
+                 However, if we do that - we can't ensure the user is logged in, which causes issues
+                 with everything in EntrantActivity (e.g notification nav destination).
+
+                 In essence, we'd need to support a "guest mode" for EntrantActivity specifically.
+                 However, this is out of scope for this project.
+            -->
+            <intent-filter
+                android:autoVerify="true"
+                android:label="QR Code to Event Details (App)">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Accepts URIs that begin with "http://logout.app/evently” -->
+                <data android:scheme="http"
+                    android:host="logout.app"
+                    android:pathPrefix="/evently" />
+            </intent-filter>
         </activity>
 
         <activity
             android:name=".ui.entrant.EntrantActivity"
-            android:exported="true">
-        </activity>
+            android:exported="false" />
 
         <activity
             android:name=".ui.organizer.OrganizerActivity"
-            android:exported="true" />
+            android:exported="false" />
 
         <service
             android:name=".FirebaseNotificationService"
@@ -56,6 +74,16 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.qrprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/qr_file_paths" />
+        </provider>
 
     </application>
 

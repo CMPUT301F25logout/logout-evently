@@ -1,5 +1,7 @@
 package com.example.evently.ui.entrant;
 
+import java.util.UUID;
+
 import android.os.Bundle;
 
 import com.example.evently.R;
@@ -39,6 +41,18 @@ public class EntrantActivity extends ArchitectureActivity {
             // We were sent here by clicking on a notification.
             // Navigate to the notification page and let it handle the intent.
             navController.navigate(R.id.nav_notifs, null);
+        }
+        // Otherwise, need to check if the intent had URI data (i.e scanned QR code).
+        var intentData = intent.getData();
+        if (intentData != null) {
+            // If we got here by scanning a QR code for an event, redirect to said event details
+            // page.
+            var eventID = intentData.getQueryParameter(IntentConstants.QR_EVENT_INTENT_ID_KEY);
+            if (eventID != null) {
+                final var action = HomeFragmentDirections.actionNavHomeToEventDetails(
+                        UUID.fromString(eventID));
+                navController.navigate(action);
+            }
         }
     }
 }

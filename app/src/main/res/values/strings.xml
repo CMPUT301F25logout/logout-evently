@@ -17,4 +17,7 @@
     <string name="default_notif_channel">fcm_channel_default</string>
     <string name="create_event_btn_description">Create event</string>
     <string name="selected_role_icon_description">Currently selected role</string>
+    <string name="qr_share_description">Share QR code</string>
+    <string name="qr_image_description">QR code for Event</string>
+    <string name="share_btn_text">Share</string>
 </resources>

@@ -206,6 +206,11 @@ public class AuthActivity extends AppCompatActivity {
         if (thisExtras != null) {
             transition.putExtras(thisExtras);
         }
+        // Also forward any data that we were passed.
+        var thisData = getIntent().getData();
+        if (thisData != null) {
+            transition.setData(thisData);
+        }
         startActivity(transition);
         finish();
     }

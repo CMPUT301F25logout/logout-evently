@@ -12,7 +12,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.evently.R;
 import com.example.evently.data.EventsDB;
@@ -93,8 +92,13 @@ public abstract class EventDetailsFragment<F extends Fragment> extends Fragment 
         }
 
         // Back Button logic
-        Button back = view.findViewById(R.id.buttonBack);
-        back.setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
+        binding.shareBtn.setOnClickListener(v -> {
+            final var qrDialog = new EventQRDialogFragment();
+            final var bundle = new Bundle();
+            bundle.putSerializable("eventID", eventID);
+            qrDialog.setArguments(bundle);
+            qrDialog.show(getChildFragmentManager(), "QR_DIALOG");
+        });
     }
 
     /**
