@@ -25,15 +25,6 @@ public class HomeFragment extends Fragment {
             @Nullable Bundle savedInstanceState) {
         binding = FragmentOrganizerHomeBinding.inflate(getLayoutInflater(), container, false);
 
-        if (savedInstanceState == null) {
-            // Add the event list fragment (unless we were recreated).
-            getChildFragmentManager()
-                    .beginTransaction()
-                    .setReorderingAllowed(true)
-                    .add(binding.eventListContainer.getId(), OwnEventsFragment.class, null)
-                    .commit();
-        }
-
         return binding.getRoot();
     }
 
