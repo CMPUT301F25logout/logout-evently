@@ -1,9 +1,11 @@
 package com.example.evently.ui.entrant;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -45,8 +47,18 @@ public class EntrantEventActionsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         final var self = FirebaseAuthUtils.getCurrentEmail();
 
+        eventViewModel.getEventLive().observe(getViewLifecycleOwner(), event -> {
+            if (event.isFull()) {
+                // Disable the button if the waitlist is already full
+                binding.waitlistAction.setEnabled(false);
+                // Change the button text to indicate that it's full
+                binding.waitlistAction.setText(R.string.event_join_btn_full);
+            } else {
+                binding.waitlistAction.setEnabled(true);
+            }
+        });
+
         eventViewModel.getEventEntrantsLive().observe(getViewLifecycleOwner(), eventEntrants -> {
-            binding.waitlistAction.setEnabled(true);
             if (eventEntrants.all().contains(self)) {
                 // The user has already joined!
                 binding.waitlistAction.setText(R.string.event_join_btn_joined);
@@ -58,21 +70,39 @@ public class EntrantEventActionsFragment extends Fragment {
             } else {
                 // The user may join.
                 binding.waitlistAction.setText(R.string.event_join_btn);
-                binding.waitlistAction.setOnClickListener(
-                        v -> eventsDB.enroll(eventViewModel.eventID, self).thenRun(vu -> {
+                binding.waitlistAction.setOnClickListener(v -> eventsDB.enroll(
+                                eventViewModel.eventID, self)
+                        .thenRun(vu -> {
                             // A join/leave action has happened - ask to update entrants and event.
+                            eventViewModel.requestUpdate();
+                        })
+                        .catchE(e -> {
+                            switch (e) {
+                                case IllegalArgumentException ignored ->
+                                    Toast.makeText(
+                                                    requireContext(),
+                                                    "Waitlist is full",
+                                                    Toast.LENGTH_SHORT)
+                                            .show();
+                                case IllegalStateException ignored ->
+                                    Toast.makeText(
+                                                    requireContext(),
+                                                    "Enrollment deadline has passed",
+                                                    Toast.LENGTH_SHORT)
+                                            .show();
+                                default -> {
+                                    Log.e("EntrantEventActions", e.toString());
+                                    Toast.makeText(
+                                                    requireContext(),
+                                                    "Something went wrong...",
+                                                    Toast.LENGTH_SHORT)
+                                            .show();
+                                }
+                            }
                             eventViewModel.requestUpdate();
                         }));
             }
         });
-
-        //        switch (waitlistStatus) {
-        //            case WaitlistStatus.FULL -> {
-        //                // Disable the button if the waitlist is already full
-        //                binding.waitlistAction.setEnabled(false);
-        //                // Change the button text to indicate that it's full
-        //                binding.waitlistAction.setText(R.string.event_join_btn_full);
-        //            }
 
         binding.utilShareBtn.shareBtn.setOnClickListener(v -> {
             final var qrDialog = new EventQRDialogFragment();
