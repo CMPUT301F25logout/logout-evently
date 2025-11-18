@@ -3,6 +3,7 @@ package com.example.evently.data;
 import static com.example.evently.data.generic.Promise.promise;
 import static com.example.evently.data.generic.PromiseOpt.promiseOpt;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -78,7 +79,8 @@ public class EventsDB {
                 documentSnapshot.getTimestamp("eventTime"),
                 documentSnapshot.getString("organizer"),
                 documentSnapshot.getLong("selectionLimit"),
-                optionalEntrantLimit));
+                optionalEntrantLimit,
+                documentSnapshot.getBoolean("isFull")));
     }
 
     /**
@@ -118,6 +120,48 @@ public class EventsDB {
      * @param email Email of the user to enroll.
      */
     public Promise<Void> enroll(UUID eventID, String email) {
+        final var eventIDStr = eventID.toString();
+        final var targetEventRef = eventsRef.document(eventIDStr);
+        final var targetEventEntrantsRef = eventEntrantsRef.document(eventIDStr);
+        return promise(FirebaseFirestore.getInstance().runTransaction(tx -> {
+            // We must verify some information and run two updates to enroll.
+            // All of these must pass at once in order for enroll to be successful.
+            // We must use a transaction to ensure no half success and no race condition from other
+            // people enrolling.
+            final var event = getEventFromSnapshot(tx.get(targetEventRef)).orElseThrow();
+            if (event.isFull()) {
+                throw new IllegalArgumentException("Event is full");
+            }
+            if (event.selectionTime().toInstant().isBefore(Instant.now())) {
+                throw new IllegalStateException("Event selection time has passed");
+            }
+            final var eventEntrants =
+                    getEventEntrantsFromSnapshot(tx.get(targetEventEntrantsRef)).orElseThrow();
+
+            // Add the user to the enrolled list.
+            final var entrantUpdateMap = addEntrantUpdateObj(email, "enrolledEntrants");
+            tx.update(targetEventEntrantsRef, entrantUpdateMap);
+            // Mark the event full if we've hit the limit.
+            event.optionalEntrantLimit().ifPresent(limit -> {
+                if (eventEntrants.all().size() + 1 >= limit) {
+                    final var eventUpdateMap = new HashMap<String, Object>();
+                    eventUpdateMap.put("isFull", true);
+                    tx.update(targetEventRef, eventUpdateMap);
+                }
+            });
+
+            // Success!
+            return null;
+        }));
+    }
+
+    /**
+     * Enroll without checking any conditions. Only for testing.
+     * @param eventID Target event.
+     * @param email Email of the user to enroll.
+     */
+    @TestOnly
+    public Promise<Void> unsafeEnroll(UUID eventID, String email) {
         return addEntrantToList(eventID, email, "enrolledEntrants");
     }
 
@@ -160,9 +204,14 @@ public class EventsDB {
 
     // Helper to add a user to one of the lists.
     private Promise<Void> addEntrantToList(UUID eventID, String email, String field) {
+        final var updateMap = addEntrantUpdateObj(email, field);
+        return promise(eventEntrantsRef.document(eventID.toString()).update(updateMap));
+    }
+
+    private HashMap<String, Object> addEntrantUpdateObj(String email, String field) {
         final var updateMap = new HashMap<String, Object>();
         updateMap.put(field, FieldValue.arrayUnion(email));
-        return promise(eventEntrantsRef.document(eventID.toString()).update(updateMap));
+        return updateMap;
     }
 
     // Helper to remove a user from one of the lists

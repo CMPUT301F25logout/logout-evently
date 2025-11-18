@@ -136,6 +136,7 @@ dependencies {
     implementation(libs.navigation.ui)
     implementation(libs.recyclerview)
     implementation(libs.fragment)
+    implementation(libs.lifecycle.viewmodel)
 
     implementation(libs.zxing.android.embedded)
 

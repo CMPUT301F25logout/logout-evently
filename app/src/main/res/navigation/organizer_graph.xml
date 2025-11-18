@@ -12,10 +12,16 @@
         tools:layout="@layout/fragment_organizer_home">
         <action
             android:id="@+id/action_nav_home_to_event_details"
-            app:destination="@id/event_details" />
+            app:destination="@id/event_details"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popExitAnim="@anim/slide_out_right" />
         <action
             android:id="@+id/action_nav_home_to_create_event"
-            app:destination="@id/create_event" />
+            app:destination="@id/create_event"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <fragment
@@ -24,8 +30,8 @@
         android:label="Manage Event"
         tools:layout="@layout/fragment_event_details">
         <argument
-            android:name="eventId"
-            app:argType="string" />
+            android:name="eventID"
+            app:argType="java.util.UUID" />
     </fragment>
 
     <fragment

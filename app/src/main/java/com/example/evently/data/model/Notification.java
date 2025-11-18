@@ -45,6 +45,15 @@ public record Notification(
         Cancelled
     }
 
+    public static Notification winnerNotification(UUID eventID) {
+        return new Notification(
+                eventID,
+                Channel.Winners,
+                "You are invited to an event!",
+                "Congratulations! You have been selected to attend event with ID " + eventID
+                        + ".\nYou may accept or deny this invitation.");
+    }
+
     public Notification(
             UUID notificationID, UUID eventID, Channel channel, String title, String description) {
         this(notificationID, eventID, channel, title, description, Instant.now(), new HashSet<>());
