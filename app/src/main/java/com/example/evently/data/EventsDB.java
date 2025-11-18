@@ -257,15 +257,18 @@ public class EventsDB {
     }
 
     /**
-     * Remove given event from DB
+     * Remove given event from DB, deletes it's event entrants, and it's posters
      * @param eventID UUID of event
      */
     public Promise<Void> deleteEvent(UUID eventID) {
-        return promise(eventsRef.document(eventID.toString()).delete());
+        return promise(eventsRef.document(eventID.toString()).delete())
+                .alongside(promise(
+                        storageRef.child("posters/" + eventID.toString()).delete()))
+                .alongside(promise(eventEntrantsRef.document(eventID.toString()).delete()));
     }
 
     /**
-     * Clear the whole collection.
+     * Clear the whole firestore collection, and the firebase storage for images.
      * @return Promise.
      */
     @TestOnly

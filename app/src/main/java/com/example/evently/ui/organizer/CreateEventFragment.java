@@ -186,8 +186,10 @@ public class CreateEventFragment extends Fragment {
                         toast("Failed to save event. Try again.");
                     });
 
-            // Stores the poster
-            eventsDB.storePoster(created.eventID(), imageUri);
+            // Stores the poster if one has been selected:
+            if (imageUri != null) {
+                eventsDB.storePoster(created.eventID(), imageUri);
+            }
         });
     }
 
