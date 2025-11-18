@@ -131,6 +131,7 @@ public abstract class EventDetailsFragment<F extends Fragment> extends Fragment 
         entrantCount.setText(entrantCountStr);
         eventName.setText(event.name());
         desc.setText(event.description());
+        new EventsDB().showPoster(event.eventID(), getContext(), image);
     }
 
     /**

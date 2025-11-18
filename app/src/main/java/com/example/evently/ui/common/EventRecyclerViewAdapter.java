@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.data.model.EventStatus;
 import com.example.evently.databinding.FragmentEventBinding;
@@ -73,8 +74,10 @@ public class EventRecyclerViewAdapter
         // Title / name
         binding.content.setText(holder.mItem.name());
 
-        // Poster
-        binding.imgPoster.setImageResource(android.R.drawable.ic_menu_report_image);
+        // Sets the poster
+        new EventsDB()
+                .showPoster(
+                        holder.mItem.eventID(), binding.content.getContext(), binding.imgPoster);
 
         // Status + selectionDate
         EventStatus status = holder.mItem.computeStatus(Instant.now());

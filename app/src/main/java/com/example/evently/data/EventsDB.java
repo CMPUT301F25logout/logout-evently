@@ -314,6 +314,13 @@ public class EventsDB {
         // https://firebase.google.com/docs/storage/android/download-files?_gl=1
         StorageReference imageRef = storageRef.child("posters/" + eventID.toString());
 
-        Glide.with(context).load(imageRef).into(imageView);
+        // The following code attempts to find the imageRef in the DB.
+        // android.R.drawable.ic_menu_report_image is used while searching or if the image is not
+        // found in the DB.
+        Glide.with(context)
+                .load(imageRef)
+                .placeholder(android.R.drawable.ic_menu_report_image)
+                .error(android.R.drawable.ic_menu_report_image)
+                .into(imageView);
     }
 }
