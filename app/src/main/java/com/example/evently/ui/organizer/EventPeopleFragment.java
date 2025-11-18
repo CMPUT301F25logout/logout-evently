@@ -5,8 +5,6 @@ import static com.example.evently.ui.common.EntrantsFragment.CancelledEntrantsFr
 import static com.example.evently.ui.common.EntrantsFragment.EnrolledEntrantsFragment;
 import static com.example.evently.ui.common.EntrantsFragment.SelectedEntrantsFragment;
 
-import java.util.UUID;
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,24 +29,28 @@ import com.example.evently.databinding.FragmentEventPeopleBinding;
  */
 public class EventPeopleFragment extends Fragment {
 
+    private FragmentEventPeopleBinding binding;
+
     @Nullable @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
-        final var binding =
-                FragmentEventPeopleBinding.inflate(getLayoutInflater(), container, false);
+        binding = FragmentEventPeopleBinding.inflate(getLayoutInflater(), container, false);
 
-        final var args = getArguments();
-        assert args != null;
-        final var eventID = (UUID) args.getSerializable("eventID");
-        assert eventID != null;
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         final TabLayout tabLayout = binding.eventPeopleTabLayout;
         final ViewPager2 viewPager = binding.eventPeopleViewPager;
 
-        viewPager.setAdapter(
-                new EventPeopleAdapter(getChildFragmentManager(), getLifecycle(), eventID));
+        // Must use parent fragment manager so that the children tabs will have access to
+        // viewmodel...
+        viewPager.setAdapter(new EventPeopleAdapter(getParentFragmentManager(), getLifecycle()));
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
                     switch (position) {
@@ -59,29 +61,20 @@ public class EventPeopleFragment extends Fragment {
                     }
                 })
                 .attach();
-
-        return binding.getRoot();
     }
 
     /**
      * Adapter that provides the fragments for each tab.
      */
     private static class EventPeopleAdapter extends FragmentStateAdapter {
-        private final UUID eventID;
 
         public EventPeopleAdapter(
-                @NonNull FragmentManager fragmentManager,
-                @NonNull Lifecycle lifecycle,
-                @NonNull UUID eventID) {
+                @NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
             super(fragmentManager, lifecycle);
-
-            this.eventID = eventID;
         }
 
         @NonNull @Override
         public Fragment createFragment(int position) {
-            final var bundle = new Bundle();
-            bundle.putSerializable("eventID", eventID);
             final var frag =
                     switch (position) {
                         case 0 -> new EnrolledEntrantsFragment();
@@ -91,7 +84,6 @@ public class EventPeopleFragment extends Fragment {
                         // This should never happen. See getItemCount.
                         default -> new Fragment();
                     };
-            frag.setArguments(bundle);
             return frag;
         }
 

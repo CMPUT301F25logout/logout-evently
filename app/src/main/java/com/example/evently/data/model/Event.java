@@ -34,7 +34,8 @@ public record Event(
         Timestamp eventTime,
         String organizer,
         long selectionLimit,
-        Optional<Long> optionalEntrantLimit)
+        Optional<Long> optionalEntrantLimit,
+        boolean isFull)
         implements Serializable {
     public Event {
         if (name.isBlank()) {
@@ -82,7 +83,8 @@ public record Event(
                 eventTime,
                 organizer,
                 selectionLimit,
-                Optional.ofNullable(entrantLimit));
+                Optional.ofNullable(entrantLimit),
+                false);
     }
 
     public Event(
@@ -102,7 +104,8 @@ public record Event(
                 eventTime,
                 organizer,
                 selectionLimit,
-                Optional.empty());
+                Optional.empty(),
+                false);
     }
 
     /**
@@ -121,6 +124,7 @@ public record Event(
         hashMap.put("organizer", this.organizer);
         hashMap.put("selectionLimit", this.selectionLimit);
         hashMap.put("entrantLimit", this.optionalEntrantLimit.orElse(null));
+        hashMap.put("isFull", this.isFull);
 
         return hashMap;
     }

@@ -12,7 +12,10 @@
         tools:layout="@layout/fragment_entrant_home">
         <action
             android:id="@+id/action_nav_home_to_event_details"
-            app:destination="@id/event_details" />
+            app:destination="@id/event_details"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <fragment
@@ -29,6 +32,7 @@
         <argument
             android:name="eventID"
             app:argType="java.util.UUID" />
+
     </fragment>
 
 

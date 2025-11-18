@@ -144,13 +144,13 @@ public class ViewNotificationsTest extends EmulatedFragmentTest<ViewNotification
 
         // Enroll self into some of these (not all!).
         Promise.all(
-                        eventsDB.enroll(mockEvents[1].eventID(), mockAccount.email()),
-                        eventsDB.enroll(mockEvents[2].eventID(), mockAccount.email()),
-                        eventsDB.enroll(mockEvents[3].eventID(), mockAccount.email()),
-                        eventsDB.enroll(mockEvents[4].eventID(), mockAccount.email()),
-                        eventsDB.enroll(mockEvents[5].eventID(), mockAccount.email()),
-                        eventsDB.enroll(mockEvents[6].eventID(), mockAccount.email()),
-                        eventsDB.enroll(mockEvents[7].eventID(), mockAccount.email()))
+                        eventsDB.unsafeEnroll(mockEvents[1].eventID(), mockAccount.email()),
+                        eventsDB.unsafeEnroll(mockEvents[2].eventID(), mockAccount.email()),
+                        eventsDB.unsafeEnroll(mockEvents[3].eventID(), mockAccount.email()),
+                        eventsDB.unsafeEnroll(mockEvents[4].eventID(), mockAccount.email()),
+                        eventsDB.unsafeEnroll(mockEvents[5].eventID(), mockAccount.email()),
+                        eventsDB.unsafeEnroll(mockEvents[6].eventID(), mockAccount.email()),
+                        eventsDB.unsafeEnroll(mockEvents[7].eventID(), mockAccount.email()))
                 .await();
 
         // Send a few notifications to all channel.

@@ -1,8 +1,6 @@
 package com.example.evently.ui.common;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -10,12 +8,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.evently.R;
-import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.EventEntrants;
+import com.example.evently.ui.model.EventViewModel;
 
 /**
  * A reusable abstract fragment representing a list of entrants.
@@ -32,12 +31,7 @@ public abstract sealed class EntrantsFragment extends Fragment
                 EntrantsFragment.AcceptedEntrantsFragment,
                 EntrantsFragment.CancelledEntrantsFragment {
 
-    /**
-     * Adapter to manage the entrant list dynamically.
-     */
-    protected EntrantRecyclerViewAdapter adapter;
-
-    private EventsDB eventsDB = new EventsDB();
+    private EventViewModel eventViewModel;
 
     /**
      * Select the type of entrants we aim to display.
@@ -53,19 +47,23 @@ public abstract sealed class EntrantsFragment extends Fragment
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_entrant_list, container, false);
 
-        final var args = getArguments();
-        assert args != null;
-        final var eventID = (UUID) args.getSerializable("eventID");
-        assert eventID != null;
+        eventViewModel = new ViewModelProvider(requireParentFragment()).get(EventViewModel.class);
 
         if (view instanceof RecyclerView recyclerView) {
             Context context = recyclerView.getContext();
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            // Set up the recycler view adapter with the initial list of events (asynchronous).
-            eventsDB.fetchEventEntrants(eventID)
-                    .optionally(entrantsInfo ->
-                            setUpAdapter(recyclerView, selectEntrantList(entrantsInfo)))
-                    .orElse(() -> setUpAdapter(recyclerView, new ArrayList<>()));
+
+            // We set up an initial empty adapter, to allow the usage of swapAdapter later.
+            recyclerView.setAdapter(new EntrantRecyclerViewAdapter());
+
+            // Set up an observer to update the event entrants as they change.
+            eventViewModel
+                    .getEventEntrantsLive()
+                    .observe(getViewLifecycleOwner(), eventEntrants -> {
+                        final var adapter =
+                                new EntrantRecyclerViewAdapter(selectEntrantList(eventEntrants));
+                        recyclerView.swapAdapter(adapter, false);
+                    });
 
             return view;
         } else {
@@ -73,13 +71,7 @@ public abstract sealed class EntrantsFragment extends Fragment
         }
     }
 
-    private void setUpAdapter(RecyclerView recyclerView, List<String> entrants) {
-        adapter = new EntrantRecyclerViewAdapter(entrants);
-        recyclerView.setAdapter(adapter);
-    }
-
     public static final class EnrolledEntrantsFragment extends EntrantsFragment {
-
         @Override
         protected List<String> selectEntrantList(EventEntrants entrantsInfo) {
             return entrantsInfo.all();
