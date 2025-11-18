@@ -314,7 +314,6 @@ public class EventsDB {
      * @param imageView the imageView
      */
     public void showPoster(UUID eventID, Context context, ImageView imageView) {
-
         // The following code is based on the downloading files section from the firebase docs:
         // https://firebase.google.com/docs/storage/android/download-files?_gl=1
         StorageReference imageRef = storageRef.child("posters/" + eventID.toString());

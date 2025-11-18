@@ -141,7 +141,9 @@ dependencies {
 
     implementation(libs.espresso.core)
     implementation(libs.firebase.storage)
+    annotationProcessor(libs.compiler)
     implementation(libs.firebase.ui.storage)
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.runner)
