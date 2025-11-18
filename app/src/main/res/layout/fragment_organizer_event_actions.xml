@@ -1,8 +1,9 @@
 <com.google.android.material.button.MaterialButtonGroup xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/actionButtonGroup"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginTop="12dp">
+    android:layout_marginTop="12dp"
+    tools:context=".ui.organizer.OrganizerEventActionsFragment">
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/notifySelected"

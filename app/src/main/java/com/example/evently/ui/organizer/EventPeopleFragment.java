@@ -29,18 +29,28 @@ import com.example.evently.databinding.FragmentEventPeopleBinding;
  */
 public class EventPeopleFragment extends Fragment {
 
+    private FragmentEventPeopleBinding binding;
+
     @Nullable @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
-        final var binding =
-                FragmentEventPeopleBinding.inflate(getLayoutInflater(), container, false);
+        binding = FragmentEventPeopleBinding.inflate(getLayoutInflater(), container, false);
+
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         final TabLayout tabLayout = binding.eventPeopleTabLayout;
         final ViewPager2 viewPager = binding.eventPeopleViewPager;
 
-        viewPager.setAdapter(new EventPeopleAdapter(getChildFragmentManager(), getLifecycle()));
+        // Must use parent fragment manager so that the children tabs will have access to
+        // viewmodel...
+        viewPager.setAdapter(new EventPeopleAdapter(getParentFragmentManager(), getLifecycle()));
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
                     switch (position) {
@@ -51,8 +61,6 @@ public class EventPeopleFragment extends Fragment {
                     }
                 })
                 .attach();
-
-        return binding.getRoot();
     }
 
     /**

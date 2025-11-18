@@ -25,8 +25,7 @@ public class OwnEventsFragment extends EventsFragment {
      */
     @Override
     protected void onEventClick(Event event) {
-        var action = HomeFragmentDirections.actionNavHomeToEventDetails(
-                event.eventID().toString());
+        var action = HomeFragmentDirections.actionNavHomeToEventDetails(event.eventID());
         NavController navController = NavHostFragment.findNavController(this);
         navController.navigate(action);
     }

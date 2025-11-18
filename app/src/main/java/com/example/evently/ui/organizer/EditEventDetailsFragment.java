@@ -1,10 +1,9 @@
 package com.example.evently.ui.organizer;
 
 import com.example.evently.ui.common.EventDetailsFragment;
-import com.example.evently.ui.entrant.EntrantEventActionsFragment;
 
 public class EditEventDetailsFragment
-        extends EventDetailsFragment<EventPeopleFragment, EntrantEventActionsFragment> {
+        extends EventDetailsFragment<EventPeopleFragment, OrganizerEventActionsFragment> {
 
     @Override
     protected Class<EventPeopleFragment> getFragmentForEntrantListContainer() {
@@ -12,7 +11,7 @@ public class EditEventDetailsFragment
     }
 
     @Override
-    protected Class<EntrantEventActionsFragment> getFragmentForActionButtonsContainer() {
-        return EntrantEventActionsFragment.class;
+    protected Class<OrganizerEventActionsFragment> getFragmentForActionButtonsContainer() {
+        return OrganizerEventActionsFragment.class;
     }
 }
