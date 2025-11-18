@@ -146,6 +146,16 @@ public class EventsDB {
     }
 
     /**
+     * Enroll without checking any conditions. Only for testing.
+     * @param eventID Target event.
+     * @param email Email of the user to enroll.
+     */
+    @TestOnly
+    public Promise<Void> unsafeEnroll(UUID eventID, String email) {
+        return addEntrantToList(eventID, email, "enrolledEntrants");
+    }
+
+    /**
      * Remove user from waitlist of event.
      * @param eventID Target event.
      * @param email Target user email

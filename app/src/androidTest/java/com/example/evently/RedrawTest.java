@@ -64,18 +64,18 @@ public class RedrawTest extends FirebaseEmulatorTest {
         // Since this not a full on UI test, we can use some fake accounts that don't even exist.
         Promise.all(
                         // 5 entries for event 0.
-                        eventsDB.enroll(mockEvents[0].eventID(), "foo@bar.com"),
-                        eventsDB.enroll(mockEvents[0].eventID(), "bar@bar.com"),
-                        eventsDB.enroll(mockEvents[0].eventID(), "baz@bar.com"),
-                        eventsDB.enroll(mockEvents[0].eventID(), "lorem@bar.com"),
-                        eventsDB.enroll(mockEvents[0].eventID(), "ipsum@bar.com"),
+                        eventsDB.unsafeEnroll(mockEvents[0].eventID(), "foo@bar.com"),
+                        eventsDB.unsafeEnroll(mockEvents[0].eventID(), "bar@bar.com"),
+                        eventsDB.unsafeEnroll(mockEvents[0].eventID(), "baz@bar.com"),
+                        eventsDB.unsafeEnroll(mockEvents[0].eventID(), "lorem@bar.com"),
+                        eventsDB.unsafeEnroll(mockEvents[0].eventID(), "ipsum@bar.com"),
                         // 6 entries for event 1.
-                        eventsDB.enroll(mockEvents[1].eventID(), "foo@bar.com"),
-                        eventsDB.enroll(mockEvents[1].eventID(), "bar@bar.com"),
-                        eventsDB.enroll(mockEvents[1].eventID(), "baz@bar.com"),
-                        eventsDB.enroll(mockEvents[1].eventID(), "lorem@bar.com"),
-                        eventsDB.enroll(mockEvents[1].eventID(), "ipsum@bar.com"),
-                        eventsDB.enroll(mockEvents[1].eventID(), "dolor@bar.com"))
+                        eventsDB.unsafeEnroll(mockEvents[1].eventID(), "foo@bar.com"),
+                        eventsDB.unsafeEnroll(mockEvents[1].eventID(), "bar@bar.com"),
+                        eventsDB.unsafeEnroll(mockEvents[1].eventID(), "baz@bar.com"),
+                        eventsDB.unsafeEnroll(mockEvents[1].eventID(), "lorem@bar.com"),
+                        eventsDB.unsafeEnroll(mockEvents[1].eventID(), "ipsum@bar.com"),
+                        eventsDB.unsafeEnroll(mockEvents[1].eventID(), "dolor@bar.com"))
                 .await();
 
         Promise.all(

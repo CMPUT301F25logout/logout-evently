@@ -65,7 +65,8 @@ public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsF
         // Enroll a few accounts into the event.
         for (int i = 0; i < extraAccounts.length; i++) {
             if (i % 2 == 0) {
-                eventsDB.enroll(mockEvent.eventID(), extraAccounts[i].email()).await();
+                eventsDB.unsafeEnroll(mockEvent.eventID(), extraAccounts[i].email())
+                        .await();
             }
         }
     }

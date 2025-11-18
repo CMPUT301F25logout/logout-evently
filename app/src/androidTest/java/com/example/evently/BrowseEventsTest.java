@@ -126,7 +126,7 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
             eventsDB.storeEvent(mockEvents[i]).await();
 
             if (i % 2 == 0) {
-                eventsDB.enroll(mockEvents[i].eventID(), self).await();
+                eventsDB.unsafeEnroll(mockEvents[i].eventID(), self).await();
             }
         }
     }
