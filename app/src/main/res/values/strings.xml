@@ -31,4 +31,6 @@
     <string name="event_selection_header">Selection On:</string>
     <string name="event_seats_header">Seats:</string>
     <string name="event_entrants_header">Entrants</string>
+    <string name="entrant_limit_header">In Waitlist:</string>
+    <string name="entrant_limit_separator">/</string>
 </resources>

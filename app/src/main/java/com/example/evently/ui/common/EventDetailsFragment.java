@@ -67,6 +67,10 @@ public abstract class EventDetailsFragment<E extends Fragment, A extends Fragmen
         super.onViewCreated(view, savedInstanceState);
 
         eventViewModel.getEventLive().observe(getViewLifecycleOwner(), this::loadEventInformation);
+        eventViewModel.getEventEntrantsLive().observe(getViewLifecycleOwner(), eventEntrants -> {
+            binding.currentEntrantCount.setText(
+                    String.valueOf(eventEntrants.all().size()));
+        });
 
         if (savedInstanceState == null) {
             // Load the entrants list fragment if we were not recreated.
@@ -92,5 +96,10 @@ public abstract class EventDetailsFragment<E extends Fragment, A extends Fragmen
         binding.eventName.setText(event.name());
         binding.eventDescription.setText(event.description());
         binding.eventCategory.setText(event.category().toString());
+
+        event.optionalEntrantLimit().ifPresent(limit -> {
+            binding.entrantLimitSection.setVisibility(View.VISIBLE);
+            binding.entrantLimit.setText(String.valueOf(limit));
+        });
     }
 }
