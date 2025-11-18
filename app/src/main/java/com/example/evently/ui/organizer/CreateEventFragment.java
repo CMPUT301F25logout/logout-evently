@@ -101,20 +101,21 @@ public class CreateEventFragment extends Fragment {
         binding.btnCancel.setOnClickListener(
                 _x -> NavHostFragment.findNavController(this).navigateUp());
 
+        imageButton = v.findViewById(R.id.btnPickPoster);
+
+        // Launches the poster picker when clicked.
+        imageButton.setOnClickListener(view -> {
+            pickPoster.launch(new PickVisualMediaRequest.Builder()
+                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                    .build());
+        });
+
         btnCreate.setOnClickListener(_x -> {
             String name = binding.etEventName.getText().toString().trim();
             String desc = binding.etDescription.getText().toString().trim();
             String winnersStr = binding.etWinners.getText().toString().trim();
             String dateStr = binding.etRegDate.getText().toString().trim();
             String timeStr = binding.etRegTime.getText().toString().trim();
-            imageButton = v.findViewById(R.id.btnPickPoster);
-
-            // Launches the poster picker when clicked.
-            imageButton.setOnClickListener(view -> {
-                pickPoster.launch(new PickVisualMediaRequest.Builder()
-                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
-                        .build());
-            });
 
             if (TextUtils.isEmpty(name)) {
                 toast("Please enter an event name.");
