@@ -51,7 +51,8 @@ public class CreateEventFragment extends Fragment {
     private Uri imageUri;
     private ImageButton imageButton;
 
-    // Picks a launcher to pick a picture. For more details, see
+    // The following code defines a launcher to pick a picture. For more details, see the android
+    // photo picker docs:
     // https://developer.android.com/training/data-storage/shared/photo-picker
     ActivityResultLauncher<PickVisualMediaRequest> pickPoster =
             registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {

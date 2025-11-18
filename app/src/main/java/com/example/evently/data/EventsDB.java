@@ -257,7 +257,7 @@ public class EventsDB {
     }
 
     /**
-     * Remove given event from DB, deletes it's event entrants, and it's posters
+     * Remove given event from DB, and deletes it's event entrants
      * @param eventID UUID of event
      */
     public Promise<Void> deleteEvent(UUID eventID) {
