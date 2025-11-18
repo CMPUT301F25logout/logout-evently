@@ -241,7 +241,12 @@ public class EventsDB {
                         .collect(Collectors.toList()));
     }
 
-    public Promise<List<EventEntrants>> fetchEventEntrants(List<UUID> eventIds) {
+    public PromiseOpt<EventEntrants> fetchEventEntrants(UUID eventId) {
+        return promiseOpt(promise(eventEntrantsRef.document(eventId.toString()).get())
+                .map(EventsDB::getEventEntrantsFromSnapshot));
+    }
+
+    public Promise<List<EventEntrants>> fetchEventsEntrants(List<UUID> eventIds) {
         final var eventEntrantGetTasks = eventIds.stream()
                 .map(eventId ->
                         promise(eventEntrantsRef.document(eventId.toString()).get()));

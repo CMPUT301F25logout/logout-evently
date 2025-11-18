@@ -7,18 +7,21 @@
 
     <fragment
         android:id="@+id/nav_home"
-        android:name="com.example.evently.ui.organizer.OwnEventsFragment"
+        android:name="com.example.evently.ui.organizer.HomeFragment"
         android:label="My Events"
-        tools:layout="@layout/fragment_organizer_event_list">
-    <action
-        android:id="@+id/action_nav_home_to_event_details"
-        app:destination="@id/event_details" />
+        tools:layout="@layout/fragment_organizer_home">
+        <action
+            android:id="@+id/action_nav_home_to_event_details"
+            app:destination="@id/event_details" />
+        <action
+            android:id="@+id/action_nav_home_to_create_event"
+            app:destination="@id/create_event" />
     </fragment>
 
     <fragment
         android:id="@+id/event_details"
         android:name="com.example.evently.ui.organizer.EditEventDetailsFragment"
-        android:label="fragment_event_details"
+        android:label="Manage Event"
         tools:layout="@layout/fragment_event_details">
         <argument
             android:name="eventId"
@@ -26,7 +29,7 @@
     </fragment>
 
     <fragment
-        android:id="@+id/navigate_create_events"
+        android:id="@+id/create_event"
         android:name="com.example.evently.ui.organizer.CreateEventFragment"
         android:label="Create Event"
         tools:layout="@layout/fragment_create_event" />

@@ -33,6 +33,7 @@ import com.example.evently.R;
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
+import com.example.evently.databinding.FragmentCreateEventBinding;
 import com.example.evently.utils.FirebaseAuthUtils;
 
 /**
@@ -45,6 +46,8 @@ import com.example.evently.utils.FirebaseAuthUtils;
  * Persistence is handled by the receiving screen.
  */
 public class CreateEventFragment extends Fragment {
+
+    private FragmentCreateEventBinding binding;
 
     private Uri imageUri;
     private ImageButton imageButton;
@@ -79,7 +82,8 @@ public class CreateEventFragment extends Fragment {
             @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_create_event, container, false);
+        binding = FragmentCreateEventBinding.inflate(getLayoutInflater(), container, false);
+        return binding.getRoot();
     }
 
     /**
@@ -93,31 +97,25 @@ public class CreateEventFragment extends Fragment {
     public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
 
-        EditText etName = v.findViewById(R.id.etEventName);
-        EditText etDesc = v.findViewById(R.id.etDescription);
-        EditText etWaitLimit = v.findViewById(R.id.etWaitLimit);
-        EditText etWinners = v.findViewById(R.id.etWinners);
-        EditText etRegDate = v.findViewById(R.id.etRegDate);
-        EditText etRegTime = v.findViewById(R.id.etRegTime);
-        imageButton = v.findViewById(R.id.btnPickPoster);
+        final var btnCreate = binding.btnCreate;
 
-        // Launches the poster picker when clicked.
-        imageButton.setOnClickListener(view -> {
-            pickPoster.launch(new PickVisualMediaRequest.Builder()
-                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
-                    .build());
-        });
+        binding.btnCancel.setOnClickListener(
+                _x -> NavHostFragment.findNavController(this).navigateUp());
 
-        v.findViewById(R.id.btnCancel)
-                .setOnClickListener(
-                        _x -> NavHostFragment.findNavController(this).navigateUp());
+        btnCreate.setOnClickListener(_x -> {
+            String name = binding.etEventName.getText().toString().trim();
+            String desc = binding.etDescription.getText().toString().trim();
+            String winnersStr = binding.etWinners.getText().toString().trim();
+            String dateStr = binding.etRegDate.getText().toString().trim();
+            String timeStr = binding.etRegTime.getText().toString().trim();
+            imageButton = v.findViewById(R.id.btnPickPoster);
 
-        v.findViewById(R.id.btnCreate).setOnClickListener(_x -> {
-            String name = etName.getText().toString().trim();
-            String desc = etDesc.getText().toString().trim();
-            String winnersStr = etWinners.getText().toString().trim();
-            String dateStr = etRegDate.getText().toString().trim();
-            String timeStr = etRegTime.getText().toString().trim();
+            // Launches the poster picker when clicked.
+            imageButton.setOnClickListener(view -> {
+                pickPoster.launch(new PickVisualMediaRequest.Builder()
+                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                        .build());
+            });
 
             if (TextUtils.isEmpty(name)) {
                 toast("Please enter an event name.");
@@ -141,7 +139,7 @@ public class CreateEventFragment extends Fragment {
             }
 
             Optional<Long> wait = Optional.empty();
-            String w = etWaitLimit.getText().toString().trim();
+            String w = binding.etWaitLimit.getText().toString().trim();
             if (!TextUtils.isEmpty(w)) {
                 try {
                     wait = Optional.of(Long.parseLong(w));
@@ -174,7 +172,7 @@ public class CreateEventFragment extends Fragment {
                     FirebaseAuthUtils.getCurrentEmail(),
                     winners);
 
-            v.findViewById(R.id.btnCreate).setEnabled(false);
+            btnCreate.setEnabled(false);
 
             EventsDB eventsDB = new EventsDB();
 
@@ -184,7 +182,7 @@ public class CreateEventFragment extends Fragment {
                         NavHostFragment.findNavController(this).navigateUp();
                     })
                     .catchE(e -> {
-                        v.findViewById(R.id.btnCreate).setEnabled(true);
+                        btnCreate.setEnabled(true);
                         toast("Failed to save event. Try again.");
                     });
 

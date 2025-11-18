@@ -136,6 +136,9 @@ dependencies {
     implementation(libs.navigation.ui)
     implementation(libs.recyclerview)
     implementation(libs.fragment)
+
+    implementation(libs.zxing.android.embedded)
+
     implementation(libs.espresso.core)
     implementation(libs.firebase.storage)
     implementation(libs.firebase.ui.storage)

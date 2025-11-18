@@ -1,5 +1,10 @@
 package com.example.evently.ui.organizer;
 
+import static com.example.evently.ui.common.EntrantsFragment.AcceptedEntrantsFragment;
+import static com.example.evently.ui.common.EntrantsFragment.CancelledEntrantsFragment;
+import static com.example.evently.ui.common.EntrantsFragment.EnrolledEntrantsFragment;
+import static com.example.evently.ui.common.EntrantsFragment.SelectedEntrantsFragment;
+
 import java.util.UUID;
 
 import android.os.Bundle;
@@ -17,8 +22,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
-import com.example.evently.R;
-import com.example.evently.ui.entrant.EnrolledEntrantsFragment;
+import com.example.evently.databinding.FragmentEventPeopleBinding;
 
 /**
  * Fragment that displays the tabs for event participants:
@@ -27,24 +31,21 @@ import com.example.evently.ui.entrant.EnrolledEntrantsFragment;
  */
 public class EventPeopleFragment extends Fragment {
 
-    private TabLayout tabLayout;
-    private ViewPager2 viewPager;
-
-    public EventPeopleFragment() {}
-
     @Nullable @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_event_people, container, false);
+        final var binding =
+                FragmentEventPeopleBinding.inflate(getLayoutInflater(), container, false);
 
         final var args = getArguments();
         assert args != null;
         final var eventID = (UUID) args.getSerializable("eventID");
+        assert eventID != null;
 
-        tabLayout = view.findViewById(R.id.eventPeopleTabLayout);
-        viewPager = view.findViewById(R.id.eventPeopleViewPager);
+        final TabLayout tabLayout = binding.eventPeopleTabLayout;
+        final ViewPager2 viewPager = binding.eventPeopleViewPager;
 
         viewPager.setAdapter(
                 new EventPeopleAdapter(getChildFragmentManager(), getLifecycle(), eventID));
@@ -59,7 +60,7 @@ public class EventPeopleFragment extends Fragment {
                 })
                 .attach();
 
-        return view;
+        return binding.getRoot();
     }
 
     /**
@@ -87,6 +88,7 @@ public class EventPeopleFragment extends Fragment {
                         case 1 -> new SelectedEntrantsFragment();
                         case 2 -> new AcceptedEntrantsFragment();
                         case 3 -> new CancelledEntrantsFragment();
+                        // This should never happen. See getItemCount.
                         default -> new Fragment();
                     };
             frag.setArguments(bundle);
