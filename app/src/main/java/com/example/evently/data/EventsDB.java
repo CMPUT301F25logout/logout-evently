@@ -262,8 +262,6 @@ public class EventsDB {
      */
     public Promise<Void> deleteEvent(UUID eventID) {
         return promise(eventsRef.document(eventID.toString()).delete())
-                .alongside(promise(
-                        storageRef.child("posters/" + eventID.toString()).delete()))
                 .alongside(promise(eventEntrantsRef.document(eventID.toString()).delete()));
     }
 
