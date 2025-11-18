@@ -304,8 +304,8 @@ public class EventsDB {
     public Promise<UploadTask.TaskSnapshot> storePoster(UUID eventID, Uri uri) {
         StorageReference imageRef = storageRef.child("posters/" + eventID.toString());
 
-        var posterRef = imageRef.putFile(uri);
-        return promise(posterRef);
+        var posterStorageTask = imageRef.putFile(uri);
+        return promise(posterStorageTask);
     }
 
     /**
