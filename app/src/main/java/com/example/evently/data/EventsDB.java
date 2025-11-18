@@ -108,6 +108,8 @@ public class EventsDB {
      * @param email Email of the user to enroll.
      */
     public Promise<Void> enroll(UUID eventID, String email) {
+        // TODO (chase): Perform a transaction and check if there's space and if it's before
+        // deadline first.
         return addEntrantToList(eventID, email, "enrolledEntrants");
     }
 

@@ -5,8 +5,6 @@ import static com.example.evently.ui.common.EntrantsFragment.CancelledEntrantsFr
 import static com.example.evently.ui.common.EntrantsFragment.EnrolledEntrantsFragment;
 import static com.example.evently.ui.common.EntrantsFragment.SelectedEntrantsFragment;
 
-import java.util.UUID;
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,16 +37,10 @@ public class EventPeopleFragment extends Fragment {
         final var binding =
                 FragmentEventPeopleBinding.inflate(getLayoutInflater(), container, false);
 
-        final var args = getArguments();
-        assert args != null;
-        final var eventID = (UUID) args.getSerializable("eventID");
-        assert eventID != null;
-
         final TabLayout tabLayout = binding.eventPeopleTabLayout;
         final ViewPager2 viewPager = binding.eventPeopleViewPager;
 
-        viewPager.setAdapter(
-                new EventPeopleAdapter(getChildFragmentManager(), getLifecycle(), eventID));
+        viewPager.setAdapter(new EventPeopleAdapter(getChildFragmentManager(), getLifecycle()));
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
                     switch (position) {
@@ -67,21 +59,14 @@ public class EventPeopleFragment extends Fragment {
      * Adapter that provides the fragments for each tab.
      */
     private static class EventPeopleAdapter extends FragmentStateAdapter {
-        private final UUID eventID;
 
         public EventPeopleAdapter(
-                @NonNull FragmentManager fragmentManager,
-                @NonNull Lifecycle lifecycle,
-                @NonNull UUID eventID) {
+                @NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
             super(fragmentManager, lifecycle);
-
-            this.eventID = eventID;
         }
 
         @NonNull @Override
         public Fragment createFragment(int position) {
-            final var bundle = new Bundle();
-            bundle.putSerializable("eventID", eventID);
             final var frag =
                     switch (position) {
                         case 0 -> new EnrolledEntrantsFragment();
@@ -91,7 +76,6 @@ public class EventPeopleFragment extends Fragment {
                         // This should never happen. See getItemCount.
                         default -> new Fragment();
                     };
-            frag.setArguments(bundle);
             return frag;
         }
 

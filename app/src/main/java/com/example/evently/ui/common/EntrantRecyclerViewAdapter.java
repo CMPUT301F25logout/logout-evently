@@ -1,5 +1,6 @@
 package com.example.evently.ui.common;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.view.LayoutInflater;
@@ -16,6 +17,10 @@ import com.example.evently.databinding.FragmentEntrantBinding;
 public class EntrantRecyclerViewAdapter
         extends RecyclerView.Adapter<EntrantRecyclerViewAdapter.EntrantViewHolder> {
     private final List<String> entrants;
+
+    public EntrantRecyclerViewAdapter() {
+        this.entrants = new ArrayList<>();
+    }
 
     public EntrantRecyclerViewAdapter(List<String> entrants) {
         this.entrants = entrants;

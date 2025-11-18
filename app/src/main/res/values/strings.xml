@@ -20,4 +20,15 @@
     <string name="qr_share_description">Share QR code</string>
     <string name="qr_image_description">QR code for Event</string>
     <string name="share_btn_text">Share</string>
+    <string name="event_join_btn">Join Waitlist</string>
+    <string name="event_share_btn">Share</string>
+    <string name="event_notify_selected_btn">Notify Selected</string>
+    <string name="event_join_btn_full">Waitlist Full</string>
+    <string name="event_join_btn_joined">Leave Waitlist</string>
+    <string name="event_image_description">Event image</string>
+    <string name="event_location_icon">Location icon</string>
+    <string name="event_date_icon">Date/time icon</string>
+    <string name="event_selection_header">Selection On:</string>
+    <string name="event_seats_header">Seats:</string>
+    <string name="event_entrants_header">Entrants</string>
 </resources>
