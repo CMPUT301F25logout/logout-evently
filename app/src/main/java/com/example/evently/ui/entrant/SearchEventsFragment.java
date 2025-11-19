@@ -50,15 +50,14 @@ public class SearchEventsFragment extends Fragment {
         listFragment = (SearchEventsListFragment)
                 getChildFragmentManager().findFragmentByTag("searchListTag");
 
-        if (savedInstanceState == null && listFragment == null) {
+        if (listFragment == null) {
+            // Create a new instance and assign to listFragment immediately
+            listFragment = new SearchEventsListFragment();
+
             getChildFragmentManager()
                     .beginTransaction()
                     .setReorderingAllowed(true)
-                    .add(
-                            R.id.eventListContainer,
-                            SearchEventsListFragment.class,
-                            null,
-                            "searchListTag")
+                    .add(R.id.eventListContainer, listFragment, "searchListTag")
                     .commit();
         }
     }
