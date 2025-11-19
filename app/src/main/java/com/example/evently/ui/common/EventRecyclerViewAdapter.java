@@ -145,12 +145,12 @@ public class EventRecyclerViewAdapter
         int count = 0;
         hiddenEvents.clear();
         for (Event event : mValues) {
-            if (!events.contains(event)) {
-                hiddenEvents.add(event);
-            } else {
+            if (events.contains(event)) {
                 tempList.remove(event);
                 tempList.add(count, event);
                 count++;
+            } else {
+                hiddenEvents.add(event);
             }
         }
 
