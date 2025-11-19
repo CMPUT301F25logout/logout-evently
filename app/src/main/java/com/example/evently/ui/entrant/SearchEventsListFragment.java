@@ -1,5 +1,6 @@
 package com.example.evently.ui.entrant;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -18,6 +19,7 @@ import com.example.evently.ui.common.EventsFragment;
  * A fragment representing list of events filtered by the search bar
  */
 public class SearchEventsListFragment extends EventsFragment {
+    private List<Event> eventList = new ArrayList<>();
 
     /**
      * Handles clicks on an event row in the Search list.
@@ -43,7 +45,10 @@ public class SearchEventsListFragment extends EventsFragment {
     protected void initEvents(Consumer<List<Event>> callback) {
         new EventsDB()
                 .fetchEventsByDate(Timestamp.now(), true)
-                .thenRun(callback)
+                .thenRun(events -> {
+                    eventList = events;
+                    callback.accept(events);
+                })
                 .catchE(e -> {
                     Log.e("SearchEvents", e.toString());
                     Toast.makeText(requireContext(), "Something went wrong...", Toast.LENGTH_SHORT)
