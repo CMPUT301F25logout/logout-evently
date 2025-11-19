@@ -126,4 +126,10 @@ public class EventRecyclerViewAdapter
             this.binding = binding;
         }
     }
+
+    public void updateEvents(List<Event> events) {
+        mValues.clear();
+        mValues.addAll(events);
+        notifyDataSetChanged();
+    }
 }

@@ -20,6 +20,20 @@ import com.example.evently.ui.common.EventsFragment;
  */
 public class SearchEventsListFragment extends EventsFragment {
     private List<Event> eventList = new ArrayList<>();
+    public List<Event> filteredList = new ArrayList<>();
+
+    public void filter(String text) {
+        filteredList.clear();
+        if (adapter == null || text.isEmpty()) return;
+
+        text = text.toLowerCase();
+        for (Event event : eventList) {
+            String eventName = event.toHashMap().get("name").toString();
+            if (eventName.toLowerCase().contains(text)) {
+                filteredList.add(event);
+            }
+        }
+    }
 
     /**
      * Handles clicks on an event row in the Search list.
