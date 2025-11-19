@@ -150,8 +150,8 @@ public class EventRecyclerViewAdapter
             } else {
                 tempList.remove(event);
                 tempList.add(count, event);
+                count++;
             }
-            count++;
         }
 
         mValues.clear();
