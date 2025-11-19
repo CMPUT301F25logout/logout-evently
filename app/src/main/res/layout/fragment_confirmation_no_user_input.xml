@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <TextView
-        android:id="@+id/confirmation_no_user_input_header"
+        android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="20"
@@ -18,7 +18,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"/>
     <TextView
-        android:id="@+id/confirmation_no_user_input_message"
+        android:id="@+id/message"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="20"
@@ -26,7 +26,7 @@
         android:textSize="15sp"
         android:layout_marginHorizontal="15dp"/>
     <Button
-        android:id="@+id/confirmation_no_user_input_confirm_button"
+        android:id="@+id/confirm_button"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="20"
@@ -35,7 +35,7 @@
         android:padding="0dp"
         app:cornerRadius="4dp"/>
     <Button
-        android:id="@+id/confirmation_no_user_input_cancel_button"
+        android:id="@+id/cancel_button"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="20"

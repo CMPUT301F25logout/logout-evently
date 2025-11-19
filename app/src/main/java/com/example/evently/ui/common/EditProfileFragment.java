@@ -1,45 +1,29 @@
 package com.example.evently.ui.common;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.evently.MainActivity;
 import com.example.evently.R;
 import com.example.evently.data.AccountDB;
-import com.example.evently.data.model.Account;
-import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.auth.AuthActivity;
-import com.example.evently.ui.auth.SignOutFragment;
 import com.example.evently.utils.FirebaseAuthUtils;
-import com.google.firebase.Timestamp;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneOffset;
-import java.util.Optional;
-
-import kotlin.text.UStringsKt;
-
+/**
+ * Fragment for editing profile
+ * Connected to fragment_edit_profile.xml
+ */
 public class EditProfileFragment extends Fragment {
 
     private AccountDB db;
@@ -77,42 +61,105 @@ public class EditProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
 
-        TextView headerView = v.findViewById(R.id.edit_profile_header);
-        TextView nameView = v.findViewById(R.id.edit_profile_name_text);
-        TextView emailView = v.findViewById(R.id.edit_profile_email_text);
-        TextView phoneView = v.findViewById(R.id.edit_profile_phone_text);
-        Button editEmail = v.findViewById(R.id.edit_profile_email_button);
-        Button editPhone = v.findViewById(R.id.edit_profile_phone_button);
-        Button deleteAccount = v.findViewById(R.id.edit_profile_delete_account_button);
-        Button signOut = v.findViewById(R.id.edit_profile_sign_out_button);
-
         String accountEmail = FirebaseAuthUtils.getCurrentEmail();
+
+        initInfo(v, accountEmail);
+        connectEditName(v, accountEmail);
+        connectEditEmail(v, accountEmail);
+        connectEditPhone(v, accountEmail);
+        connectSignOut(v);
+        connectDeleteAccount(v);
+    }
+
+    /**
+     * Fill edit profile page fields with info from db
+     * @param v edit profile page view
+     * @param accountEmail email of account
+     */
+    private void initInfo(View v, String accountEmail) {
+        TextView headerView = v.findViewById(R.id.header);
+        TextView nameView = v.findViewById(R.id.name_text);
+        TextView emailView = v.findViewById(R.id.email_text);
+        TextView phoneView = v.findViewById(R.id.phone_text);
+
         db.fetchAccount(accountEmail).optionally(account -> {
             emailView.setText(account.visibleEmail());
             nameView.setText(account.name());
 
-            account.phoneNumber().ifPresentOrElse(n -> phoneView.setText(formatPhoneNumber(n)), () -> phoneView.setText("None"));
+            account.phoneNumber()
+                    .ifPresentOrElse(
+                            n -> phoneView.setText(formatPhoneNumber(n)),
+                            () -> phoneView.setText("None"));
             headerView.setText(String.format("%s's Profile", account.name()));
         });
+    }
+
+    /**
+     * Connect edit name button to confirmFragmentTextInput and name view
+     * @param v edit profile page view
+     * @param accountEmail email of account
+     */
+    private void connectEditName(View v, String accountEmail) {
+        TextView headerView = v.findViewById(R.id.header);
+        TextView nameView = v.findViewById(R.id.name_text);
+        Button editName = v.findViewById(R.id.name_button);
+
+        editName.setOnClickListener(view -> {
+            ConfirmFragmentTextInput confirmFragment = ConfirmFragmentTextInput.newInstance(
+                    "Change Name",
+                    "Please enter your new name below.",
+                    "Jane Doe",
+                    s -> !s.isBlank());
+            confirmFragment.show(getParentFragmentManager(), "confirmTextInput");
+
+            getParentFragmentManager()
+                    .setFragmentResultListener(
+                            ConfirmFragmentTextInput.requestKey, this, (requestKey, result) -> {
+                                String newName =
+                                        result.getString(ConfirmFragmentTextInput.inputKey);
+                                db.updateName(accountEmail, newName);
+                                nameView.setText(newName);
+                                headerView.setText(String.format("%s's Profile", newName));
+                            });
+        });
+    }
+
+    /**
+     * Connect edit email button to confirmFragmentTextInput and email view
+     * @param v edit profile page view
+     * @param accountEmail email of account
+     */
+    private void connectEditEmail(View v, String accountEmail) {
+        TextView emailView = v.findViewById(R.id.email_text);
+        Button editEmail = v.findViewById(R.id.email_button);
 
         editEmail.setOnClickListener(view -> {
             ConfirmFragmentTextInput confirmFragment = ConfirmFragmentTextInput.newInstance(
                     "Change Email",
                     "Please enter your new email below.",
-                    "New Email",
+                    "Sample@example.com",
                     s -> Patterns.EMAIL_ADDRESS.matcher(s).matches());
             confirmFragment.show(getParentFragmentManager(), "confirmTextInput");
 
-            getParentFragmentManager().setFragmentResultListener(
-                    ConfirmFragmentTextInput.requestKey,
-                    this,
-                    (requestKey, result) -> {
-                String newEmail = result.getString(ConfirmFragmentTextInput.inputKey);
-                db.updateVisibleEmail(accountEmail, newEmail);
-                emailView.setText(newEmail);
-            });
+            getParentFragmentManager()
+                    .setFragmentResultListener(
+                            ConfirmFragmentTextInput.requestKey, this, (requestKey, result) -> {
+                                String newEmail =
+                                        result.getString(ConfirmFragmentTextInput.inputKey);
+                                db.updateVisibleEmail(accountEmail, newEmail);
+                                emailView.setText(newEmail);
+                            });
         });
+    }
 
+    /**
+     * Connect edit phone button to confirmFragmentTextInput and phone view
+     * @param v edit profile page view
+     * @param accountEmail email of account
+     */
+    private void connectEditPhone(View v, String accountEmail) {
+        TextView phoneView = v.findViewById(R.id.phone_text);
+        Button editPhone = v.findViewById(R.id.phone_button);
         editPhone.setOnClickListener(view -> {
             ConfirmFragmentTextInput confirmFragment = ConfirmFragmentTextInput.newInstance(
                     "Change Phone Number",
@@ -121,78 +168,103 @@ public class EditProfileFragment extends Fragment {
                     s -> Patterns.PHONE.matcher(s).matches());
             confirmFragment.show(getParentFragmentManager(), "confirmTextInput");
 
-            getParentFragmentManager().setFragmentResultListener(
-                    ConfirmFragmentTextInput.requestKey,
-                    this,
-                    (requestKey, result) -> {
-                String number = result.getString(ConfirmFragmentTextInput.inputKey);
-                if (number != null) number = formatPhoneNumber(number);
-                db.updatePhoneNumber(accountEmail, number);
-                phoneView.setText(number);
-            });
+            getParentFragmentManager()
+                    .setFragmentResultListener(
+                            ConfirmFragmentTextInput.requestKey, this, (requestKey, result) -> {
+                                String number = result.getString(ConfirmFragmentTextInput.inputKey);
+                                if (number != null) number = formatPhoneNumber(number);
+                                db.updatePhoneNumber(accountEmail, number);
+                                phoneView.setText(number);
+                            });
         });
+    }
+
+    /**
+     * Connect sign out button to Sign Out functionality
+     * @param v edit profile page view
+     */
+    private void connectSignOut(View v) {
+        Button signOut = v.findViewById(R.id.sign_out);
 
         signOut.setOnClickListener(view -> {
             ConfirmFragmentNoInput confirmFragment = ConfirmFragmentNoInput.newInstance(
-                    "CONFIRM SIGNING OUT",
-                    "This action will sign you out!");
+                    "CONFIRM SIGNING OUT", "This action will sign you out!");
             confirmFragment.show(getParentFragmentManager(), "confirmNoInput");
-            getParentFragmentManager().setFragmentResultListener(
-                    ConfirmFragmentNoInput.requestKey,
-                    this,
-                    (requestKey, result) -> {
-                if (!result.getBoolean(ConfirmFragmentNoInput.inputKey)) return;
-                FirebaseAuthUtils.signOut(task -> {
-                    if (task.isSuccessful()) {
-                        Intent intent = new Intent(getActivity(), AuthActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
-                        return;
-                    }
-                    Log.w("EditProfileFragment", "Unable to log out: ", task.getException());
-                    Toast.makeText(
-                                    requireContext(),
-                                    "Unable to sign out",
-                                    Toast.LENGTH_SHORT)
-                            .show();
-                });
-            });
+            getParentFragmentManager()
+                    .setFragmentResultListener(
+                            ConfirmFragmentNoInput.requestKey, this, this::signOutListener);
         });
+    }
 
-        deleteAccount.setOnClickListener(view ->{
+    /**
+     * Connect delete account button to delete account functionality
+     * @param v edit profile page view
+     */
+    private void connectDeleteAccount(View v) {
+        Button deleteAccount = v.findViewById(R.id.delete_account);
+
+        deleteAccount.setOnClickListener(view -> {
             ConfirmFragmentNoInput confirmFragment = ConfirmFragmentNoInput.newInstance(
                     "DELETE ACCOUNT",
                     "Are you sure you want to delete your account? This will log you out!");
             confirmFragment.show(getParentFragmentManager(), "confirmNoInput");
-            getParentFragmentManager().setFragmentResultListener(
-                    ConfirmFragmentNoInput.requestKey,
-                    this,
-                    (requestKey, result) -> {
-                        if (!result.getBoolean(ConfirmFragmentNoInput.inputKey)) return;
-                        FirebaseAuthUtils.deleteAccount(getActivity(),
-                                task -> {
-                                    Intent intent = new Intent(getActivity(), AuthActivity.class);
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    startActivity(intent);
-                                },
-                                e -> {
-                                    Log.w("EditProfileFragment", "Unable to delete account: ", e);
-                                    Toast.makeText(requireContext(),
-                                                    "Unable to delete account",
-                                                    Toast.LENGTH_SHORT)
-                                            .show();
-                                });
-                    });
+            getParentFragmentManager()
+                    .setFragmentResultListener(
+                            ConfirmFragmentNoInput.requestKey, this, this::deleteAccountListener);
         });
     }
 
+    /**
+     * Manage result of sign out confirmation
+     * @param requestKey key of request in bundle
+     * @param result confirmation result
+     */
+    private void signOutListener(String requestKey, Bundle result) {
+        if (!result.getBoolean(ConfirmFragmentNoInput.inputKey)) return;
+        FirebaseAuthUtils.signOut(task -> {
+            if (task.isSuccessful()) {
+                Intent intent = new Intent(getActivity(), AuthActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                return;
+            }
+            Log.w("EditProfileFragment", "Unable to log out: ", task.getException());
+            Toast.makeText(requireContext(), "Unable to sign out", Toast.LENGTH_SHORT)
+                    .show();
+        });
+    }
+
+    /**
+     * Manage result of delete account confirmation
+     * @param requestKey key of request in bundle
+     * @param result confirmation result
+     */
+    private void deleteAccountListener(String requestKey, Bundle result) {
+        if (!result.getBoolean(ConfirmFragmentNoInput.inputKey)) return;
+        FirebaseAuthUtils.deleteAccount(
+                getActivity(),
+                task -> {
+                    Intent intent = new Intent(getActivity(), AuthActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                },
+                e -> {
+                    Log.w("EditProfileFragment", "Unable to delete account: ", e);
+                    Toast.makeText(requireContext(), "Unable to delete account", Toast.LENGTH_SHORT)
+                            .show();
+                });
+    }
+
+    /**
+     * Get the phone number in format to be displayed
+     * @param unformattedNumber phone number pre-formatting
+     * @return String formatted phone number as (000) 000-000
+     */
     private String formatPhoneNumber(String unformattedNumber) {
         if (!Patterns.PHONE.matcher(unformattedNumber).matches()) return "None";
         String phoneNum = unformattedNumber.replaceAll("\\D", "");
-        return String.format("(%s) %s-%s",
-                phoneNum.substring(0, 3),
-                phoneNum.substring(3, 6),
-                phoneNum.substring(6, 10));
+        return String.format(
+                "(%s) %s-%s",
+                phoneNum.substring(0, 3), phoneNum.substring(3, 6), phoneNum.substring(6, 10));
     }
-
 }

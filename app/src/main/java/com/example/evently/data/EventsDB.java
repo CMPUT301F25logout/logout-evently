@@ -3,8 +3,6 @@ package com.example.evently.data;
 import static com.example.evently.data.generic.Promise.promise;
 import static com.example.evently.data.generic.PromiseOpt.promiseOpt;
 
-import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -234,11 +232,15 @@ public class EventsDB {
         return promise(eventsRef.document(eventID.toString()).delete());
     }
 
+    /**
+     * Removes user with email from all lists of all events
+     * @param email email of user
+     */
     public Promise<Void> removeUserFromEvents(String email) {
         final var updateMap = new HashMap<String, Object>();
         EventEntrants entrants = new EventEntrants(UUID.randomUUID());
         var keys = entrants.toHashMap().keySet();
-        for (String key: keys) {
+        for (String key : keys) {
             updateMap.put(key, FieldValue.arrayRemove(email));
         }
 
@@ -246,14 +248,11 @@ public class EventsDB {
                 .map(querySnapshot -> querySnapshot.getDocuments().stream()
                         .map(EventsDB::getEventEntrantsFromSnapshot)
                         .flatMap(Optional::stream)
-                        .collect(Collectors.toList())
-                )
-                .then(events -> Promise.all(
-                        events.stream()
-                                .map(event -> promise(
-                                        eventEntrantsRef.document(event.eventID().toString()).update(updateMap)
-                                ))
-                        )
+                        .collect(Collectors.toList()))
+                .then(events -> Promise.all(events.stream()
+                                .map(event -> promise(eventEntrantsRef
+                                        .document(event.eventID().toString())
+                                        .update(updateMap))))
                         .map(ignored -> null));
     }
 

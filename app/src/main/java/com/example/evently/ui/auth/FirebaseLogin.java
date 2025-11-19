@@ -107,7 +107,9 @@ class FirebaseLogin {
             Consumer<Exception> onException) {
 
         if (!(credential instanceof CustomCredential customCredential)
-                || !credential.getType().equals(TYPE_GOOGLE_ID_TOKEN_CREDENTIAL)) { // This shouldn't happen.
+                || !credential
+                        .getType()
+                        .equals(TYPE_GOOGLE_ID_TOKEN_CREDENTIAL)) { // This shouldn't happen.
             onException.accept(new Exception("absurd: Credential was not a Google ID token"));
             return;
         }

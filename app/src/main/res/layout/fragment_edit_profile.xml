@@ -7,7 +7,7 @@
     android:weightSum="100">
 
     <TextView
-        android:id="@+id/edit_profile_header"
+        android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="10"
@@ -19,7 +19,7 @@
     </TextView>
 
     <ImageView
-        android:id="@+id/edit_profile_profile_picture"
+        android:id="@+id/profile_picture"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="15"
@@ -60,7 +60,7 @@
         android:background="#f0f0f5"
         android:weightSum="100">
         <TextView
-            android:id="@+id/edit_profile_name_text"
+            android:id="@+id/name_text"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="80"
@@ -69,6 +69,14 @@
             android:text="placeholder">
 
         </TextView>
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="18"
+            android:id="@+id/name_button"
+            android:text="@string/profile_page_edit_button_text"
+            android:padding="0dp">
+        </Button>
     </LinearLayout>
 
     <TextView
@@ -91,7 +99,7 @@
         android:background="#f0f0f5"
         android:weightSum="100">
         <TextView
-            android:id="@+id/edit_profile_email_text"
+            android:id="@+id/email_text"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="80"
@@ -104,7 +112,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="18"
-            android:id="@+id/edit_profile_email_button"
+            android:id="@+id/email_button"
             android:text="@string/profile_page_edit_button_text"
             android:padding="0dp">
         </Button>
@@ -130,7 +138,7 @@
         android:background="#f0f0f5"
         android:weightSum="100">
         <TextView
-            android:id="@+id/edit_profile_phone_text"
+            android:id="@+id/phone_text"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="80"
@@ -143,7 +151,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="18"
-            android:id="@+id/edit_profile_phone_button"
+            android:id="@+id/phone_button"
             android:text="@string/profile_page_edit_button_text"
             android:padding="0dp">
 
@@ -164,7 +172,7 @@
         android:weightSum="100">
 
         <Button
-            android:id="@+id/edit_profile_delete_account_button"
+            android:id="@+id/delete_account"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="50"
@@ -174,7 +182,7 @@
             app:cornerRadius="1dp">
         </Button>
         <Button
-            android:id="@+id/edit_profile_sign_out_button"
+            android:id="@+id/sign_out"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="50"
