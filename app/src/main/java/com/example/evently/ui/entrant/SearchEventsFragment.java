@@ -13,6 +13,7 @@ import com.example.evently.databinding.FragmentEventSearchBinding;
 
 public class SearchEventsFragment extends Fragment {
     private FragmentEventSearchBinding binding;
+    private SearchEventsListFragment listFragment;
 
     @Nullable @Override
     public View onCreateView(
@@ -27,11 +28,14 @@ public class SearchEventsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        if (savedInstanceState == null) {
+        // Check if child fragment exists
+        listFragment = (SearchEventsListFragment) getChildFragmentManager().findFragmentByTag("searchListTag");
+
+        if (savedInstanceState == null && listFragment == null) {
             getChildFragmentManager()
                     .beginTransaction()
                     .setReorderingAllowed(true)
-                    .add(R.id.eventListContainer, SearchEventsListFragment.class, null)
+                    .add(R.id.eventListContainer, SearchEventsListFragment.class, null, "searchListTag")
                     .commit();
         }
     }

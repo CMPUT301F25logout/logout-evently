@@ -6,11 +6,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".ui.entrant.SearchEventsFragment">
 
-    <com.google.android.material.search.SearchBar
+    <SearchView
         android:id="@+id/eventSearch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Search events"
+        android:queryHint="Search events"
+        android:iconifiedByDefault="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
