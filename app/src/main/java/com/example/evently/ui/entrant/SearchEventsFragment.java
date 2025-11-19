@@ -29,13 +29,18 @@ public class SearchEventsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Check if child fragment exists
-        listFragment = (SearchEventsListFragment) getChildFragmentManager().findFragmentByTag("searchListTag");
+        listFragment = (SearchEventsListFragment)
+                getChildFragmentManager().findFragmentByTag("searchListTag");
 
         if (savedInstanceState == null && listFragment == null) {
             getChildFragmentManager()
                     .beginTransaction()
                     .setReorderingAllowed(true)
-                    .add(R.id.eventListContainer, SearchEventsListFragment.class, null, "searchListTag")
+                    .add(
+                            R.id.eventListContainer,
+                            SearchEventsListFragment.class,
+                            null,
+                            "searchListTag")
                     .commit();
         }
     }
