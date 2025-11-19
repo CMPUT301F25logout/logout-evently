@@ -11,6 +11,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import android.net.Uri;
+
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
@@ -21,6 +23,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import org.jetbrains.annotations.TestOnly;
 
 import com.example.evently.data.generic.Promise;
@@ -36,6 +40,7 @@ import com.example.evently.data.model.EventEntrants;
 public class EventsDB {
     private final CollectionReference eventsRef;
     private final CollectionReference eventEntrantsRef;
+    private final StorageReference storageRef;
 
     /**
      * Constructor for EventsDB
@@ -44,6 +49,7 @@ public class EventsDB {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
         eventEntrantsRef = db.collection("eventEntrants");
+        storageRef = FirebaseStorage.getInstance().getReference();
     }
 
     /**
@@ -296,15 +302,16 @@ public class EventsDB {
     }
 
     /**
-     * Remove given event from DB
+     * Remove given event from DB, and deletes it's event entrants
      * @param eventID UUID of event
      */
     public Promise<Void> deleteEvent(UUID eventID) {
-        return promise(eventsRef.document(eventID.toString()).delete());
+        return promise(eventsRef.document(eventID.toString()).delete())
+                .alongside(promise(eventEntrantsRef.document(eventID.toString()).delete()));
     }
 
     /**
-     * Clear the whole collection.
+     * Clear the whole firestore collection, and the firebase storage for images.
      * @return Promise.
      */
     @TestOnly
@@ -331,5 +338,31 @@ public class EventsDB {
                 .map(EventsDB::getEventFromSnapshot)
                 .flatMap(Optional::stream)
                 .collect(Collectors.toList()));
+    }
+
+    /**
+     * Uploads a selected poster to firebase
+     * @param eventID the eventID of the poster.
+     * @param uri the uri of the image
+     * @return a promise of the upload task
+     */
+    public Promise<Void> storePoster(UUID eventID, Uri uri) {
+        StorageReference imageRef = storageRef.child("posters/" + eventID.toString());
+
+        // Stores the file in the database. Since the TaskSnapshot is not used, it is mapped to null
+        // to return a Promise<Void>
+        var posterStorageTask = imageRef.putFile(uri);
+        return promise(posterStorageTask).map(taskSnapshot -> null);
+    }
+
+    /**
+     * The code below returns the storage reference to the selected poster.
+     * @param eventID the eventID of the poster
+     * @return The storage reference to the poster
+     */
+    public StorageReference getPosterStorageRef(UUID eventID) {
+        // The following code is based on the downloading files section from the firebase docs:
+        // https://firebase.google.com/docs/storage/android/download-files?_gl=1
+        return storageRef.child("posters/" + eventID.toString());
     }
 }
