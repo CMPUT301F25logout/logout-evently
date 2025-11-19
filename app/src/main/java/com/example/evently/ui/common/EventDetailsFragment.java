@@ -103,9 +103,9 @@ public abstract class EventDetailsFragment<E extends Fragment, A extends Fragmen
 
         StorageReference posterRef = new EventsDB().getPosterStorageRef(event.eventID());
 
-        // The following code attempts to find the imageRef in the DB.
-        // android.R.drawable.ic_menu_report_image is used while searching or if the image is not
-        // found in the DB.
+        // The following code attempts to find the posterRef in the DB, and store it into the event
+        // picture. android.R.drawable.ic_menu_report_image is used while searching or if the image
+        // is not found in the DB.
         Glide.with(getContext())
                 .load(posterRef)
                 .placeholder(android.R.drawable.ic_menu_report_image)

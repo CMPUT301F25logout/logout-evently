@@ -77,9 +77,9 @@ public class EventRecyclerViewAdapter
         // Title / name
         binding.content.setText(holder.mItem.name());
 
-        // The following code attempts to find the imageRef in the DB.
-        // android.R.drawable.ic_menu_report_image is used while searching or if the image is not
-        // found in the DB.
+        // The following code attempts to find the poster in the DB, and store it into the
+        // imgPoster. android.R.drawable.ic_menu_report_image is used while searching or if the
+        // image is not found in the DB.
         StorageReference posterReference =
                 new EventsDB().getPosterStorageRef(holder.mItem.eventID());
         Glide.with(binding.content.getContext())
