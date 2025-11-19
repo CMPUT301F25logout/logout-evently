@@ -141,12 +141,22 @@ public class EventRecyclerViewAdapter
     }
 
     public void updateEvents(List<Event> events) {
+        List<Event> tempList = new ArrayList<>(mValues);
+        int count = 0;
         hiddenEvents.clear();
         for (Event event : mValues) {
             if (!events.contains(event)) {
                 hiddenEvents.add(event);
+            } else {
+                tempList.remove(event);
+                tempList.add(count, event);
             }
+            count++;
         }
+
+        mValues.clear();
+        mValues.addAll(tempList);
+
         notifyDataSetChanged();
     }
 }
