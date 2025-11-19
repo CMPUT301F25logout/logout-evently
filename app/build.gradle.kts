@@ -134,6 +134,7 @@ dependencies {
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
     implementation(libs.fragment)
+    implementation(libs.espresso.core)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.runner)

@@ -40,7 +40,7 @@ public class JoinedEventsFragment extends EventsFragment {
      */
     @Override
     protected int getLayoutRes() {
-        return R.layout.fragment_event_entrants_list;
+        return R.layout.fragment_event_list_tabbed;
     }
 
     /**
