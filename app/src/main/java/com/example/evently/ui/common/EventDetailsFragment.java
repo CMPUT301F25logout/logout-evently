@@ -97,7 +97,7 @@ public abstract class EventDetailsFragment<E extends Fragment, A extends Fragmen
         binding.eventName.setText(event.name());
         binding.eventDescription.setText(event.description());
         binding.eventCategory.setText(event.category().toString());
-        new EventsDB().showPoster(event.eventID(), getContext(), image);
+        new EventsDB().showPoster(event.eventID(), getContext(), binding.eventPicture);
 
         event.optionalEntrantLimit().ifPresent(limit -> {
             binding.entrantLimitSection.setVisibility(View.VISIBLE);
