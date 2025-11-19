@@ -1,18 +1,18 @@
 package com.example.evently.ui.entrant;
 
+import java.util.List;
+import java.util.function.Consumer;
+
 import android.util.Log;
 import android.widget.Toast;
-
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
+
+import com.google.firebase.Timestamp;
 
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.common.EventsFragment;
-import com.google.firebase.Timestamp;
-
-import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * A fragment representing list of events filtered by the search bar
@@ -30,7 +30,7 @@ public class SearchEventsListFragment extends EventsFragment {
     protected void onEventClick(Event event) {
         // The action for clicking on the event, pass the event ID to the next event details
         // fragment
-        var action = HomeFragmentDirections.actionNavHomeToEventDetails(event.eventID());
+        var action = SearchEventsFragmentDirections.actionNavSearchToEventDetails(event.eventID());
         NavController navController = NavHostFragment.findNavController(this);
         navController.navigate(action);
     }

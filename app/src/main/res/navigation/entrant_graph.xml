@@ -39,7 +39,14 @@
         android:id="@+id/nav_search"
         android:name="com.example.evently.ui.entrant.SearchEventsFragment"
         android:label="Search Events"
-        tools:layout="@layout/fragment_event_search"/>
+        tools:layout="@layout/fragment_event_search">
+            <action
+                android:id="@+id/action_nav_search_to_event_details"
+                app:destination="@id/event_details"
+                app:enterAnim="@anim/slide_in_left"
+                app:exitAnim="@anim/slide_out_right"
+                app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
 
 
 

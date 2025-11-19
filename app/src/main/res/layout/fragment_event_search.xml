@@ -17,8 +17,9 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:id="@+id/eventListContainer"
-        app:layout_constraintTop_toBottomOf="@id/eventSearch"/>
+        app:layout_constraintTop_toBottomOf="@id/eventSearch"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
