@@ -1,5 +1,8 @@
 package com.example.evently.data.model;
 
+import com.example.evently.data.AccountDB;
+import com.example.evently.data.generic.PromiseOpt;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

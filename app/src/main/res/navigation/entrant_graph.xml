@@ -35,5 +35,12 @@
 
     </fragment>
 
+    <fragment
+        android:id="@+id/event_search"
+        android:name="com.example.evently.ui.entrant.SearchEventsFragment"
+        android:label="Search Events"
+        tools:layout="@layout/fragment_event_search"/>
+
+
 
 </navigation>
