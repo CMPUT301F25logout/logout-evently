@@ -33,6 +33,7 @@ public class SearchEventsListFragment extends EventsFragment {
                 filteredList.add(event);
             }
         }
+        adapter.updateEvents(filteredList);
     }
 
     /**
