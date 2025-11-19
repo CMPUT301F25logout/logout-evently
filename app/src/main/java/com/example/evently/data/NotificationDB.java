@@ -1,6 +1,7 @@
 package com.example.evently.data;
 
 import static com.example.evently.data.generic.Promise.promise;
+import static com.example.evently.data.generic.PromiseOpt.promiseOpt;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ import com.google.firebase.firestore.WriteBatch;
 import org.jetbrains.annotations.TestOnly;
 
 import com.example.evently.data.generic.Promise;
+import com.example.evently.data.generic.PromiseOpt;
 import com.example.evently.data.model.Event;
 import com.example.evently.data.model.EventEntrants;
 import com.example.evently.data.model.Notification;
@@ -61,6 +63,12 @@ public class NotificationDB {
         return promise(docRef.set(notification.toHashMap()));
     }
 
+    /**
+     * Mark a notification as seen by given email.
+     * @param notificationID Notification ID target.
+     * @param email User target.
+     * @return Promise.
+     */
     public Promise<Void> markSeen(UUID notificationID, String email) {
         final var updateMap = new HashMap<String, Object>();
         updateMap.put("seenBy", FieldValue.arrayUnion(email));
@@ -119,9 +127,10 @@ public class NotificationDB {
      * @param notificationID the id of the notification
      * @return Reference to the concurrent task yielding to an account (if found).
      */
-    public Promise<Optional<Notification>> fetchNotification(UUID notificationID) {
-        return promise(notificationsRef.document(notificationID.toString()).get())
-                .map(NotificationDB::parseDocumentSnapshot);
+    public PromiseOpt<Notification> fetchNotification(UUID notificationID) {
+        return promiseOpt(
+                promise(notificationsRef.document(notificationID.toString()).get())
+                        .map(NotificationDB::parseDocumentSnapshot));
     }
 
     /**
@@ -157,7 +166,7 @@ public class NotificationDB {
         EventsDB eventsDB = new EventsDB();
 
         return eventsDB.fetchEventsByEnrolled(email)
-                .thenWith(eventList -> eventsDB.fetchEventEntrants(
+                .thenWith(eventList -> eventsDB.fetchEventsEntrants(
                         eventList.stream().map(Event::eventID).collect(Collectors.toList())))
                 .then(pair -> {
                     final var events = pair.first;
@@ -240,6 +249,10 @@ public class NotificationDB {
                 });
     }
 
+    /**
+     * Drop the collection.
+     * @return Promise.
+     */
     @TestOnly
     public Promise<Void> nuke() {
         return promise(notificationsRef.get().onSuccessTask(docs -> {

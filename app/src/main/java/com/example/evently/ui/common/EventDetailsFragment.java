@@ -1,56 +1,52 @@
 package com.example.evently.ui.common;
 
-import java.util.Collections;
-import java.util.UUID;
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+
+import com.bumptech.glide.Glide;
+import com.google.firebase.storage.StorageReference;
 
 import com.example.evently.R;
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.databinding.FragmentEventDetailsBinding;
+import com.example.evently.ui.model.EventViewModel;
 
 /**
  * Fragment that displays the event information as well as the entrants that have been waitlisted.
  * <p>
  * Things to implement:
  * Images for the event and accounts
- * QR Code
  * Extending the description if it's too long
  * <p>
  * Layout: fragment_event_details.xml
+ * @author Vinson Lou
  */
-public abstract class EventDetailsFragment<F extends Fragment> extends Fragment {
+public abstract class EventDetailsFragment<E extends Fragment, A extends Fragment>
+        extends Fragment {
     private FragmentEventDetailsBinding binding;
 
-    /**
-     * Override this function if the resulting fragment shouldn't display the waitlist button.
-     * @return Whether or not to display the "join/leave waitlist" button.
-     */
-    protected boolean shouldDisplayActionBtn() {
-        return true;
-    }
+    protected EventViewModel eventViewModel;
 
     /**
-     * Implementors should note which fragment to fill in the fragment container.
+     * Implementors should note which fragment to fill in the entrant list fragment container.
+     * @apiNote This fragment should use the view models scoped in this fragment to obtain event related data.
      * @return Class of the fragment.
      */
-    protected abstract Class<F> getFragmentForEntrantListContainer();
+    protected abstract Class<E> getFragmentForEntrantListContainer();
 
     /**
-     * Implementors should return the eventID they may get passed via navigation args.
-     * Must be a trivial getter.
-     * @return event id for the associated event.
+     * Implementors should note which fragment to fill in the action buttons fragment container.
+     * @apiNote This fragment should use the view models scoped in this fragment to obtain event related data.
+     * @return Class of the fragment.
      */
-    protected abstract UUID getEventID();
+    protected abstract Class<A> getFragmentForActionButtonsContainer();
 
     @Override
     public View onCreateView(
@@ -58,6 +54,8 @@ public abstract class EventDetailsFragment<F extends Fragment> extends Fragment 
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         binding = FragmentEventDetailsBinding.inflate(getLayoutInflater(), container, false);
+
+        eventViewModel = new ViewModelProvider(this).get(EventViewModel.class);
 
         return binding.getRoot();
     }
@@ -72,87 +70,51 @@ public abstract class EventDetailsFragment<F extends Fragment> extends Fragment 
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        final var eventsDB = new EventsDB();
+        eventViewModel.getEventLive().observe(getViewLifecycleOwner(), this::loadEventInformation);
+        eventViewModel.getEventEntrantsLive().observe(getViewLifecycleOwner(), eventEntrants -> {
+            binding.currentEntrantCount.setText(
+                    String.valueOf(eventEntrants.all().size()));
+        });
 
-        final var eventID = getEventID();
-        eventsDB.fetchEvent(eventID)
-                .optionally(event -> eventsDB.fetchEventEntrants(Collections.singletonList(eventID))
-                        .thenRun(eventEntrants -> {
-                            final var eventEntrantsInfo = eventEntrants.get(0);
-                            // TODO (chase): Decouple. Event information loading SHOULD NOT need
-                            // EventEntrants.
-                            // Only the entrants fragment should need it.
-                            loadEventInformation(event, eventEntrantsInfo.all().size(), true);
-                            loadEntrants();
-                        }));
+        if (savedInstanceState == null) {
+            // Load the entrants list fragment if we were not recreated.
+            getChildFragmentManager()
+                    .beginTransaction()
+                    .setReorderingAllowed(true)
+                    .add(R.id.entrantListContainer, getFragmentForEntrantListContainer(), null)
+                    .commit();
+            // Also load the action buttons fragment.
+            getChildFragmentManager()
+                    .beginTransaction()
+                    .setReorderingAllowed(true)
+                    .add(R.id.actionButtonsContainer, getFragmentForActionButtonsContainer(), null)
+                    .commit();
+        }
     }
 
     /**
      * Loads the event information into the fragment
      * @param event The event object to load into the page
-     * @param currEntrants The number of entrants to display the amount of people that entered
      */
-    public void loadEventInformation(Event event, int currEntrants, boolean joined) {
-        TextView eventName = binding.eventName;
-        TextView image = binding.eventPicture;
-        TextView desc = binding.eventDescription;
-        TextView entrantCount = binding.entryCount;
-        Button waitlistAction = binding.waitlistAction;
+    private void loadEventInformation(Event event) {
+        binding.eventName.setText(event.name());
+        binding.eventDescription.setText(event.description());
+        binding.eventCategory.setText(event.category().toString());
 
-        String entrantCountStr = String.valueOf(currEntrants);
+        StorageReference posterRef = new EventsDB().getPosterStorageRef(event.eventID());
 
-        // Display according information depending on if the event has an entrant limit
-        if (event.optionalEntrantLimit().isPresent()) {
-            entrantCountStr = currEntrants + "/" + event.optionalEntrantLimit().get();
+        // The following code attempts to find the posterRef in the DB, and store it into the event
+        // picture. android.R.drawable.ic_menu_report_image is used while searching or if the image
+        // is not found in the DB.
+        Glide.with(getContext())
+                .load(posterRef)
+                .placeholder(android.R.drawable.ic_menu_report_image)
+                .error(android.R.drawable.ic_menu_report_image)
+                .into(binding.eventPicture);
 
-            // Disable the button if the waitlist is already full
-            if (event.optionalEntrantLimit().get() == currEntrants) {
-                waitlistAction.setEnabled(false);
-                // Change the button text to indicate that it's full
-                String waitlistFull = "Event is full.";
-                waitlistAction.setText(waitlistFull);
-            }
-        }
-
-        if (shouldDisplayActionBtn()) {
-            displayWaitlistAction(joined);
-        }
-
-        entrantCount.setText(entrantCountStr);
-        eventName.setText(event.name());
-        desc.setText(event.description());
-    }
-
-    /**
-     * Change the display of the Button on the waitlist depending on if the user joined the event or not
-     * @param joined Whether or not the user has joined the event
-     */
-    // Not sure if we plan on updating the page or just the Entrant List and the button
-    // Whenever the user joins the event, so it's a function for now
-    public void displayWaitlistAction(boolean joined) {
-        Button waitlistAction = binding.waitlistAction;
-        binding.waitlistAction.setVisibility(View.VISIBLE);
-        String wlActionText;
-        if (joined) {
-            wlActionText = "LEAVE WAITLIST";
-        } else {
-            wlActionText = "JOIN WAITLIST";
-        }
-
-        waitlistAction.setText(wlActionText);
-    }
-
-    /**
-     * Loads the entrant list fragment which handles the entrant lists to show.
-     */
-    public void loadEntrants() {
-        // Load the recycler view fragment with event ID.
-        final var bundle = new Bundle();
-        bundle.putSerializable("eventID", getEventID());
-        getChildFragmentManager()
-                .beginTransaction()
-                .setReorderingAllowed(true)
-                .add(R.id.entrantListContainer, getFragmentForEntrantListContainer(), bundle)
-                .commit();
+        event.optionalEntrantLimit().ifPresent(limit -> {
+            binding.entrantLimitSection.setVisibility(View.VISIBLE);
+            binding.entrantLimit.setText(String.valueOf(limit));
+        });
     }
 }

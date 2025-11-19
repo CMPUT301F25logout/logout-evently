@@ -7,25 +7,15 @@
 
     <fragment
         android:id="@+id/nav_home"
-        android:name="com.example.evently.ui.entrant.BrowseEventsFragment"
-        android:label="Browse"
-        tools:layout="@layout/fragment_event_list">
+        android:name="com.example.evently.ui.entrant.HomeFragment"
+        android:label="Browse Events"
+        tools:layout="@layout/fragment_entrant_home">
         <action
             android:id="@+id/action_nav_home_to_event_details"
-            app:destination="@id/event_details" />
-        <action
-            android:id="@+id/action_browse_to_joined"
-            app:destination="@id/nav_joined" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/event_details"
-        android:name="com.example.evently.ui.entrant.ViewEventDetailsFragment"
-        android:label="fragment_event_details"
-        tools:layout="@layout/fragment_event_details">
-        <argument
-            android:name="eventId"
-            app:argType="string" />
+            app:destination="@id/event_details"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <fragment
@@ -35,13 +25,14 @@
         tools:layout="@layout/fragment_notifs"/>
 
     <fragment
-        android:id="@+id/nav_joined"
-        android:name="com.example.evently.ui.entrant.JoinedEventsFragment"
-        android:label="Joined"
-        tools:layout="@layout/fragment_event_list_tabbed">
-        <action
-            android:id="@+id/action_joined_to_browse"
-            app:destination="@id/nav_home" />
+        android:id="@+id/event_details"
+        android:name="com.example.evently.ui.entrant.ViewEventDetailsFragment"
+        android:label="Event Details"
+        tools:layout="@layout/fragment_event_details">
+        <argument
+            android:name="eventID"
+            app:argType="java.util.UUID" />
+
     </fragment>
 
     <fragment

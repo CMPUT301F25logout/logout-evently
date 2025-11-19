@@ -7,11 +7,9 @@ import static org.junit.Assert.assertTrue;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.junit.After;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -20,10 +18,6 @@ import com.example.evently.data.model.Account;
 
 @RunWith(AndroidJUnit4.class)
 public class AccountDatabaseTest extends FirebaseEmulatorTest {
-    @Rule
-    public ActivityScenarioRule<MainActivity> scenario =
-            new ActivityScenarioRule<>(MainActivity.class);
-
     @After
     public void cleanUpAccounts() throws ExecutionException, InterruptedException {
         new AccountDB().nuke().await();
@@ -113,5 +107,25 @@ public class AccountDatabaseTest extends FirebaseEmulatorTest {
 
         final var optionalAccount = db.fetchAccount("hi@gmail.com").await();
         assertFalse(optionalAccount.isPresent());
+    }
+
+    /**
+     * The following test checks whether an account is an admin account.
+     */
+    @Test
+    public void testIsAdmin() throws ExecutionException, InterruptedException {
+        AccountDB db = new AccountDB();
+
+        Account addedAccount = new Account(
+                "hi@gmail.com",
+                "AlexBradley",
+                Optional.of("123-456-7890"),
+                "my_visible_email@yahoo.com");
+        // Stores the account, and confirms it is not an admin
+        db.storeAccount(addedAccount).await();
+        assertFalse(db.isAdmin(addedAccount.email()).await());
+        // Sets an account as admin, and asserts that it is an admin.
+        db.setAdmin(addedAccount.email());
+        assertTrue(db.isAdmin(addedAccount.email()).await());
     }
 }

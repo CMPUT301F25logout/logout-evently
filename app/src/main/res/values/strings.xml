@@ -23,4 +23,22 @@
     <string name="profile_page_phone_header">Phone Number:</string>
     <string name="profile_page_edit_button_text">Edit</string>
     <string name="action_delete_account">Delete Account</string>
+    <string name="create_event_btn_description">Create event</string>
+    <string name="selected_role_icon_description">Currently selected role</string>
+    <string name="qr_share_description">Share QR code</string>
+    <string name="qr_image_description">QR code for Event</string>
+    <string name="share_btn_text">Share</string>
+    <string name="event_join_btn">Join Waitlist</string>
+    <string name="event_share_btn">Share</string>
+    <string name="event_notify_selected_btn">Notify Selected</string>
+    <string name="event_join_btn_full">Waitlist Full</string>
+    <string name="event_join_btn_joined">Leave Waitlist</string>
+    <string name="event_image_description">Event image</string>
+    <string name="event_location_icon">Location icon</string>
+    <string name="event_date_icon">Date/time icon</string>
+    <string name="event_selection_header">Selection On:</string>
+    <string name="event_seats_header">Seats:</string>
+    <string name="event_entrants_header">Entrants</string>
+    <string name="entrant_limit_header">In Waitlist:</string>
+    <string name="entrant_limit_separator">/</string>
 </resources>

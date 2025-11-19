@@ -9,20 +9,30 @@
     android:fitsSystemWindows="true"
     tools:context=".ui.common.ArchitectureActivity">
 
-    <!-- Top bar: global Switch Role button -->
+    <!-- Top bar: Title + global Switch Role button -->
     <LinearLayout
-        android:id="@+id/top_role_switcher_container"
+        android:id="@+id/topBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="8dp"
         android:paddingBottom="4dp"
-        android:gravity="center_horizontal">
+        android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/btnSwitchRole"
+        <!-- This title is set by ArchitectureActivity and sourced from navigation destination label -->
+        <TextView
+            android:id="@+id/homeTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="8dp"
+            android:textStyle="bold"
+            android:textSize="26sp" />
+
+        <Spinner
+            android:id="@+id/roleSelector"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Switch Role" />
+            android:spinnerMode="dropdown"/>
     </LinearLayout>
 
     <androidx.fragment.app.FragmentContainerView

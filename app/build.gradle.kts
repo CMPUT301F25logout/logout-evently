@@ -2,6 +2,7 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
+
     id("com.diffplug.spotless")
     id("com.google.gms.google-services")
     id("androidx.navigation.safeargs")
@@ -133,8 +134,17 @@ dependencies {
     implementation(libs.recyclerview)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
+    implementation(libs.recyclerview)
     implementation(libs.fragment)
+    implementation(libs.lifecycle.viewmodel)
+
+    implementation(libs.zxing.android.embedded)
+
     implementation(libs.espresso.core)
+    implementation(libs.firebase.storage)
+    annotationProcessor(libs.compiler)
+    implementation(libs.firebase.ui.storage)
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.runner)

@@ -1,8 +1,6 @@
 package com.example.evently.ui.common;
 
 import java.util.List;
-import java.util.UUID;
-import java.util.function.Consumer;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -10,10 +8,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.evently.R;
+import com.example.evently.data.model.EventEntrants;
+import com.example.evently.ui.model.EventViewModel;
 
 /**
  * A reusable abstract fragment representing a list of entrants.
@@ -24,41 +25,80 @@ import com.example.evently.R;
  * Extending classes will also have access to the {@link EntrantRecyclerViewAdapter} to modify dynamically.
  * @see EventRecyclerViewAdapter
  */
-public abstract class EntrantsFragment extends Fragment {
+public abstract sealed class EntrantsFragment extends Fragment
+        permits EntrantsFragment.EnrolledEntrantsFragment,
+                EntrantsFragment.SelectedEntrantsFragment,
+                EntrantsFragment.AcceptedEntrantsFragment,
+                EntrantsFragment.CancelledEntrantsFragment {
+
+    private EventViewModel eventViewModel;
 
     /**
-     * Adapter to manage the entrant list dynamically.
+     * Select the type of entrants we aim to display.
+     * <p>
+     * The implementation of this function determines which list will be shown by this fragment.
+     * @param entrantsInfo Lists of different types of entrants (all, selected, accepted, cancelled)
+     * @return List of emails of all the entrants under a particular type.
      */
-    protected EntrantRecyclerViewAdapter adapter;
-
-    /**
-     * This method will be called by onCreateView to set up the entrants view.
-     * It is guaranteed that the activity context will be available at the time of calling.
-     * @param callback Callback that will be passed the entrants into.
-     */
-    protected abstract void initEntrants(UUID eventID, Consumer<List<String>> callback);
+    protected abstract List<String> selectEntrantList(EventEntrants entrantsInfo);
 
     @Override
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_entrant_list, container, false);
 
-        final var args = getArguments();
-        assert args != null;
-        final var eventID = (UUID) args.getSerializable("eventID");
+        eventViewModel = new ViewModelProvider(requireParentFragment()).get(EventViewModel.class);
 
         if (view instanceof RecyclerView recyclerView) {
             Context context = recyclerView.getContext();
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            // Set up the recycler view adapter with the initial list of events (asynchronous).
-            initEntrants(eventID, entrants -> {
-                adapter = new EntrantRecyclerViewAdapter(entrants);
-                recyclerView.setAdapter(adapter);
-            });
+
+            // We set up an initial empty adapter, to allow the usage of swapAdapter later.
+            recyclerView.setAdapter(new EntrantRecyclerViewAdapter());
+
+            // Set up an observer to update the event entrants as they change.
+            eventViewModel
+                    .getEventEntrantsLive()
+                    .observe(getViewLifecycleOwner(), eventEntrants -> {
+                        final var adapter =
+                                new EntrantRecyclerViewAdapter(selectEntrantList(eventEntrants));
+                        recyclerView.swapAdapter(adapter, false);
+                    });
 
             return view;
         } else {
             throw new AssertionError("EntrantsFragment.onCreateView called with non RecyclerView");
+        }
+    }
+
+    public static final class EnrolledEntrantsFragment extends EntrantsFragment {
+        @Override
+        protected List<String> selectEntrantList(EventEntrants entrantsInfo) {
+            return entrantsInfo.all();
+        }
+    }
+
+    public static final class SelectedEntrantsFragment extends EntrantsFragment {
+
+        @Override
+        protected List<String> selectEntrantList(EventEntrants entrantsInfo) {
+            return entrantsInfo.selected();
+        }
+    }
+
+    public static final class AcceptedEntrantsFragment extends EntrantsFragment {
+
+        @Override
+        protected List<String> selectEntrantList(EventEntrants entrantsInfo) {
+            return entrantsInfo.accepted();
+        }
+    }
+
+    public static final class CancelledEntrantsFragment extends EntrantsFragment {
+
+        @Override
+        protected List<String> selectEntrantList(EventEntrants entrantsInfo) {
+            return entrantsInfo.cancelled();
         }
     }
 }

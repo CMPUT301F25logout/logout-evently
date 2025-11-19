@@ -1,6 +1,9 @@
 package com.example.evently.ui.organizer;
 
-import java.util.UUID;
+import static com.example.evently.ui.common.EntrantsFragment.AcceptedEntrantsFragment;
+import static com.example.evently.ui.common.EntrantsFragment.CancelledEntrantsFragment;
+import static com.example.evently.ui.common.EntrantsFragment.EnrolledEntrantsFragment;
+import static com.example.evently.ui.common.EntrantsFragment.SelectedEntrantsFragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,8 +20,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
-import com.example.evently.R;
-import com.example.evently.ui.common.EnrolledEntrantsFragment;
+import com.example.evently.databinding.FragmentEventPeopleBinding;
 
 /**
  * Fragment that displays the tabs for event participants:
@@ -27,27 +29,28 @@ import com.example.evently.ui.common.EnrolledEntrantsFragment;
  */
 public class EventPeopleFragment extends Fragment {
 
-    private TabLayout tabLayout;
-    private ViewPager2 viewPager;
-
-    public EventPeopleFragment() {}
+    private FragmentEventPeopleBinding binding;
 
     @Nullable @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_event_people, container, false);
+        binding = FragmentEventPeopleBinding.inflate(getLayoutInflater(), container, false);
 
-        final var args = getArguments();
-        assert args != null;
-        final var eventID = (UUID) args.getSerializable("eventID");
+        return binding.getRoot();
+    }
 
-        tabLayout = view.findViewById(R.id.eventPeopleTabLayout);
-        viewPager = view.findViewById(R.id.eventPeopleViewPager);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        viewPager.setAdapter(
-                new EventPeopleAdapter(getChildFragmentManager(), getLifecycle(), eventID));
+        final TabLayout tabLayout = binding.eventPeopleTabLayout;
+        final ViewPager2 viewPager = binding.eventPeopleViewPager;
+
+        // Must use parent fragment manager so that the children tabs will have access to
+        // viewmodel...
+        viewPager.setAdapter(new EventPeopleAdapter(getParentFragmentManager(), getLifecycle()));
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
                     switch (position) {
@@ -58,38 +61,29 @@ public class EventPeopleFragment extends Fragment {
                     }
                 })
                 .attach();
-
-        return view;
     }
 
     /**
      * Adapter that provides the fragments for each tab.
      */
     private static class EventPeopleAdapter extends FragmentStateAdapter {
-        private final UUID eventID;
 
         public EventPeopleAdapter(
-                @NonNull FragmentManager fragmentManager,
-                @NonNull Lifecycle lifecycle,
-                @NonNull UUID eventID) {
+                @NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
             super(fragmentManager, lifecycle);
-
-            this.eventID = eventID;
         }
 
         @NonNull @Override
         public Fragment createFragment(int position) {
-            final var bundle = new Bundle();
-            bundle.putSerializable("eventID", eventID);
             final var frag =
                     switch (position) {
                         case 0 -> new EnrolledEntrantsFragment();
                         case 1 -> new SelectedEntrantsFragment();
                         case 2 -> new AcceptedEntrantsFragment();
                         case 3 -> new CancelledEntrantsFragment();
+                        // This should never happen. See getItemCount.
                         default -> new Fragment();
                     };
-            frag.setArguments(bundle);
             return frag;
         }
 
