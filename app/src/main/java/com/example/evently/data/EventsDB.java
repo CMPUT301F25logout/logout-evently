@@ -11,11 +11,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import android.content.Context;
 import android.net.Uri;
-import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
@@ -28,7 +25,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import org.jetbrains.annotations.TestOnly;
 
 import com.example.evently.data.generic.Promise;
@@ -350,31 +346,23 @@ public class EventsDB {
      * @param uri the uri of the image
      * @return a promise of the upload task
      */
-    public Promise<UploadTask.TaskSnapshot> storePoster(UUID eventID, Uri uri) {
+    public Promise<Void> storePoster(UUID eventID, Uri uri) {
         StorageReference imageRef = storageRef.child("posters/" + eventID.toString());
 
+        // Stores the file in the database. Since the TaskSnapshot is not used, it is mapped to null
+        // to return a Promise<Void>
         var posterStorageTask = imageRef.putFile(uri);
-        return promise(posterStorageTask);
+        return promise(posterStorageTask).map(taskSnapshot -> null);
     }
 
     /**
-     * The code below loads a poster into an image view, if the poster is found
+     * The code below returns the storage reference to the selected poster.
      * @param eventID the eventID of the poster
-     * @param context the context of the image view
-     * @param imageView the imageView
+     * @return The storage reference to the poster
      */
-    public void showPoster(UUID eventID, Context context, ImageView imageView) {
+    public StorageReference getPosterStorageRef(UUID eventID) {
         // The following code is based on the downloading files section from the firebase docs:
         // https://firebase.google.com/docs/storage/android/download-files?_gl=1
-        StorageReference imageRef = storageRef.child("posters/" + eventID.toString());
-
-        // The following code attempts to find the imageRef in the DB.
-        // android.R.drawable.ic_menu_report_image is used while searching or if the image is not
-        // found in the DB.
-        Glide.with(context)
-                .load(imageRef)
-                .placeholder(android.R.drawable.ic_menu_report_image)
-                .error(android.R.drawable.ic_menu_report_image)
-                .into(imageView);
+        return storageRef.child("posters/" + eventID.toString());
     }
 }

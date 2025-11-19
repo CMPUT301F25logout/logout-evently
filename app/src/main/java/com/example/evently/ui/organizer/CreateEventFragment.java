@@ -30,6 +30,7 @@ import com.google.firebase.Timestamp;
 
 import com.example.evently.R;
 import com.example.evently.data.EventsDB;
+import com.example.evently.data.generic.Promise;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.databinding.FragmentCreateEventBinding;
@@ -177,7 +178,14 @@ public class CreateEventFragment extends Fragment {
 
             EventsDB eventsDB = new EventsDB();
 
+            // Gets the upload promise if an image has been selected through the photo picker.
+            var uploadPromise = imageUri != null
+                    ? eventsDB.storePoster(created.eventID(), imageUri)
+                    : Promise.of(null);
+
+            // Stores the event, and uploads the poster.
             eventsDB.storeEvent(created)
+                    .alongside(uploadPromise)
                     .thenRun(_v -> {
                         toast("Event created.");
                         NavHostFragment.findNavController(this).navigateUp();
@@ -186,11 +194,6 @@ public class CreateEventFragment extends Fragment {
                         btnCreate.setEnabled(true);
                         toast("Failed to save event. Try again.");
                     });
-
-            // Stores the poster if one has been selected:
-            if (imageUri != null) {
-                eventsDB.storePoster(created.eventID(), imageUri);
-            }
         });
     }
 

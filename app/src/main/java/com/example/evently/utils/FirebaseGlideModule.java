@@ -18,7 +18,7 @@ import com.google.firebase.storage.StorageReference;
  * It allows glide to work for fetching images.
  */
 @GlideModule
-public class MyAppGlideModule extends AppGlideModule {
+public class FirebaseGlideModule extends AppGlideModule {
 
     @Override
     public void registerComponents(Context context, Glide glide, Registry registry) {
