@@ -23,10 +23,13 @@ public class SearchEventsListFragment extends EventsFragment {
     public List<Event> filteredList = new ArrayList<>();
 
     public void filter(String text) {
-        filteredList.clear();
-        if (adapter == null || text.isEmpty()) return;
+        if (adapter == null || text.isEmpty()) {
+            adapter.updateEvents(eventList);
+            return;
+        }
 
         text = text.toLowerCase();
+        filteredList.clear();
         for (Event event : eventList) {
             String eventName = event.toHashMap().get("name").toString();
             if (eventName.toLowerCase().contains(text)) {
