@@ -33,4 +33,13 @@
     <string name="event_entrants_header">Entrants</string>
     <string name="entrant_limit_header">In Waitlist:</string>
     <string name="entrant_limit_separator">/</string>
+    <string name="filters_button_label">Filters</string>
+    <string name="filters_header">Choose Your Categories:</string>
+    <string name="filters_category_prompt">Choose Categories:</string>
+    <string name="filters_cancel">CANCEL</string>
+    <string name="filters_confirm">CONFIRM</string>
+    <string name="create_event_category_label">Category:</string>
+    <string name="create_event_choose_category">Choose Category</string>
+    <string name="create_event_selected_category">Selected: %1$s</string>
+    <string name="create_event_selected_category_placeholder">Selected: Sports</string>
 </resources>

@@ -15,7 +15,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
@@ -51,6 +53,8 @@ public class CreateEventFragment extends Fragment {
 
     private Uri imageUri;
     private ImageButton imageButton;
+    private Category selectedCategory = Category.SPORTS;
+    private Spinner categorySpinner;
 
     // The following code defines a launcher to pick a picture. For more details, see the android
     // photo picker docs:
@@ -104,6 +108,8 @@ public class CreateEventFragment extends Fragment {
                 _x -> NavHostFragment.findNavController(this).navigateUp());
 
         imageButton = v.findViewById(R.id.btnPickPoster);
+        categorySpinner = binding.spCategory;
+        setupCategoryPicker();
 
         // Launches the poster picker when clicked.
         imageButton.setOnClickListener(view -> {
@@ -168,7 +174,7 @@ public class CreateEventFragment extends Fragment {
             Event created = new Event(
                     name,
                     desc,
-                    Category.SPORTS,
+                    selectedCategory,
                     new Timestamp(selectionTime),
                     new Timestamp(selectionTime.plus(Duration.ofDays(2))),
                     FirebaseAuthUtils.getCurrentEmail(),
@@ -195,6 +201,51 @@ public class CreateEventFragment extends Fragment {
                         toast("Failed to save event. Try again.");
                     });
         });
+    }
+
+    /**
+     * Sets up the category spinner.
+     */
+    private void setupCategoryPicker() {
+        final var categories = Category.values();
+        final var labels = new String[categories.length];
+        for (int i = 0; i < categories.length; i++) {
+            labels[i] = formatCategory(categories[i]);
+        }
+
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, labels);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        categorySpinner.setAdapter(adapter);
+
+        int defaultIndex =
+                Math.max(0, java.util.Arrays.asList(categories).indexOf(selectedCategory));
+        categorySpinner.setSelection(defaultIndex);
+
+        categorySpinner.setOnItemSelectedListener(
+                new android.widget.AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(
+                            android.widget.AdapterView<?> parent,
+                            View view,
+                            int position,
+                            long id) {
+                        selectedCategory = categories[position];
+                    }
+
+                    @Override
+                    public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+                });
+    }
+
+    /**
+     *
+     * @param category the category to format
+     * @return the formatted category string
+     */
+    private static String formatCategory(Category category) {
+        final String lower = category.name().toLowerCase().replace('_', ' ');
+        return Character.toUpperCase(lower.charAt(0)) + lower.substring(1);
     }
 
     /**
