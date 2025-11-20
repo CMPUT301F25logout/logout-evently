@@ -248,6 +248,18 @@ public class EventsDB {
     }
 
     /**
+     * Fetch all events including past events
+     */
+    public Promise<List<Event>> fetchAllEvents()
+    {
+        return promise(eventsRef.get())
+                .map(querySnapshot -> querySnapshot.getDocuments().stream()
+                        .map(EventsDB::getEventFromSnapshot)
+                        .flatMap(Optional::stream)
+                        .collect(Collectors.toList()));
+    }
+
+    /**
      * Fetch events from database in a date range.
      * @param startTime Date range start
      * @param endTime Date range end

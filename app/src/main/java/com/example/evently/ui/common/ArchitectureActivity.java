@@ -2,6 +2,7 @@ package com.example.evently.ui.common;
 
 import static com.example.evently.data.model.Role.EntrantRole;
 import static com.example.evently.data.model.Role.OrganizerRole;
+import static com.example.evently.data.model.Role.AdminRole;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
+import com.example.evently.ui.admin.AdminActivity;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import com.example.evently.data.model.Role;
@@ -47,7 +49,7 @@ public abstract class ArchitectureActivity extends AppCompatActivity
     private ActivityArchitectureBinding binding;
     protected NavController navController;
 
-    private static Role[] DefaultRoles = new Role[] {EntrantRole, OrganizerRole};
+    private static Role[] DefaultRoles = new Role[] {EntrantRole, OrganizerRole, AdminRole};
     // Track the role selected by the role spinner so we can avoid switching when we're already
     // there!
     private int currentlySelectedRole = rolePosition();
@@ -79,8 +81,9 @@ public abstract class ArchitectureActivity extends AppCompatActivity
         return switch (this) {
             case EntrantActivity ignored -> 0;
             case OrganizerActivity ignored -> 1;
+            case AdminActivity ignored -> 2;
             // Admin activity.
-            default -> 2;
+            default -> 3;
         };
     }
 
@@ -164,6 +167,7 @@ public abstract class ArchitectureActivity extends AppCompatActivity
                 switch (position) {
                     case 0 -> new Intent(this, EntrantActivity.class);
                     case 1 -> new Intent(this, OrganizerActivity.class);
+                    case 2 -> new Intent(this, AdminActivity.class);
                     // TODO (chase): Admin activity intent here.
                     default -> throw new RuntimeException("Admin activity not implemented yet");
                 };

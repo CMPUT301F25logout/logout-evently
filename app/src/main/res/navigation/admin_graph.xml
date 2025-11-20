@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/admin_graph"
+    app:startDestination="@id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.example.evently.ui.admin.HomeFragment"
+        android:label="Browse Events"
+        tools:layout="@layout/fragment_entrant_home">
+        <action
+            android:id="@+id/action_nav_home_to_event_details"
+            app:destination="@id/event_details" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/event_details"
+        android:name="com.example.evently.ui.admin.AdminEventDetailsFragment"
+        android:label="Event Details"
+        tools:layout="@layout/fragment_event_details">
+        <argument
+            android:name="eventID"
+            app:argType="java.util.UUID" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/view_profiles"
+        android:name="com.example.evently.ui.admin.ViewProfilesFragment"
+        android:label="View Profiles"
+        tools:layout="@layout/fragment_admin_profiles"/>
+
+</navigation>
