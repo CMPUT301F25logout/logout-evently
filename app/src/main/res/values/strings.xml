@@ -50,4 +50,13 @@
     <string name="notification_title">Notification Title</string>
     <string name="action_dumb_login">Sign in with Device ID</string>
     <string name="dumb_register_txt">Sign up with Device ID</string>
+    <string name="filters_button_label">Filters</string>
+    <string name="filters_header">Choose Your Categories:</string>
+    <string name="filters_category_prompt">Choose Categories:</string>
+    <string name="filters_cancel">CANCEL</string>
+    <string name="filters_confirm">CONFIRM</string>
+    <string name="create_event_category_label">Category:</string>
+    <string name="create_event_choose_category">Choose Category</string>
+    <string name="create_event_selected_category">Selected: %1$s</string>
+    <string name="create_event_selected_category_placeholder">Selected: Sports</string>
 </resources>

@@ -1,22 +1,32 @@
 package com.example.evently.ui.entrant;
 
 import java.util.List;
-import java.util.function.Consumer;
 
-import android.util.Log;
+import android.os.Bundle;
 import android.widget.Toast;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
-import com.example.evently.ui.common.EventsFragment;
+import com.example.evently.ui.common.LiveEventsFragment;
+import com.example.evently.ui.model.EntrantEventsViewModel;
 
 /**
  * A fragment representing a list of events the Entrant can join
  */
-public class BrowseEventsFragment extends EventsFragment {
+public class BrowseEventsFragment extends LiveEventsFragment {
+    private EntrantEventsViewModel eventsViewModel;
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        eventsViewModel =
+                new ViewModelProvider(requireActivity()).get(EntrantEventsViewModel.class);
+    }
     /**
      * Handles clicks on an event row in the Browse list.
      * <p>
@@ -34,15 +44,21 @@ public class BrowseEventsFragment extends EventsFragment {
     }
 
     /**
-     * Supplies the Browse list with placeholder events
-     * @param callback Callback that will be passed the events into.
+     * Gets the {@link LiveData} of Browse events.
+     * @return the {@link LiveData} of joined events.
      */
     @Override
-    protected void initEvents(Consumer<List<Event>> callback) {
-        new EventsDB().fetchOpenEvents().thenRun(callback).catchE(e -> {
-            Log.e("BrowseEvents", e.toString());
-            Toast.makeText(requireContext(), "Something went wrong...", Toast.LENGTH_SHORT)
-                    .show();
-        });
+    protected LiveData<List<Event>> getEventsLiveData() {
+        return eventsViewModel.getFilteredBrowseEvents();
+    }
+
+    /**
+     * Refreshes the list of joined events.
+     */
+    @Override
+    protected void requestRefresh() {
+        eventsViewModel.refreshBrowseEvents().catchE(e -> Toast.makeText(
+                        requireContext(), "Something went wrong...", Toast.LENGTH_SHORT)
+                .show());
     }
 }

@@ -24,6 +24,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import com.example.evently.R;
 import com.example.evently.data.model.Role;
 import com.example.evently.databinding.ActivityArchitectureBinding;
 import com.example.evently.ui.auth.AuthActivity;
@@ -108,10 +109,21 @@ public abstract class ArchitectureActivity extends AppCompatActivity
         navController = navHostFragment.getNavController();
         navController.setGraph(this.getGraph());
         NavigationUI.setupWithNavController(navBar, navController, false);
+        if (this instanceof EntrantActivity) {
+            binding.btnFilters.setVisibility(View.VISIBLE);
+            binding.btnFilters.setOnClickListener(
+                    v -> navController.navigate(R.id.action_global_filters));
+        } else {
+            binding.btnFilters.setVisibility(View.GONE);
+        }
         navController.addOnDestinationChangedListener((navController, destination, args) -> {
             // Set the title
             if (destination.getLabel() != null) {
                 binding.homeTitle.setText(destination.getLabel());
+            }
+            if (this instanceof EntrantActivity) {
+                final var showFilters = destination.getId() != R.id.nav_filters;
+                binding.btnFilters.setVisibility(showFilters ? View.VISIBLE : View.GONE);
             }
         });
 
