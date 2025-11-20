@@ -10,7 +10,7 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/eventListContainer"
-        android:name="com.example.evently.ui.admin.AdminEventsFragment"
+        android:name="com.example.evently.ui.admin.AdminBrowseEventsFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"

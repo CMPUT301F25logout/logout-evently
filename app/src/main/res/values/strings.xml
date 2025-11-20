@@ -28,6 +28,7 @@
     <string name="event_join_btn_full">Waitlist Full</string>
     <string name="event_join_btn_joined">Leave Waitlist</string>
     <string name="event_image_description">Event image</string>
+    <string name="profile_image_description">Profile image</string>
     <string name="event_location_icon">Location icon</string>
     <string name="event_date_icon">Date/time icon</string>
     <string name="event_selection_header">Selection On:</string>

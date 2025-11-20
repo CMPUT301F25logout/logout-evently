@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/nav_home"
         android:name="com.example.evently.ui.admin.HomeFragment"
-        android:label="Browse Events"
+        android:label="Admin Browse Events"
         tools:layout="@layout/fragment_entrant_home">
         <action
             android:id="@+id/action_nav_home_to_event_details"
@@ -27,8 +27,21 @@
 
     <fragment
         android:id="@+id/nav_accounts"
-        android:name="com.example.evently.ui.admin.ViewProfilesFragment"
-        android:label="View Profiles"
+        android:name="com.example.evently.ui.admin.BrowseProfilesFragment"
+        android:label="Admin Browse Profiles"
         tools:layout="@layout/fragment_admin_profiles"/>
+
+    <fragment
+        android:id="@+id/nav_images"
+        android:name="com.example.evently.ui.admin.ViewImagesFragment"
+        android:label="Admin Browse Images"
+        tools:layout="@layout/fragment_admin_images"/>
+
+
+    <fragment
+        android:id="@+id/nav_notifs"
+        android:name="com.example.evently.ui.admin.AdminBrowseNotificationsFragment"
+        android:label="Admin Browse Notifications"
+        tools:layout="@layout/fragment_notifs"/>
 
 </navigation>

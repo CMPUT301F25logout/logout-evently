@@ -8,10 +8,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.evently.data.model.Account;
 
+import com.example.evently.data.model.Notification;
 import com.example.evently.databinding.FragmentProfileRowBinding;
 
 import java.util.List;
 
+/**
+ * {@link RecyclerView.Adapter} that can display a {@link Account}.
+ * <p>
+ */
 public class ProfileRecyclerViewAdapter extends RecyclerView.Adapter<ProfileRecyclerViewAdapter.ProfileViewHolder>
 {
 

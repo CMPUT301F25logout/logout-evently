@@ -19,18 +19,26 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.evently.R;
 import com.example.evently.data.AccountDB;
 import com.example.evently.data.model.Account;
-import com.example.evently.ui.entrant.HomeFragmentDirections;
 
 import java.util.List;
 import java.util.function.Consumer;
 
-
-public class ViewProfilesFragment extends Fragment
+/**
+ * A fragment representing a list of accounts that the admin can browse and interact with.
+ */
+public class BrowseProfilesFragment extends Fragment
 {
 	private ProfileRecyclerViewAdapter adapter;
 
 	private RecyclerView recyclerView;
 
+	/**
+	 * Handles clicks on a profile row in the Admin Browse list.
+	 * <p>
+	 * Uses the Navigation Component to navigate to the Admin view of the Profile screen,
+	 * passing the clicked account’s ID as a String argument.
+	 * @param account The structural representation of the Account view that was clicked.
+	 */
 	protected void onProfileClick(Account account) {
 		// The action for clicking on the account, pass the account ID to the next profile viewer
 		// fragment
@@ -39,6 +47,10 @@ public class ViewProfilesFragment extends Fragment
 		//navController.navigate(action);
 	}
 
+	/**
+	 * Supplies the Browse list with all accounts opened.
+	 * @param callback Callback that will be passed the accounts into.
+	 */
 	protected void initAccounts(Consumer<List<Account>> callback) {
 		new AccountDB()
 				.fetchAllAccounts()
@@ -63,6 +75,7 @@ public class ViewProfilesFragment extends Fragment
 		Context context = recyclerView.getContext();
 		recyclerView.setLayoutManager(new LinearLayoutManager(context));
 
+		// Set up the recycler view adapter with all accounts in the database
 		initAccounts(accounts -> {
 			adapter = new ProfileRecyclerViewAdapter(accounts, this::onProfileClick);
 			recyclerView.setAdapter(adapter);

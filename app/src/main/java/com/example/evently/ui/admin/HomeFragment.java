@@ -10,9 +10,10 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.evently.databinding.FragmentAdminHomeBinding;
-import com.google.android.material.tabs.TabLayout;
 
-
+/**
+ * This is used as the home screen for the Admin activity.
+ */
 public class HomeFragment extends Fragment
 {
 	@Nullable

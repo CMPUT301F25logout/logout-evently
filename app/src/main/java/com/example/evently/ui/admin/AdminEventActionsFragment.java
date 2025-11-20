@@ -16,9 +16,9 @@ import com.example.evently.ui.model.EventViewModel;
 import com.example.evently.ui.organizer.EditEventDetailsFragment;
 
 /**
- * The actions button for the admin {@link EditEventDetailsFragment } fragment.
+ * The actions button for the admin {@link AdminEventDetailsFragment } fragment.
  * This takes care of setting up the action buttons for the admin view.
- * MUST be used by {@link EditEventDetailsFragment } as it requires ViewModels from there.
+ * MUST be used by {@link AdminEventDetailsFragment } as it requires ViewModels from there.
  */
 public class AdminEventActionsFragment extends Fragment {
 	private FragmentAdminEventActionsBinding binding;
