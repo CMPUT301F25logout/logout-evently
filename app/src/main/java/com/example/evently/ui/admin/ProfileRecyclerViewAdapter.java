@@ -7,34 +7,31 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.evently.data.model.Account;
-import com.example.evently.databinding.FragmentProfileBinding;
 
-import java.util.ArrayList;
+import com.example.evently.databinding.FragmentProfileRowBinding;
+
 import java.util.List;
 
 public class ProfileRecyclerViewAdapter extends RecyclerView.Adapter<ProfileRecyclerViewAdapter.ProfileViewHolder>
 {
-	private final List<Account> profiles;
-	//private final ProfileOnClickListener onProfileClick;
 
 	public interface ProfileOnClickListener {
 		void accept(Account a);
 	}
 
-	public ProfileRecyclerViewAdapter()
-	{
-		this.profiles = new ArrayList<>();
-	}
+	private final List<Account> profiles;
+	private final ProfileOnClickListener onProfileClick;
 
 	public ProfileRecyclerViewAdapter(List<Account> profiles, ProfileOnClickListener onProfileClick)
 	{
 		this.profiles = profiles;
-		//this.onProfileClick = onProfileClick;
+		this.onProfileClick = onProfileClick;
 	}
+
 	@NonNull
 	@Override
 	public ProfileViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-		return new ProfileRecyclerViewAdapter.ProfileViewHolder(FragmentProfileBinding.inflate(
+		return new ProfileRecyclerViewAdapter.ProfileViewHolder(FragmentProfileRowBinding.inflate(
 				LayoutInflater.from(parent.getContext()), parent, false));
 	}
 
@@ -44,6 +41,7 @@ public class ProfileRecyclerViewAdapter extends RecyclerView.Adapter<ProfileRecy
 		if (profiles.isEmpty()) {
 			return;
 		}
+
 		holder.acc = profiles.get(position);
 		var binding = holder.binding;
 
@@ -52,8 +50,8 @@ public class ProfileRecyclerViewAdapter extends RecyclerView.Adapter<ProfileRecy
 		// Set the picture of each profile
 		// TODO binding.profilePicture
 
-		// Set the profile click listener
-		//binding.btnDetails.setOnClickListener(v -> onProfileClick.accept(holder.));
+		// Set the profile details button click listener
+		binding.btnDetails.setOnClickListener(v -> onProfileClick.accept(holder.acc));
 	}
 
 	@Override
@@ -62,10 +60,10 @@ public class ProfileRecyclerViewAdapter extends RecyclerView.Adapter<ProfileRecy
 	}
 
 	public static class ProfileViewHolder extends RecyclerView.ViewHolder {
-		public final FragmentProfileBinding binding;
+		public final FragmentProfileRowBinding binding;
 		public Account acc;
 
-		public ProfileViewHolder(FragmentProfileBinding binding) {
+		public ProfileViewHolder(FragmentProfileRowBinding binding) {
 			super(binding.getRoot());
 			// Can define click listeners here
 			this.binding = binding;

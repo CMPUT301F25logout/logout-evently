@@ -248,7 +248,8 @@ public class EventsDB {
     }
 
     /**
-     * Fetch all events including past events
+     * Gets all events for admin viewing purposes
+     * @return A list of events
      */
     public Promise<List<Event>> fetchAllEvents()
     {

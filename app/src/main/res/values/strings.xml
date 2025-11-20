@@ -11,6 +11,8 @@
     <string name="nav_bar_account">Profile page</string>
     <string name="nav_bar_search">Search events</string>
     <string name="nav_bar_notifs">Notifications page</string>
+    <string name="nav_bar_images">Images page</string>
+    <string name="nav_bar_profiles">Profiles page</string>
     <string name="notif_title_sample">Event won</string>
     <string name="notif_description_sample">You have been invited to the event.</string>
     <string name="notif_date_sample">2025-08-12</string>
