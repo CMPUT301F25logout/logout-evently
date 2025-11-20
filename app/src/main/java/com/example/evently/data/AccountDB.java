@@ -85,13 +85,11 @@ public class AccountDB {
      * Returns all accounts for admin viewing
      * @return A list of accounts
      */
-    public Promise<List<Account>> fetchAllAccounts()
-    {
-        return promise(accountsRef.get())
-                .map(querySnapshot -> querySnapshot.getDocuments().stream()
-                        .map(AccountDB::getAccountFromSnapshot)
-                        .flatMap(Optional::stream)
-                        .collect(Collectors.toList()));
+    public Promise<List<Account>> fetchAllAccounts() {
+        return promise(accountsRef.get()).map(querySnapshot -> querySnapshot.getDocuments().stream()
+                .map(AccountDB::getAccountFromSnapshot)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList()));
     }
 
     /**

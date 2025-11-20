@@ -251,13 +251,11 @@ public class EventsDB {
      * Gets all events for admin viewing purposes
      * @return A list of events
      */
-    public Promise<List<Event>> fetchAllEvents()
-    {
-        return promise(eventsRef.get())
-                .map(querySnapshot -> querySnapshot.getDocuments().stream()
-                        .map(EventsDB::getEventFromSnapshot)
-                        .flatMap(Optional::stream)
-                        .collect(Collectors.toList()));
+    public Promise<List<Event>> fetchAllEvents() {
+        return promise(eventsRef.get()).map(querySnapshot -> querySnapshot.getDocuments().stream()
+                .map(EventsDB::getEventFromSnapshot)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList()));
     }
 
     /**
