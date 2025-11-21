@@ -9,7 +9,11 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.bumptech.glide.Glide;
+import com.google.firebase.storage.StorageReference;
+
 import com.example.evently.R;
+import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.databinding.FragmentEventDetailsBinding;
 import com.example.evently.ui.model.EventViewModel;
@@ -96,6 +100,17 @@ public abstract class EventDetailsFragment<E extends Fragment, A extends Fragmen
         binding.eventName.setText(event.name());
         binding.eventDescription.setText(event.description());
         binding.eventCategory.setText(event.category().toString());
+
+        StorageReference posterRef = new EventsDB().getPosterStorageRef(event.eventID());
+
+        // The following code attempts to find the posterRef in the DB, and store it into the event
+        // picture. android.R.drawable.ic_menu_report_image is used while searching or if the image
+        // is not found in the DB.
+        Glide.with(getContext())
+                .load(posterRef)
+                .placeholder(android.R.drawable.ic_menu_report_image)
+                .error(android.R.drawable.ic_menu_report_image)
+                .into(binding.eventPicture);
 
         event.optionalEntrantLimit().ifPresent(limit -> {
             binding.entrantLimitSection.setVisibility(View.VISIBLE);
