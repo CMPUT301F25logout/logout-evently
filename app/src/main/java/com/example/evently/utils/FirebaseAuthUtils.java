@@ -31,6 +31,8 @@ import com.example.evently.data.EventsDB;
 
 public final class FirebaseAuthUtils {
 
+    public static boolean testRun = false;
+
     /**
      * This function will throw if called before AuthActivity gets through (i.e user is logged in).
      * @return Email of the currently logged in user.
@@ -68,7 +70,29 @@ public final class FirebaseAuthUtils {
             throw new RuntimeException(
                     "Delete account error: user is Null"); // This shouldn't happen
 
+        if (testRun) {
+            accountDB.deleteAccount(getCurrentEmail());
+            user.delete().addOnSuccessListener(onSuccess).addOnFailureListener(onException::accept);
+            return;
+        }
+
+        requestGoogleCredential(
+                activity,
+                token -> user.reauthenticate(GoogleAuthProvider.getCredential(token, null))
+                        .addOnSuccessListener(task -> {
+                            accountDB.deleteAccount(getCurrentEmail());
+                            user.delete()
+                                    .addOnSuccessListener(onSuccess)
+                                    .addOnFailureListener(onException::accept);
+                        })
+                        .addOnFailureListener(onException::accept),
+                onException);
+    }
+
+    private static void requestGoogleCredential(
+            Activity activity, Consumer<String> onToken, Consumer<Exception> onException) {
         CredentialManager credentialManager = CredentialManager.create(activity);
+
         GetGoogleIdOption googleIdOption = new GetGoogleIdOption.Builder()
                 .setServerClientId(BuildConfig.GOOGLE_CLIENT_ID)
                 .build();
@@ -78,29 +102,25 @@ public final class FirebaseAuthUtils {
                 .build();
 
         credentialManager.getCredentialAsync(
-                activity.getBaseContext(),
+                activity,
                 request,
                 new CancellationSignal(),
                 Executors.newSingleThreadExecutor(),
                 new CredentialManagerCallback<>() {
                     @Override
                     public void onResult(GetCredentialResponse result) {
-                        Credential credential = result.getCredential();
-                        if (!credential.getType().equals(TYPE_GOOGLE_ID_TOKEN_CREDENTIAL)) {
-                            // This shouldn't happen.
-                            onException.accept(
-                                    new Exception("absurd: Credential was not a Google ID token"));
-                            return;
+                        try {
+                            Credential credential = result.getCredential();
+                            if (!credential.getType().equals(TYPE_GOOGLE_ID_TOKEN_CREDENTIAL))
+                                throw new Exception(
+                                        "absurd: Credential was not a Google ID token"); // This
+                            // shouldn't happen.
+                            String token = GoogleIdTokenCredential.createFrom(credential.getData())
+                                    .getIdToken();
+                            onToken.accept(token);
+                        } catch (Exception e) {
+                            onException.accept(e);
                         }
-                        user.reauthenticate(GoogleAuthProvider.getCredential(
-                                        GoogleIdTokenCredential.createFrom(credential.getData())
-                                                .getIdToken(),
-                                        null))
-                                .addOnSuccessListener(task -> {
-                                    accountDB.deleteAccount(getCurrentEmail());
-                                    user.delete().addOnSuccessListener(onSuccess);
-                                })
-                                .addOnFailureListener(onException::accept);
                     }
 
                     @Override
