@@ -10,25 +10,9 @@ import androidx.fragment.app.DialogFragment;
 
 import com.example.evently.R;
 import com.example.evently.data.NotificationDB;
+import com.example.evently.data.model.Notification;
 
 public class NotificationThread extends DialogFragment {
-
-    /**
-     * The following function creates a thread of notifications for the organizer of
-     * the provided eventID
-     * @param eventID The eventID for the thread
-     * @return The event ID for the new thread.
-     */
-    public static NotificationThread createNotificationThread(UUID eventID) {
-
-        Bundle bundle = new Bundle();
-        NotificationThread newThread = new NotificationThread();
-
-        bundle.putSerializable("eventID", eventID);
-        newThread.setArguments(bundle);
-
-        return newThread;
-    }
 
     @Override
     public View onCreateView(
@@ -38,6 +22,8 @@ public class NotificationThread extends DialogFragment {
         Bundle bundle = getArguments();
         assert bundle != null;
         UUID eventID = (UUID) bundle.getSerializable("eventID");
+        Notification.Channel channel = (Notification.Channel) bundle.getSerializable("channel");
+
 
         // Fetches the event
         // TODO: Make the layout

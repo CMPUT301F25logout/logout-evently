@@ -33,4 +33,6 @@
     <string name="event_entrants_header">Entrants</string>
     <string name="entrant_limit_header">In Waitlist:</string>
     <string name="entrant_limit_separator">/</string>
+    <string name="event_title">Event title</string>
+    <string name="channel">channel</string>
 </resources>

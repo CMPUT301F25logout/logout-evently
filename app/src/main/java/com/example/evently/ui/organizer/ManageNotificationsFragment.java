@@ -3,6 +3,7 @@ package com.example.evently.ui.organizer;
 import java.util.List;
 import java.util.function.Consumer;
 
+import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -10,12 +11,18 @@ import com.example.evently.data.model.Notification;
 import com.example.evently.ui.common.NotificationsFragment;
 import com.example.evently.utils.FirebaseAuthUtils;
 
-public class OrganizerNotificationsFragment extends NotificationsFragment {
+public class ManageNotificationsFragment extends NotificationsFragment {
 
     protected void onNotificationClick(Notification notif) {
 
-        NotificationThread thread = NotificationThread.createNotificationThread(notif.eventId());
-        // TODO: Show the new thread
+        NotificationThread thread = new NotificationThread();
+        Bundle bundle = new Bundle();
+        NotificationThread newThread = new NotificationThread();
+        bundle.putSerializable("eventID", notif.eventId());
+        bundle.putSerializable("channel", notif.channel());
+        newThread.setArguments(bundle);
+
+        // TODO: Show the thread.
     }
 
     protected void initNotifications(Consumer<List<Notification>> callback) {
