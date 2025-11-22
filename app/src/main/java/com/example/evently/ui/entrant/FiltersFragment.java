@@ -19,14 +19,14 @@ import com.google.android.material.chip.Chip;
 import com.example.evently.R;
 import com.example.evently.data.model.Category;
 import com.example.evently.databinding.FragmentFiltersBinding;
-import com.example.evently.ui.model.EntrantEventsViewModel;
+import com.example.evently.ui.model.BrowseEventsViewModel;
 
 /**
  * Fragment for filtering entrant event lists by {@link Category}.
  */
 public class FiltersFragment extends Fragment {
     private FragmentFiltersBinding binding;
-    private EntrantEventsViewModel eventsViewModel;
+    private BrowseEventsViewModel eventsViewModel;
 
     @Nullable @Override
     public View onCreateView(
@@ -40,8 +40,7 @@ public class FiltersFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        eventsViewModel =
-                new ViewModelProvider(requireActivity()).get(EntrantEventsViewModel.class);
+        eventsViewModel = new ViewModelProvider(requireActivity()).get(BrowseEventsViewModel.class);
 
         setupCategoryChips();
 

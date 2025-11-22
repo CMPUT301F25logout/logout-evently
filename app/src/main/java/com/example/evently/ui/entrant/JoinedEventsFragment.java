@@ -1,32 +1,26 @@
 package com.example.evently.ui.entrant;
 
 import java.util.List;
+import java.util.function.Consumer;
 
-import android.os.Bundle;
+import android.util.Log;
+import android.widget.Button;
 import android.widget.Toast;
-import androidx.annotation.Nullable;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.evently.R;
+import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
-import com.example.evently.ui.common.LiveEventsFragment;
-import com.example.evently.ui.model.EntrantEventsViewModel;
+import com.example.evently.ui.common.EventsFragment;
+import com.example.evently.utils.FirebaseAuthUtils;
 
 /**
  * A fragment representing a list of events that an entrant has joined
  *
  */
-public class JoinedEventsFragment extends LiveEventsFragment {
-    private EntrantEventsViewModel eventsViewModel;
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        eventsViewModel =
-                new ViewModelProvider(requireActivity()).get(EntrantEventsViewModel.class);
-    }
+public class JoinedEventsFragment extends EventsFragment {
 
     /**
      * Handles clicks on a joined event item.
@@ -43,22 +37,35 @@ public class JoinedEventsFragment extends LiveEventsFragment {
     }
 
     /**
-     * Gets the {@link LiveData} of joined events.
+     * Applies selected/unselected styling to a tab button.
      *
-     * @return the {@link LiveData} of joined events.
+     * @param b        the button to style
+     * @param selected true to show the selected style; false for unselected.
      */
-    @Override
-    protected LiveData<List<Event>> getEventsLiveData() {
-        return eventsViewModel.getFilteredJoinedEvents();
+    private void styleSelected(Button b, boolean selected) {
+        if (selected) {
+            b.setBackgroundResource(R.drawable.bg_tab_selected);
+            b.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white));
+        } else {
+            b.setBackgroundResource(R.drawable.bg_tab_unselected);
+            b.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black));
+        }
     }
 
     /**
-     * Refreshes the list of joined events.
+     * Supplies the “Joined” list with placeholder events.
+     *
+     * @param callback Callback that will be passed the events into.
      */
     @Override
-    protected void requestRefresh() {
-        eventsViewModel.refreshJoinedEvents().catchE(e -> Toast.makeText(
-                        requireContext(), "Something went wrong...", Toast.LENGTH_SHORT)
-                .show());
+    protected void initEvents(Consumer<List<Event>> callback) {
+        new EventsDB()
+                .fetchEventsByEnrolled(FirebaseAuthUtils.getCurrentEmail())
+                .thenRun(callback)
+                .catchE(e -> {
+                    Log.e("JoinedEvents", e.toString());
+                    Toast.makeText(requireContext(), "Something went wrong...", Toast.LENGTH_SHORT)
+                            .show();
+                });
     }
 }
