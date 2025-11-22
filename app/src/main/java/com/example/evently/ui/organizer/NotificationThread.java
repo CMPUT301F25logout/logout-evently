@@ -6,7 +6,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import androidx.fragment.app.DialogFragment;
+
+import com.google.android.material.button.MaterialButton;
 
 import com.example.evently.R;
 import com.example.evently.data.NotificationDB;
@@ -18,24 +21,34 @@ public class NotificationThread extends DialogFragment {
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        // Gets the eventID from the fragment.
+        // Gets the eventID, and channel from the fragment.
         Bundle bundle = getArguments();
         assert bundle != null;
         UUID eventID = (UUID) bundle.getSerializable("eventID");
         Notification.Channel channel = (Notification.Channel) bundle.getSerializable("channel");
 
-
-        // Fetches the event
-        // TODO: Make the layout
-        // TODO: Store past event notifications in a recycler view
-        assert eventID != null;
-        new NotificationDB().fetchEventNotifications(eventID);
-
-        // TODO: Setup channel selection for notifications
-        // TODO: Setup user input for the notification text
-        // TODO: Show event name at the top of the fragment
-
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_notification_thread, container, false);
+        View view = inflater.inflate(R.layout.fragment_notification_thread, container, false);
+
+        TextView eventTitle = view.findViewById(R.id.tvEventTitle);
+        TextView eventChannel = view.findViewById(R.id.tvNotificationChannel);
+
+        // TODO: Show the eventTitle, and eventChannel (eventTitle needs to be fetched)
+
+        MaterialButton sendNotificationButton = view.findViewById(R.id.btnSendNotification);
+
+        sendNotificationButton.setOnClickListener(v -> {
+            // TODO: Figure out the material TextInputEditText for getting text
+
+            // TODO: Input validation toasts
+        });
+
+        assert eventID != null;
+        assert channel != null;
+        new NotificationDB().fetchEventNotifications(eventID, channel);
+
+        // TODO: Create some sort of notification channel view fragment, which can show the fetched
+        // notifications for the channel.
+        return view;
     }
 }

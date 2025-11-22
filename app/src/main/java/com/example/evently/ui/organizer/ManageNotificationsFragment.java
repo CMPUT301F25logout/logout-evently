@@ -22,7 +22,8 @@ public class ManageNotificationsFragment extends NotificationsFragment {
         bundle.putSerializable("channel", notif.channel());
         newThread.setArguments(bundle);
 
-        // TODO: Show the thread.
+        // Shows the thread
+        newThread.show(getChildFragmentManager(), "notificationThread");
     }
 
     protected void initNotifications(Consumer<List<Notification>> callback) {

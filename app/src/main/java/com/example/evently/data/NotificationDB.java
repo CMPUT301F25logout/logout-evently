@@ -3,8 +3,6 @@ package com.example.evently.data;
 import static com.example.evently.data.generic.Promise.promise;
 import static com.example.evently.data.generic.PromiseOpt.promiseOpt;
 
-import android.app.NotificationChannel;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -117,11 +115,12 @@ public class NotificationDB {
      * @param channel The channel where the notif is from
      * @return A promise of a list of notifications.
      */
-    public Promise<List<Notification>> fetchEventNotifications(UUID eventID, Notification.Channel channel) {
+    public Promise<List<Notification>> fetchEventNotifications(
+            UUID eventID, Notification.Channel channel) {
         return promise(notificationsRef
-                .whereEqualTo("eventId", eventID.toString())
-                .whereEqualTo("channel",channel.toString())
-                .get())
+                        .whereEqualTo("eventId", eventID.toString())
+                        .whereEqualTo("channel", channel.toString())
+                        .get())
                 .map(NotificationDB::parseQuerySnapshot);
     }
 
