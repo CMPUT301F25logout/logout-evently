@@ -22,8 +22,7 @@ import com.example.evently.ui.model.EventViewModel;
  * Fragment that displays the event information as well as the entrants that have been waitlisted.
  * <p>
  * Things to implement:
- * Images for the event and accounts
- * Extending the description if it's too long
+ * Images for the event
  * <p>
  * Layout: fragment_event_details.xml
  * @author Vinson Lou

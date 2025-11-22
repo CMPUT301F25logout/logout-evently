@@ -40,9 +40,9 @@ public class BrowseProfilesFragment extends Fragment {
     protected void onProfileClick(Account account) {
         // The action for clicking on the account, pass the account ID to the next profile viewer
         // fragment
-        // TODO var action = HomeFragmentDirections.actionNavHomeToEventDetails(event.eventID());
+        var action = BrowseProfilesFragmentDirections.actionNavAccountsToProfileDetails(account.email());
         NavController navController = NavHostFragment.findNavController(this);
-        // navController.navigate(action);
+        navController.navigate(action);
     }
 
     /**

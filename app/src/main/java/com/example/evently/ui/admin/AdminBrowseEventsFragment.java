@@ -11,7 +11,6 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.common.EventsFragment;
-import com.example.evently.ui.organizer.HomeFragmentDirections;
 
 /**
  * A fragment representing a list of events the admin can browse and interact with.

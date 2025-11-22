@@ -9,7 +9,7 @@
         android:id="@+id/nav_home"
         android:name="com.example.evently.ui.admin.HomeFragment"
         android:label="Admin Browse Events"
-        tools:layout="@layout/fragment_entrant_home">
+        tools:layout="@layout/fragment_admin_home">
         <action
             android:id="@+id/action_nav_home_to_event_details"
             app:destination="@id/event_details" />
@@ -25,15 +25,32 @@
             app:argType="java.util.UUID" />
     </fragment>
 
+
+
     <fragment
         android:id="@+id/nav_accounts"
         android:name="com.example.evently.ui.admin.BrowseProfilesFragment"
         android:label="Admin Browse Profiles"
-        tools:layout="@layout/fragment_admin_profiles"/>
+        tools:layout="@layout/fragment_admin_profiles">
+        <action
+            android:id="@+id/action_nav_accounts_to_profile_details"
+            app:destination="@id/profile_details" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/profile_details"
+        android:name="com.example.evently.ui.admin.ViewProfileDetailsFragment"
+        android:label="Admin View Profile"
+        tools:layout="@layout/fragment_admin_profile">
+        <argument
+            android:name="accountEmail"
+            app:argType="string" />
+    </fragment>
+
 
     <fragment
         android:id="@+id/nav_images"
-        android:name="com.example.evently.ui.admin.ViewImagesFragment"
+        android:name="com.example.evently.ui.admin.AdminBrowseImages"
         android:label="Admin Browse Images"
         tools:layout="@layout/fragment_admin_images"/>
 
@@ -43,5 +60,7 @@
         android:name="com.example.evently.ui.admin.AdminBrowseNotificationsFragment"
         android:label="Admin Browse Notifications"
         tools:layout="@layout/fragment_notifs"/>
+
+
 
 </navigation>
