@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import com.example.evently.data.AccountDB;
 import com.example.evently.ui.common.EditProfileFragment;
+import com.example.evently.utils.FirebaseAuthUtils;
 
 public class EditProfileTest extends EmulatedFragmentTest<EditProfileFragment> {
 
@@ -27,6 +28,7 @@ public class EditProfileTest extends EmulatedFragmentTest<EditProfileFragment> {
     public static void setupAccount() throws ExecutionException, InterruptedException {
         AccountDB db = new AccountDB();
         db.storeAccount(FirebaseEmulatorTest.defaultMockAccount).await();
+        FirebaseEmulatorTest.setUpEmulator();
     }
 
     /**
@@ -76,6 +78,29 @@ public class EditProfileTest extends EmulatedFragmentTest<EditProfileFragment> {
         onView(withId(R.id.text_field)).perform(typeText(testPhone2));
         onView(withId(R.id.confirm_button)).perform(click());
         onView(withId(R.id.phone_text)).check(matches(withText("(444) 555-6666")));
+    }
+
+    /**
+     * Tests sign out button
+     */
+    @Test
+    public void signOutTest() throws ExecutionException, InterruptedException {
+        onView(withId(R.id.sign_out)).perform(click());
+        onView(withId(R.id.confirm_button)).perform(click());
+        onView(withId(R.id.welcomeText)).check(matches(isDisplayed()));
+        FirebaseEmulatorTest.setUpEmulator();
+    }
+
+    /**
+     * Tests delete account button
+     */
+    @Test
+    public void deleteAccountTest() throws ExecutionException, InterruptedException {
+        FirebaseAuthUtils.testRun = true;
+        onView(withId(R.id.delete_account)).perform(click());
+        onView(withId(R.id.confirm_button)).perform(click());
+        onView(withId(R.id.welcomeText)).check(matches(isDisplayed()));
+        FirebaseEmulatorTest.setUpEmulator();
     }
 
     /**

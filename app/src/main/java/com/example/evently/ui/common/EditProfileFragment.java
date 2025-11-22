@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -229,8 +228,6 @@ public class EditProfileFragment extends Fragment {
                 return;
             }
             Log.w("EditProfileFragment", "Unable to log out: ", task.getException());
-            Toast.makeText(requireContext(), "Unable to sign out", Toast.LENGTH_SHORT)
-                    .show();
         });
     }
 
@@ -250,8 +247,6 @@ public class EditProfileFragment extends Fragment {
                 },
                 e -> {
                     Log.w("EditProfileFragment", "Unable to delete account: ", e);
-                    Toast.makeText(requireContext(), "Unable to delete account", Toast.LENGTH_SHORT)
-                            .show();
                 });
     }
 
