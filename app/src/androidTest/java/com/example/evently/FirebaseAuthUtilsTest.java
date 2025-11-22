@@ -46,11 +46,10 @@ public class FirebaseAuthUtilsTest extends FirebaseEmulatorTest {
     @Test
     public void signOutTest() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
-        FirebaseAuth.AuthStateListener listener =
-                firebaseAuth -> {
-                    assertNull(firebaseAuth.getCurrentUser());
-                    latch.countDown();
-                };
+        FirebaseAuth.AuthStateListener listener = firebaseAuth -> {
+            assertNull(firebaseAuth.getCurrentUser());
+            latch.countDown();
+        };
 
         FirebaseAuth.getInstance().addAuthStateListener(listener);
 
@@ -85,6 +84,5 @@ public class FirebaseAuthUtilsTest extends FirebaseEmulatorTest {
         assertTrue(acc.isEmpty());
 
         FirebaseEmulatorTest.setUpEmulator(); // Crashes if this isn't here
-
     }
 }
