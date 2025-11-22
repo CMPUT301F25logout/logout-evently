@@ -89,6 +89,12 @@ public final class FirebaseAuthUtils {
                 onException);
     }
 
+    /**
+     * Gets google credential token from CredentialManager
+     * @param activity Activity from which the context of the request is made
+     * @param onToken Callback to be performed on token retrieved successfully
+     * @param onException Callback to be performed on exception
+     */
     private static void requestGoogleCredential(
             Activity activity, Consumer<String> onToken, Consumer<Exception> onException) {
         CredentialManager credentialManager = CredentialManager.create(activity);

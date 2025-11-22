@@ -258,11 +258,12 @@ public class EditProfileFragment extends Fragment {
     /**
      * Get the phone number in format to be displayed
      * @param unformattedNumber phone number pre-formatting
-     * @return String formatted phone number as (000) 000-000
+     * @return String formatted phone number as (000) 000-0000
      */
     private String formatPhoneNumber(String unformattedNumber) {
         if (!Patterns.PHONE.matcher(unformattedNumber).matches()) return "None";
         String phoneNum = unformattedNumber.replaceAll("\\D", "");
+        if (phoneNum.length() < 10) return "None";
         return String.format(
                 "(%s) %s-%s",
                 phoneNum.substring(0, 3), phoneNum.substring(3, 6), phoneNum.substring(6, 10));
