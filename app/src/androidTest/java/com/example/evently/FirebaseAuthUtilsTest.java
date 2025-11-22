@@ -44,13 +44,20 @@ public class FirebaseAuthUtilsTest extends FirebaseEmulatorTest {
      * Tests sign out is successfully completed
      */
     @Test
-    public void signOutTest() {
+    public void signOutTest() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
         FirebaseAuth.AuthStateListener listener =
-                firebaseAuth -> assertNull(firebaseAuth.getCurrentUser());
+                firebaseAuth -> {
+                    assertNull(firebaseAuth.getCurrentUser());
+                    latch.countDown();
+                };
 
         FirebaseAuth.getInstance().addAuthStateListener(listener);
 
         FirebaseAuthUtils.signOut(task -> assertTrue(task.isSuccessful()));
+
+        if (!latch.await(5, TimeUnit.SECONDS)) fail("Timeout waiting for signOut");
+
         FirebaseAuth.getInstance().removeAuthStateListener(listener);
     }
 
@@ -70,7 +77,7 @@ public class FirebaseAuthUtilsTest extends FirebaseEmulatorTest {
                     fail(e.toString());
                 }));
 
-        latch.await();
+        if (!latch.await(5, TimeUnit.SECONDS)) fail("Timeout waiting for deleteAccount");
 
         Optional<Account> acc =
                 db.fetchAccount(FirebaseEmulatorTest.defaultMockAccount.email()).await();
@@ -79,6 +86,5 @@ public class FirebaseAuthUtilsTest extends FirebaseEmulatorTest {
 
         FirebaseEmulatorTest.setUpEmulator(); // Crashes if this isn't here
 
-        if (!latch.await(5, TimeUnit.SECONDS)) fail("Timeout waiting for deleteAccount");
     }
 }
