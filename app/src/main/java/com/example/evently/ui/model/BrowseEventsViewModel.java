@@ -17,23 +17,23 @@ import com.example.evently.data.EventsDB;
 import com.example.evently.data.generic.Promise;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
-import com.example.evently.utils.FirebaseAuthUtils;
 
 /**
- * Shared {@link ViewModel} for Entrant event lists and filtering state.
+ * Shared {@link ViewModel} for Entrant browse event lists and filtering state.
  */
-public class EntrantEventsViewModel extends ViewModel {
+public class BrowseEventsViewModel extends ViewModel {
     private final EventsDB eventsDB = new EventsDB();
 
     private final MutableLiveData<List<Event>> browseEvents = new MutableLiveData<>(List.of());
-    private final MutableLiveData<List<Event>> joinedEvents = new MutableLiveData<>(List.of());
     private final MutableLiveData<Set<Category>> selectedCategories =
             new MutableLiveData<>(Collections.emptySet());
 
     private final MediatorLiveData<List<Event>> filteredBrowseEvents = new MediatorLiveData<>();
-    private final MediatorLiveData<List<Event>> filteredJoinedEvents = new MediatorLiveData<>();
 
-    public EntrantEventsViewModel() {
+    /**
+     * Creates a new {@link BrowseEventsViewModel}.
+     */
+    public BrowseEventsViewModel() {
         filteredBrowseEvents.addSource(
                 browseEvents,
                 events -> filteredBrowseEvents.setValue(
@@ -42,42 +42,32 @@ public class EntrantEventsViewModel extends ViewModel {
                 selectedCategories,
                 categories -> filteredBrowseEvents.setValue(
                         applyFilters(browseEvents.getValue(), categories)));
-
-        filteredJoinedEvents.addSource(
-                joinedEvents,
-                events -> filteredJoinedEvents.setValue(
-                        applyFilters(events, selectedCategories.getValue())));
-        filteredJoinedEvents.addSource(
-                selectedCategories,
-                categories -> filteredJoinedEvents.setValue(
-                        applyFilters(joinedEvents.getValue(), categories)));
     }
 
+    /**
+     * Exposes the browse events list after applying any selected category filters.
+     * @return live updates of the filtered browse events.
+     */
     public LiveData<List<Event>> getFilteredBrowseEvents() {
         return filteredBrowseEvents;
     }
 
-    public LiveData<List<Event>> getFilteredJoinedEvents() {
-        return filteredJoinedEvents;
-    }
-
+    /**
+     * Exposes the selected category filters.
+     * @return live updates of the selected categories.
+     */
     public LiveData<Set<Category>> getSelectedCategories() {
         return selectedCategories;
     }
 
     /**
      * Refreshes upcoming events for the browse list.
+     *
+     * @return a {@link Promise} that resolves with the latest upcoming events while also
+     *         updating the backing browse list LiveData.
      */
     public Promise<List<Event>> refreshBrowseEvents() {
         return eventsDB.fetchEventsByDate(Timestamp.now(), true).thenRun(browseEvents::setValue);
-    }
-
-    /**
-     * Refreshes events the entrant has joined.
-     */
-    public Promise<List<Event>> refreshJoinedEvents() {
-        return eventsDB.fetchEventsByEnrolled(FirebaseAuthUtils.getCurrentEmail())
-                .thenRun(joinedEvents::setValue);
     }
 
     /**
@@ -95,9 +85,15 @@ public class EntrantEventsViewModel extends ViewModel {
     public void reset() {
         selectedCategories.setValue(Collections.emptySet());
         browseEvents.setValue(List.of());
-        joinedEvents.setValue(List.of());
     }
 
+    /**
+     * Applies the active category filters to the provided events list.
+     * @param events events source events to filter; {@code null} is treated as an empty list.
+     * @param categories categories selected categories; {@code null} or empty set returns the source
+     *                   events unchanged.
+     * @return filtered events list.
+     */
     private List<Event> applyFilters(List<Event> events, Set<Category> categories) {
         final var safeEvents = events == null ? List.<Event>of() : events;
         final var safeCategories =
