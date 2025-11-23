@@ -4,7 +4,6 @@ import static com.example.evently.data.generic.Promise.promise;
 import static com.example.evently.data.generic.PromiseOpt.promiseOpt;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -379,13 +378,12 @@ public class EventsDB {
         return storageRef.child("posters/" + eventID.toString());
     }
 
-
     /**
      * The code below deletes a poster from the database
      * @param eventID the UUID of the event with the poster being removed
      * @return A promise of the poster being deleted.
      */
-    public Promise<Void> deletePoster(UUID eventID){
+    public Promise<Void> deletePoster(UUID eventID) {
         StorageReference imageRef = storageRef.child("posters/" + eventID.toString());
 
         // Deletes the file from the database
@@ -393,27 +391,25 @@ public class EventsDB {
         return promise(posterStorageTask);
     }
 
-
     /**
      * The function below fetches the storage references for all events with posters.
      * @return A promise of a map of eventID's to posters.
      */
-    public Promise<Map<UUID,StorageReference>> fetchAllPosters() {
+    public Promise<Map<UUID, StorageReference>> fetchAllPosters() {
         StorageReference postersRef = storageRef.child("posters/");
 
-        return promise(postersRef.listAll())
-                .map(listResult -> {
-                    // Creates map, and gets items from the list.
-                    Map<UUID, StorageReference> dict = new HashMap<>();
-                    List<StorageReference> imageRefs = listResult.getItems();
+        return promise(postersRef.listAll()).map(listResult -> {
+            // Creates map, and gets items from the list.
+            Map<UUID, StorageReference> dict = new HashMap<>();
+            List<StorageReference> imageRefs = listResult.getItems();
 
-                    // Adds the eventID, and storageRef to the dictionary
-                    for (StorageReference imageRef: imageRefs) {
-                        UUID eventID = UUID.fromString(imageRef.getName());
-                        dict.put(eventID,imageRef);
-                    }
+            // Adds the eventID, and storageRef to the dictionary
+            for (StorageReference imageRef : imageRefs) {
+                UUID eventID = UUID.fromString(imageRef.getName());
+                dict.put(eventID, imageRef);
+            }
 
-                    return dict;
-                });
+            return dict;
+        });
     }
 }
