@@ -99,6 +99,16 @@ public class AccountDB {
     }
 
     /**
+     * Updates an accounts name in the database based on the email primary key.
+     * @param email The email of the user
+     * @param name The new phone number
+     * @return Reference to the concurrent task.
+     */
+    public Promise<Void> updateName(String email, String name) {
+        return updateField(email, "name", name);
+    }
+
+    /**
      * Updates an accounts visible email in the database. Has a callback for onSuccess, and onException
      * @param primaryEmail The original email of the user for login.
      * @param newVisibleEmail The new visible email
