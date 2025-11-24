@@ -8,13 +8,30 @@
     android:paddingStart="12dp"
     android:paddingEnd="12dp">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnBrowseFilters"
-        style="@style/Widget.Material3.Button.OutlinedButton"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:text="@string/filters_button_label" />
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="4dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnBrowseFilters"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="6dp"
+            android:text="@string/filters_button_label" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnBrowseDateFilters"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="6dp"
+            android:text="@string/date_filters_button_label" />
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/event_list"

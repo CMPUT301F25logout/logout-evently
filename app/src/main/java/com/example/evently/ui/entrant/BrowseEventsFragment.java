@@ -38,6 +38,11 @@ public class BrowseEventsFragment extends LiveEventsFragment<List<Event>> {
             filtersButton.setOnClickListener(v ->
                     NavHostFragment.findNavController(this).navigate(R.id.action_global_filters));
         }
+        final var dateFiltersButton = view.findViewById(R.id.btnBrowseDateFilters);
+        if (dateFiltersButton != null) {
+            dateFiltersButton.setOnClickListener(v -> NavHostFragment.findNavController(this)
+                    .navigate(R.id.action_global_date_filters));
+        }
     }
     /**
      * Handles clicks on an event row in the Browse list.
