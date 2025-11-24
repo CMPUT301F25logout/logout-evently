@@ -143,6 +143,7 @@ dependencies {
     implementation(libs.espresso.core)
     implementation(libs.firebase.storage)
     implementation(libs.lifecycle.livedata)
+    implementation(libs.espresso.intents)
     annotationProcessor(libs.compiler)
     implementation(libs.firebase.ui.storage)
 

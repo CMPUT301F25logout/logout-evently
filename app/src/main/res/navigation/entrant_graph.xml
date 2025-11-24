@@ -45,5 +45,11 @@
         android:id="@+id/action_global_filters"
         app:destination="@id/nav_filters" />
 
+    <fragment
+        android:id="@+id/nav_account"
+        android:name="com.example.evently.ui.common.EditProfileFragment"
+        android:label="Account"
+        tools:layout="@layout/fragment_edit_profile">
+    </fragment>
 
 </navigation>
