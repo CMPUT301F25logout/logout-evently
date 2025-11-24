@@ -24,7 +24,7 @@ import com.example.evently.ui.model.BrowseEventsViewModel;
 /**
  * Fragment for filtering entrant event lists by {@link Category}.
  */
-public class FiltersFragment extends Fragment {
+public class CategoryFiltersFragment extends Fragment {
     private FragmentFiltersBinding binding;
     private BrowseEventsViewModel eventsViewModel;
 
