@@ -4,6 +4,7 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.replaceText;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -53,7 +54,7 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         onView(withId(R.id.etRegTime)).perform(replaceText(time), closeSoftKeyboard());
 
         // Submit
-        onView(withId(R.id.btnCreate)).perform(click());
+        onView(withId(R.id.btnCreate)).perform(scrollTo(), click());
 
         // Verify persisted to Firestore
         List<Event> mine = eventsDB.fetchEventsByOrganizers(self).await();
@@ -72,7 +73,7 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         onView(withId(R.id.etRegDate)).perform(replaceText("2030-01-01"), closeSoftKeyboard());
         onView(withId(R.id.etRegTime)).perform(replaceText("12:00:00"), closeSoftKeyboard());
 
-        onView(withId(R.id.btnCreate)).perform(click());
+        onView(withId(R.id.btnCreate)).perform(scrollTo(), click());
 
         int after = eventsDB.fetchEventsByOrganizers(self).await().size();
         assertEquals(before, after);
@@ -90,7 +91,7 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         onView(withId(R.id.etRegTime)).perform(replaceText("12:00:00"), closeSoftKeyboard());
         onView(withId(R.id.etWaitLimit)).perform(replaceText("xyz"), closeSoftKeyboard());
 
-        onView(withId(R.id.btnCreate)).perform(click());
+        onView(withId(R.id.btnCreate)).perform(scrollTo(), click());
 
         int after = eventsDB.fetchEventsByOrganizers(self).await().size();
         assertEquals(before, after);
@@ -109,7 +110,7 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         onView(withId(R.id.etRegTime))
                 .perform(replaceText("99:99:99"), closeSoftKeyboard()); // invalid
 
-        onView(withId(R.id.btnCreate)).perform(click());
+        onView(withId(R.id.btnCreate)).perform(scrollTo(), click());
 
         int after = eventsDB.fetchEventsByOrganizers(self).await().size();
         assertEquals(before, after);
