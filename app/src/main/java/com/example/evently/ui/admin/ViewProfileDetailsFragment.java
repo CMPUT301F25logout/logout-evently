@@ -8,12 +8,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.evently.data.AccountDB;
 import com.example.evently.data.model.Account;
 import com.example.evently.databinding.FragmentAdminProfileBinding;
+import com.example.evently.ui.common.ConfirmDeleteDialog;
 
-public class ViewProfileDetailsFragment extends Fragment {
+public class ViewProfileDetailsFragment extends Fragment
+        implements ConfirmDeleteDialog.ConfirmDeleteListener {
     private FragmentAdminProfileBinding binding;
 
     private final AccountDB accountDB = new AccountDB();
@@ -58,13 +62,23 @@ public class ViewProfileDetailsFragment extends Fragment {
             String message = "Are you sure you want to delete " + account.name();
             Bundle args = new Bundle();
             args.putString("title", title);
-            args.putString("title", message);
-            args.putString("accountEmail", accountEmail);
+            args.putString("message", message);
             dialog.setArguments(args);
-            // TODO Define click listeners to implement deleting logic here instead so that
-            // TODO navigating back to the BrowseProfilesFragment is possible
-
             dialog.show(getParentFragmentManager(), "ConfirmDeleteAccountDialog");
         });
     }
+
+    @Override
+    public void onDialogConfirmClick(DialogFragment dialog) {
+        accountDB.deleteAccount(accountEmail);
+
+        // Navigate back to the profile list
+        var action = ViewProfileDetailsFragmentDirections.actionProfileDetailsToNavAccounts();
+        NavController navController = NavHostFragment.findNavController(this);
+        navController.navigate(action);
+    }
+
+    // Shouldn't do anything for this cancel click
+    @Override
+    public void onDialogCancelClick(DialogFragment dialog) {}
 }

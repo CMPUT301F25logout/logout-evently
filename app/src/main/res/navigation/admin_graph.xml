@@ -23,9 +23,15 @@
         <argument
             android:name="eventID"
             app:argType="java.util.UUID" />
+
+        <action
+            android:id="@+id/action_event_details_to_nav_home"
+            app:destination="@id/nav_home" />
+        <action
+            android:id="@+id/action_event_details_to_profile_details"
+            app:destination="@id/profile_details" />
+
     </fragment>
-
-
 
     <fragment
         android:id="@+id/nav_accounts"
@@ -45,6 +51,10 @@
         <argument
             android:name="accountEmail"
             app:argType="string" />
+
+        <action
+            android:id="@+id/action_profile_details_to_nav_accounts"
+            app:destination="@id/nav_accounts" />
     </fragment>
 
 
@@ -60,7 +70,5 @@
         android:name="com.example.evently.ui.admin.AdminBrowseNotificationsFragment"
         android:label="Admin Browse Notifications"
         tools:layout="@layout/fragment_notifs"/>
-
-
 
 </navigation>

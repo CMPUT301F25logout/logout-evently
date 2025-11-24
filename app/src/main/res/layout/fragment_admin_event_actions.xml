@@ -3,7 +3,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginTop="12dp"
-    tools:context=".ui.organizer.AdminEventActionsFragment">
+    tools:context=".ui.admin.AdminEventActionsFragment">
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/removeEvent"
@@ -11,12 +11,13 @@
         android:layout_height="wrap_content"
         android:text="@string/event_remove_event" />
 
+    <!--
     <com.google.android.material.button.MaterialButton
         android:id="@+id/viewOrganizer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/event_view_organizer" />
-
+    -->
 
 
 </com.google.android.material.button.MaterialButtonGroup>

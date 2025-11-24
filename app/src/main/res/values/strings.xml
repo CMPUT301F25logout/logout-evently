@@ -37,6 +37,7 @@
     <string name="event_remove_event">Remove Event</string>
     <string name="event_view_organizer">View Organizer</string>
     <string name="entrant_limit_header">In Waitlist:</string>
-    <string name="delete">Delete</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="delete_image">Delete Image</string>
     <string name="entrant_limit_separator">/</string>
 </resources>

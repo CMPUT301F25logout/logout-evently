@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.evently.databinding.FragmentAdminEventActionsBinding;
+import com.example.evently.ui.common.ConfirmDeleteDialog;
 import com.example.evently.ui.model.EventViewModel;
 
 /**
@@ -37,29 +38,28 @@ public class AdminEventActionsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        // TODO Implement viewing the organizer and removing the event
         /*
-        eventViewModel.getEventLive().observe(getViewLifecycleOwner(), event -> {
-        	if (event.selectionTime().toInstant().isBefore(Instant.now())) {
-        		binding.notifySelected.setEnabled(true);
-        		binding.notifySelected.setOnClickListener(v -> {
-        			binding.notifySelected.setEnabled(false);
-        			new NotificationDB().storeNotification(winnerNotification(event.eventID()));
-        		});
-        	} else {
-        		binding.notifySelected.setEnabled(false);
-        	}
+        binding.viewOrganizer.setOnClickListener(v -> {
+            var action =
+                    AdminEventDetailsFragmentDirections.actionEventDetailsToProfileDetails(
+                            eventViewModel.getEventLive().getValue().organizer());
+            NavController navController = NavHostFragment.findNavController(this);
+            navController.navigate(action);
         });
+        */
 
-        binding.utilShareBtn.shareBtn.setOnClickListener(v -> {
-        	final var qrDialog = new EventQRDialogFragment();
-        	final var bundle = new Bundle();
-        	bundle.putSerializable("eventID", eventViewModel.eventID);
-        	qrDialog.setArguments(bundle);
-        	qrDialog.show(getChildFragmentManager(), "QR_DIALOG");
+        binding.removeEvent.setOnClickListener(v -> {
+            final ConfirmDeleteDialog cdDialog = new ConfirmDeleteDialog();
+
+            // Make a bundle to store the arguments
+            String title = "Delete Event";
+            String message = "Are you sure you want to delete "
+                    + eventViewModel.getEventLive().getValue().name();
+            Bundle args = new Bundle();
+            args.putString("title", title);
+            args.putString("message", message);
+            cdDialog.setArguments(args);
+            cdDialog.show(getParentFragmentManager(), "ConfirmDeleteEventDialog");
         });
-
-         */
     }
 }
