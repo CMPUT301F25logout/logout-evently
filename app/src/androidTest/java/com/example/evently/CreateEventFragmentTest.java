@@ -72,10 +72,6 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         onView(withId(R.id.etDescription)).perform(replaceText("desc"), closeSoftKeyboard());
         onView(withId(R.id.etWinners)).perform(replaceText("abc"), closeSoftKeyboard());
 
-        selectDateInMonth(R.id.etSelectionDeadline, 1);
-        selectDateInMonth(R.id.etEventDate, 2);
-        selectTimeInAM(R.id.etEventTime, 1, 35);
-
         onView(withId(R.id.btnCreate)).perform(scrollTo(), click());
 
         int after = eventsDB.fetchEventsByOrganizers(self).await().size();
@@ -91,10 +87,6 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         onView(withId(R.id.etDescription)).perform(replaceText("desc"), closeSoftKeyboard());
         onView(withId(R.id.etWinners)).perform(replaceText("5"), closeSoftKeyboard());
         onView(withId(R.id.etWaitLimit)).perform(replaceText("xyz"), closeSoftKeyboard());
-
-        selectDateInMonth(R.id.etSelectionDeadline, 1);
-        selectDateInMonth(R.id.etEventDate, 2);
-        selectTimeInAM(R.id.etEventTime, 1, 35);
 
         onView(withId(R.id.btnCreate)).perform(scrollTo(), click());
 
