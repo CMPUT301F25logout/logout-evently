@@ -1,6 +1,8 @@
 package com.example.evently.ui.organizer;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,36 +19,53 @@ import com.example.evently.R;
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.NotificationDB;
 import com.example.evently.data.model.Notification;
+import com.example.evently.ui.common.NotificationsFragment;
 
 public class NotificationThread extends DialogFragment {
-
-    private UUID eventID;
-    private Notification.Channel channel;
-    private TextView eventTitle;
-    private TextView eventChannel;
-    private EditText titleText;
-    private EditText descriptionText;
-    private MaterialButton sendNotificationButton;
 
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         // Inflates the view, and setups up the local variables
         View view = inflater.inflate(R.layout.fragment_notification_thread, container, false);
-        setupVariables(view);
+        // Gets the eventID, and channel from the fragment.
+        Bundle bundle = getArguments();
+        assert bundle != null;
+        UUID eventID = (UUID) bundle.getSerializable("eventID");
+        Notification.Channel channel = (Notification.Channel) bundle.getSerializable("channel");
+        assert ((channel != null) && (eventID != null));
+
+        // Gets the views
+        TextView eventTitle = view.findViewById(R.id.tvEventTitle);
+        TextView eventChannel = view.findViewById(R.id.tvNotificationChannel);
+        EditText titleText = view.findViewById(R.id.etTitle);
+        EditText descriptionText = view.findViewById(R.id.etDescription);
+        MaterialButton sendNotificationButton = view.findViewById(R.id.btnSendNotification);
+
+        // Creates the notificationThreadRecycler view, and passes it the necessary params
+        ViewThreadNotifications threadNotifications = new ViewThreadNotifications();
+        bundle = new Bundle();
+        bundle.putSerializable("eventID", eventID);
+        bundle.putSerializable("channel", channel);
+        threadNotifications.setArguments(bundle);
+
+
+        if (savedInstanceState == null) {
+            // Load the notification threads into the container
+            getChildFragmentManager()
+                    .beginTransaction()
+                    .setReorderingAllowed(true)
+                    .add(R.id.notificationThreadContainer, threadNotifications, null)
+                    .commit();
+        }
 
         // Sets the event title, and channel in the thread
         new EventsDB().fetchEvent(eventID).thenRun(event -> {
-            if (event.isPresent()) {
-                eventTitle.setText(event.get().name());
-            } else {
-                eventTitle.setText("Event not found!");
-            }
+            event.ifPresent(value -> eventTitle.setText(value.name()));
         });
         eventChannel.setText(channel.toString());
 
-        // Sets up the button to send a notification.
-
+        // Sets up the button to send a notification when pressed.
         sendNotificationButton.setOnClickListener(v -> {
             String title = titleText.getText().toString().strip();
             String description = descriptionText.getText().toString().strip();
@@ -62,33 +81,12 @@ public class NotificationThread extends DialogFragment {
 
             // If notification is valid, it is sent!
             new NotificationDB()
-                    .storeNotification(new Notification(
-                            UUID.randomUUID(), eventID, channel, title, description));
+                    .storeNotification(new Notification(eventID, channel, title, description));
             toast("Notification sent!");
         });
-
-        // TODO: Create some sort of notification channel view fragment, which can show the fetched
-        new NotificationDB().fetchEventNotifications(eventID, channel);
         return view;
     }
 
-    /**
-     * Defines the variables used for a notification thread.
-     * @param view The view with the items, like TextViews
-     */
-    private void setupVariables(View view) {
-        // Gets the eventID, and channel from the fragment.
-        Bundle bundle = getArguments();
-        assert bundle != null;
-        eventID = (UUID) bundle.getSerializable("eventID");
-        channel = (Notification.Channel) bundle.getSerializable("channel");
-
-        eventTitle = view.findViewById(R.id.tvEventTitle);
-        eventChannel = view.findViewById(R.id.tvNotificationChannel);
-        titleText = view.findViewById(R.id.etTitle);
-        descriptionText = view.findViewById(R.id.etDescription);
-        sendNotificationButton = view.findViewById(R.id.btnSendNotification);
-    }
 
     /**
      * Shows a short-length {@link Toast} with the given message in this Fragment's context
@@ -96,5 +94,39 @@ public class NotificationThread extends DialogFragment {
      */
     private void toast(String msg) {
         Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * The following class is for viewing a thread notification
+     */
+    public static class ViewThreadNotifications extends NotificationsFragment {
+
+        private UUID eventID;
+        private Notification.Channel channel;
+
+        // The notification does nothing when clicked
+        protected void onNotificationClick(Notification n) {}
+
+        @Override
+        public View onCreateView(
+                LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+            // Gets the eventID, and channel
+            Bundle bundle = getArguments();
+            assert bundle != null;
+            eventID = (UUID) bundle.getSerializable("eventID");
+            channel = (Notification.Channel) bundle.getSerializable("channel");
+
+            return super.onCreateView(inflater, container, savedInstanceState);
+        }
+
+        /**
+         * The following function initiates the list of notifications in a recycler view.
+         * @param callback Callback that consumes a list of notifications
+         */
+        protected void initNotifications(Consumer<List<Notification>> callback) {
+            // Runs the callback for initNotifications.
+            notificationDB.fetchEventNotifications(eventID, channel).thenRun(callback);
+        }
     }
 }
