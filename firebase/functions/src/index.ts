@@ -27,6 +27,7 @@ function winnerNotification(eventId: string, seenBy: string[] = []): Notificatio
       "Congratulations! You have been selected to attend event with ID " +
       eventId +
       ".\nYou may accept or deny this invitation.",
+    creationTime: Timestamp.now(),
     seenBy
   };
 }
@@ -38,7 +39,7 @@ interface Notification {
   channel: Channel;
   title: string;
   description: string;
-  // TODO (chase): Don't send notification to people who have seen it!
+  creationTime: Timestamp;
   seenBy: string[];
 }
 
