@@ -17,6 +17,9 @@ import com.example.evently.databinding.FragmentProfileRowBinding;
 public class ProfileRecyclerViewAdapter
         extends RecyclerView.Adapter<ProfileRecyclerViewAdapter.ProfileViewHolder> {
 
+    /**
+     * Interface for the callback of the details button click
+     */
     public interface ProfileOnClickListener {
         void accept(Account a);
     }
@@ -60,6 +63,9 @@ public class ProfileRecyclerViewAdapter
         return profiles.size();
     }
 
+    /**
+     * ViewHolder that holds the layout binding and an Account
+     */
     public static class ProfileViewHolder extends RecyclerView.ViewHolder {
         public final FragmentProfileRowBinding binding;
         public Account acc;

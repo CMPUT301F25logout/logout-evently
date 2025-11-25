@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
@@ -12,7 +13,6 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.evently.data.AccountDB;
-import com.example.evently.data.model.Account;
 import com.example.evently.databinding.FragmentAdminProfileBinding;
 import com.example.evently.ui.common.ConfirmDeleteDialog;
 
@@ -23,8 +23,6 @@ public class ViewProfileDetailsFragment extends Fragment
     private final AccountDB accountDB = new AccountDB();
 
     private String accountEmail;
-
-    private Account account;
 
     @Nullable @Override
     public View onCreateView(
@@ -47,10 +45,9 @@ public class ViewProfileDetailsFragment extends Fragment
         super.onViewCreated(view, savedInstanceState);
 
         // Fetch the account information and define the information
-        accountDB.fetchAccount(accountEmail).optionally(accountData -> {
-            binding.accountEmail.setText(accountData.email());
-            binding.accountName.setText(accountData.name());
-            account = accountData;
+        accountDB.fetchAccount(accountEmail).thenRun(accountData -> {
+            binding.accountEmail.setText(accountData.get().email());
+            binding.accountName.setText(accountData.get().name());
         });
 
         // Define the delete button click listener to open a dialog
@@ -59,7 +56,7 @@ public class ViewProfileDetailsFragment extends Fragment
 
             // Make a bundle to send args to the dialog
             String title = "Delete Account";
-            String message = "Are you sure you want to delete " + account.name();
+            String message = "Are you sure you want to delete " + accountEmail;
             Bundle args = new Bundle();
             args.putString("title", title);
             args.putString("message", message);
@@ -67,10 +64,17 @@ public class ViewProfileDetailsFragment extends Fragment
             dialog.show(getParentFragmentManager(), "ConfirmDeleteAccountDialog");
         });
     }
-
+    /**
+     * The dialog closed with a positive click (confirm).
+     * Delete the Account from the AccountDB and navigate the user back to the profile list.
+     * @param dialog The dialog that was showed.
+     */
     @Override
     public void onDialogConfirmClick(DialogFragment dialog) {
         accountDB.deleteAccount(accountEmail);
+
+        Toast.makeText(requireContext(), "Account is deleted.", Toast.LENGTH_SHORT)
+                .show();
 
         // Navigate back to the profile list
         var action = ViewProfileDetailsFragmentDirections.actionProfileDetailsToNavAccounts();
@@ -78,7 +82,11 @@ public class ViewProfileDetailsFragment extends Fragment
         navController.navigate(action);
     }
 
-    // Shouldn't do anything for this cancel click
+    /**
+     * The dialog closed with a negative click (cancel).
+     * Do nothing
+     * @param dialog The dialog that was showed.
+     */
     @Override
     public void onDialogCancelClick(DialogFragment dialog) {}
 }

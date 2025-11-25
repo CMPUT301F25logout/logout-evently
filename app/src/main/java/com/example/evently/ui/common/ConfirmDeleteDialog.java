@@ -10,8 +10,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 /**
- * Classes that use this confirm dialog need to implement the two onClickListeners
- * onDialogConfirmClick() and onDialogCancelClick()
+ * Classes that use this confirm dialog need to implement ConfirmDeleteDialog.ConfirmDeleteListener
+ * Make these two methods -> onDialogConfirmClick() and onDialogCancelClick()
  */
 public class ConfirmDeleteDialog extends DialogFragment {
 
