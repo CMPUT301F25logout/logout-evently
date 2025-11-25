@@ -26,6 +26,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 
 import com.example.evently.data.model.Role;
 import com.example.evently.databinding.ActivityArchitectureBinding;
+import com.example.evently.ui.auth.AuthActivity;
 import com.example.evently.ui.entrant.EntrantActivity;
 import com.example.evently.ui.organizer.OrganizerActivity;
 import com.example.evently.utils.FirebaseMessagingUtils;
@@ -124,6 +125,23 @@ public abstract class ArchitectureActivity extends AppCompatActivity
                 .addOnSuccessListener(FirebaseMessagingUtils::storeToken);
         // TODO (chase): Maybe also schedule a periodic task that refreshes the token?
         // See: https://firebase.google.com/docs/cloud-messaging/manage-tokens
+
+        // Attach listener for edit profile sign out/delete account action.
+        getSupportFragmentManager()
+                .setFragmentResultListener(
+                        EditProfileFragment.resultTag, this, (result, resultBundle) -> {
+                            // Disable FCM auto init and remove the token so the device no longer
+                            // gets notifications.
+                            FirebaseMessaging.getInstance().setAutoInitEnabled(false);
+                            FirebaseMessaging.getInstance()
+                                    .deleteToken()
+                                    .addOnSuccessListener(e -> {
+                                        final var intent = new Intent(
+                                                ArchitectureActivity.this, AuthActivity.class);
+                                        startActivity(intent);
+                                        finish();
+                                    });
+                        });
     }
 
     /**

@@ -1,6 +1,5 @@
 package com.example.evently.ui.common;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
@@ -16,7 +15,6 @@ import androidx.fragment.app.Fragment;
 import com.example.evently.R;
 import com.example.evently.data.AccountDB;
 import com.example.evently.data.model.Event;
-import com.example.evently.ui.auth.AuthActivity;
 import com.example.evently.utils.FirebaseAuthUtils;
 
 /**
@@ -24,6 +22,7 @@ import com.example.evently.utils.FirebaseAuthUtils;
  * Connected to fragment_edit_profile.xml
  */
 public class EditProfileFragment extends Fragment {
+    public static final String resultTag = "SignOut";
 
     private AccountDB db;
 
@@ -220,15 +219,9 @@ public class EditProfileFragment extends Fragment {
      */
     private void signOutListener(String requestKey, Bundle result) {
         if (!result.getBoolean(ConfirmFragmentNoInput.inputKey)) return;
-        FirebaseAuthUtils.signOut(task -> {
-            if (task.isSuccessful()) {
-                Intent intent = new Intent(getActivity(), AuthActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-                return;
-            }
-            Log.w("EditProfileFragment", "Unable to log out: ", task.getException());
-        });
+        FirebaseAuthUtils.signOut();
+        // Let the parent activity know that it's time to sign out.
+        getParentFragmentManager().setFragmentResult(resultTag, new Bundle());
     }
 
     /**
@@ -239,11 +232,10 @@ public class EditProfileFragment extends Fragment {
     private void deleteAccountListener(String requestKey, Bundle result) {
         if (!result.getBoolean(ConfirmFragmentNoInput.inputKey)) return;
         FirebaseAuthUtils.deleteAccount(
-                getActivity(),
+                requireActivity(),
                 task -> {
-                    Intent intent = new Intent(getActivity(), AuthActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
+                    // Let the parent activity know that it's time to sign out.
+                    getParentFragmentManager().setFragmentResult(resultTag, new Bundle());
                 },
                 e -> {
                     Log.w("EditProfileFragment", "Unable to delete account: ", e);
