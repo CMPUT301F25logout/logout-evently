@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.signature.ObjectKey;
 import com.google.firebase.storage.StorageReference;
 
 import com.example.evently.R;
@@ -109,10 +110,17 @@ public abstract class EventDetailsFragment<E extends Fragment, A extends Fragmen
         // The following code attempts to find the posterRef in the DB, and store it into the event
         // picture. android.R.drawable.ic_menu_report_image is used while searching or if the image
         // is not found in the DB.
+        //
+        // Additionally, the following question was asked to Google, Gemini 3 Pro:
+        // "I am using Glide for showing images from firebase storage in my Java android app, but my
+        // images are not updating when the image in firebase storage are changed. Do you know how
+        // to change this?"
+        // This resulted in adding a signature.
         Glide.with(getContext())
                 .load(posterRef)
                 .placeholder(android.R.drawable.ic_menu_report_image)
                 .error(android.R.drawable.ic_menu_report_image)
+                .signature(new ObjectKey(System.currentTimeMillis())) // Forces when image changes
                 .into(binding.eventPicture);
 
         event.optionalEntrantLimit().ifPresent(limit -> {

@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.signature.ObjectKey;
 import com.google.firebase.storage.StorageReference;
 
 import com.example.evently.data.EventsDB;
@@ -77,15 +78,22 @@ public class EventRecyclerViewAdapter
         // Title / name
         binding.content.setText(holder.mItem.name());
 
-        // The following code attempts to find the poster in the DB, and store it into the
-        // imgPoster. android.R.drawable.ic_menu_report_image is used while searching or if the
-        // image is not found in the DB.
+        // The following code attempts to find the posterRef in the DB, and store it into the event
+        // picture. android.R.drawable.ic_menu_report_image is used while searching or if the image
+        // is not found in the DB.
+        //
+        // Additionally, the following question was asked to Google, Gemini 3 Pro:
+        // "I am using Glide for showing images from firebase storage in my Java android app, but my
+        // images are not updating when the image in firebase storage are changed. Do you know how
+        // to change this?"
+        // This resulted in adding a signature.
         StorageReference posterReference =
                 new EventsDB().getPosterStorageRef(holder.mItem.eventID());
         Glide.with(binding.content.getContext())
                 .load(posterReference)
                 .placeholder(android.R.drawable.ic_menu_report_image)
                 .error(android.R.drawable.ic_menu_report_image)
+                .signature(new ObjectKey(System.currentTimeMillis())) // Updates cache if changed
                 .into(binding.imgPoster);
 
         // Status + selectionDate
