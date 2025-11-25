@@ -18,16 +18,12 @@ import com.example.evently.utils.FirebaseAuthUtils;
 import com.example.evently.utils.IntentConstants;
 
 public class ViewNotificationsFragment extends NotificationsFragment {
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        handleNotificationClickIntent();
-    }
-
     protected void onNotificationClick(Notification notif) {
+        final var hasSeen = notif.seenBy().contains(FirebaseAuthUtils.getCurrentEmail());
         final var dialog =
                 switch (notif.channel()) {
-                    case Winners -> new NotificationWinnerDialog();
+                    // Already accepted/declined - no need for the special accept/decline dialog.
+                    case Winners -> hasSeen ? new NotificationGenericDialog() : new NotificationWinnerDialog();
                     // TODO (chase): Do the other notifications need anything special or
                     //  is it okay for all of them to have the same dialog behavior (like here)?
                     default -> new NotificationGenericDialog();
@@ -43,7 +39,10 @@ public class ViewNotificationsFragment extends NotificationsFragment {
 
     protected void initNotifications(Consumer<List<Notification>> callback) {
         String email = FirebaseAuthUtils.getCurrentEmail();
-        notificationDB.fetchUserNotifications(email).thenRun(callback).catchE(e -> {
+        notificationDB.fetchUserNotifications(email).thenRun(notifs -> {
+                callback.accept(notifs);
+                handleNotificationClickIntent();
+        }).catchE(e -> {
             Log.e("ViewNotificationsFragment", e.toString());
             Toast.makeText(requireContext(), "Something went wrong...", Toast.LENGTH_SHORT)
                     .show();
