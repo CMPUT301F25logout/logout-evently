@@ -92,4 +92,12 @@ public abstract class FirebaseEmulatorTest {
         Promise.all(accounts.stream().map(acc -> accountDB.deleteAccount(acc.email())))
                 .await();
     }
+
+    /**
+     * Helper to be used for tests that manually sign out.
+     */
+    protected void signBackIn() throws ExecutionException, InterruptedException {
+        Tasks.await(FirebaseAuth.getInstance()
+                .signInWithEmailAndPassword(defaultMockEmail, defaultMockPassword));
+    }
 }
