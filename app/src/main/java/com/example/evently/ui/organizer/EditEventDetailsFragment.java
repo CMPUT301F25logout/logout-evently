@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -26,9 +27,16 @@ public class EditEventDetailsFragment
     private final ActivityResultLauncher<PickVisualMediaRequest> pickPoster =
             registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
                 if ((uri != null) && (super.eventID != null)) {
-                    // Stores it into the image, and into the db if found
-                    Glide.with(getContext()).load(uri).into(imageView);
-                    new EventsDB().storePoster(super.eventID, uri);
+
+                    new EventsDB().storePoster(super.eventID, uri).thenRun(x -> {
+
+                        // Stores it into the image, and shows it if still in the fragment
+                        if (getContext() == null) return;
+                        Glide.with(getContext()).load(uri).into(imageView);
+                        Toast.makeText(getContext(), "Poster Updated!", Toast.LENGTH_SHORT)
+                                .show();
+                    });
+
                 } else {
                     Log.d("Poster Picker", "No poster selected");
                 }
