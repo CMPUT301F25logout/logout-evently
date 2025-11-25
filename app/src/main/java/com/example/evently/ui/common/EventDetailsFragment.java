@@ -11,8 +11,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.signature.ObjectKey;
 import com.google.firebase.storage.StorageReference;
 
 import com.example.evently.R;
@@ -20,6 +18,7 @@ import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.databinding.FragmentEventDetailsBinding;
 import com.example.evently.ui.model.EventViewModel;
+import com.example.evently.utils.GlideUtils;
 
 /**
  * Fragment that displays the event information as well as the entrants that have been waitlisted.
@@ -105,23 +104,9 @@ public abstract class EventDetailsFragment<E extends Fragment, A extends Fragmen
         binding.eventCategory.setText(event.category().toString());
         eventID = event.eventID();
 
+        // Loads the picture into the image view.
         StorageReference posterRef = new EventsDB().getPosterStorageRef(eventID);
-
-        // The following code attempts to find the posterRef in the DB, and store it into the event
-        // picture. android.R.drawable.ic_menu_report_image is used while searching or if the image
-        // is not found in the DB.
-        //
-        // Additionally, the following question was asked to Google, Gemini 3 Pro:
-        // "I am using Glide for showing images from firebase storage in my Java android app, but my
-        // images are not updating when the image in firebase storage are changed. Do you know how
-        // to change this?"
-        // This resulted in adding a signature.
-        Glide.with(getContext())
-                .load(posterRef)
-                .placeholder(android.R.drawable.ic_menu_report_image)
-                .error(android.R.drawable.ic_menu_report_image)
-                .signature(new ObjectKey(System.currentTimeMillis())) // Forces when image changes
-                .into(binding.eventPicture);
+        GlideUtils.loadPosterIntoImageView(posterRef, binding.eventPicture);
 
         event.optionalEntrantLimit().ifPresent(limit -> {
             binding.entrantLimitSection.setVisibility(View.VISIBLE);
