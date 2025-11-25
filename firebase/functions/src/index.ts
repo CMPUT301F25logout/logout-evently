@@ -6,7 +6,8 @@ import {
 } from "firebase-functions/v2/firestore";
 
 import { initializeApp } from "firebase-admin/app";
-import { FieldPath, getFirestore } from "firebase-admin/firestore";
+import { FieldPath, getFirestore, Timestamp } from "firebase-admin/firestore";
+import { onSchedule } from "firebase-functions/scheduler";
 
 // Constants for safe usage.
 const EVENTS_COLL = "events";
@@ -16,6 +17,21 @@ const NOTIFS_COLL = "notifications";
 // The key for selection limit as stored in the database.
 const EVENT_SELECTION_LIMIT_KEY = "selectionLimit";
 
+// Template for creating a winning notification.
+function winnerNotification(eventId: string, seenBy: string[] = []): Notification {
+  return {
+    eventId,
+    channel: "Winners",
+    title: "You are invited to an event!",
+    description:
+      "Congratulations! You have been selected to attend event with ID " +
+      eventId +
+      ".\nYou may accept or deny this invitation.",
+    creationTime: Timestamp.now(),
+    seenBy
+  };
+}
+
 type Channel = "All" | "Winners" | "Losers" | "Cancelled";
 
 interface Notification {
@@ -23,7 +39,7 @@ interface Notification {
   channel: Channel;
   title: string;
   description: string;
-  // TODO (chase): Don't send notification to people who have seen it!
+  creationTime: Timestamp;
   seenBy: string[];
 }
 
@@ -74,59 +90,124 @@ export const createNotification = onDocumentCreated(
   }
 );
 
+// Select winners for any events past selection time, everyday at midnight.
+export const selectWinners = onSchedule("every day 00:00", async (event) => {
+  const now = new Date();
+  logger.info("Running selection if needed");
+  const allEventsRef = await db.collection(EVENTS_COLL).listDocuments();
+  for (const eventsRef of allEventsRef) {
+    const ref = await eventsRef.get();
+    const eventSelectionTime = ref.get("selectionTime") as Timestamp;
+    const eventSelectionLimit = ref.get("selectionLimit") as number;
+    logger.info("Obtaining information for eventID: " + eventsRef.id);
+    if (eventSelectionTime.toDate() > now) {
+      logger.info("Event enrollment has not ended yet: " + eventsRef.id);
+      continue;
+    }
+    // Run the lottery selection
+    logger.info("Checking selection for eventID: " + eventsRef.id);
+    const eventEntrantsDoc = await db
+      .collection(EVENT_ENTRANTS_COLL)
+      .doc(eventsRef.id)
+      .get();
+    const eventEntrants = eventEntrantsDoc.data() as EventEntrants;
+    if (eventEntrants.selectedEntrants.length != 0) {
+      logger.info("Selection already done eventID: " + eventsRef.id);
+      continue;
+    }
+    if (eventEntrants.enrolledEntrants.length == 0) {
+      logger.info("No entrants for eventID: " + eventsRef.id);
+      continue;
+    }
+    logger.info("Running selection for eventID: " + eventsRef.id);
+    const res = draw(eventEntrants.enrolledEntrants, eventSelectionLimit);
+    await db
+      .collection(EVENT_ENTRANTS_COLL)
+      .doc(eventsRef.id)
+      .update({ selectedEntrants: res });
+  }
+});
+
 class BenignError extends Error {
   constructor(message: string) {
     super(message);
   }
 }
 
-// Redraw winners when someone cancels.
-export const redrawSelected = onDocumentUpdated(
+// Tasks to perform when entrants changes.
+// e.g If someone cancels, we perform a redraw.
+// e.g If winners are added, we write winning notification.
+export const monitorEntrants = onDocumentUpdated(
   `${EVENT_ENTRANTS_COLL}/{eventID}`,
   async (fsEvent) => {
     // Wish there was a way to fire only if the cancelledEntrants field was updated...
     const eventID = fsEvent.params.eventID;
-    logger.info(`Executing redrawSelected for ID: ${eventID}`);
+    logger.info(`Executing monitorEntrants for ID: ${eventID}`);
     const snapshot = fsEvent.data;
     if (!snapshot) {
       logger.warn("No data associated with document updation event");
       return;
     }
+
     const oldEventEntrants = snapshot.before.data() as EventEntrants;
     const newEventEntrants = snapshot.after.data() as EventEntrants;
 
-    const oldCancelled = new Set(oldEventEntrants.cancelledEntrants);
-    const newCancelled = new Set(newEventEntrants.cancelledEntrants);
-    // Note: New cancelled should strictly be a superset of oldCancelled.
-    // Cancelled entrants are not supposed to be removed, only added.
-    const diff = newCancelled.difference(oldCancelled);
-    if (diff.size === 0) {
-      // No change in cancelled set. Nohing to do.
-      logger.info("Nothing to do");
-      return;
+    const tasks = [];
+
+    // Check if there were new cancelled entries.
+    // Note: It must not be possible to remove cancelled entrants from the cancelled list.
+    if (newEventEntrants.cancelledEntrants.length > oldEventEntrants.cancelledEntrants.length) {
+      tasks.push(redrawSelected(eventID));
     }
 
-    const eventDoc = await db.collection(EVENTS_COLL).doc(eventID).get();
-    if (!eventDoc.exists) {
-      logger.error(
-        `EventEntrants references non existent event with ID: ${eventID}`
-      );
-      return;
+    // Check if there selected entrants was filled (when it was previously empty).
+    const oldSelected = new Set(oldEventEntrants.selectedEntrants);
+    const newSelected = new Set(newEventEntrants.selectedEntrants);
+    // Note: A simple length check won't do. Consider the situation where:
+    // 1. An account is cancelled from the selected list by the organizer.
+    // 2. A redraw is run and a new account is added to the selected list.
+    // If the above two happen around the same time, the length difference will be zero.
+    const additionalSelected = newSelected.difference(oldSelected);
+    if (additionalSelected.size != 0) {
+      // We ensure to mark the "old winners" within the seenBy set.
+      tasks.push(writeWinnerNotification(eventID, oldEventEntrants.selectedEntrants));
     }
-    const selectionLimit = eventDoc.get(EVENT_SELECTION_LIMIT_KEY) as number;
 
-    // Redraw (but be wary of concurrency bugs indeed)!
-    // Note: Multiple instances of this function may be called
-    // around the same time if two users cancel around the same time.
-    // Thus: One must be wise in implementing redraw.
-    const selfRef = db
-      .collection(EVENT_ENTRANTS_COLL)
-      .where(FieldPath.documentId(), "==", eventID)
-      // It's important to be as specific as possible in what we're reading in a transaction.
-      // We don't want the transaction to be retried just because an irrelevant part of the document was updated.
-      .select(entrantsKey("enrolledEntrants"), entrantsKey("selectedEntrants"), entrantsKey("cancelledEntrants"))
-      .limit(1);
-    db.runTransaction(async (tx) => {
+    return Promise.all(tasks);
+  }
+);
+
+// Redraw winners when someone cancels.
+async function redrawSelected(eventID: string) {
+  logger.info(`Executing redrawSelected for ID: ${eventID}`);
+
+  const eventDoc = await db.collection(EVENTS_COLL).doc(eventID).get();
+  if (!eventDoc.exists) {
+    logger.error(
+      `EventEntrants references non existent event with ID: ${eventID}`
+    );
+    return;
+  }
+  const selectionLimit = eventDoc.get(EVENT_SELECTION_LIMIT_KEY) as number;
+
+  // Redraw (but be wary of concurrency bugs indeed)!
+  // Note: Multiple instances of this function may be called
+  // around the same time if two users cancel around the same time.
+  // Thus: One must be wise in implementing redraw.
+  const selfRef = db
+    .collection(EVENT_ENTRANTS_COLL)
+    .where(FieldPath.documentId(), "==", eventID)
+    // It's important to be as specific as possible in what we're reading in a transaction.
+    // We don't want the transaction to be retried just because an irrelevant part of the document was updated.
+    .select(
+      entrantsKey("enrolledEntrants"),
+      entrantsKey("selectedEntrants"),
+      entrantsKey("cancelledEntrants")
+    )
+    .limit(1);
+
+  return db
+    .runTransaction(async (tx) => {
       const selfEntrantsRes = await tx.get(selfRef);
       if (selfEntrantsRes.empty) {
         throw new Error("EventEntrants selfRef query found no results");
@@ -152,17 +233,51 @@ export const redrawSelected = onDocumentUpdated(
       // Draw for the remaining number of slots.
       const remainingSlots = selectionLimit - eligibleWinners.size;
       const additionalWinners = draw([...eligible], remainingSlots);
+
       // Update the selected entrants list. It should remove the cancelled entrants and add in the new winners.
       tx.update(db.collection(EVENT_ENTRANTS_COLL).doc(eventID), {
-        selectedEntrants: [...eligibleWinners.union(new Set(additionalWinners))],
+        selectedEntrants: [
+          ...eligibleWinners.union(new Set(additionalWinners)),
+        ],
       });
-    }).catch((e) => {
+    })
+    .catch((e) => {
       if (!(e instanceof BenignError)) {
         throw e;
       }
     });
-  }
-);
+}
+
+async function writeWinnerNotification(eventID: string, seenBy: string[] = []) {
+  // Redraw (but be wary of concurrency bugs indeed)!
+  // Note: Multiple instances of this function may be called
+  // around the same time if two users cancel around the same time.
+  // Thus: One must be wise in implementing redraw.
+  const selfRef = db
+    .collection(NOTIFS_COLL)
+    .where(notifsKey("eventId"), "==", eventID)
+    .where(notifsKey("channel"), "==", channel("Winners"))
+    .limit(1);
+  return db
+    .runTransaction(async (tx) => {
+      const winningNotificationsRef = await tx.get(selfRef);
+      if (!winningNotificationsRef.empty) {
+        // We already have a notification written in the winners channel. No more is needed!
+        throw new BenignError("Write winner notification has already run!");
+      }
+
+      // Write the winner notification!
+      tx.create(
+        db.collection(NOTIFS_COLL).doc(crypto.randomUUID()),
+        winnerNotification(eventID, seenBy)
+      );
+    })
+    .catch((e) => {
+      if (!(e instanceof BenignError)) {
+        throw e;
+      }
+    });
+}
 
 // Send push notification to devices identified by given tokens.
 async function sendNotification(
@@ -264,7 +379,16 @@ function chooseNRandom<T>(arr: T[], n: number): T[] {
   return result;
 }
 
-// Type safe way to use the property names of the EventEntrants type as string.
-function entrantsKey(name: keyof EventEntrants) {
-    return name;
+const entrantsKey = collectionKey<EventEntrants>;
+
+const notifsKey = collectionKey<Notification>;
+
+// Type safe way to use the property names of records as string.
+function collectionKey<T>(name: keyof T): keyof T {
+  return name;
+}
+
+// Type safe way to use a string as a channel.
+function channel(channel: Channel): Channel {
+  return channel;
 }
