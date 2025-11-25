@@ -1,5 +1,7 @@
 package com.example.evently.ui.common;
 
+import java.util.UUID;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,8 +32,8 @@ import com.example.evently.ui.model.EventViewModel;
  */
 public abstract class EventDetailsFragment<E extends Fragment, A extends Fragment>
         extends Fragment {
-    private FragmentEventDetailsBinding binding;
-
+    protected FragmentEventDetailsBinding binding;
+    protected UUID eventID;
     protected EventViewModel eventViewModel;
 
     /**
@@ -100,8 +102,9 @@ public abstract class EventDetailsFragment<E extends Fragment, A extends Fragmen
         binding.eventName.setText(event.name());
         binding.eventDescription.setText(event.description());
         binding.eventCategory.setText(event.category().toString());
+        eventID = event.eventID();
 
-        StorageReference posterRef = new EventsDB().getPosterStorageRef(event.eventID());
+        StorageReference posterRef = new EventsDB().getPosterStorageRef(eventID);
 
         // The following code attempts to find the posterRef in the DB, and store it into the event
         // picture. android.R.drawable.ic_menu_report_image is used while searching or if the image
