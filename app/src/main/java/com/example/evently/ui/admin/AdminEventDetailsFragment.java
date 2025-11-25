@@ -45,9 +45,12 @@ public class AdminEventDetailsFragment
                 .show();
 
         // Return to the event list
-        var action = AdminEventDetailsFragmentDirections.actionEventDetailsToNavHome();
         NavController navController = NavHostFragment.findNavController(this);
+        navController.popBackStack();
+        /*
+        var action = AdminEventDetailsFragmentDirections.actionEventDetailsToNavHome();
         navController.navigate(action);
+         */
     }
 
     /**

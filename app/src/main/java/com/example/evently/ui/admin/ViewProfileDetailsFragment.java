@@ -77,9 +77,12 @@ public class ViewProfileDetailsFragment extends Fragment
                 .show();
 
         // Navigate back to the profile list
-        var action = ViewProfileDetailsFragmentDirections.actionProfileDetailsToNavAccounts();
         NavController navController = NavHostFragment.findNavController(this);
+        navController.popBackStack();
+        /*
+        var action = ViewProfileDetailsFragmentDirections.actionProfileDetailsToNavAccounts();
         navController.navigate(action);
+         */
     }
 
     /**
