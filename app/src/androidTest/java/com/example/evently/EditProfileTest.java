@@ -14,11 +14,18 @@ import java.util.concurrent.ExecutionException;
 import androidx.navigation.NavGraph;
 
 import com.google.firebase.auth.FirebaseAuth;
+
+import org.junit.Before;
 import org.junit.Test;
 
 import com.example.evently.ui.common.EditProfileFragment;
 
 public class EditProfileTest extends EmulatedFragmentTest<EditProfileFragment> {
+
+    @Before
+    public void waitForLoad() throws InterruptedException {
+        Thread.sleep(1000);
+    }
 
     /**
      * Tests edit name
