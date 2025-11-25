@@ -14,7 +14,6 @@ import java.util.concurrent.ExecutionException;
 import androidx.navigation.NavGraph;
 
 import com.google.firebase.auth.FirebaseAuth;
-
 import org.junit.Before;
 import org.junit.Test;
 
