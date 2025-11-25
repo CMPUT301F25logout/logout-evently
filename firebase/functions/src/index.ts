@@ -17,6 +17,20 @@ const NOTIFS_COLL = "notifications";
 // The key for selection limit as stored in the database.
 const EVENT_SELECTION_LIMIT_KEY = "selectionLimit";
 
+// Template for creating a winning notification.
+function winnerNotification(eventId: string, seenBy: string[] = []): Notification {
+  return {
+    eventId,
+    channel: "Winners",
+    title: "You are invited to an event!",
+    description:
+      "Congratulations! You have been selected to attend event with ID " +
+      eventId +
+      ".\nYou may accept or deny this invitation.",
+    seenBy
+  };
+}
+
 type Channel = "All" | "Winners" | "Losers" | "Cancelled";
 
 interface Notification {
@@ -127,36 +141,44 @@ export const monitorEntrants = onDocumentUpdated(
   async (fsEvent) => {
     // Wish there was a way to fire only if the cancelledEntrants field was updated...
     const eventID = fsEvent.params.eventID;
-    logger.info(`Executing redrawSelected for ID: ${eventID}`);
+    logger.info(`Executing monitorEntrants for ID: ${eventID}`);
     const snapshot = fsEvent.data;
     if (!snapshot) {
       logger.warn("No data associated with document updation event");
       return;
     }
+
     const oldEventEntrants = snapshot.before.data() as EventEntrants;
     const newEventEntrants = snapshot.after.data() as EventEntrants;
 
-    redrawSelected(eventID, oldEventEntrants, newEventEntrants);
+    const tasks = [];
+
+    // Check if there were new cancelled entries.
+    // Note: It must not be possible to remove cancelled entrants from the cancelled list.
+    if (newEventEntrants.cancelledEntrants.length > oldEventEntrants.cancelledEntrants.length) {
+      tasks.push(redrawSelected(eventID));
+    }
+
+    // Check if there selected entrants was filled (when it was previously empty).
+    const oldSelected = new Set(oldEventEntrants.selectedEntrants);
+    const newSelected = new Set(newEventEntrants.selectedEntrants);
+    // Note: A simple length check won't do. Consider the situation where:
+    // 1. An account is cancelled from the selected list by the organizer.
+    // 2. A redraw is run and a new account is added to the selected list.
+    // If the above two happen around the same time, the length difference will be zero.
+    const additionalSelected = newSelected.difference(oldSelected);
+    if (additionalSelected.size != 0) {
+      // We ensure to mark the "old winners" within the seenBy set.
+      tasks.push(writeWinnerNotification(eventID, oldEventEntrants.selectedEntrants));
+    }
+
+    return Promise.all(tasks);
   }
 );
 
 // Redraw winners when someone cancels.
-async function redrawSelected(
-  eventID: string,
-  oldEventEntrants: EventEntrants,
-  newEventEntrants: EventEntrants
-) {
+async function redrawSelected(eventID: string) {
   logger.info(`Executing redrawSelected for ID: ${eventID}`);
-  const oldCancelled = new Set(oldEventEntrants.cancelledEntrants);
-  const newCancelled = new Set(newEventEntrants.cancelledEntrants);
-  // Note: New cancelled should strictly be a superset of oldCancelled.
-  // Cancelled entrants are not supposed to be removed, only added.
-  const diff = newCancelled.difference(oldCancelled);
-  if (diff.size === 0) {
-    // No change in cancelled set. Nohing to do.
-    logger.info("Nothing to do");
-    return;
-  }
 
   const eventDoc = await db.collection(EVENTS_COLL).doc(eventID).get();
   if (!eventDoc.exists) {
@@ -217,6 +239,37 @@ async function redrawSelected(
           ...eligibleWinners.union(new Set(additionalWinners)),
         ],
       });
+    })
+    .catch((e) => {
+      if (!(e instanceof BenignError)) {
+        throw e;
+      }
+    });
+}
+
+async function writeWinnerNotification(eventID: string, seenBy: string[] = []) {
+  // Redraw (but be wary of concurrency bugs indeed)!
+  // Note: Multiple instances of this function may be called
+  // around the same time if two users cancel around the same time.
+  // Thus: One must be wise in implementing redraw.
+  const selfRef = db
+    .collection(NOTIFS_COLL)
+    .where(notifsKey("eventId"), "==", eventID)
+    .where(notifsKey("channel"), "==", channel("Winners"))
+    .limit(1);
+  return db
+    .runTransaction(async (tx) => {
+      const winningNotificationsRef = await tx.get(selfRef);
+      if (!winningNotificationsRef.empty) {
+        // We already have a notification written in the winners channel. No more is needed!
+        throw new BenignError("Write winner notification has already run!");
+      }
+
+      // Write the winner notification!
+      tx.create(
+        db.collection(NOTIFS_COLL).doc(crypto.randomUUID()),
+        winnerNotification(eventID, seenBy)
+      );
     })
     .catch((e) => {
       if (!(e instanceof BenignError)) {
@@ -325,7 +378,16 @@ function chooseNRandom<T>(arr: T[], n: number): T[] {
   return result;
 }
 
-// Type safe way to use the property names of the EventEntrants type as string.
-function entrantsKey(name: keyof EventEntrants) {
+const entrantsKey = collectionKey<EventEntrants>;
+
+const notifsKey = collectionKey<Notification>;
+
+// Type safe way to use the property names of records as string.
+function collectionKey<T>(name: keyof T): keyof T {
   return name;
+}
+
+// Type safe way to use a string as a channel.
+function channel(channel: Channel): Channel {
+  return channel;
 }

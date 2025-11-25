@@ -60,14 +60,8 @@ public class ViewNotificationsFragment extends NotificationsFragment {
     private void handleNotificationClickIntent() {
         var intent = requireActivity().getIntent();
         if (intent.hasExtra(IntentConstants.NOTIFICATION_INTENT_ID_KEY)) {
-            final UUID targetID;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                targetID = intent.getSerializableExtra(
-                        IntentConstants.NOTIFICATION_INTENT_ID_KEY, UUID.class);
-            } else {
-                targetID = (UUID)
-                        intent.getSerializableExtra(IntentConstants.NOTIFICATION_INTENT_ID_KEY);
-            }
+            final UUID targetID = UUID.fromString(intent.getStringExtra(IntentConstants.NOTIFICATION_INTENT_ID_KEY));
+
             // Find this notification in the adapter.
             // NOTE (chase): There is no guarantee that adapter is set by now. It waits on a network
             // call in onCreateView.
