@@ -4,13 +4,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.example.evently.data.model.Notification;
 import com.example.evently.ui.common.NotificationsFragment;
@@ -23,7 +19,8 @@ public class ViewNotificationsFragment extends NotificationsFragment {
         final var dialog =
                 switch (notif.channel()) {
                     // Already accepted/declined - no need for the special accept/decline dialog.
-                    case Winners -> hasSeen ? new NotificationGenericDialog() : new NotificationWinnerDialog();
+                    case Winners ->
+                        hasSeen ? new NotificationGenericDialog() : new NotificationWinnerDialog();
                     // TODO (chase): Do the other notifications need anything special or
                     //  is it okay for all of them to have the same dialog behavior (like here)?
                     default -> new NotificationGenericDialog();
@@ -39,14 +36,17 @@ public class ViewNotificationsFragment extends NotificationsFragment {
 
     protected void initNotifications(Consumer<List<Notification>> callback) {
         String email = FirebaseAuthUtils.getCurrentEmail();
-        notificationDB.fetchUserNotifications(email).thenRun(notifs -> {
-                callback.accept(notifs);
-                handleNotificationClickIntent();
-        }).catchE(e -> {
-            Log.e("ViewNotificationsFragment", e.toString());
-            Toast.makeText(requireContext(), "Something went wrong...", Toast.LENGTH_SHORT)
-                    .show();
-        });
+        notificationDB
+                .fetchUserNotifications(email)
+                .thenRun(notifs -> {
+                    callback.accept(notifs);
+                    handleNotificationClickIntent();
+                })
+                .catchE(e -> {
+                    Log.e("ViewNotificationsFragment", e.toString());
+                    Toast.makeText(requireContext(), "Something went wrong...", Toast.LENGTH_SHORT)
+                            .show();
+                });
     }
 
     /**
@@ -59,7 +59,8 @@ public class ViewNotificationsFragment extends NotificationsFragment {
     private void handleNotificationClickIntent() {
         var intent = requireActivity().getIntent();
         if (intent.hasExtra(IntentConstants.NOTIFICATION_INTENT_ID_KEY)) {
-            final UUID targetID = UUID.fromString(intent.getStringExtra(IntentConstants.NOTIFICATION_INTENT_ID_KEY));
+            final UUID targetID = UUID.fromString(
+                    intent.getStringExtra(IntentConstants.NOTIFICATION_INTENT_ID_KEY));
 
             // Find this notification in the adapter.
             // NOTE (chase): There is no guarantee that adapter is set by now. It waits on a network
