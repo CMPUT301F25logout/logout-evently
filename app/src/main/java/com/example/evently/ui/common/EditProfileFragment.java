@@ -14,7 +14,6 @@ import androidx.fragment.app.Fragment;
 
 import com.example.evently.R;
 import com.example.evently.data.AccountDB;
-import com.example.evently.data.model.Event;
 import com.example.evently.utils.FirebaseAuthUtils;
 
 /**
@@ -26,19 +25,6 @@ public class EditProfileFragment extends Fragment {
 
     private AccountDB db;
 
-    /**
-     * Inflates the "Create Event" form
-     *
-     * @param inflater The LayoutInflater object that can be used to inflate
-     * any views in the fragment,
-     * @param container If non-null, this is the parent view that the fragment's
-     * UI should be attached to.  The fragment should not add the view itself,
-     * but this can be used to generate the LayoutParams of the view.
-     * @param savedInstanceState If non-null, this fragment is being re-constructed
-     * from a previous saved state as given here.
-     *
-     * @return the view of the inflated form
-     */
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater,
@@ -48,13 +34,6 @@ public class EditProfileFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_edit_profile, container, false);
     }
 
-    /**
-     * Builds up a form, validates input, builds an {@link Event}, returns it, and navigates up
-     *
-     * @param v The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}
-     * @param savedInstanceState If non-null, this fragment is being re-constructed
-     * from a previous saved state as given here
-     */
     @Override
     public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
@@ -103,11 +82,10 @@ public class EditProfileFragment extends Fragment {
         Button editName = v.findViewById(R.id.name_button);
 
         editName.setOnClickListener(view -> {
-            ConfirmFragmentTextInput confirmFragment = ConfirmFragmentTextInput.newInstance(
-                    "Change Name",
-                    "Please enter your new name below.",
-                    "Jane Doe",
-                    s -> !s.isBlank());
+            final var confirmFragment = new ConfirmFragmentEmailInput();
+            final var fragmentArgs = ConfirmFragmentTextInput.instanceArgs(
+                    "Change Name", "Please enter your new name below.", "Jane Doe");
+            confirmFragment.setArguments(fragmentArgs);
             confirmFragment.show(getParentFragmentManager(), "confirmTextInput");
 
             getParentFragmentManager()
@@ -132,11 +110,10 @@ public class EditProfileFragment extends Fragment {
         Button editEmail = v.findViewById(R.id.email_button);
 
         editEmail.setOnClickListener(view -> {
-            ConfirmFragmentTextInput confirmFragment = ConfirmFragmentTextInput.newInstance(
-                    "Change Email",
-                    "Please enter your new email below.",
-                    "Sample@example.com",
-                    s -> Patterns.EMAIL_ADDRESS.matcher(s).matches());
+            final var confirmFragment = new ConfirmFragmentEmailInput();
+            final var fragmentArgs = ConfirmFragmentTextInput.instanceArgs(
+                    "Change Email", "Please enter your new email below.", "Sample@example.com");
+            confirmFragment.setArguments(fragmentArgs);
             confirmFragment.show(getParentFragmentManager(), "confirmTextInput");
 
             getParentFragmentManager()
@@ -159,11 +136,12 @@ public class EditProfileFragment extends Fragment {
         TextView phoneView = v.findViewById(R.id.phone_text);
         Button editPhone = v.findViewById(R.id.phone_button);
         editPhone.setOnClickListener(view -> {
-            ConfirmFragmentTextInput confirmFragment = ConfirmFragmentTextInput.newInstance(
+            final var confirmFragment = new ConfirmFragmentPhoneInput();
+            final var fragmentArgs = ConfirmFragmentTextInput.instanceArgs(
                     "Change Phone Number",
                     "Please enter your new phone number below.",
-                    "(000) 000-0000",
-                    s -> Patterns.PHONE.matcher(s).matches());
+                    "(000) 000-0000");
+            confirmFragment.setArguments(fragmentArgs);
             confirmFragment.show(getParentFragmentManager(), "confirmTextInput");
 
             getParentFragmentManager()

@@ -127,7 +127,8 @@ public abstract class ArchitectureActivity extends AppCompatActivity
         // See: https://firebase.google.com/docs/cloud-messaging/manage-tokens
 
         // Attach listener for edit profile sign out/delete account action.
-        getSupportFragmentManager()
+        navHostFragment
+                .getChildFragmentManager()
                 .setFragmentResultListener(
                         EditProfileFragment.resultTag, this, (result, resultBundle) -> {
                             // Disable FCM auto init and remove the token so the device no longer
