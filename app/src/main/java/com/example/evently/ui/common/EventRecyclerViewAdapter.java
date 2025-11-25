@@ -11,13 +11,13 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.google.firebase.storage.StorageReference;
 
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.data.model.EventStatus;
 import com.example.evently.databinding.FragmentEventBinding;
+import com.example.evently.utils.GlideUtils;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link Event}.
@@ -77,16 +77,10 @@ public class EventRecyclerViewAdapter
         // Title / name
         binding.content.setText(holder.mItem.name());
 
-        // The following code attempts to find the poster in the DB, and store it into the
-        // imgPoster. android.R.drawable.ic_menu_report_image is used while searching or if the
-        // image is not found in the DB.
+        // Gets a reference to the poster, and stores it in the image view.
         StorageReference posterReference =
                 new EventsDB().getPosterStorageRef(holder.mItem.eventID());
-        Glide.with(binding.content.getContext())
-                .load(posterReference)
-                .placeholder(android.R.drawable.ic_menu_report_image)
-                .error(android.R.drawable.ic_menu_report_image)
-                .into(binding.imgPoster);
+        GlideUtils.loadPosterIntoImageView(posterReference, binding.imgPoster);
 
         // Status + selectionDate
         EventStatus status = holder.mItem.computeStatus(Instant.now());
