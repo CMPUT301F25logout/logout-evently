@@ -82,7 +82,7 @@ public class EditProfileFragment extends Fragment {
         Button editName = v.findViewById(R.id.name_button);
 
         editName.setOnClickListener(view -> {
-            final var confirmFragment = new ConfirmFragmentEmailInput();
+            final var confirmFragment = new ConfirmFragmentNameInput();
             final var fragmentArgs = ConfirmFragmentTextInput.instanceArgs(
                     "Change Name", "Please enter your new name below.", "Jane Doe");
             confirmFragment.setArguments(fragmentArgs);
