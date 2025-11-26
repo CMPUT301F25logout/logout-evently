@@ -49,7 +49,6 @@ public class NotificationThread extends DialogFragment {
         bundle.putSerializable("channel", channel);
         threadNotifications.setArguments(bundle);
 
-
         if (savedInstanceState == null) {
             // Load the notification threads into the container
             getChildFragmentManager()
@@ -87,7 +86,6 @@ public class NotificationThread extends DialogFragment {
         return view;
     }
 
-
     /**
      * Shows a short-length {@link Toast} with the given message in this Fragment's context
      * @param msg message to display to the user
@@ -112,10 +110,7 @@ public class NotificationThread extends DialogFragment {
                 LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
             // Gets the eventID, and channel
-            Bundle bundle = getArguments();
-            assert bundle != null;
-            eventID = (UUID) bundle.getSerializable("eventID");
-            channel = (Notification.Channel) bundle.getSerializable("channel");
+            final var args = NotificationThreadArgs.fromBundle(getArguments());
 
             return super.onCreateView(inflater, container, savedInstanceState);
         }

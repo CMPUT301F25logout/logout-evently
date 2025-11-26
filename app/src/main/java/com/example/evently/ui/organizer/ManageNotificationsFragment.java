@@ -3,9 +3,10 @@ package com.example.evently.ui.organizer;
 import java.util.List;
 import java.util.function.Consumer;
 
-import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.evently.data.model.Notification;
 import com.example.evently.ui.common.NotificationsFragment;
@@ -15,15 +16,10 @@ public class ManageNotificationsFragment extends NotificationsFragment {
 
     protected void onNotificationClick(Notification notif) {
 
-        NotificationThread thread = new NotificationThread();
-        Bundle bundle = new Bundle();
-        NotificationThread newThread = new NotificationThread();
-        bundle.putSerializable("eventID", notif.eventId());
-        bundle.putSerializable("channel", notif.channel());
-        newThread.setArguments(bundle);
-
-        // Shows the thread
-        newThread.show(getChildFragmentManager(), "notificationThread");
+        var action = ManageNotificationsFragmentDirections.actionNavNotifsToNavThread(
+                notif.eventId(), notif.channel());
+        NavController navController = NavHostFragment.findNavController(this);
+        navController.navigate(action);
     }
 
     protected void initNotifications(Consumer<List<Notification>> callback) {
