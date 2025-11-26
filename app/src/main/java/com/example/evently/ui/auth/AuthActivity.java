@@ -14,6 +14,7 @@ import androidx.credentials.exceptions.GetCredentialInterruptedException;
 import androidx.credentials.exceptions.GetCredentialUnsupportedException;
 import androidx.credentials.exceptions.NoCredentialException;
 
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.messaging.FirebaseMessaging;
 
@@ -59,8 +60,17 @@ public class AuthActivity extends AppCompatActivity {
         firebaseLogin = new FirebaseLogin(this);
         activityRecreated = savedInstanceState != null;
 
-        // Manual buttons in case user refuses the auto login prompt.
+        // Buttons for login/signup.
         binding.login.setOnClickListener(v -> tryLoggingIn(0));
+        binding.dumbLogin.setOnClickListener(
+                v -> firebaseLogin.launchDumbLogin(false, this::handleAuthSuccess, e -> {
+                    Log.w("AuthActivity", "Exception during dumb login: " + e);
+                    Toast.makeText(
+                                    this,
+                                    "Incorrect email or unrecognized device",
+                                    Toast.LENGTH_SHORT)
+                            .show();
+                }));
         binding.registerForm.setOnClickListener(v -> showRegisterForm());
     }
 
@@ -105,24 +115,7 @@ public class AuthActivity extends AppCompatActivity {
     private void tryLoggingIn(int retryCount) {
         firebaseLogin.launchLogin(
                 false,
-                res -> {
-                    var user = Objects.requireNonNull(res.getUser());
-                    String email = Objects.requireNonNull(user.getEmail());
-
-                    accountDB
-                            .fetchAccount(email)
-                            .optionally(acc -> successfulTransition())
-                            .orElse(() -> {
-                                // If the account is not found, it prompts the user to register
-                                Toast.makeText(
-                                                this,
-                                                "Account not found: Please register",
-                                                Toast.LENGTH_SHORT)
-                                        .show();
-                                FirebaseAuth.getInstance().signOut();
-                                showRegisterForm();
-                            });
-                },
+                this::handleAuthSuccess,
                 e -> {
                     switch (e) {
                         case GetCredentialCancellationException ce -> {
@@ -221,5 +214,18 @@ public class AuthActivity extends AppCompatActivity {
                 Objects.requireNonNullElse(e.getLocalizedMessage(), e.toString()));
         Toast.makeText(this, "Something went catastrophically wrong...", Toast.LENGTH_SHORT)
                 .show();
+    }
+
+    private void handleAuthSuccess(AuthResult res) {
+        var user = Objects.requireNonNull(res.getUser());
+        String email = Objects.requireNonNull(user.getEmail());
+
+        accountDB.fetchAccount(email).optionally(acc -> successfulTransition()).orElse(() -> {
+            // If the account is not found, it prompts the user to register
+            Toast.makeText(this, "Account not found: Please register", Toast.LENGTH_SHORT)
+                    .show();
+            FirebaseAuth.getInstance().signOut();
+            showRegisterForm();
+        });
     }
 }

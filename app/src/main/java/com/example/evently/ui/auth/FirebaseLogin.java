@@ -5,7 +5,6 @@ import static com.google.android.libraries.identity.googleid.GoogleIdTokenCreden
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import androidx.annotation.NonNull;
@@ -17,6 +16,7 @@ import androidx.credentials.GetCredentialRequest;
 import androidx.credentials.GetCredentialResponse;
 import androidx.credentials.exceptions.GetCredentialException;
 import androidx.credentials.exceptions.NoCredentialException;
+import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
@@ -25,13 +25,16 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 
 import com.example.evently.BuildConfig;
+import com.example.evently.ui.common.ConfirmFragmentEmailInput;
+import com.example.evently.ui.common.ConfirmFragmentTextInput;
+import com.example.evently.utils.FirebaseAuthUtils;
 
 /**
  * Utility class for handling sign in/register with google using Firebase auth.
  */
 class FirebaseLogin {
     // Context under which the auth may be used.
-    private final Activity act;
+    private final FragmentActivity act;
     private final FirebaseAuth mAuth;
     private final CredentialManager credentialManager;
 
@@ -40,7 +43,7 @@ class FirebaseLogin {
      * @apiNote Take care to keep the activity context up to date. If the activity is recreated, this object
      *   must be recreated too.
      */
-    protected FirebaseLogin(Activity act) {
+    protected FirebaseLogin(FragmentActivity act) {
         this.act = act;
         this.mAuth = FirebaseAuth.getInstance();
         this.credentialManager = CredentialManager.create(act.getBaseContext());
@@ -54,6 +57,33 @@ class FirebaseLogin {
      */
     protected boolean isLoggedIn() {
         return mAuth.getCurrentUser() != null;
+    }
+
+    /**
+     * Launch a Login or sign up flow the dumb, stupid, total anti-pattern way. This is it folks, the greatest demonstration of
+     * what university teaches you: how to be a software engineer that is guaranteed to code up garbage.
+     * @param newUser Whether or not we are dealing with a brand new user. Set this to false for logging in, true for signing up.
+     * @param onSuccess Handler in case of successful login or signup.
+     * @param onException Handler in case of exception.
+     */
+    protected void launchDumbLogin(
+            boolean newUser, Consumer<AuthResult> onSuccess, Consumer<Exception> onException) {
+        final var fragManager = act.getSupportFragmentManager();
+        final var confirmFragment = new ConfirmFragmentEmailInput();
+        final var fragmentArgs = ConfirmFragmentTextInput.instanceArgs(
+                "Sign in", "Enter email", "sample@example.com");
+        confirmFragment.setArguments(fragmentArgs);
+        confirmFragment.show(fragManager, "loginEmailInput");
+
+        fragManager.setFragmentResultListener(
+                ConfirmFragmentTextInput.requestKey, act, (requestKey, result) -> {
+                    final var email = result.getString(ConfirmFragmentTextInput.inputKey);
+                    assert email != null;
+
+                    FirebaseAuthUtils.dumbLogin(act, email, newUser)
+                            .thenRun(onSuccess)
+                            .catchE(onException);
+                });
     }
 
     /**

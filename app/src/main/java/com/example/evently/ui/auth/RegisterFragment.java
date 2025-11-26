@@ -111,6 +111,18 @@ public class RegisterFragment extends Fragment {
             loadingProgressBar.setVisibility(View.VISIBLE);
             tryRegistering(0);
         });
+
+        binding.dumbRegister.setOnClickListener(v -> {
+            loadingProgressBar.setVisibility(View.VISIBLE);
+            var nameInp = binding.name.getText().toString().strip();
+            var phoneInp = binding.phone.getText().toString().strip();
+            firebaseLogin.launchDumbLogin(
+                    true, res -> this.successfulLogin(nameInp, phoneInp, res), e -> {
+                        Log.w("AuthActivity", "Exception during dumb register: " + e);
+                        Toast.makeText(requireActivity(), "User already exists", Toast.LENGTH_SHORT)
+                                .show();
+                    });
+        });
     }
 
     private boolean validateInputs() {
@@ -176,7 +188,7 @@ public class RegisterFragment extends Fragment {
         var email = Objects.requireNonNull(user.getEmail());
         // Creates the bundle
         var dbData = new Bundle();
-        dbData.putString("email", email.toString());
+        dbData.putString("email", email);
         dbData.putString("name", name);
         dbData.putString("phone", phone);
         getParentFragmentManager().setFragmentResult(resultKey, dbData);

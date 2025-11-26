@@ -5,7 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
-import com.google.android.gms.tasks.Tasks;
+import androidx.test.platform.app.InstrumentationRegistry;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -17,6 +18,7 @@ import org.junit.BeforeClass;
 import com.example.evently.data.AccountDB;
 import com.example.evently.data.generic.Promise;
 import com.example.evently.data.model.Account;
+import com.example.evently.utils.FirebaseAuthUtils;
 
 /**
  * Class that sets up firebase emulator integration for use by all tests.
@@ -26,7 +28,6 @@ import com.example.evently.data.model.Account;
  */
 public abstract class FirebaseEmulatorTest {
     private static final String defaultMockEmail = "foobar589@gmail.com";
-    private static final String defaultMockPassword = "password";
 
     /**
      * The default mock account that will be created and used to login.
@@ -58,9 +59,10 @@ public abstract class FirebaseEmulatorTest {
         }
         // Set up the default mock account + authenticate.
         // Register in firebase auth.
-        final var auth = FirebaseAuth.getInstance();
+        final var instrumentation = InstrumentationRegistry.getInstrumentation();
         try {
-            Tasks.await(auth.createUserWithEmailAndPassword(defaultMockEmail, defaultMockPassword));
+            FirebaseAuthUtils.dumbLogin(instrumentation.getContext(), defaultMockEmail, true)
+                    .await();
         } catch (ExecutionException execExc) {
             // We may safely ignore collision (it's already created).
             if (!(execExc.getCause() instanceof FirebaseAuthUserCollisionException)) {
@@ -69,7 +71,8 @@ public abstract class FirebaseEmulatorTest {
             }
         }
         // Login with this account.
-        Tasks.await(auth.signInWithEmailAndPassword(defaultMockEmail, defaultMockPassword));
+        FirebaseAuthUtils.dumbLogin(instrumentation.getContext(), defaultMockEmail, false)
+                .await();
     }
 
     @Before
@@ -88,6 +91,15 @@ public abstract class FirebaseEmulatorTest {
         final var accountDB = new AccountDB();
 
         Promise.all(accounts.stream().map(acc -> accountDB.deleteAccount(acc.email())))
+                .await();
+    }
+
+    /**
+     * Helper to be used for tests that manually sign out.
+     */
+    protected void signBackIn() throws ExecutionException, InterruptedException {
+        final var instrumentation = InstrumentationRegistry.getInstrumentation();
+        FirebaseAuthUtils.dumbLogin(instrumentation.getContext(), defaultMockEmail, false)
                 .await();
     }
 }

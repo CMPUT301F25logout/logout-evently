@@ -41,4 +41,6 @@
     <string name="event_entrants_header">Entrants</string>
     <string name="entrant_limit_header">In Waitlist:</string>
     <string name="entrant_limit_separator">/</string>
+    <string name="action_dumb_login">Sign in with Device ID</string>
+    <string name="dumb_register_txt">Sign up with Device ID</string>
 </resources>

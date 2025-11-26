@@ -1,5 +1,6 @@
 package com.example.evently.utils;
 
+import static com.example.evently.data.generic.Promise.promise;
 import static com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL;
 
 import java.util.Objects;
@@ -7,7 +8,9 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.CancellationSignal;
+import android.provider.Settings;
 import androidx.annotation.NonNull;
 import androidx.credentials.Credential;
 import androidx.credentials.CredentialManager;
@@ -20,6 +23,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
@@ -28,6 +33,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.example.evently.BuildConfig;
 import com.example.evently.data.AccountDB;
 import com.example.evently.data.EventsDB;
+import com.example.evently.data.generic.Promise;
 
 public final class FirebaseAuthUtils {
 
@@ -40,6 +46,38 @@ public final class FirebaseAuthUtils {
     public static String getCurrentEmail() {
         var auth = FirebaseAuth.getInstance();
         return Objects.requireNonNull(auth.getCurrentUser()).getEmail();
+    }
+
+    /**
+     * Make the firebase auth instance log in (or sign up) using device ID with the given email.
+     * @param email Email of the user.
+     * @param newUser Whether or not this is a new user (sign up).
+     * @return Promise of logging in (or signing up).
+     */
+    public static Promise<AuthResult> dumbLogin(Context ctx, String email, boolean newUser) {
+        var auth = FirebaseAuth.getInstance();
+
+        final var deviceID =
+                Settings.Secure.getString(ctx.getContentResolver(), Settings.Secure.ANDROID_ID);
+        // Either sign up or sign in based on what we are asked of.
+        return promise(
+                newUser
+                        ? auth.createUserWithEmailAndPassword(email, deviceID)
+                        : auth.signInWithEmailAndPassword(email, deviceID));
+    }
+
+    /**
+     * Check whether or not we're currently logged in as a "device ID" identified account.
+     * @return True if logged in with device ID.
+     */
+    public static boolean isDumbAccount() {
+        var auth = FirebaseAuth.getInstance();
+        // Assumption: Each account is linked to only one provider.
+        return Objects.requireNonNull(auth.getCurrentUser())
+                .getProviderData()
+                .get(0)
+                .getProviderId()
+                .equals(EmailAuthProvider.PROVIDER_ID);
     }
 
     /**
