@@ -323,6 +323,30 @@ public class EventsDB {
     }
 
     /**
+     * Removes user with email from all lists of all events
+     * @param email email of user
+     */
+    public Promise<Void> removeUserFromEvents(String email) {
+        final var updateMap = new HashMap<String, Object>();
+        EventEntrants entrants = new EventEntrants(UUID.randomUUID());
+        var keys = entrants.toHashMap().keySet();
+        for (String key : keys) {
+            updateMap.put(key, FieldValue.arrayRemove(email));
+        }
+
+        return promise(eventEntrantsRef.get())
+                .map(querySnapshot -> querySnapshot.getDocuments().stream()
+                        .map(EventsDB::getEventEntrantsFromSnapshot)
+                        .flatMap(Optional::stream)
+                        .collect(Collectors.toList()))
+                .then(events -> Promise.all(events.stream()
+                                .map(event -> promise(eventEntrantsRef
+                                        .document(event.eventID().toString())
+                                        .update(updateMap))))
+                        .map(ignored -> null));
+    }
+
+    /**
      * Clear the whole firestore collection, and the firebase storage for images.
      * @return Promise.
      */

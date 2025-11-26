@@ -77,7 +77,7 @@ public class FirebaseNotificationService extends FirebaseMessagingService {
         // Since AuthActivity is also the root activity, the new task flag works well with it.
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         // Pass the notification ID in the intent.
-        intent.putExtra(IntentConstants.NOTIFICATION_INTENT_ID_KEY, notificationID);
+        intent.putExtra(IntentConstants.NOTIFICATION_INTENT_ID_KEY, notificationID.toString());
         // We set the request code as the UUID hash. There is a possibility of hash collision, but
         // for this to happen
         // for two notifications received around the same time window is unlikely.

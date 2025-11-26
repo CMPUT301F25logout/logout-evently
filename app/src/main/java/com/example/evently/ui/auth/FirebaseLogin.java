@@ -105,27 +105,30 @@ class FirebaseLogin {
             Credential credential,
             Consumer<AuthResult> onSuccess,
             Consumer<Exception> onException) {
-        if (credential instanceof CustomCredential customCredential
-                && credential.getType().equals(TYPE_GOOGLE_ID_TOKEN_CREDENTIAL)) {
-            // Create Google ID Token
-            Bundle credentialData = customCredential.getData();
-            var googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credentialData);
 
-            // Sign in to Firebase with using the token
-            var firebaseCred =
-                    GoogleAuthProvider.getCredential(googleIdTokenCredential.getIdToken(), null);
-            mAuth.signInWithCredential(firebaseCred).addOnCompleteListener(act, task -> {
-                if (task.isSuccessful()) {
-                    // Sign in success, delegate to callback.
-                    act.runOnUiThread(() -> onSuccess.accept(task.getResult()));
-                } else {
-                    // Exceptional scenario where firebase auth fails.
-                    act.runOnUiThread(() -> onException.accept(task.getException()));
-                }
-            });
-        } else {
-            // This _shouldn't_ happen.
+        if (!(credential instanceof CustomCredential customCredential)
+                || !credential
+                        .getType()
+                        .equals(TYPE_GOOGLE_ID_TOKEN_CREDENTIAL)) { // This shouldn't happen.
             onException.accept(new Exception("absurd: Credential was not a Google ID token"));
+            return;
         }
+
+        // Create Google ID Token
+        Bundle credentialData = customCredential.getData();
+        var googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credentialData);
+
+        // Sign in to Firebase with using the token
+        var firebaseCred =
+                GoogleAuthProvider.getCredential(googleIdTokenCredential.getIdToken(), null);
+        mAuth.signInWithCredential(firebaseCred).addOnCompleteListener(act, task -> {
+            if (task.isSuccessful()) {
+                // Sign in success, delegate to callback.
+                act.runOnUiThread(() -> onSuccess.accept(task.getResult()));
+            } else {
+                // Exceptional scenario where firebase auth fails.
+                act.runOnUiThread(() -> onException.accept(task.getException()));
+            }
+        });
     }
 }

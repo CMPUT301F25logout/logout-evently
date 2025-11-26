@@ -17,6 +17,14 @@
     <string name="notif_description_sample">You have been invited to the event.</string>
     <string name="notif_date_sample">2025-08-12</string>
     <string name="default_notif_channel">fcm_channel_default</string>
+    <string name="default_user_profile_header">Evently User\'s Profile</string>
+    <string name="profile_page_picture_description">Profile picture</string>
+    <string name="profile_page_credentials">Credentials:</string>
+    <string name="profile_page_name_header">Name:</string>
+    <string name="profile_page_email_header">Email:</string>
+    <string name="profile_page_phone_header">Phone Number:</string>
+    <string name="profile_page_edit_button_text">Edit</string>
+    <string name="action_delete_account">Delete Account</string>
     <string name="create_event_btn_description">Create event</string>
     <string name="selected_role_icon_description">Currently selected role</string>
     <string name="qr_share_description">Share QR code</string>
