@@ -63,7 +63,7 @@ public class ImageRecyclerViewAdapter
         var binding = holder.binding;
 
         // Set the image of the eventID
-        StorageReference poster = eventsDB.getPosterStorageRef(holder.eventID);
+        StorageReference poster = new EventsDB().getPosterStorageRef(holder.eventID);
         GlideUtils.loadPosterIntoImageView(poster, binding.eventPoster);
 
         // Set the text of the image description
