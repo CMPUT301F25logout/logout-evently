@@ -73,21 +73,31 @@ public abstract class FirebaseEmulatorTest {
     }
 
     @Before
-    public void setUpExtraAccounts() throws ExecutionException, InterruptedException {
-        // Create the extra mock accounts and register them in our DB.
+    public void setUpAccounts() throws ExecutionException, InterruptedException {
+        // Create the mock accounts and register them in our DB.
         final var accountDB = new AccountDB();
         final var accounts = this.extraMockAccounts();
+        accounts.add(defaultMockAccount);
 
         Promise.all(accounts.stream().map(accountDB::storeAccount)).await();
     }
 
     @After
-    public void tearDownExtraAccount() throws ExecutionException, InterruptedException {
-        // Remove the extra mock accounts from DB.
+    public void tearDownAccount() throws ExecutionException, InterruptedException {
+        // Remove the mock accounts from DB.
         final var accounts = this.extraMockAccounts();
         final var accountDB = new AccountDB();
+        accounts.add(defaultMockAccount);
 
         Promise.all(accounts.stream().map(acc -> accountDB.deleteAccount(acc.email())))
                 .await();
+    }
+
+    /**
+     * Helper to be used for tests that manually sign out.
+     */
+    protected void signBackIn() throws ExecutionException, InterruptedException {
+        Tasks.await(FirebaseAuth.getInstance()
+                .signInWithEmailAndPassword(defaultMockEmail, defaultMockPassword));
     }
 }
