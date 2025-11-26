@@ -6,10 +6,10 @@
     tools:context=".ui.organizer.OrganizerEventActionsFragment">
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/notifySelected"
+        android:id="@+id/sendNotification"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/event_notify_selected_btn" />
+        android:text="@string/event_send_notification_button"/>
 
     <include android:id="@+id/util_share_btn" layout="@layout/util_share_btn" />
 
