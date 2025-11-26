@@ -9,6 +9,7 @@ import static com.example.evently.MatcherUtils.p;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -54,7 +55,7 @@ public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsF
 
     @Override
     public List<Account> extraMockAccounts() {
-        return Arrays.asList(extraAccounts);
+        return new ArrayList<>(Arrays.asList(extraAccounts));
     }
 
     @BeforeClass

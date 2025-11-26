@@ -1,7 +1,5 @@
 package com.example.evently.ui.common;
 
-import java.util.function.Predicate;
-
 import android.os.Bundle;
 import android.text.Editable;
 import android.view.LayoutInflater;
@@ -20,8 +18,7 @@ import com.example.evently.R;
  * Fragment to query user for confirmation with user text input
  * Connected to fragment_confirmation_text_input.xml
  */
-public class ConfirmFragmentTextInput extends DialogFragment {
-    final Predicate<String> validate;
+public abstract class ConfirmFragmentTextInput extends DialogFragment {
     static final String headerKey = "header";
     static final String messageKey = "message";
     static final String cancelKey = "cancel";
@@ -31,56 +28,45 @@ public class ConfirmFragmentTextInput extends DialogFragment {
     public static final String inputKey = "input";
 
     /**
-     * Constructor for ConfirmFragmentTextInput
-     * @param validate Criteria for the string returned.
+     * Criteria the input string must satisfy.
+     * @param inp Input string
+     * @return Whether or not input is valid
      */
-    public ConfirmFragmentTextInput(Predicate<String> validate) {
-        this.validate = validate;
-    }
+    protected abstract boolean validateInput(String inp);
 
     /**
-     * Initializes a new instance of a ConfirmFragmentTextInput
+     * Initializes the arguments bundle for a ConfirmFragmentTextInput
      * @param headerText Text for header of fragment
      * @param messageText Text for message of fragment
      * @param cancelText Text for cancel button
      * @param confirmText Text for confirm button
-     * @param validate Criteria for input string
-     * @return new ConfirmFragmentTextInput instance
+     *
+     * @return Bundle to set on a ConfirmFragmentTextInput
      */
-    public static ConfirmFragmentTextInput newInstance(
+    public static Bundle instanceArgs(
             String headerText,
             String messageText,
             String hintText,
             String cancelText,
-            String confirmText,
-            Predicate<String> validate) {
-        ConfirmFragmentTextInput confirmFragment = new ConfirmFragmentTextInput(validate);
+            String confirmText) {
         Bundle args = new Bundle();
         args.putString(headerKey, headerText);
         args.putString(messageKey, messageText);
         args.putString(cancelKey, cancelText);
         args.putString(confirmKey, confirmText);
         args.putString(hintKey, hintText);
-        confirmFragment.setArguments(args);
-        return confirmFragment;
+        return args;
     }
 
     /**
-     * Initializes a new instance of a ConfirmFragmentTextInput
+     * Initializes the arguments bundle for a ConfirmFragmentTextInput
      * @param headerText Text for header of fragment
      * @param messageText Text for message of fragment
-     * @param validate Criteria for input string
-     * @return new ConfirmFragmentTextInput instance
+     *
+     * @return Bundle to set on a ConfirmFragmentTextInput
      */
-    public static ConfirmFragmentTextInput newInstance(
-            String headerText, String messageText, String hintText, Predicate<String> validate) {
-        ConfirmFragmentTextInput confirmFragment = new ConfirmFragmentTextInput(validate);
-        Bundle args = new Bundle();
-        args.putString(headerKey, headerText);
-        args.putString(messageKey, messageText);
-        args.putString(hintKey, hintText);
-        confirmFragment.setArguments(args);
-        return confirmFragment;
+    public static Bundle instanceArgs(String headerText, String messageText, String hintText) {
+        return instanceArgs(headerText, messageText, hintText, null, null);
     }
 
     /**
@@ -143,10 +129,13 @@ public class ConfirmFragmentTextInput extends DialogFragment {
         cancel.setOnClickListener(v -> dismiss());
         confirm.setOnClickListener(v -> {
             Editable editText = textEdit.getText();
-            if (editText == null) dismiss();
+            if (editText == null) {
+                dismiss();
+                return;
+            }
             Bundle input = new Bundle();
             String inputText = editText.toString();
-            if (this.validate.test(inputText)) {
+            if (validateInput(inputText)) {
                 input.putString(inputKey, textEdit.getText().toString());
                 getParentFragmentManager().setFragmentResult(requestKey, input);
                 dismiss();
