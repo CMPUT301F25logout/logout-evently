@@ -18,37 +18,59 @@
             android:text="@string/date_filters_header"
             android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
 
+        <TextView
+            android:id="@+id/tvDateRangeHelper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/date_filters_picker_helper"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilAfterDate"
+            android:id="@+id/tilStartDate"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:hint="@string/date_filters_after_label"
-            app:helperText="@string/date_filters_date_helper">
+            android:layout_marginTop="16dp"
+            android:hint="@string/date_filters_start_hint"
+            app:endIconMode="clear_text">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etAfterDate"
+                android:id="@+id/etStartDate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="date"
-                android:maxLines="1" />
+                android:focusable="false"
+                android:inputType="none"
+                android:clickable="true"
+                android:hint="@string/date_filters_start_hint" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilBeforeDate"
+            android:id="@+id/tilEndDate"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:hint="@string/date_filters_before_label"
-            app:helperText="@string/date_filters_date_helper">
+            android:hint="@string/date_filters_end_hint"
+            app:endIconMode="clear_text">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etBeforeDate"
+                android:id="@+id/etEndDate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="date"
-                android:maxLines="1" />
+                android:focusable="false"
+                android:inputType="none"
+                android:clickable="true"
+                android:hint="@string/date_filters_end_hint" />
         </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/tvDateValidationError"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="?attr/colorError"
+            android:visibility="gone"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
 
         <LinearLayout
             android:layout_width="match_parent"
