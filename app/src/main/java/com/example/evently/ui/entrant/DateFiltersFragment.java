@@ -1,11 +1,11 @@
 package com.example.evently.ui.entrant;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +15,9 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.google.android.material.datepicker.MaterialDatePicker;
+
+import com.example.evently.R;
 import com.example.evently.databinding.FragmentDateFiltersBinding;
 import com.example.evently.ui.model.BrowseEventsViewModel;
 
@@ -27,6 +30,10 @@ public class DateFiltersFragment extends Fragment {
 
     private FragmentDateFiltersBinding binding;
     private BrowseEventsViewModel eventsViewModel;
+
+    @Nullable private LocalDate selectedStartDate;
+
+    @Nullable private LocalDate selectedEndDate;
 
     @Nullable @Override
     public View onCreateView(
@@ -44,87 +51,162 @@ public class DateFiltersFragment extends Fragment {
 
         populateExistingFilters();
 
+        binding.tilStartDate.setEndIconOnClickListener(v -> clearStartDate());
+        binding.tilEndDate.setEndIconOnClickListener(v -> clearEndDate());
+
+        View.OnClickListener startPickerListener = v -> showDatePicker(true);
+        binding.tilStartDate.setOnClickListener(startPickerListener);
+        binding.etStartDate.setOnClickListener(startPickerListener);
+
+        View.OnClickListener endPickerListener = v -> showDatePicker(false);
+        binding.tilEndDate.setOnClickListener(endPickerListener);
+        binding.etEndDate.setOnClickListener(endPickerListener);
+
         binding.btnCancelDateFilters.setOnClickListener(
                 v -> NavHostFragment.findNavController(this).navigateUp());
         binding.btnConfirmDateFilters.setOnClickListener(v -> {
-            if (applyFiltersFromInput()) {
+            if (applyFiltersFromSelection()) {
                 NavHostFragment.findNavController(this).navigateUp();
             }
         });
     }
 
     /**
-     * Prefills the date inputs with any active filters so users can edit or clear them.
+     * Prefills the date picker state with any active filters so users can edit or clear them.
      */
     private void populateExistingFilters() {
-        final var afterDate = eventsViewModel.getAfterDateFilter().getValue();
-        final var beforeDate = eventsViewModel.getBeforeDateFilter().getValue();
+        selectedStartDate = eventsViewModel.getAfterDateFilter().getValue();
+        selectedEndDate = eventsViewModel.getBeforeDateFilter().getValue();
 
-        if (afterDate != null) {
-            binding.etAfterDate.setText(DATE_FORMATTER.format(afterDate));
-        }
-        if (beforeDate != null) {
-            binding.etBeforeDate.setText(DATE_FORMATTER.format(beforeDate));
-        }
+        renderSelectedDates();
     }
 
     /**
-     * Parses user-entered dates, validates ordering, and saves them to the view model.
+     * Applies the selected dates, validates ordering, and saves them to the view model.
      *
      * @return {@code true} if input is valid and filters were applied; {@code false} otherwise.
      */
-    private boolean applyFiltersFromInput() {
-        final var afterInput = binding.etAfterDate.getText();
-        final var beforeInput = binding.etBeforeDate.getText();
-
+    private boolean applyFiltersFromSelection() {
         clearErrors();
 
-        final LocalDate afterDate;
-        final LocalDate beforeDate;
-        try {
-            afterDate = parseDate(afterInput == null ? null : afterInput.toString());
-        } catch (DateTimeParseException e) {
-            binding.tilAfterDate.setError("Use format yyyy/MM/dd");
+        if (selectedStartDate == null && selectedEndDate == null) {
+            eventsViewModel.setDateFilters(null, null);
+            return true;
+        }
+
+        if (selectedStartDate != null
+                && selectedEndDate != null
+                && selectedStartDate.isAfter(selectedEndDate)) {
+            showError(R.string.date_filters_invalid_order);
             return false;
         }
 
-        try {
-            beforeDate = parseDate(beforeInput == null ? null : beforeInput.toString());
-        } catch (DateTimeParseException e) {
-            binding.tilBeforeDate.setError("Use format yyyy/MM/dd");
-            return false;
-        }
-
-        if (afterDate != null && beforeDate != null && afterDate.isAfter(beforeDate)) {
-            binding.tilBeforeDate.setError("Before Date must be after After Date");
-            return false;
-        }
-
-        eventsViewModel.setDateFilters(afterDate, beforeDate);
+        eventsViewModel.setDateFilters(selectedStartDate, selectedEndDate);
         return true;
     }
 
     /**
-     * Clears any validation errors on the date input text fields.
+     * Shows the date picker dialog.
+     *
+     * @param isStartDate {@code true} if the start date is being selected; {@code false} otherwise.
      */
-    private void clearErrors() {
-        binding.tilAfterDate.setError(null);
-        binding.tilBeforeDate.setError(null);
+    private void showDatePicker(boolean isStartDate) {
+        final var pickerBuilder = MaterialDatePicker.Builder.datePicker();
+        pickerBuilder.setTitleText(
+                isStartDate
+                        ? R.string.date_filters_picker_start_title
+                        : R.string.date_filters_picker_end_title);
+
+        final LocalDate existingDate = isStartDate ? selectedStartDate : selectedEndDate;
+        if (existingDate != null) {
+            pickerBuilder.setSelection(toEpochMillis(existingDate));
+        }
+
+        final var picker = pickerBuilder.build();
+        picker.addOnPositiveButtonClickListener(selection -> {
+            if (selection != null) {
+                if (isStartDate) {
+                    selectedStartDate = toLocalDate(selection);
+                } else {
+                    selectedEndDate = toLocalDate(selection);
+                }
+                renderSelectedDates();
+                clearErrors();
+            }
+        });
+
+        picker.show(
+                getParentFragmentManager(), isStartDate ? "start_date_picker" : "end_date_picker");
     }
 
     /**
-     * Converts a string input into a {@link LocalDate} using the screen's formatter.
-     * @param input user-entered date text, expected in {@code yyyy/MM/dd} format.
-     * @return parsed {@link LocalDate} when non-empty; {@code null} if the field was blank.
+     * Renders the selected dates in the UI.
      */
-    private LocalDate parseDate(@Nullable String input) {
-        if (TextUtils.isEmpty(input)) {
-            return null;
-        }
-
-        return LocalDate.parse(input.trim(), DATE_FORMATTER);
+    private void renderSelectedDates() {
+        binding.etStartDate.setText(
+                selectedStartDate == null ? null : DATE_FORMATTER.format(selectedStartDate));
+        binding.etEndDate.setText(
+                selectedEndDate == null ? null : DATE_FORMATTER.format(selectedEndDate));
     }
 
+    /**
+     * Clears the selected start date.
+     */
+    private void clearStartDate() {
+        selectedStartDate = null;
+        binding.etStartDate.setText(null);
+        clearErrors();
+    }
+
+    /**
+     * Clears the selected end date.
+     */
+    private void clearEndDate() {
+        selectedEndDate = null;
+        binding.etEndDate.setText(null);
+        clearErrors();
+    }
+
+    /**
+     * Shows an error message in the UI.
+     *
+     * @param stringId The string resource ID for the error message to display.
+     */
+    private void showError(int stringId) {
+        binding.tvDateValidationError.setText(stringId);
+        binding.tvDateValidationError.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Clears any error messages in the UI.
+     */
+    private void clearErrors() {
+        binding.tvDateValidationError.setText(null);
+        binding.tvDateValidationError.setVisibility(View.GONE);
+    }
+
+    /**
+     * Converts an epoch millis to a local date.
+     * @param epochMillis The epoch millis to convert.
+     * @return The converted local date.
+     */
+    private LocalDate toLocalDate(long epochMillis) {
+        final Instant instant = Instant.ofEpochMilli(epochMillis);
+        return instant.atZone(ZoneId.systemDefault()).toLocalDate();
+    }
+
+    /**
+     * Converts a local date to an epoch millis.
+     * @param localDate The local date to convert.
+     * @return The converted epoch millis.
+     */
+    private long toEpochMillis(LocalDate localDate) {
+        return localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+    }
+
+    /**
+     * Cleans up the binding object when the view is destroyed.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();
