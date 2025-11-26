@@ -1,10 +1,7 @@
 package com.example.evently.ui.organizer;
 
-import android.os.Bundle;
-
 import com.example.evently.R;
 import com.example.evently.ui.common.ArchitectureActivity;
-import com.example.evently.utils.IntentConstants;
 
 /**
  * Activity for the organizer roler which hosts the organizer specific navigation graph
@@ -21,14 +18,14 @@ public class OrganizerActivity extends ArchitectureActivity {
         return R.navigation.organizer_graph;
     }
 
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        var intent = getIntent();
-        if (intent.hasExtra(IntentConstants.NOTIFICATION_INTENT_ID_KEY)) {
-            // We were sent here by clicking on a notification.
-            // Navigate to the notification page and let it handle the intent.
-            navController.navigate(R.id.nav_notifs_organizer, null);
-        }
-    }
+    //    public void onCreate(Bundle savedInstanceState) {
+    //        super.onCreate(savedInstanceState);
+    //
+    //        var intent = getIntent();
+    //        if (intent.hasExtra(IntentConstants.NOTIFICATION_INTENT_ID_KEY)) {
+    //            // We were sent here by clicking on a notification.
+    //            // Navigate to the notification page and let it handle the intent.
+    //            navController.navigate(R.id.nav_notifs, null);
+    //        }
+    //    }
 }
