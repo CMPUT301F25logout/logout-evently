@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.evently.utils.GlideUtils;
 import com.google.firebase.storage.StorageReference;
 
 import com.example.evently.data.EventsDB;
@@ -63,7 +64,7 @@ public class ImageRecyclerViewAdapter
 
         // Set the image of the eventID
         StorageReference poster = eventsDB.getPosterStorageRef(holder.eventID);
-        // TODO set the image itself
+        GlideUtils.loadPosterIntoImageView(poster, binding.eventPoster);
 
         // Set the text of the image description
         eventsDB.fetchEvent(holder.eventID).thenRun(event -> {
