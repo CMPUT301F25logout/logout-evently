@@ -44,7 +44,17 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
             DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault());
     private static final DateTimeFormatter EVENT_DATE_TIME_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
-    private static final Timestamp selectionTime = new Timestamp(now.plus(Duration.ofMillis(100)));
+    private static final Timestamp[] selectionTimes = new Timestamp[] {
+        new Timestamp(now.minus(Duration.ofDays(1))),
+        new Timestamp(now.plus(Duration.ofDays(1))),
+        new Timestamp(now.plus(Duration.ofDays(2))),
+        new Timestamp(now.plus(Duration.ofDays(3))),
+        new Timestamp(now.plus(Duration.ofDays(4))),
+        new Timestamp(now.plus(Duration.ofDays(5))),
+        new Timestamp(now.plus(Duration.ofDays(6))),
+        new Timestamp(now.plus(Duration.ofDays(7))),
+        new Timestamp(now.plus(Duration.ofDays(8)))
+    };
     private static final Timestamp eventTime = new Timestamp(now.plus(Duration.ofMinutes(10)));
 
     // Create a few events.
@@ -53,7 +63,7 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
                 "name",
                 "description",
                 Category.EDUCATIONAL,
-                selectionTime,
+                selectionTimes[0],
                 eventTime,
                 "orgEmail",
                 50),
@@ -61,7 +71,7 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
                 "name1",
                 "description1",
                 Category.EDUCATIONAL,
-                new Timestamp(now.plus(Duration.ofMinutes(1))),
+                selectionTimes[1],
                 new Timestamp(now.plus(Duration.ofMinutes(11))),
                 "orgEmail",
                 50),
@@ -69,7 +79,7 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
                 "name2",
                 "description2",
                 Category.EDUCATIONAL,
-                new Timestamp(now.plus(Duration.ofMinutes(2))),
+                selectionTimes[2],
                 new Timestamp(now.plus(Duration.ofMinutes(12))),
                 "orgEmail",
                 50),
@@ -77,7 +87,7 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
                 "name3",
                 "description3",
                 Category.EDUCATIONAL,
-                new Timestamp(now.plus(Duration.ofMinutes(3))),
+                selectionTimes[3],
                 new Timestamp(now.plus(Duration.ofMinutes(13))),
                 "orgEmail",
                 50),
@@ -85,7 +95,7 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
                 "name4",
                 "description4",
                 Category.EDUCATIONAL,
-                new Timestamp(now.plus(Duration.ofMinutes(4))),
+                selectionTimes[4],
                 new Timestamp(now.plus(Duration.ofMinutes(14))),
                 "orgEmail",
                 50),
@@ -93,7 +103,7 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
                 "name5",
                 "description5",
                 Category.EDUCATIONAL,
-                new Timestamp(now.plus(Duration.ofMinutes(5))),
+                selectionTimes[5],
                 new Timestamp(now.plus(Duration.ofMinutes(15))),
                 "orgEmail",
                 50),
@@ -101,7 +111,7 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
                 "name6",
                 "description6",
                 Category.EDUCATIONAL,
-                new Timestamp(now.plus(Duration.ofMinutes(6))),
+                selectionTimes[6],
                 new Timestamp(now.plus(Duration.ofMinutes(16))),
                 "orgEmail",
                 50),
@@ -109,7 +119,7 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
                 "name7",
                 "description7",
                 Category.EDUCATIONAL,
-                new Timestamp(now.plus(Duration.ofMinutes(7))),
+                selectionTimes[7],
                 new Timestamp(now.plus(Duration.ofMinutes(17))),
                 "orgEmail",
                 50),
@@ -117,7 +127,7 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
                 "name8",
                 "description8",
                 Category.EDUCATIONAL,
-                new Timestamp(now.plus(Duration.ofMinutes(8))),
+                selectionTimes[8],
                 new Timestamp(now.plus(Duration.ofMinutes(18))),
                 "orgEmail",
                 50)
