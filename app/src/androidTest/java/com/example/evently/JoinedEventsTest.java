@@ -44,7 +44,7 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
             DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault());
     private static final DateTimeFormatter EVENT_DATE_TIME_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
-    private static final Duration EVENT_GAP = Duration.ofDays(2);
+    private static final Duration EVENT_GAP = Duration.ofHours(2);
     private static final Timestamp[] selectionTimes = new Timestamp[] {
         new Timestamp(now.minus(Duration.ofDays(1))),
         new Timestamp(now.plus(Duration.ofDays(1))),
@@ -56,7 +56,6 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
         new Timestamp(now.plus(Duration.ofDays(7))),
         new Timestamp(now.plus(Duration.ofDays(8)))
     };
-    private static final Timestamp eventTime = new Timestamp(now.plus(Duration.ofMinutes(10)));
 
     // Create a few events.
     private static final Event[] mockEvents = new Event[] {
