@@ -46,7 +46,7 @@ public class NotificationThread extends DialogFragment {
         ViewThreadNotifications threadNotifications = new ViewThreadNotifications();
         bundle = new Bundle();
         bundle.putSerializable("eventID", eventID);
-        bundle.putSerializable("channel", channel);
+        bundle.putSerializable("channel", channel.toString());
         threadNotifications.setArguments(bundle);
 
         if (savedInstanceState == null) {
@@ -60,9 +60,14 @@ public class NotificationThread extends DialogFragment {
 
         // Sets the event title, and channel in the thread
         new EventsDB().fetchEvent(eventID).thenRun(event -> {
-            event.ifPresent(value -> eventTitle.setText(value.name()));
+            event.ifPresent(value -> {
+                String eventText = "Event: " + value.name();
+                eventTitle.setText(eventText);
+            });
         });
-        eventChannel.setText(channel.toString());
+
+        String channelText = "Channel: " + channel.toString();
+        eventChannel.setText(channelText);
 
         // Sets up the button to send a notification when pressed.
         sendNotificationButton.setOnClickListener(v -> {
@@ -112,6 +117,8 @@ public class NotificationThread extends DialogFragment {
             // Gets the eventID, and channel
             final var args = NotificationThreadArgs.fromBundle(getArguments());
 
+            eventID = args.getEventID();
+            channel = Channel.valueOf(args.getChannel());
             return super.onCreateView(inflater, container, savedInstanceState);
         }
 

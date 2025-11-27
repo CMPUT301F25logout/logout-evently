@@ -5,35 +5,14 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItem;
+import static androidx.test.espresso.matcher.ViewMatchers.assertThat;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.example.evently.MatcherUtils.assertRecyclerViewItem;
 import static com.example.evently.MatcherUtils.p;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import androidx.navigation.NavGraph;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-
-import com.example.evently.data.EventsDB;
-import com.example.evently.data.NotificationDB;
-import com.example.evently.data.generic.Promise;
-import com.example.evently.data.model.Account;
-import com.example.evently.data.model.Category;
-import com.example.evently.data.model.Event;
-import com.example.evently.data.model.Notification;
-import com.example.evently.ui.entrant.ViewNotificationsFragment;
-import com.example.evently.ui.organizer.ManageNotificationsFragment;
-import com.google.firebase.Timestamp;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
+import static org.hamcrest.Matchers.is;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -42,15 +21,27 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
+import androidx.navigation.NavGraph;
+import androidx.navigation.fragment.NavHostFragment;
+
+import com.google.firebase.Timestamp;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import com.example.evently.data.EventsDB;
+import com.example.evently.data.NotificationDB;
+import com.example.evently.data.generic.Promise;
+import com.example.evently.data.model.Account;
+import com.example.evently.data.model.Category;
+import com.example.evently.data.model.Event;
+import com.example.evently.data.model.Notification;
+import com.example.evently.ui.organizer.ManageNotificationsFragment;
+
 /**
- * The order of the tests is important for this class, as pressing on a notification can change
- * the accepted, canceled, or seen status of a notification, so FixMethodOrder is used from the
- * following article on ordering Junit tests:
- * "The Order of Tests in JUnit", by Fatos Morina.
- * https://www.baeldung.com/junit-5-test-order
+ * The following class tests the ManageNotificationsFragment, which displays the notifications an
+ * organizer has sent. This test module reuses code from the ViewNotificationsTest.
  */
-@RunWith(AndroidJUnit4.class)
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ManageNotificationsTest extends EmulatedFragmentTest<ManageNotificationsFragment> {
     private static final EventsDB eventsDB = new EventsDB();
     private static final NotificationDB notificationDB = new NotificationDB();
@@ -132,7 +123,7 @@ public class ManageNotificationsTest extends EmulatedFragmentTest<ManageNotifica
                 Category.EDUCATIONAL,
                 selectionTime,
                 eventTime,
-                "orgEmail", // Created by other person.
+                "Other User",
                 50)
     };
 
@@ -143,25 +134,18 @@ public class ManageNotificationsTest extends EmulatedFragmentTest<ManageNotifica
         // Store events into DB.
         Promise.all(Arrays.stream(mockEvents).map(eventsDB::storeEvent)).await();
 
-        // Send a few notifications to all channel.
-        Promise.all(
-                        notificationDB.storeNotification(
-                                templateNotification(0, Notification.Channel.All)),
-                        notificationDB.storeNotification(
-                                templateNotification(1, Notification.Channel.All)),
-                        notificationDB.storeNotification(
-                                templateNotification(3, Notification.Channel.All)),
-                        notificationDB.storeNotification(
-                                templateNotification(7, Notification.Channel.All)),
-                        notificationDB.storeNotification(
-                                templateNotification(8, Notification.Channel.All)))
-                .await();
-
-        // Since there are enrolled people who have been selected, those who are not winners of an
-        // event are losers (mockEvents[1], and mockEvents[8])
-
         final var promises = new ArrayList<Promise<Void>>();
-        // Notifications to the winners channel (for every event).
+        // Notifications to the winners channel (for every event, except event 0).
+        promises.add(notificationDB.storeNotification(
+                templateNotification(0, Notification.Channel.All)));
+        promises.add(notificationDB.storeNotification(
+                templateNotification(1, Notification.Channel.All)));
+        promises.add(notificationDB.storeNotification(
+                templateNotification(3, Notification.Channel.All)));
+        promises.add(notificationDB.storeNotification(
+                templateNotification(7, Notification.Channel.All)));
+        promises.add(notificationDB.storeNotification(
+                templateNotification(8, Notification.Channel.All)));
         promises.add(notificationDB.storeNotification(
                 templateNotification(1, Notification.Channel.Winners)));
         promises.add(notificationDB.storeNotification(
@@ -179,36 +163,16 @@ public class ManageNotificationsTest extends EmulatedFragmentTest<ManageNotifica
         promises.add(notificationDB.storeNotification(
                 templateNotification(8, Notification.Channel.Winners)));
 
-        // Some notifications for the losers channel (for a few events).
-        promises.add(notificationDB.storeNotification(
-                templateNotification(1, Notification.Channel.Losers)));
-        promises.add(notificationDB.storeNotification(
-                templateNotification(2, Notification.Channel.Losers)));
-        promises.add(notificationDB.storeNotification(
-                templateNotification(3, Notification.Channel.Losers)));
-        promises.add(notificationDB.storeNotification(
-                templateNotification(7, Notification.Channel.Losers)));
-
-        // And some notifications for the cancelled channel (for a few events).
-        promises.add(notificationDB.storeNotification(
-                templateNotification(1, Notification.Channel.Cancelled)));
-        promises.add(notificationDB.storeNotification(
-                templateNotification(2, Notification.Channel.Cancelled)));
-        promises.add(notificationDB.storeNotification(
-                templateNotification(3, Notification.Channel.Cancelled)));
-        promises.add(notificationDB.storeNotification(
-                templateNotification(5, Notification.Channel.Cancelled)));
-
         Promise.all(promises.stream()).await();
     }
 
-//    @AfterClass
-//    public static void tearDownNotifications() throws ExecutionException, InterruptedException {
-//        Promise.all(notificationDB.nuke(), eventsDB.nuke()).await();
-//    }
+    @AfterClass
+    public static void tearDownNotifications() throws ExecutionException, InterruptedException {
+        Promise.all(notificationDB.nuke(), eventsDB.nuke()).await();
+    }
 
     @Test
-    public void test1_expectNotification_winner() throws InterruptedException {
+    public void test_expectNotification_winner() throws InterruptedException {
         // Notifications sent to the Winner channel for won event IDs should show up.
         final var expectedNotifications = new Notification[] {
             templateNotification(0, Notification.Channel.All),
@@ -234,11 +198,10 @@ public class ManageNotificationsTest extends EmulatedFragmentTest<ManageNotifica
     }
 
     @Test
-    public void test2_noUnExpectedNotification() throws InterruptedException {
+    public void test_noUnExpectedNotification() throws InterruptedException {
         // Notifications from other people's events should not pop up.
         Notification notMyEvent1 = templateNotification(8, Notification.Channel.All);
         Notification notMyEvent2 = templateNotification(1, Notification.Channel.All);
-
 
         // Checks that no notifications for other organizer's events show up.
         Thread.sleep(2000);
@@ -246,6 +209,35 @@ public class ManageNotificationsTest extends EmulatedFragmentTest<ManageNotifica
         onView(withText(notMyEvent2.title())).check(doesNotExist());
     }
 
+    // Tests the ability to switch to a thread by clicking on a notification
+    @Test
+    public void test_SwitchingToThread() throws InterruptedException {
+        Thread.sleep(2000);
+
+        Event expectedEvent = mockEvents[0];
+        Notification expectedNotif = templateNotification(0, Notification.Channel.All);
+
+        // Confirms the notification is in the recycler view.
+        assertRecyclerViewItem(
+                R.id.notif_list,
+                p(R.id.notif_title, expectedNotif.title()),
+                p(R.id.notif_description, expectedNotif.description()));
+
+        // Clicks on a notification
+        onView(withId(R.id.notif_list))
+                .perform(actionOnItem(hasDescendant(withText(expectedNotif.title())), click()));
+
+        // The following section of code confirms we were brought to the correct fragment, and was
+        // created by Anthropic, Claude Sonnet 4.5 with the following prompt:
+        // "In java for android, how can you verify that once clicking on an item, the fragment
+        // changes to an expected fragment"
+        scenario.onFragment(fragment -> {
+            final var dest = NavHostFragment.findNavController(fragment)
+                    .getCurrentDestination()
+                    .getId();
+            assertThat(dest, is(R.id.nav_thread));
+        });
+    }
 
     /**
      * Helper function to create a notification from the event index and target channel.
