@@ -45,6 +45,7 @@ import com.example.evently.data.model.EventEntrants;
  * @author Ronan St. Amand
  */
 public class EventsDB {
+    private final FirebaseFirestore db;
     private final CollectionReference eventsRef;
     private final CollectionReference eventEntrantsRef;
     private final StorageReference storageRef;
@@ -53,7 +54,7 @@ public class EventsDB {
      * Constructor for EventsDB
      */
     public EventsDB() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
         eventEntrantsRef = db.collection("eventEntrants");
         storageRef = FirebaseStorage.getInstance().getReference();
@@ -356,23 +357,26 @@ public class EventsDB {
      * @param email email of user
      */
     public Promise<Void> removeUserFromEvents(String email) {
-        final var updateMap = new HashMap<String, Object>();
-        EventEntrants entrants = new EventEntrants(UUID.randomUUID());
-        var keys = entrants.toHashMap().keySet();
-        for (String key : keys) {
-            updateMap.put(key, FieldValue.arrayRemove(email));
+        final var updateMap = new HashMap<FieldPath, Object>();
+        // Remove the user from the entrant arrays.
+        var arrayFields = new String[] {
+            "enrolledEntrants", "selectedEntrants", "acceptedEntrants", "cancelledEntrants"
+        };
+        for (String field : arrayFields) {
+            updateMap.put(FieldPath.of(field), FieldValue.arrayRemove(email));
         }
+        // Remove their location as well.
+        updateMap.put(FieldPath.of("entrantLocations", email), FieldValue.delete());
 
-        return promise(eventEntrantsRef.get())
-                .map(querySnapshot -> querySnapshot.getDocuments().stream()
-                        .map(EventsDB::getEventEntrantsFromSnapshot)
-                        .flatMap(Optional::stream)
-                        .collect(Collectors.toList()))
-                .then(events -> Promise.all(events.stream()
-                                .map(event -> promise(eventEntrantsRef
-                                        .document(event.eventID().toString())
-                                        .update(updateMap))))
-                        .map(ignored -> null));
+        WriteBatch batch = db.batch();
+        // Why the hell does the Java firestore SDK not have `listDocuments`???
+        // There's no need to get the whole document for all of them...
+        return promise(eventEntrantsRef.get()).then(qs -> {
+            for (var doc : qs) {
+                fieldPathUpdate(batch, doc.getReference(), updateMap);
+            }
+            return promise(batch.commit());
+        });
     }
 
     /**
@@ -458,6 +462,21 @@ public class EventsDB {
         final var firstFieldPath = (FieldPath) arr[0];
         final var firstFieldVal = arr[1];
         return tx.update(
+                doc, firstFieldPath, firstFieldVal, Arrays.copyOfRange(arr, 2, arr.length));
+    }
+
+    // Like above, but for batches.
+    // Yes this could easily be CSEd with lambdas but java lambdas suck.
+    private static WriteBatch fieldPathUpdate(
+            WriteBatch batch, DocumentReference doc, Map<FieldPath, Object> updater) {
+        if (updater.isEmpty()) {
+            return batch;
+        }
+        final var arr = flattenMapEntries(updater);
+        // If there is at least one element in the map, the array length must be 2.
+        final var firstFieldPath = (FieldPath) arr[0];
+        final var firstFieldVal = arr[1];
+        return batch.update(
                 doc, firstFieldPath, firstFieldVal, Arrays.copyOfRange(arr, 2, arr.length));
     }
 
