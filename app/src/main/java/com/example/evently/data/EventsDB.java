@@ -4,8 +4,11 @@ import static com.example.evently.data.generic.Promise.promise;
 import static com.example.evently.data.generic.PromiseOpt.promiseOpt;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,11 +22,13 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Transaction;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -153,9 +158,9 @@ public class EventsDB {
             final var entrantUpdateMap = addEntrantUpdateObj(email, "enrolledEntrants");
             // Add the location if provided.
             if (entrantLocation != null) {
-                entrantUpdateMap.put("entrantLocations." + email, entrantLocation);
+                entrantUpdateMap.put(FieldPath.of("entrantLocations", email), entrantLocation);
             }
-            tx.update(targetEventEntrantsRef, entrantUpdateMap);
+            fieldPathUpdate(tx, targetEventEntrantsRef, entrantUpdateMap);
             // Mark the event full if we've hit the limit.
             event.optionalEntrantLimit().ifPresent(limit -> {
                 if (eventEntrants.all().size() + 1 >= limit) {
@@ -192,9 +197,9 @@ public class EventsDB {
         final var entrantUpdateMap = addEntrantUpdateObj(email, "enrolledEntrants");
         // Add the location if provided.
         if (entrantLocation != null) {
-            entrantUpdateMap.put("entrantLocations." + email, entrantLocation);
+            entrantUpdateMap.put(FieldPath.of("entrantLocations", email), entrantLocation);
         }
-        return promise(eventEntrantsRef.document(eventID.toString()).update(entrantUpdateMap));
+        return fieldPathUpdate(eventEntrantsRef.document(eventID.toString()), entrantUpdateMap);
     }
 
     /**
@@ -237,12 +242,12 @@ public class EventsDB {
     // Helper to add a user to one of the lists.
     private Promise<Void> addEntrantToList(UUID eventID, String email, String field) {
         final var updateMap = addEntrantUpdateObj(email, field);
-        return promise(eventEntrantsRef.document(eventID.toString()).update(updateMap));
+        return fieldPathUpdate(eventEntrantsRef.document(eventID.toString()), updateMap);
     }
 
-    private HashMap<String, Object> addEntrantUpdateObj(String email, String field) {
-        final var updateMap = new HashMap<String, Object>();
-        updateMap.put(field, FieldValue.arrayUnion(email));
+    private HashMap<FieldPath, Object> addEntrantUpdateObj(String email, String field) {
+        final var updateMap = new HashMap<FieldPath, Object>();
+        updateMap.put(FieldPath.of(field), FieldValue.arrayUnion(email));
         return updateMap;
     }
 
@@ -424,5 +429,48 @@ public class EventsDB {
         // The following code is based on the downloading files section from the firebase docs:
         // https://firebase.google.com/docs/storage/android/download-files?_gl=1
         return storageRef.child("posters/" + eventID.toString());
+    }
+
+    // Update using map of FieldPath to object.
+    // For some god forsaken reason, this doesn't already exist in firestore's Java SDK.
+    private static Promise<Void> fieldPathUpdate(
+            DocumentReference docRef, Map<FieldPath, Object> updater) {
+        if (updater.isEmpty()) {
+            return Promise.of(null);
+        }
+        final var arr = flattenMapEntries(updater);
+        // If there is at least one element in the map, the array length must be 2.
+        final var firstFieldPath = (FieldPath) arr[0];
+        final var firstFieldVal = arr[1];
+        return promise(docRef.update(
+                firstFieldPath, firstFieldVal, Arrays.copyOfRange(arr, 2, arr.length)));
+    }
+
+    // Like above, but for transactions.
+    // Yes this could easily be CSEd with lambdas but java lambdas suck.
+    private static Transaction fieldPathUpdate(
+            Transaction tx, DocumentReference doc, Map<FieldPath, Object> updater) {
+        if (updater.isEmpty()) {
+            return tx;
+        }
+        final var arr = flattenMapEntries(updater);
+        // If there is at least one element in the map, the array length must be 2.
+        final var firstFieldPath = (FieldPath) arr[0];
+        final var firstFieldVal = arr[1];
+        return tx.update(
+                doc, firstFieldPath, firstFieldVal, Arrays.copyOfRange(arr, 2, arr.length));
+    }
+
+    private static <T, V> Object[] flattenMapEntries(Map<T, V> m) {
+        final var entries = new ArrayList<>(m.entrySet());
+        // Two elements per entry (key and value).
+        final var res = new Object[entries.size() * 2];
+        for (int i = 0; i < entries.size(); i++) {
+            final var entry = entries.get(i);
+            final var arrayIx = i * 2;
+            res[arrayIx] = entry.getKey();
+            res[arrayIx + 1] = entry.getValue();
+        }
+        return res;
     }
 }
