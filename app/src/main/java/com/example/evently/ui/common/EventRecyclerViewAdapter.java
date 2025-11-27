@@ -34,8 +34,10 @@ public class EventRecyclerViewAdapter
         void accept(Event n);
     }
 
-    private static final DateTimeFormatter some_date =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("UTC"));
+    private static final DateTimeFormatter SELECTION_DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault());
+    private static final DateTimeFormatter EVENT_DATE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
     private final List<Event> mValues;
     private final EventOnClickListener onEventClick;
 
@@ -89,8 +91,9 @@ public class EventRecyclerViewAdapter
             case OPEN -> {
                 binding.txtStatus.setText("Open");
                 binding.txtselectionDate.setText(MessageFormat.format(
-                        "Selection on {0}",
-                        some_date.format(holder.mItem.selectionTime().toInstant())));
+                        "Selection date: {0}",
+                        SELECTION_DATE_FORMATTER.format(
+                                holder.mItem.selectionTime().toInstant())));
             }
             case CLOSED -> {
                 binding.txtStatus.setText("Closed");
@@ -100,7 +103,8 @@ public class EventRecyclerViewAdapter
         binding.txtselectionDate.setVisibility(android.view.View.VISIBLE);
 
         // Event date
-        binding.txtDate.setText(some_date.format(holder.mItem.eventTime().toInstant()));
+        binding.txtDate.setText(
+                EVENT_DATE_TIME_FORMATTER.format(holder.mItem.eventTime().toInstant()));
 
         // Details button with given click logic.
         binding.btnDetails.setOnClickListener(v -> onEventClick.accept(holder.mItem));

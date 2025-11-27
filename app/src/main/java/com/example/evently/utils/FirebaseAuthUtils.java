@@ -1,5 +1,6 @@
 package com.example.evently.utils;
 
+import static com.example.evently.data.generic.Promise.promise;
 import static com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL;
 
 import java.util.Objects;
@@ -7,7 +8,10 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.CancellationSignal;
+import android.provider.Settings;
+import android.util.Pair;
 import androidx.annotation.NonNull;
 import androidx.credentials.Credential;
 import androidx.credentials.CredentialManager;
@@ -16,22 +20,20 @@ import androidx.credentials.GetCredentialRequest;
 import androidx.credentials.GetCredentialResponse;
 import androidx.credentials.exceptions.GetCredentialException;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.messaging.FirebaseMessaging;
 
 import com.example.evently.BuildConfig;
 import com.example.evently.data.AccountDB;
-import com.example.evently.data.EventsDB;
+import com.example.evently.data.generic.Promise;
 
 public final class FirebaseAuthUtils {
-
-    public static boolean testRun = false;
 
     /**
      * This function will throw if called before AuthActivity gets through (i.e user is logged in).
@@ -43,15 +45,56 @@ public final class FirebaseAuthUtils {
     }
 
     /**
-     * This function will sign out the current user instance, and delete the current token
-     * @param onCompleteListener Listener to call upon completion
+     * Make the firebase auth instance log in using device ID.
+     * @return Promise of logging in.
      */
-    public static void signOut(OnCompleteListener<Void> onCompleteListener) {
-        FirebaseAuth.getInstance().signOut();
+    public static Promise<AuthResult> dumbLogin(Context ctx) {
+        final var auth = FirebaseAuth.getInstance();
+        final var accountDB = new AccountDB();
+        final var deviceID = getDeviceID(ctx);
+        return accountDB.fetchAccountByDeviceID(deviceID).then(accOpt -> {
+            if (accOpt.isEmpty()) {
+                throw new IllegalArgumentException("No such account");
+            }
+            return promise(auth.signInWithEmailAndPassword(accOpt.get().email(), deviceID));
+        });
+    }
 
-        // Disable FCM auto init and remove the token so the device no longer gets notifications.
-        FirebaseMessaging.getInstance().setAutoInitEnabled(false);
-        FirebaseMessaging.getInstance().deleteToken().addOnCompleteListener(onCompleteListener);
+    /**
+     * Make the firebase auth instance sign up using email device ID.
+     * @return Promise of signing up.
+     */
+    public static Promise<Pair<AuthResult, String>> dumbSignUp(Context ctx, String email) {
+        final var auth = FirebaseAuth.getInstance();
+        final var deviceID = getDeviceID(ctx);
+
+        return promise(auth.createUserWithEmailAndPassword(email, deviceID))
+                .with(Promise.of(deviceID));
+    }
+
+    /**
+     * Check whether or not we're currently logged in as a "device ID" identified account.
+     * @return True if logged in with device ID.
+     */
+    public static boolean isDumbAccount() {
+        var auth = FirebaseAuth.getInstance();
+        // Assumption: Each account is linked to only one provider.
+        return Objects.requireNonNull(auth.getCurrentUser())
+                .getProviderData()
+                .get(0)
+                .getProviderId()
+                .equals(EmailAuthProvider.PROVIDER_ID);
+    }
+
+    public static String getDeviceID(Context ctx) {
+        return Settings.Secure.getString(ctx.getContentResolver(), Settings.Secure.ANDROID_ID);
+    }
+
+    /**
+     * This function will sign out the current user instance, and delete the current token
+     */
+    public static void signOut() {
+        FirebaseAuth.getInstance().signOut();
     }
 
     /**
@@ -65,16 +108,9 @@ public final class FirebaseAuthUtils {
             Activity activity, OnSuccessListener<Void> onSuccess, Consumer<Exception> onException) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         AccountDB accountDB = new AccountDB();
-        EventsDB eventsDB = new EventsDB();
         if (user == null)
             throw new RuntimeException(
                     "Delete account error: user is Null"); // This shouldn't happen
-
-        if (testRun) {
-            accountDB.deleteAccount(getCurrentEmail());
-            user.delete().addOnSuccessListener(onSuccess).addOnFailureListener(onException::accept);
-            return;
-        }
 
         requestGoogleCredential(
                 activity,

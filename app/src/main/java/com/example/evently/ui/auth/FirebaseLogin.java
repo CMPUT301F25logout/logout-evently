@@ -5,7 +5,6 @@ import static com.google.android.libraries.identity.googleid.GoogleIdTokenCreden
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import androidx.annotation.NonNull;
@@ -17,6 +16,7 @@ import androidx.credentials.GetCredentialRequest;
 import androidx.credentials.GetCredentialResponse;
 import androidx.credentials.exceptions.GetCredentialException;
 import androidx.credentials.exceptions.NoCredentialException;
+import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
@@ -31,7 +31,7 @@ import com.example.evently.BuildConfig;
  */
 class FirebaseLogin {
     // Context under which the auth may be used.
-    private final Activity act;
+    private final FragmentActivity act;
     private final FirebaseAuth mAuth;
     private final CredentialManager credentialManager;
 
@@ -40,7 +40,7 @@ class FirebaseLogin {
      * @apiNote Take care to keep the activity context up to date. If the activity is recreated, this object
      *   must be recreated too.
      */
-    protected FirebaseLogin(Activity act) {
+    protected FirebaseLogin(FragmentActivity act) {
         this.act = act;
         this.mAuth = FirebaseAuth.getInstance();
         this.credentialManager = CredentialManager.create(act.getBaseContext());

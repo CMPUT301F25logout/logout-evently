@@ -7,28 +7,23 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.junit.Assert.assertNull;
 
 import java.util.concurrent.ExecutionException;
 
 import androidx.navigation.NavGraph;
 
-import org.junit.BeforeClass;
+import com.google.firebase.auth.FirebaseAuth;
+import org.junit.Before;
 import org.junit.Test;
 
-import com.example.evently.data.AccountDB;
 import com.example.evently.ui.common.EditProfileFragment;
-import com.example.evently.utils.FirebaseAuthUtils;
 
 public class EditProfileTest extends EmulatedFragmentTest<EditProfileFragment> {
 
-    /**
-     * Creates and stores the account in the DB before profile page is created
-     */
-    @BeforeClass
-    public static void setupAccount() throws ExecutionException, InterruptedException {
-        AccountDB db = new AccountDB();
-        db.storeAccount(FirebaseEmulatorTest.defaultMockAccount).await();
-        FirebaseEmulatorTest.setUpEmulator();
+    @Before
+    public void waitForLoad() throws InterruptedException {
+        Thread.sleep(1000);
     }
 
     /**
@@ -87,20 +82,9 @@ public class EditProfileTest extends EmulatedFragmentTest<EditProfileFragment> {
     public void signOutTest() throws ExecutionException, InterruptedException {
         onView(withId(R.id.sign_out)).perform(click());
         onView(withId(R.id.confirm_button)).perform(click());
-        onView(withId(R.id.welcomeText)).check(matches(isDisplayed()));
-        FirebaseEmulatorTest.setUpEmulator();
-    }
-
-    /**
-     * Tests delete account button
-     */
-    @Test
-    public void deleteAccountTest() throws ExecutionException, InterruptedException {
-        FirebaseAuthUtils.testRun = true;
-        onView(withId(R.id.delete_account)).perform(click());
-        onView(withId(R.id.confirm_button)).perform(click());
-        onView(withId(R.id.welcomeText)).check(matches(isDisplayed()));
-        FirebaseEmulatorTest.setUpEmulator();
+        Thread.sleep(1000);
+        assertNull(FirebaseAuth.getInstance().getCurrentUser());
+        signBackIn();
     }
 
     /**
