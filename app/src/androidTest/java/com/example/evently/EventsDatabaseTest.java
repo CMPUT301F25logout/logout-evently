@@ -27,20 +27,16 @@ public class EventsDatabaseTest extends FirebaseEmulatorTest {
      * @return created event
      */
     private Event testEvent() {
-        return new Event(
-                "testEvent",
-                "Event created to test.",
-                Category.EDUCATIONAL,
-                false,
-                new Timestamp(LocalDate.of(2026, 10, 1)
-                        .atStartOfDay(ZoneId.systemDefault())
-                        .toInstant()),
-                new Timestamp(LocalDate.of(2027, 1, 1)
-                        .atStartOfDay(ZoneId.systemDefault())
-                        .toInstant()),
-                "testOrganizer@example.com",
-                10L,
-                55L);
+        return testEvent(false);
+    }
+
+    /**
+     * Creates an event for testing
+     * @param requiresLocation Whether or not the event should require location to enroll.
+     * @return created event
+     */
+    private Event testEvent(boolean requiresLocation) {
+        return testEvent(0, requiresLocation);
     }
 
     /**
@@ -49,11 +45,21 @@ public class EventsDatabaseTest extends FirebaseEmulatorTest {
      * @return created event
      */
     private Event testEvent(int num) {
+        return testEvent(num, false);
+    }
+
+    /**
+     * Creates an event with values altered by num
+     * @param num an integer value to include in values
+     * @param requiresLocation Whether or not the event should require location to enroll.
+     * @return created event
+     */
+    private Event testEvent(int num, boolean requiresLocation) {
         return new Event(
                 "testEvent" + num,
                 "Event " + num + " created for testing",
                 Category.EDUCATIONAL,
-                false,
+                requiresLocation,
                 new Timestamp(LocalDate.of(2026, 10, 1)
                         .atStartOfDay(ZoneId.systemDefault())
                         .toInstant()),
@@ -66,7 +72,7 @@ public class EventsDatabaseTest extends FirebaseEmulatorTest {
     }
 
     /**
-     * Tests the store, and fetch account operations.
+     * Tests the store, and fetch event operations.
      */
     @Test
     public void testStoreAndFetchEvent() throws InterruptedException, ExecutionException {
@@ -77,6 +83,22 @@ public class EventsDatabaseTest extends FirebaseEmulatorTest {
 
         var fetchedEvent = db.fetchEvent(event.eventID()).await();
         assertTrue(fetchedEvent.isPresent());
+        assertEquals(fetchedEvent.get().toHashMap(), event.toHashMap());
+    }
+
+    /**
+     * Tests the store, and fetch event with geolocation.
+     */
+    @Test
+    public void testStoreAndFetchGeolocationEvent() throws InterruptedException, ExecutionException {
+        EventsDB db = new EventsDB();
+
+        Event event = testEvent(true);
+        db.storeEvent(event).await();
+
+        var fetchedEvent = db.fetchEvent(event.eventID()).await();
+        assertTrue(fetchedEvent.isPresent());
+        assertTrue(fetchedEvent.requiresLocation());
         assertEquals(fetchedEvent.get().toHashMap(), event.toHashMap());
     }
 
