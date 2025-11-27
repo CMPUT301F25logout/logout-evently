@@ -42,7 +42,7 @@ public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsF
     private static final Timestamp eventTime = new Timestamp(now.plus(Duration.ofMinutes(10)));
 
     private static final Event mockEvent = new Event(
-            "name", "description", Category.EDUCATIONAL, selectionTime, eventTime, "orgEmail", 50);
+            "name", "description", Category.EDUCATIONAL, false, selectionTime, eventTime, "orgEmail", 50);
 
     private static final Account[] extraAccounts = new Account[] {
         new Account("email@gmail.com", "User", Optional.empty(), "email@gmail.com"),

@@ -31,6 +31,7 @@ public class EventsDatabaseTest extends FirebaseEmulatorTest {
                 "testEvent",
                 "Event created to test.",
                 Category.EDUCATIONAL,
+                false,
                 new Timestamp(LocalDate.of(2026, 10, 1)
                         .atStartOfDay(ZoneId.systemDefault())
                         .toInstant()),
@@ -52,6 +53,7 @@ public class EventsDatabaseTest extends FirebaseEmulatorTest {
                 "testEvent" + num,
                 "Event " + num + " created for testing",
                 Category.EDUCATIONAL,
+                false,
                 new Timestamp(LocalDate.of(2026, 10, 1)
                         .atStartOfDay(ZoneId.systemDefault())
                         .toInstant()),

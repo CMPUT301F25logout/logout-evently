@@ -6,6 +6,7 @@ import static com.example.evently.data.generic.PromiseOpt.promiseOpt;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -20,6 +21,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
@@ -71,12 +73,13 @@ public class EventsDB {
                 documentSnapshot.getString("name"),
                 documentSnapshot.getString("description"),
                 Category.valueOf(documentSnapshot.getString("category")),
+                Objects.requireNonNullElse(documentSnapshot.getBoolean("requiresLocation"), false),
                 documentSnapshot.getTimestamp("selectionTime"),
                 documentSnapshot.getTimestamp("eventTime"),
                 documentSnapshot.getString("organizer"),
                 documentSnapshot.getLong("selectionLimit"),
                 optionalEntrantLimit,
-                documentSnapshot.getBoolean("isFull")));
+                Objects.requireNonNullElse(documentSnapshot.getBoolean("isFull"), false)));
     }
 
     /**
@@ -95,7 +98,9 @@ public class EventsDB {
                 (List<String>) documentSnapshot.get("enrolledEntrants"),
                 (List<String>) documentSnapshot.get("selectedEntrants"),
                 (List<String>) documentSnapshot.get("acceptedEntrants"),
-                (List<String>) documentSnapshot.get("cancelledEntrants")));
+                (List<String>) documentSnapshot.get("cancelledEntrants"),
+                (HashMap<String, GeoPoint>) Objects.requireNonNullElse(
+                        documentSnapshot.get("entrantLocations"), new HashMap<>())));
     }
 
     /**
@@ -116,6 +121,16 @@ public class EventsDB {
      * @param email Email of the user to enroll.
      */
     public Promise<Void> enroll(UUID eventID, String email) {
+        return enroll(eventID, email, null);
+    }
+
+    /**
+     * Add a user, alongside their current location, to the enrolled list of an event.
+     * @param eventID Target event.
+     * @param email Email of the user to enroll.
+     * @param entrantLocation Location from where the entrant enrolled.
+     */
+    public Promise<Void> enroll(UUID eventID, String email, GeoPoint entrantLocation) {
         final var eventIDStr = eventID.toString();
         final var targetEventRef = eventsRef.document(eventIDStr);
         final var targetEventEntrantsRef = eventEntrantsRef.document(eventIDStr);
@@ -136,6 +151,10 @@ public class EventsDB {
 
             // Add the user to the enrolled list.
             final var entrantUpdateMap = addEntrantUpdateObj(email, "enrolledEntrants");
+            // Add the location if provided.
+            if (entrantLocation != null) {
+                entrantUpdateMap.put("entrantLocations." + email, entrantLocation);
+            }
             tx.update(targetEventEntrantsRef, entrantUpdateMap);
             // Mark the event full if we've hit the limit.
             event.optionalEntrantLimit().ifPresent(limit -> {
@@ -158,7 +177,24 @@ public class EventsDB {
      */
     @TestOnly
     public Promise<Void> unsafeEnroll(UUID eventID, String email) {
-        return addEntrantToList(eventID, email, "enrolledEntrants");
+        return unsafeEnroll(eventID, email, null);
+    }
+
+    /**
+     * Enroll without checking any conditions. Only for testing.
+     * @param eventID Target event.
+     * @param email Email of the user to enroll.
+     * @param entrantLocation Location from where the entrant enrolled.
+     */
+    @TestOnly
+    public Promise<Void> unsafeEnroll(UUID eventID, String email, GeoPoint entrantLocation) {
+        // Add the user to the enrolled list.
+        final var entrantUpdateMap = addEntrantUpdateObj(email, "enrolledEntrants");
+        // Add the location if provided.
+        if (entrantLocation != null) {
+            entrantUpdateMap.put("entrantLocations." + email, entrantLocation);
+        }
+        return promise(eventEntrantsRef.document(eventID.toString()).update(entrantUpdateMap));
     }
 
     /**

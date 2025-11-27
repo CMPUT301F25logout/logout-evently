@@ -29,6 +29,7 @@ public class NotificationDatabaseTest extends FirebaseEmulatorTest {
                 "testEvent",
                 "Event created to test.",
                 Category.EDUCATIONAL,
+                false,
                 Timestamp.now(),
                 new Timestamp(LocalDate.of(2026, 1, 1)
                         .atStartOfDay(ZoneId.systemDefault())
