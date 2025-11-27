@@ -7,11 +7,15 @@ import static org.junit.Assert.assertTrue;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.example.evently.data.generic.Promise;
+import com.example.evently.utils.FirebaseAuthUtils;
 import com.google.firebase.Timestamp;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,6 +23,7 @@ import org.junit.runner.RunWith;
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
+import com.google.firebase.firestore.GeoPoint;
 
 @RunWith(AndroidJUnit4.class)
 public class EventsDatabaseTest extends FirebaseEmulatorTest {
@@ -96,10 +101,41 @@ public class EventsDatabaseTest extends FirebaseEmulatorTest {
         Event event = testEvent(true);
         db.storeEvent(event).await();
 
-        var fetchedEvent = db.fetchEvent(event.eventID()).await();
-        assertTrue(fetchedEvent.isPresent());
+        final var fetchedEventOpt = db.fetchEvent(event.eventID()).await();
+        assertTrue(fetchedEventOpt.isPresent());
+        final var fetchedEvent = fetchedEventOpt.get();
         assertTrue(fetchedEvent.requiresLocation());
-        assertEquals(fetchedEvent.get().toHashMap(), event.toHashMap());
+        assertEquals(fetchedEvent.toHashMap(), event.toHashMap());
+    }
+
+    @Test
+    public void testEnrollGeolocationEvent() throws InterruptedException, ExecutionException {
+        EventsDB db = new EventsDB();
+
+        Event event = testEvent(true);
+        db.storeEvent(event).await();
+
+        // A couple sample accounts with locations.
+        final var entrantLocations = new HashMap<String, GeoPoint>();
+        entrantLocations.put("foo@bar.com", new GeoPoint(79, 82));
+        entrantLocations.put(FirebaseAuthUtils.getCurrentEmail(), new GeoPoint(42, 42));
+        entrantLocations.put("baz@foo.com", new GeoPoint(8947, 1029));
+        entrantLocations.put("me@example.net", new GeoPoint(42, 42));
+
+        // Enroll them all with the location.
+        final var proms = new ArrayList<Promise<Void>>();
+        entrantLocations.forEach((email, location) ->
+            proms.add(db.enroll(event.eventID(), email, location))
+        );
+        Promise.all(proms.stream()).await();
+
+        // Make sure the locations are properly available.
+        final var entrantsInfoOpt = db.fetchEventEntrants(event.eventID()).await();
+        assertTrue("Event entrants must be present in DB", entrantsInfoOpt.isPresent());
+        final var entrantsInfo = entrantsInfoOpt.get();
+        entrantLocations.forEach((email, location) ->
+            assertEquals("Stored location must match", entrantsInfo.locations().get(email), location)
+        );
     }
 
     /**
