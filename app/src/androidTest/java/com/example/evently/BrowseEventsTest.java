@@ -15,6 +15,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ExecutionException;
 
+import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.firebase.Timestamp;
@@ -44,7 +45,7 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
             DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault());
     private static final DateTimeFormatter EVENT_DATE_TIME_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
-    private static final Duration EVENT_GAP = Duration.ofHours(2);
+    private static final Duration EVENT_GAP = Duration.ofDays(2);
     private static final Timestamp[] selectionTimes = new Timestamp[] {
         startOfDayTimestamp(now.minusDays(1)),
         startOfDayTimestamp(now.plusDays(1)),
@@ -162,7 +163,10 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
         Thread.sleep(2000);
 
         // Test if each event added shows up on the recyclerview, one of the events is closed
-        for (final var expectedEvent : mockEvents) {
+        for (int i = 0; i < mockEvents.length; i++) {
+            final var expectedEvent = mockEvents[i];
+
+            onView(withId(R.id.event_list)).perform(RecyclerViewActions.scrollToPosition(i));
             if (expectedEvent.name().equals("name")) {
                 assertRecyclerViewItem(
                         R.id.event_list,
