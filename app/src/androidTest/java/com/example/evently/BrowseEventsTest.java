@@ -10,6 +10,7 @@ import static com.example.evently.MatcherUtils.p;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ExecutionException;
@@ -36,25 +37,24 @@ import com.example.evently.ui.entrant.BrowseEventsFragment;
 public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment> {
     private static final EventsDB eventsDB = new EventsDB();
 
-    private static final Instant now = Instant.now();
+    private static final LocalDate now = LocalDate.now();
     // We can use the same times for these tests.\
 
     private static final DateTimeFormatter SELECTION_DATE_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault());
     private static final DateTimeFormatter EVENT_DATE_TIME_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
-
     private static final Duration EVENT_GAP = Duration.ofHours(2);
     private static final Timestamp[] selectionTimes = new Timestamp[] {
-        new Timestamp(now.minus(Duration.ofDays(1))),
-        new Timestamp(now.plus(Duration.ofDays(1))),
-        new Timestamp(now.plus(Duration.ofDays(2))),
-        new Timestamp(now.plus(Duration.ofDays(3))),
-        new Timestamp(now.plus(Duration.ofDays(4))),
-        new Timestamp(now.plus(Duration.ofDays(5))),
-        new Timestamp(now.plus(Duration.ofDays(6))),
-        new Timestamp(now.plus(Duration.ofDays(7))),
-        new Timestamp(now.plus(Duration.ofDays(8)))
+        startOfDayTimestamp(now.minusDays(1)),
+        startOfDayTimestamp(now.plusDays(1)),
+        startOfDayTimestamp(now.plusDays(2)),
+        startOfDayTimestamp(now.plusDays(3)),
+        startOfDayTimestamp(now.plusDays(4)),
+        startOfDayTimestamp(now.plusDays(5)),
+        startOfDayTimestamp(now.plusDays(6)),
+        startOfDayTimestamp(now.plusDays(7)),
+        startOfDayTimestamp(now.plusDays(8))
     };
 
     // Create a few events.
@@ -132,6 +132,10 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
                 "orgEmail",
                 50)
     };
+
+    private static Timestamp startOfDayTimestamp(LocalDate date) {
+        return new Timestamp(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    }
 
     private static Timestamp eventTimeAfter(Timestamp selectionTime) {
         Instant selectionInstant =
