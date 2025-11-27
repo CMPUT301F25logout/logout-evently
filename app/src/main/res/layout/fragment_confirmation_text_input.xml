@@ -30,8 +30,9 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="10"
-        android:background="#f2f0f9"
+        android:background="?attr/colorSurface"
         android:hint="placeholder"
+        android:textColor="?attr/colorOnSurface"
         android:textSize="18sp"
         android:layout_marginHorizontal="15dp">
     </com.google.android.material.textfield.TextInputEditText>
