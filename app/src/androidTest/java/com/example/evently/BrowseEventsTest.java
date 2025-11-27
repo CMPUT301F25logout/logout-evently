@@ -56,7 +56,6 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
         new Timestamp(now.plus(Duration.ofDays(7))),
         new Timestamp(now.plus(Duration.ofDays(8)))
     };
-    private static final Timestamp eventTime = new Timestamp(now.plus(Duration.ofMinutes(10)));
 
     // Create a few events.
     private static final Event[] mockEvents = new Event[] {
