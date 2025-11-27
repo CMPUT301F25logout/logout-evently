@@ -36,6 +36,7 @@ import com.example.evently.data.model.Account;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.data.model.Notification;
+import com.example.evently.data.model.Notification.Channel;
 import com.example.evently.ui.organizer.ManageNotificationsFragment;
 
 /**
@@ -140,28 +141,17 @@ public class ManageNotificationsTest extends EmulatedFragmentTest<ManageNotifica
                 templateNotification(0, Notification.Channel.All)));
         promises.add(notificationDB.storeNotification(
                 templateNotification(1, Notification.Channel.All)));
-        promises.add(notificationDB.storeNotification(
-                templateNotification(3, Notification.Channel.All)));
-        promises.add(notificationDB.storeNotification(
-                templateNotification(7, Notification.Channel.All)));
-        promises.add(notificationDB.storeNotification(
-                templateNotification(8, Notification.Channel.All)));
-        promises.add(notificationDB.storeNotification(
-                templateNotification(1, Notification.Channel.Winners)));
-        promises.add(notificationDB.storeNotification(
-                templateNotification(2, Notification.Channel.Winners)));
-        promises.add(notificationDB.storeNotification(
-                templateNotification(3, Notification.Channel.Winners)));
-        promises.add(notificationDB.storeNotification(
-                templateNotification(4, Notification.Channel.Winners)));
-        promises.add(notificationDB.storeNotification(
-                templateNotification(5, Notification.Channel.Winners)));
-        promises.add(notificationDB.storeNotification(
-                templateNotification(6, Notification.Channel.Winners)));
-        promises.add(notificationDB.storeNotification(
-                templateNotification(7, Notification.Channel.Winners)));
-        promises.add(notificationDB.storeNotification(
-                templateNotification(8, Notification.Channel.Winners)));
+        promises.add(notificationDB.storeNotification(templateNotification(3, Channel.All)));
+        promises.add(notificationDB.storeNotification(templateNotification(7, Channel.All)));
+        promises.add(notificationDB.storeNotification(templateNotification(8, Channel.All)));
+        promises.add(notificationDB.storeNotification(templateNotification(1, Channel.Winners)));
+        promises.add(notificationDB.storeNotification(templateNotification(2, Channel.Winners)));
+        promises.add(notificationDB.storeNotification(templateNotification(3, Channel.Winners)));
+        promises.add(notificationDB.storeNotification(templateNotification(4, Channel.Winners)));
+        promises.add(notificationDB.storeNotification(templateNotification(5, Channel.Winners)));
+        promises.add(notificationDB.storeNotification(templateNotification(6, Channel.Winners)));
+        promises.add(notificationDB.storeNotification(templateNotification(7, Channel.Winners)));
+        promises.add(notificationDB.storeNotification(templateNotification(8, Channel.Winners)));
 
         Promise.all(promises.stream()).await();
     }
@@ -175,13 +165,13 @@ public class ManageNotificationsTest extends EmulatedFragmentTest<ManageNotifica
     public void test_expectNotification_winner() throws InterruptedException {
         // Notifications sent to the Winner channel for won event IDs should show up.
         final var expectedNotifications = new Notification[] {
-            templateNotification(0, Notification.Channel.All),
-            templateNotification(2, Notification.Channel.Winners),
-            templateNotification(3, Notification.Channel.Winners),
-            templateNotification(4, Notification.Channel.Winners),
-            templateNotification(5, Notification.Channel.Winners),
-            templateNotification(6, Notification.Channel.Winners),
-            templateNotification(7, Notification.Channel.Winners)
+            templateNotification(0, Channel.All),
+            templateNotification(2, Channel.Winners),
+            templateNotification(3, Channel.Winners),
+            templateNotification(4, Channel.Winners),
+            templateNotification(5, Channel.Winners),
+            templateNotification(6, Channel.Winners),
+            templateNotification(7, Channel.Winners)
         };
 
         Thread.sleep(2000);
@@ -200,8 +190,8 @@ public class ManageNotificationsTest extends EmulatedFragmentTest<ManageNotifica
     @Test
     public void test_noUnExpectedNotification() throws InterruptedException {
         // Notifications from other people's events should not pop up.
-        Notification notMyEvent1 = templateNotification(8, Notification.Channel.All);
-        Notification notMyEvent2 = templateNotification(1, Notification.Channel.All);
+        Notification notMyEvent1 = templateNotification(8, Channel.All);
+        Notification notMyEvent2 = templateNotification(1, Channel.All);
 
         // Checks that no notifications for other organizer's events show up.
         Thread.sleep(2000);
@@ -215,7 +205,7 @@ public class ManageNotificationsTest extends EmulatedFragmentTest<ManageNotifica
         Thread.sleep(2000);
 
         Event expectedEvent = mockEvents[0];
-        Notification expectedNotif = templateNotification(0, Notification.Channel.All);
+        Notification expectedNotif = templateNotification(0, Channel.All);
 
         // Confirms the notification is in the recycler view.
         assertRecyclerViewItem(
@@ -245,7 +235,7 @@ public class ManageNotificationsTest extends EmulatedFragmentTest<ManageNotifica
      * @param channel The channel of the communication
      * @return a notification for the selected event.
      */
-    private static Notification templateNotification(Integer idx, Notification.Channel channel) {
+    private static Notification templateNotification(Integer idx, Channel channel) {
 
         /**
          * The following code is for generating a UUID based on the inputs to this function, and

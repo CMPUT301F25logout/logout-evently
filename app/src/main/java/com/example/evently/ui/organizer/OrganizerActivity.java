@@ -17,15 +17,4 @@ public class OrganizerActivity extends ArchitectureActivity {
     protected int getGraph() {
         return R.navigation.organizer_graph;
     }
-
-    //    public void onCreate(Bundle savedInstanceState) {
-    //        super.onCreate(savedInstanceState);
-    //
-    //        var intent = getIntent();
-    //        if (intent.hasExtra(IntentConstants.NOTIFICATION_INTENT_ID_KEY)) {
-    //            // We were sent here by clicking on a notification.
-    //            // Navigate to the notification page and let it handle the intent.
-    //            navController.navigate(R.id.nav_notifs, null);
-    //        }
-    //    }
 }

@@ -8,53 +8,42 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 import androidx.fragment.app.DialogFragment;
-
-import com.google.android.material.button.MaterialButton;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.evently.R;
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.NotificationDB;
 import com.example.evently.data.model.Notification;
 import com.example.evently.data.model.Notification.Channel;
+import com.example.evently.databinding.FragmentNotificationThreadBinding;
 import com.example.evently.ui.common.NotificationsFragment;
 
 public class NotificationThread extends DialogFragment {
 
+    private FragmentNotificationThreadBinding binding;
+
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        // Inflates the view, and setups up the local variables
-        View view = inflater.inflate(R.layout.fragment_notification_thread, container, false);
+        // Gets the binding
+        binding = FragmentNotificationThreadBinding.inflate(inflater, container, false);
+        NotificationThreadArgs args = NotificationThreadArgs.fromBundle(getArguments());
         // Gets the eventID, and channel from the fragment.
-        Bundle bundle = getArguments();
-        assert bundle != null;
-        UUID eventID = (UUID) bundle.getSerializable("eventID");
-        Channel channel = Channel.valueOf((String) bundle.getSerializable("channel"));
+        UUID eventID = args.getEventID();
+        Channel channel = Channel.valueOf(args.getChannel());
 
-        // Gets the views
-        TextView eventTitle = view.findViewById(R.id.tvEventTitle);
-        TextView eventChannel = view.findViewById(R.id.tvNotificationChannel);
-        EditText titleText = view.findViewById(R.id.etTitle);
-        EditText descriptionText = view.findViewById(R.id.etDescription);
-        MaterialButton sendNotificationButton = view.findViewById(R.id.btnSendNotification);
-
-        // Creates the notificationThreadRecycler view, and passes it the necessary params
-        ViewThreadNotifications threadNotifications = new ViewThreadNotifications();
-        bundle = new Bundle();
-        bundle.putSerializable("eventID", eventID);
-        bundle.putSerializable("channel", channel.toString());
-        threadNotifications.setArguments(bundle);
+        // Forwards arguments to the
+        ViewThreadNotifications viewThreadNotifications = new ViewThreadNotifications();
+        viewThreadNotifications.setArguments(getArguments());
 
         if (savedInstanceState == null) {
             // Load the notification threads into the container
             getChildFragmentManager()
                     .beginTransaction()
                     .setReorderingAllowed(true)
-                    .add(R.id.notificationThreadContainer, threadNotifications, null)
+                    .add(R.id.notificationThreadContainer, viewThreadNotifications, null)
                     .commit();
         }
 
@@ -62,17 +51,17 @@ public class NotificationThread extends DialogFragment {
         new EventsDB().fetchEvent(eventID).thenRun(event -> {
             event.ifPresent(value -> {
                 String eventText = "Event: " + value.name();
-                eventTitle.setText(eventText);
+                binding.tvEventTitle.setText(eventText);
             });
         });
 
         String channelText = "Channel: " + channel.toString();
-        eventChannel.setText(channelText);
+        binding.tvNotificationChannel.setText(channelText);
 
         // Sets up the button to send a notification when pressed.
-        sendNotificationButton.setOnClickListener(v -> {
-            String title = titleText.getText().toString().strip();
-            String description = descriptionText.getText().toString().strip();
+        binding.btnSendNotification.setOnClickListener(v -> {
+            String title = binding.etTitle.getText().toString().strip();
+            String description = binding.etDescription.getText().toString().strip();
 
             if (title.isEmpty()) {
                 toast("Error: Please enter a title");
@@ -85,10 +74,15 @@ public class NotificationThread extends DialogFragment {
 
             // If notification is valid, it is sent!
             new NotificationDB()
-                    .storeNotification(new Notification(eventID, channel, title, description));
-            toast("Notification sent!");
+                    .storeNotification(new Notification(eventID, channel, title, description))
+                    .thenRun(x -> {
+                        toast("Notification sent!");
+                        NavHostFragment.findNavController(this).navigateUp();
+                    });
         });
-        return view;
+
+        // Returns the view
+        return binding.getRoot();
     }
 
     /**
