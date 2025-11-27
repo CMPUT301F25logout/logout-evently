@@ -8,9 +8,14 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.lang.reflect.Field;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import android.widget.TextView;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.junit.AfterClass;
@@ -30,6 +35,9 @@ import com.example.evently.utils.FirebaseAuthUtils;
 public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFragment> {
 
     private static final EventsDB eventsDB = new EventsDB();
+    private static final DateTimeFormatter DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy/MM/dd");
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     @AfterClass
     public static void tearDown() throws ExecutionException, InterruptedException {
@@ -42,15 +50,16 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         final String name = "UI Test Event";
         final String desc = "Created by CreateEventFragmentTest";
         final String winners = "7";
-        final String date = "2030-01-01";
-        final String time = "12:00:00";
+        final LocalDate selectionDate = LocalDate.of(2030, 1, 1);
+        final LocalDate eventDate = LocalDate.of(2030, 1, 2);
+        final LocalTime eventTime = LocalTime.NOON;
+
+        setEventSchedule(selectionDate, eventDate, eventTime);
 
         // Fill fields
         onView(withId(R.id.etEventName)).perform(replaceText(name), closeSoftKeyboard());
         onView(withId(R.id.etDescription)).perform(replaceText(desc), closeSoftKeyboard());
         onView(withId(R.id.etWinners)).perform(replaceText(winners), closeSoftKeyboard());
-        onView(withId(R.id.etRegDate)).perform(replaceText(date), closeSoftKeyboard());
-        onView(withId(R.id.etRegTime)).perform(replaceText(time), closeSoftKeyboard());
 
         // Submit
         onView(withId(R.id.btnCreate)).perform(click());
@@ -66,11 +75,11 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         final String self = FirebaseAuthUtils.getCurrentEmail();
         final int before = eventsDB.fetchEventsByOrganizers(self).await().size();
 
+        setEventSchedule(LocalDate.of(2030, 1, 1), LocalDate.of(2030, 1, 2), null);
+
         onView(withId(R.id.etEventName)).perform(replaceText("Bad Winners"), closeSoftKeyboard());
         onView(withId(R.id.etDescription)).perform(replaceText("desc"), closeSoftKeyboard());
         onView(withId(R.id.etWinners)).perform(replaceText("abc"), closeSoftKeyboard());
-        onView(withId(R.id.etRegDate)).perform(replaceText("2030-01-01"), closeSoftKeyboard());
-        onView(withId(R.id.etRegTime)).perform(replaceText("12:00:00"), closeSoftKeyboard());
 
         onView(withId(R.id.btnCreate)).perform(click());
 
@@ -83,11 +92,11 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         final String self = FirebaseAuthUtils.getCurrentEmail();
         final int before = eventsDB.fetchEventsByOrganizers(self).await().size();
 
+        setEventSchedule(LocalDate.of(2030, 1, 1), LocalDate.of(2030, 1, 2), LocalTime.of(9, 0));
+
         onView(withId(R.id.etEventName)).perform(replaceText("Bad Wait"), closeSoftKeyboard());
         onView(withId(R.id.etDescription)).perform(replaceText("desc"), closeSoftKeyboard());
         onView(withId(R.id.etWinners)).perform(replaceText("5"), closeSoftKeyboard());
-        onView(withId(R.id.etRegDate)).perform(replaceText("2030-01-01"), closeSoftKeyboard());
-        onView(withId(R.id.etRegTime)).perform(replaceText("12:00:00"), closeSoftKeyboard());
         onView(withId(R.id.etWaitLimit)).perform(replaceText("xyz"), closeSoftKeyboard());
 
         onView(withId(R.id.btnCreate)).perform(click());
@@ -101,14 +110,11 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         final String self = FirebaseAuthUtils.getCurrentEmail();
         final int before = eventsDB.fetchEventsByOrganizers(self).await().size();
 
+        setEventSchedule(LocalDate.of(2030, 1, 2), LocalDate.of(2030, 1, 1), LocalTime.of(12, 0));
+
         onView(withId(R.id.etEventName)).perform(replaceText("Bad Date"), closeSoftKeyboard());
         onView(withId(R.id.etDescription)).perform(replaceText("desc"), closeSoftKeyboard());
         onView(withId(R.id.etWinners)).perform(replaceText("3"), closeSoftKeyboard());
-        onView(withId(R.id.etRegDate))
-                .perform(replaceText("2030-13-40"), closeSoftKeyboard()); // invalid
-        onView(withId(R.id.etRegTime))
-                .perform(replaceText("99:99:99"), closeSoftKeyboard()); // invalid
-
         onView(withId(R.id.btnCreate)).perform(click());
 
         int after = eventsDB.fetchEventsByOrganizers(self).await().size();
@@ -123,5 +129,35 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
     @Override
     protected Class<CreateEventFragment> getFragmentClass() {
         return CreateEventFragment.class;
+    }
+
+    private void setEventSchedule(
+            LocalDate selectionDate, LocalDate eventDate, LocalTime eventTime) {
+        scenario.onFragment(fragment -> {
+            setPrivateField(fragment, "selectionDeadline", selectionDate);
+            setPrivateField(fragment, "eventDate", eventDate);
+            setPrivateField(fragment, "eventTime", eventTime);
+
+            TextView selectionInput = fragment.requireView().findViewById(R.id.etSelectionDeadline);
+            selectionInput.setText(DATE_FORMATTER.format(selectionDate));
+            TextView eventDateInput = fragment.requireView().findViewById(R.id.etEventDate);
+            eventDateInput.setText(DATE_FORMATTER.format(eventDate));
+            TextView eventTimeInput = fragment.requireView().findViewById(R.id.etEventTime);
+            if (eventTime != null) {
+                eventTimeInput.setText(TIME_FORMATTER.format(eventTime));
+            } else {
+                eventTimeInput.setText("");
+            }
+        });
+    }
+
+    private void setPrivateField(CreateEventFragment fragment, String fieldName, Object value) {
+        try {
+            Field field = CreateEventFragment.class.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            field.set(fragment, value);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new IllegalStateException("Unable to set field " + fieldName, e);
+        }
     }
 }
