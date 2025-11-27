@@ -118,10 +118,10 @@ public class EventsDatabaseTest extends FirebaseEmulatorTest {
 
         // A couple sample accounts with locations.
         final var entrantLocations = new HashMap<String, GeoPoint>();
-        entrantLocations.put("foo@bar.com", new GeoPoint(79, 82));
-        entrantLocations.put(FirebaseAuthUtils.getCurrentEmail(), new GeoPoint(42, 42));
-        entrantLocations.put("baz@foo.com", new GeoPoint(8947, 1029));
-        entrantLocations.put("me@example.net", new GeoPoint(42, 42));
+        entrantLocations.put("foo@bar.com", new GeoPoint(79, 82.82));
+        entrantLocations.put(FirebaseAuthUtils.getCurrentEmail(), new GeoPoint(-42.3, 42));
+        entrantLocations.put("baz@foo.com", new GeoPoint(89, -3.14));
+        entrantLocations.put("me@example.net", new GeoPoint(-23.56, 42));
 
         // Enroll them all with the location.
         final var proms = new ArrayList<Promise<Void>>();
