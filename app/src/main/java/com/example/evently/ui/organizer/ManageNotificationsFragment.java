@@ -9,6 +9,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.evently.data.model.Notification;
+import com.example.evently.data.model.Notification.Channel;
 import com.example.evently.ui.common.NotificationsFragment;
 import com.example.evently.utils.FirebaseAuthUtils;
 
@@ -16,8 +17,14 @@ public class ManageNotificationsFragment extends NotificationsFragment {
 
     protected void onNotificationClick(Notification notif) {
 
+        Channel c = notif.channel();
+        Log.d("notif click", "onNotificationClick: " + c);
+        String channelName = c.toString();
+        Log.d("notif click", "channelName: " + channelName);
+
+        // Creates the safe args for the nav-thread
         var action = ManageNotificationsFragmentDirections.actionNavNotifsToNavThread(
-                notif.eventId(), notif.channel().toString());
+                notif.eventId(), channelName);
         NavController navController = NavHostFragment.findNavController(this);
         navController.navigate(action);
     }
