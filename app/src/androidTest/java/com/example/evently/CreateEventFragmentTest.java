@@ -116,7 +116,7 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         onView(withId(R.id.etEventName)).perform(replaceText("Bad Date"), closeSoftKeyboard());
         onView(withId(R.id.etDescription)).perform(replaceText("desc"), closeSoftKeyboard());
         onView(withId(R.id.etWinners)).perform(replaceText("3"), closeSoftKeyboard());
-        onView(withId(R.id.btnCreate)).perform(click());
+        onView(withId(R.id.btnCreate)).perform(scrollTo(), click());
 
         int after = eventsDB.fetchEventsByOrganizers(self).await().size();
         assertEquals(before, after);
