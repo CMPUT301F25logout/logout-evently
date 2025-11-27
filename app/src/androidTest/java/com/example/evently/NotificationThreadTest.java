@@ -98,6 +98,12 @@ public class NotificationThreadTest extends EmulatedFragmentTest<NotificationThr
         Promise.all(notificationDB.nuke(), eventsDB.nuke()).await();
     }
 
+    /**
+     * The following test ensures that a notification with a valid title and description
+     * is stored in the DB.
+     * @throws InterruptedException
+     * @throws ExecutionException
+     */
     @Test
     public void test_valid_notification() throws InterruptedException, ExecutionException {
 
@@ -124,6 +130,11 @@ public class NotificationThreadTest extends EmulatedFragmentTest<NotificationThr
         }));
     }
 
+    /**
+     * The following tests that a notification without a description is not created in the DB
+     * @throws InterruptedException
+     * @throws ExecutionException
+     */
     @Test
     public void test_no_description() throws InterruptedException, ExecutionException {
 
@@ -143,12 +154,17 @@ public class NotificationThreadTest extends EmulatedFragmentTest<NotificationThr
         assertFalse(mine.stream().anyMatch(e -> e.title().equals(title)));
     }
 
+    /**
+     * The following tests that a notification without a title is not stored in the DB.
+     * @throws InterruptedException
+     * @throws ExecutionException
+     */
     @Test
     public void test_no_title() throws InterruptedException, ExecutionException {
 
         final String description = "New Notif without title!";
 
-        // Fill title
+        // Fill description
         onView(withId(R.id.etDescription)).perform(replaceText(description), closeSoftKeyboard());
 
         // Submit
