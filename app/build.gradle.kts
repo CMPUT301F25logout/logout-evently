@@ -125,11 +125,14 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.messaging)
+    implementation(libs.firebase.storage)
+    implementation(libs.firebase.ui.storage)
 
     implementation(libs.credentials)
     implementation(libs.credentials.play.services.auth)
     implementation(libs.googleid)
     implementation(libs.play.services.auth)
+    implementation(libs.play.services.location)
 
     implementation(libs.recyclerview)
     implementation(libs.navigation.fragment)
@@ -141,11 +144,8 @@ dependencies {
     implementation(libs.zxing.android.embedded)
 
     implementation(libs.espresso.core)
-    implementation(libs.firebase.storage)
     implementation(libs.espresso.intents)
     annotationProcessor(libs.compiler)
-    implementation(libs.firebase.ui.storage)
-
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.runner)
