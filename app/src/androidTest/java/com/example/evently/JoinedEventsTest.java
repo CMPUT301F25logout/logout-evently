@@ -39,6 +39,11 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
 
     private static final Instant now = Instant.now();
     // We can use the same times for these tests.
+
+    private static final DateTimeFormatter SELECTION_DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault());
+    private static final DateTimeFormatter EVENT_DATE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
     private static final Timestamp selectionTime = new Timestamp(now.plus(Duration.ofMillis(100)));
     private static final Timestamp eventTime = new Timestamp(now.plus(Duration.ofMinutes(10)));
 
@@ -136,8 +141,6 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
     public void testViewingJoinedEvents() throws InterruptedException {
 
         Thread.sleep(2000);
-        final DateTimeFormatter some_date =
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("UTC"));
 
         Event[] expectedEvents = new Event[] {
             mockEvents[0], mockEvents[2], mockEvents[4], mockEvents[6], mockEvents[8],
@@ -153,7 +156,8 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
                         p(R.id.txtselection_date, "Waitlist closed"),
                         p(
                                 R.id.txtDate,
-                                some_date.format(expectedEvent.eventTime().toInstant())));
+                                EVENT_DATE_TIME_FORMATTER.format(
+                                        expectedEvent.eventTime().toInstant())));
             } else {
                 assertRecyclerViewItem(
                         R.id.event_list,
@@ -161,12 +165,13 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
                         p(
                                 R.id.txtselection_date,
                                 MessageFormat.format(
-                                        "Selection on {0}",
-                                        some_date.format(
+                                        "Selection date: {0}",
+                                        SELECTION_DATE_FORMATTER.format(
                                                 expectedEvent.selectionTime().toInstant()))),
                         p(
                                 R.id.txtDate,
-                                some_date.format(expectedEvent.eventTime().toInstant())));
+                                EVENT_DATE_TIME_FORMATTER.format(
+                                        expectedEvent.eventTime().toInstant())));
             }
         }
         onView(withId(R.id.event_list)).check(matches(isDisplayed()));

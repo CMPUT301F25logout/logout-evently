@@ -4,6 +4,7 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.replaceText;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -62,7 +63,7 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         onView(withId(R.id.etWinners)).perform(replaceText(winners), closeSoftKeyboard());
 
         // Submit
-        onView(withId(R.id.btnCreate)).perform(click());
+        onView(withId(R.id.btnCreate)).perform(scrollTo(), click());
 
         // Verify persisted to Firestore
         List<Event> mine = eventsDB.fetchEventsByOrganizers(self).await();
@@ -81,7 +82,7 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         onView(withId(R.id.etDescription)).perform(replaceText("desc"), closeSoftKeyboard());
         onView(withId(R.id.etWinners)).perform(replaceText("abc"), closeSoftKeyboard());
 
-        onView(withId(R.id.btnCreate)).perform(click());
+        onView(withId(R.id.btnCreate)).perform(scrollTo(), click());
 
         int after = eventsDB.fetchEventsByOrganizers(self).await().size();
         assertEquals(before, after);
@@ -99,7 +100,7 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         onView(withId(R.id.etWinners)).perform(replaceText("5"), closeSoftKeyboard());
         onView(withId(R.id.etWaitLimit)).perform(replaceText("xyz"), closeSoftKeyboard());
 
-        onView(withId(R.id.btnCreate)).perform(click());
+        onView(withId(R.id.btnCreate)).perform(scrollTo(), click());
 
         int after = eventsDB.fetchEventsByOrganizers(self).await().size();
         assertEquals(before, after);
