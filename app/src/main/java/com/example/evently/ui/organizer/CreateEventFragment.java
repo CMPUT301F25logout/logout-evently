@@ -161,14 +161,13 @@ public class CreateEventFragment extends Fragment {
                 return;
             }
 
-            String organizer = FirebaseAuthUtils.getCurrentEmail();
-
             // For now, eventTime == selectionTime + 2 days (until organizer add event date/time
             // fields)
             Event created = new Event(
                     name,
                     desc,
                     Category.SPORTS,
+                    false,
                     new Timestamp(selectionTime),
                     new Timestamp(selectionTime.plus(Duration.ofDays(2))),
                     FirebaseAuthUtils.getCurrentEmail(),
