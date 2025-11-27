@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.evently.ui.common.ConfirmFragmentNoInput;
 import com.google.firebase.storage.StorageReference;
 
 import com.example.evently.R;
@@ -27,8 +28,7 @@ import com.example.evently.ui.common.ConfirmDeleteDialog;
 /**
  * A fragment representing a list of event posters/images the admin can browse and interact with.
  */
-public class AdminBrowseImagesFragment extends Fragment
-        implements ConfirmDeleteDialog.ConfirmDeleteListener {
+public class AdminBrowseImagesFragment extends Fragment {
 
     private ImageRecyclerViewAdapter adapter;
     private RecyclerView recyclerView;
@@ -49,6 +49,15 @@ public class AdminBrowseImagesFragment extends Fragment
         DialogFragment dialog = new ConfirmDeleteDialog();
         selectedEventPoster = eventID;
 
+        ConfirmFragmentNoInput confirmFragment = ConfirmFragmentNoInput.newInstance(
+                "Delete Image",
+                "Are you sure you want to delete this image?");
+        confirmFragment.show(getParentFragmentManager(), "confirmNoInput");
+        getParentFragmentManager()
+                .setFragmentResultListener(
+                        ConfirmFragmentNoInput.requestKey, this, this::onDialogConfirmClick
+                );
+        /*
         // Make a bundle to store the args
         eventsDB.fetchEvent(eventID).thenRun(event -> {
             String title = "Delete Event Poster";
@@ -59,6 +68,7 @@ public class AdminBrowseImagesFragment extends Fragment
             dialog.setArguments(args);
             dialog.show(getParentFragmentManager(), "ConfirmDeleteDialog");
         });
+         */
     }
 
     /**
@@ -102,10 +112,8 @@ public class AdminBrowseImagesFragment extends Fragment
     /**
      * The dialog closed with a positive click (confirm).
      * Delete the event poster from the eventsDB and update the dictionary as well as the adapter.
-     * @param dialog The dialog that was showed.
      */
-    @Override
-    public void onDialogConfirmClick(DialogFragment dialog) {
+    public void onDialogConfirmClick(String s, Bundle bundle) {
         // Delete the event poster
         eventsDB.deleteEvent(selectedEventPoster);
 
@@ -116,11 +124,4 @@ public class AdminBrowseImagesFragment extends Fragment
         Toast.makeText(requireContext(), "Image deleted.", Toast.LENGTH_SHORT).show();
     }
 
-    /**
-     * The dialog closed with a negative click (cancel).
-     * Do nothing.
-     * @param dialog The dialog that was showed
-     */
-    @Override
-    public void onDialogCancelClick(DialogFragment dialog) {}
 }
