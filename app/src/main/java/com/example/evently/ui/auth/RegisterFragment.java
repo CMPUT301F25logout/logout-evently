@@ -24,7 +24,10 @@ import androidx.fragment.app.Fragment;
 import com.google.firebase.auth.AuthResult;
 
 import com.example.evently.databinding.FragmentRegisterBinding;
+import com.example.evently.ui.common.ConfirmFragmentEmailInput;
+import com.example.evently.ui.common.ConfirmFragmentTextInput;
 import com.example.evently.utils.AuthConstants;
+import com.example.evently.utils.FirebaseAuthUtils;
 
 /**
  * This fragment manages the register form. It should solely be used in AuthActivity.
@@ -111,6 +114,11 @@ public class RegisterFragment extends Fragment {
             loadingProgressBar.setVisibility(View.VISIBLE);
             tryRegistering(0);
         });
+
+        binding.dumbRegister.setOnClickListener(v -> {
+            loadingProgressBar.setVisibility(View.VISIBLE);
+            dumbRegister();
+        });
     }
 
     private boolean validateInputs() {
@@ -121,6 +129,42 @@ public class RegisterFragment extends Fragment {
             return false;
         }
         return true;
+    }
+
+    private void dumbRegister() {
+        final var nameInp = binding.name.getText().toString().strip();
+        final var phoneInp = binding.phone.getText().toString().strip();
+        final var fragManager = getChildFragmentManager();
+        final var confirmFragment = new ConfirmFragmentEmailInput();
+        final var fragmentArgs = ConfirmFragmentTextInput.instanceArgs(
+                "Sign up", "Enter email", "sample@example.com");
+        confirmFragment.setArguments(fragmentArgs);
+        confirmFragment.show(fragManager, "signupEmailInput");
+
+        fragManager.setFragmentResultListener(
+                ConfirmFragmentTextInput.requestKey, this, (requestKey, result) -> {
+                    final var email = result.getString(ConfirmFragmentTextInput.inputKey);
+                    assert email != null;
+
+                    FirebaseAuthUtils.dumbSignUp(requireContext(), email)
+                            .thenRun(resPair -> {
+                                final var authRes = resPair.first;
+                                final var deviceID = resPair.second;
+                                this.successfulLogin(nameInp, phoneInp, authRes, deviceID);
+                            })
+                            .catchE(e -> {
+                                loadingProgressBar.setVisibility(View.INVISIBLE);
+                                Log.e(
+                                        "AuthActivity.RegisterFragment",
+                                        Objects.requireNonNullElse(
+                                                e.getLocalizedMessage(), e.toString()));
+                                Toast.makeText(
+                                                requireContext(),
+                                                "Account already exists",
+                                                Toast.LENGTH_SHORT)
+                                        .show();
+                            });
+                });
     }
 
     private void tryRegistering(int retryCount) {
@@ -170,15 +214,20 @@ public class RegisterFragment extends Fragment {
     }
 
     private void successfulLogin(String name, String phone, AuthResult res) {
+        successfulLogin(name, phone, res, null);
+    }
+
+    private void successfulLogin(String name, String phone, AuthResult res, String deviceID) {
         // Login successful - let the parent activity know.
         // Obtain the email from firebase user. It should be there since this was a google sign in.
         var user = Objects.requireNonNull(res.getUser());
         var email = Objects.requireNonNull(user.getEmail());
         // Creates the bundle
         var dbData = new Bundle();
-        dbData.putString("email", email.toString());
+        dbData.putString("email", email);
         dbData.putString("name", name);
         dbData.putString("phone", phone);
+        dbData.putString("deviceID", deviceID);
         getParentFragmentManager().setFragmentResult(resultKey, dbData);
     }
 
