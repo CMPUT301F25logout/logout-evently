@@ -47,4 +47,6 @@
     <string name="previous_notifications">Previous Notifications</string>
     <string name="description">Description</string>
     <string name="notification_title">Notification Title</string>
+    <string name="action_dumb_login">Sign in with Device ID</string>
+    <string name="dumb_register_txt">Sign up with Device ID</string>
 </resources>
