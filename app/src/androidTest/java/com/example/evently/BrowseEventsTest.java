@@ -43,6 +43,8 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
             DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault());
     private static final DateTimeFormatter EVENT_DATE_TIME_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
+
+    private static final Duration EVENT_GAP = Duration.ofHours(2);
     private static final Timestamp[] selectionTimes = new Timestamp[] {
         new Timestamp(now.minus(Duration.ofDays(1))),
         new Timestamp(now.plus(Duration.ofDays(1))),
@@ -63,7 +65,7 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
                 "description",
                 Category.EDUCATIONAL,
                 selectionTimes[0],
-                eventTime,
+                eventTimeAfter(selectionTimes[0]),
                 "orgEmail",
                 50),
         new Event(
@@ -71,7 +73,7 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
                 "description1",
                 Category.EDUCATIONAL,
                 selectionTimes[1],
-                new Timestamp(now.plus(Duration.ofMinutes(11))),
+                eventTimeAfter(selectionTimes[1]),
                 "orgEmail",
                 50),
         new Event(
@@ -79,7 +81,7 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
                 "description2",
                 Category.EDUCATIONAL,
                 selectionTimes[2],
-                new Timestamp(now.plus(Duration.ofMinutes(12))),
+                eventTimeAfter(selectionTimes[2]),
                 "orgEmail",
                 50),
         new Event(
@@ -87,7 +89,7 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
                 "description3",
                 Category.EDUCATIONAL,
                 selectionTimes[3],
-                new Timestamp(now.plus(Duration.ofMinutes(13))),
+                eventTimeAfter(selectionTimes[3]),
                 "orgEmail",
                 50),
         new Event(
@@ -95,7 +97,7 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
                 "description4",
                 Category.EDUCATIONAL,
                 selectionTimes[4],
-                new Timestamp(now.plus(Duration.ofMinutes(14))),
+                eventTimeAfter(selectionTimes[4]),
                 "orgEmail",
                 50),
         new Event(
@@ -103,7 +105,7 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
                 "description5",
                 Category.EDUCATIONAL,
                 selectionTimes[5],
-                new Timestamp(now.plus(Duration.ofMinutes(15))),
+                eventTimeAfter(selectionTimes[5]),
                 "orgEmail",
                 50),
         new Event(
@@ -111,7 +113,7 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
                 "description6",
                 Category.EDUCATIONAL,
                 selectionTimes[6],
-                new Timestamp(now.plus(Duration.ofMinutes(16))),
+                eventTimeAfter(selectionTimes[6]),
                 "orgEmail",
                 50),
         new Event(
@@ -119,7 +121,7 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
                 "description7",
                 Category.EDUCATIONAL,
                 selectionTimes[7],
-                new Timestamp(now.plus(Duration.ofMinutes(17))),
+                eventTimeAfter(selectionTimes[7]),
                 "orgEmail",
                 50),
         new Event(
@@ -127,10 +129,16 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
                 "description8",
                 Category.EDUCATIONAL,
                 selectionTimes[8],
-                new Timestamp(now.plus(Duration.ofMinutes(18))),
+                eventTimeAfter(selectionTimes[8]),
                 "orgEmail",
                 50)
     };
+
+    private static Timestamp eventTimeAfter(Timestamp selectionTime) {
+        Instant selectionInstant =
+                Instant.ofEpochSecond(selectionTime.getSeconds(), selectionTime.getNanoseconds());
+        return new Timestamp(selectionInstant.plus(EVENT_GAP));
+    }
 
     @BeforeClass
     public static void storeEvents() throws ExecutionException, InterruptedException {
