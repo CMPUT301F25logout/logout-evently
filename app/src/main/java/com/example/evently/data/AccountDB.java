@@ -72,7 +72,7 @@ public class AccountDB {
         DocumentReference docRef = accountsRef.document(a.email());
         final var obj = a.toHashMap();
         obj.put("deviceID", deviceID);
-        return promise(docRef.set(a.toHashMap()));
+        return promise(docRef.set(obj));
     }
 
     /**

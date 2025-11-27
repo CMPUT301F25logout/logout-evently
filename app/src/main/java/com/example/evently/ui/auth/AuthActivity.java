@@ -100,6 +100,7 @@ public class AuthActivity extends AppCompatActivity {
     private void showRegisterForm() {
         binding.login.setVisibility(View.INVISIBLE);
         binding.registerForm.setVisibility(View.INVISIBLE);
+        binding.dumbLogin.setVisibility(View.INVISIBLE);
 
         getSupportFragmentManager()
                 .beginTransaction()
@@ -125,6 +126,7 @@ public class AuthActivity extends AppCompatActivity {
                             // Expose buttons to manually sign in or register.
                             binding.login.setVisibility(View.VISIBLE);
                             binding.registerForm.setVisibility(View.VISIBLE);
+                            binding.dumbLogin.setVisibility(View.VISIBLE);
                         }
                         case GetCredentialInterruptedException ie -> {
                             // Retry (unless we retried too many times already).
@@ -171,6 +173,7 @@ public class AuthActivity extends AppCompatActivity {
 
                     binding.login.setVisibility(View.VISIBLE);
                     binding.registerForm.setVisibility(View.VISIBLE);
+                    binding.dumbLogin.setVisibility(View.VISIBLE);
                     hasRegisterForm = false;
 
                     final var fragMgr = getSupportFragmentManager();
