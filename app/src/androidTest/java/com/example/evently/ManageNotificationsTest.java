@@ -137,10 +137,8 @@ public class ManageNotificationsTest extends EmulatedFragmentTest<ManageNotifica
 
         final var promises = new ArrayList<Promise<Void>>();
         // Notifications to the winners channel (for every event, except event 0).
-        promises.add(notificationDB.storeNotification(
-                templateNotification(0, Notification.Channel.All)));
-        promises.add(notificationDB.storeNotification(
-                templateNotification(1, Notification.Channel.All)));
+        promises.add(notificationDB.storeNotification(templateNotification(0, Channel.All)));
+        promises.add(notificationDB.storeNotification(templateNotification(1, Channel.All)));
         promises.add(notificationDB.storeNotification(templateNotification(3, Channel.All)));
         promises.add(notificationDB.storeNotification(templateNotification(7, Channel.All)));
         promises.add(notificationDB.storeNotification(templateNotification(8, Channel.All)));
