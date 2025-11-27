@@ -19,6 +19,7 @@ import com.example.evently.R;
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.NotificationDB;
 import com.example.evently.data.model.Notification;
+import com.example.evently.data.model.Notification.Channel;
 import com.example.evently.ui.common.NotificationsFragment;
 
 public class NotificationThread extends DialogFragment {
@@ -32,8 +33,7 @@ public class NotificationThread extends DialogFragment {
         Bundle bundle = getArguments();
         assert bundle != null;
         UUID eventID = (UUID) bundle.getSerializable("eventID");
-        Notification.Channel channel = (Notification.Channel) bundle.getSerializable("channel");
-        assert ((channel != null) && (eventID != null));
+        Channel channel = Channel.valueOf((String) bundle.getSerializable("channel"));
 
         // Gets the views
         TextView eventTitle = view.findViewById(R.id.tvEventTitle);

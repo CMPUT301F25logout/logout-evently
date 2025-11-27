@@ -17,7 +17,7 @@ public class ManageNotificationsFragment extends NotificationsFragment {
     protected void onNotificationClick(Notification notif) {
 
         var action = ManageNotificationsFragmentDirections.actionNavNotifsToNavThread(
-                notif.eventId(), notif.channel());
+                notif.eventId(), notif.channel().toString());
         NavController navController = NavHostFragment.findNavController(this);
         navController.navigate(action);
     }

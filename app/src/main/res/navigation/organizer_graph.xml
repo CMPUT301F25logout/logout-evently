@@ -60,6 +60,6 @@
             app:argType="java.util.UUID" />
         <argument
             android:name="channel"
-            app:argType="com.example.evently.data.model.Notification.Channel" />
+            app:argType="string" />
     </fragment>
 </navigation>
