@@ -46,7 +46,6 @@ public class AdminBrowseImagesFragment extends Fragment {
      */
     protected void onImageClick(UUID eventID) {
         // Show the confirm deletion dialog
-        DialogFragment dialog = new ConfirmDeleteDialog();
         selectedEventPoster = eventID;
 
         ConfirmFragmentNoInput confirmFragment = ConfirmFragmentNoInput.newInstance(
@@ -57,18 +56,6 @@ public class AdminBrowseImagesFragment extends Fragment {
                 .setFragmentResultListener(
                         ConfirmFragmentNoInput.requestKey, this, this::onDialogConfirmClick
                 );
-        /*
-        // Make a bundle to store the args
-        eventsDB.fetchEvent(eventID).thenRun(event -> {
-            String title = "Delete Event Poster";
-            String message = "Are you sure you want to delete " + event.get().name();
-            Bundle args = new Bundle();
-            args.putString("title", title);
-            args.putString("message", message);
-            dialog.setArguments(args);
-            dialog.show(getParentFragmentManager(), "ConfirmDeleteDialog");
-        });
-         */
     }
 
     /**
