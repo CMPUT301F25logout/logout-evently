@@ -24,6 +24,7 @@ import com.example.evently.data.model.Account;
 import com.example.evently.databinding.ActivityAuthBinding;
 import com.example.evently.ui.entrant.EntrantActivity;
 import com.example.evently.utils.AuthConstants;
+import com.example.evently.utils.FirebaseAuthUtils;
 
 /**
  * The overarching activity for managing authentication. This is the activity launched
@@ -62,8 +63,9 @@ public class AuthActivity extends AppCompatActivity {
 
         // Buttons for login/signup.
         binding.login.setOnClickListener(v -> tryLoggingIn(0));
-        binding.dumbLogin.setOnClickListener(
-                v -> firebaseLogin.launchDumbLogin(false, this::handleAuthSuccess, e -> {
+        binding.dumbLogin.setOnClickListener(v -> FirebaseAuthUtils.dumbLogin(this)
+                .thenRun(this::handleAuthSuccess)
+                .catchE(e -> {
                     Log.w("AuthActivity", "Exception during dumb login: " + e);
                     Toast.makeText(
                                     this,
@@ -180,12 +182,16 @@ public class AuthActivity extends AppCompatActivity {
                     // If user is trying to register and not in DB, we register them.
                     String name = bundle.getString("name");
                     String phone = bundle.getString("phone");
+                    // May be null.
+                    String deviceID = bundle.getString("deviceID");
 
                     // If user is not found, create an account for them with the new info
                     Account newAccount =
                             new Account(email, name, Optional.ofNullable(phone), email);
 
-                    accountDB.storeAccount(newAccount).thenRun(v -> this.successfulTransition());
+                    accountDB
+                            .storeAccount(newAccount, deviceID)
+                            .thenRun(v -> this.successfulTransition());
                 });
     }
 

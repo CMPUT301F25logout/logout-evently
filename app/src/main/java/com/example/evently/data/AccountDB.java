@@ -65,7 +65,13 @@ public class AccountDB {
      * @return Reference to the concurrent task.
      */
     public Promise<Void> storeAccount(Account a) {
+        return storeAccount(a, null);
+    }
+
+    public Promise<Void> storeAccount(Account a, String deviceID) {
         DocumentReference docRef = accountsRef.document(a.email());
+        final var obj = a.toHashMap();
+        obj.put("deviceID", deviceID);
         return promise(docRef.set(a.toHashMap()));
     }
 
@@ -77,6 +83,18 @@ public class AccountDB {
     public PromiseOpt<Account> fetchAccount(String email) {
         return promiseOpt(
                 promise(accountsRef.document(email).get()).map(AccountDB::getAccountFromSnapshot));
+    }
+
+    public PromiseOpt<Account> fetchAccountByDeviceID(String deviceID) {
+        final var prom =
+                promise(accountsRef.whereEqualTo("deviceID", deviceID).limit(1).get());
+        return promiseOpt(prom.map(qs -> {
+            if (qs.isEmpty()) {
+                return Optional.empty();
+            } else {
+                return getAccountFromSnapshot(qs.getDocuments().get(0));
+            }
+        }));
     }
 
     /**

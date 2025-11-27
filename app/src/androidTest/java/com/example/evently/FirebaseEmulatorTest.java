@@ -12,6 +12,7 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
@@ -59,10 +60,10 @@ public abstract class FirebaseEmulatorTest {
         }
         // Set up the default mock account + authenticate.
         // Register in firebase auth.
-        final var instrumentation = InstrumentationRegistry.getInstrumentation();
+        final var ctx = InstrumentationRegistry.getInstrumentation().getContext();
+
         try {
-            FirebaseAuthUtils.dumbLogin(instrumentation.getContext(), defaultMockEmail, true)
-                    .await();
+            FirebaseAuthUtils.dumbSignUp(ctx, defaultMockEmail).await();
         } catch (ExecutionException execExc) {
             // We may safely ignore collision (it's already created).
             if (!(execExc.getCause() instanceof FirebaseAuthUserCollisionException)) {
@@ -70,9 +71,17 @@ public abstract class FirebaseEmulatorTest {
                 throw execExc;
             }
         }
-        // Login with this account.
-        FirebaseAuthUtils.dumbLogin(instrumentation.getContext(), defaultMockEmail, false)
+        // Register it in the AccountsDB.
+        new AccountDB()
+                .storeAccount(defaultMockAccount, FirebaseAuthUtils.getDeviceID(ctx))
                 .await();
+        // Login with this account.
+        FirebaseAuthUtils.dumbLogin(ctx).await();
+    }
+
+    @AfterClass
+    public static void tearDownEmulator() throws InterruptedException, ExecutionException {
+        new AccountDB().deleteAccount(defaultMockAccount.email()).await();
     }
 
     @Before
@@ -80,17 +89,15 @@ public abstract class FirebaseEmulatorTest {
         // Create the mock accounts and register them in our DB.
         final var accountDB = new AccountDB();
         final var accounts = this.extraMockAccounts();
-        accounts.add(defaultMockAccount);
 
         Promise.all(accounts.stream().map(accountDB::storeAccount)).await();
     }
 
     @After
-    public void tearDownAccount() throws ExecutionException, InterruptedException {
+    public void tearDownAccounts() throws ExecutionException, InterruptedException {
         // Remove the mock accounts from DB.
         final var accounts = this.extraMockAccounts();
         final var accountDB = new AccountDB();
-        accounts.add(defaultMockAccount);
 
         Promise.all(accounts.stream().map(acc -> accountDB.deleteAccount(acc.email())))
                 .await();
@@ -101,7 +108,6 @@ public abstract class FirebaseEmulatorTest {
      */
     protected void signBackIn() throws ExecutionException, InterruptedException {
         final var instrumentation = InstrumentationRegistry.getInstrumentation();
-        FirebaseAuthUtils.dumbLogin(instrumentation.getContext(), defaultMockEmail, false)
-                .await();
+        FirebaseAuthUtils.dumbLogin(instrumentation.getContext()).await();
     }
 }

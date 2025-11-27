@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.CancellationSignal;
 import android.provider.Settings;
+import android.util.Pair;
 import androidx.annotation.NonNull;
 import androidx.credentials.Credential;
 import androidx.credentials.CredentialManager;
@@ -44,21 +45,31 @@ public final class FirebaseAuthUtils {
     }
 
     /**
-     * Make the firebase auth instance log in (or sign up) using device ID with the given email.
-     * @param email Email of the user.
-     * @param newUser Whether or not this is a new user (sign up).
-     * @return Promise of logging in (or signing up).
+     * Make the firebase auth instance log in using device ID.
+     * @return Promise of logging in.
      */
-    public static Promise<AuthResult> dumbLogin(Context ctx, String email, boolean newUser) {
-        var auth = FirebaseAuth.getInstance();
+    public static Promise<AuthResult> dumbLogin(Context ctx) {
+        final var auth = FirebaseAuth.getInstance();
+        final var accountDB = new AccountDB();
+        final var deviceID = getDeviceID(ctx);
+        return accountDB.fetchAccountByDeviceID(deviceID).then(accOpt -> {
+            if (accOpt.isEmpty()) {
+                throw new IllegalArgumentException("No such account");
+            }
+            return promise(auth.signInWithEmailAndPassword(accOpt.get().email(), deviceID));
+        });
+    }
 
-        final var deviceID =
-                Settings.Secure.getString(ctx.getContentResolver(), Settings.Secure.ANDROID_ID);
-        // Either sign up or sign in based on what we are asked of.
-        return promise(
-                newUser
-                        ? auth.createUserWithEmailAndPassword(email, deviceID)
-                        : auth.signInWithEmailAndPassword(email, deviceID));
+    /**
+     * Make the firebase auth instance sign up using email device ID.
+     * @return Promise of signing up.
+     */
+    public static Promise<Pair<AuthResult, String>> dumbSignUp(Context ctx, String email) {
+        final var auth = FirebaseAuth.getInstance();
+        final var deviceID = getDeviceID(ctx);
+
+        return promise(auth.createUserWithEmailAndPassword(email, deviceID))
+                .with(Promise.of(deviceID));
     }
 
     /**
@@ -73,6 +84,10 @@ public final class FirebaseAuthUtils {
                 .get(0)
                 .getProviderId()
                 .equals(EmailAuthProvider.PROVIDER_ID);
+    }
+
+    public static String getDeviceID(Context ctx) {
+        return Settings.Secure.getString(ctx.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 
     /**

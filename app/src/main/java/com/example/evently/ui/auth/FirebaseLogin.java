@@ -25,9 +25,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 
 import com.example.evently.BuildConfig;
-import com.example.evently.ui.common.ConfirmFragmentEmailInput;
-import com.example.evently.ui.common.ConfirmFragmentTextInput;
-import com.example.evently.utils.FirebaseAuthUtils;
 
 /**
  * Utility class for handling sign in/register with google using Firebase auth.
@@ -57,33 +54,6 @@ class FirebaseLogin {
      */
     protected boolean isLoggedIn() {
         return mAuth.getCurrentUser() != null;
-    }
-
-    /**
-     * Launch a Login or sign up flow the dumb, stupid, total anti-pattern way. This is it folks, the greatest demonstration of
-     * what university teaches you: how to be a software engineer that is guaranteed to code up garbage.
-     * @param newUser Whether or not we are dealing with a brand new user. Set this to false for logging in, true for signing up.
-     * @param onSuccess Handler in case of successful login or signup.
-     * @param onException Handler in case of exception.
-     */
-    protected void launchDumbLogin(
-            boolean newUser, Consumer<AuthResult> onSuccess, Consumer<Exception> onException) {
-        final var fragManager = act.getSupportFragmentManager();
-        final var confirmFragment = new ConfirmFragmentEmailInput();
-        final var fragmentArgs = ConfirmFragmentTextInput.instanceArgs(
-                "Sign in", "Enter email", "sample@example.com");
-        confirmFragment.setArguments(fragmentArgs);
-        confirmFragment.show(fragManager, "loginEmailInput");
-
-        fragManager.setFragmentResultListener(
-                ConfirmFragmentTextInput.requestKey, act, (requestKey, result) -> {
-                    final var email = result.getString(ConfirmFragmentTextInput.inputKey);
-                    assert email != null;
-
-                    FirebaseAuthUtils.dumbLogin(act, email, newUser)
-                            .thenRun(onSuccess)
-                            .catchE(onException);
-                });
     }
 
     /**
