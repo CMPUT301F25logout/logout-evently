@@ -46,7 +46,7 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
             DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault());
     private static final DateTimeFormatter EVENT_DATE_TIME_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
-    private static final Duration EVENT_GAP = Duration.ofDays(2);
+    private static final Duration EVENT_GAP = Duration.ofHours(2);
     private static final Timestamp[] selectionTimes = new Timestamp[] {
         startOfDayTimestamp(now.minusDays(1)),
         startOfDayTimestamp(now.plusDays(1)),
@@ -169,10 +169,11 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
         };
 
         // Test if every other event is enrolled by the user
-        for (int i = 0; i < mockEvents.length; i++) {
-            final var expectedEvent = mockEvents[i];
+        for (int i = 0; i < expectedEvents.length; i++) {
+            var expectedEvent = expectedEvents[i];
 
             onView(withId(R.id.event_list)).perform(RecyclerViewActions.scrollToPosition(i));
+
             if (expectedEvent.name().equals("name")) {
                 assertRecyclerViewItem(
                         R.id.event_list,
