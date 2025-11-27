@@ -45,7 +45,7 @@ public class ConfirmFragmentTextInput extends DialogFragment {
             String hintText,
             String cancelText,
             String confirmText,
-            String validateType) {
+            TextInputValidator validateType) {
         var fragment = new ConfirmFragmentTextInput();
         Bundle args = new Bundle();
         args.putString(headerKey, headerText);
@@ -53,7 +53,7 @@ public class ConfirmFragmentTextInput extends DialogFragment {
         args.putString(cancelKey, cancelText);
         args.putString(confirmKey, confirmText);
         args.putString(hintKey, hintText);
-        args.putString(validateKey, validateType);
+        args.putSerializable(validateKey, validateType);
         fragment.setArguments(args);
         return fragment;
     }
@@ -67,7 +67,10 @@ public class ConfirmFragmentTextInput extends DialogFragment {
      * @return new ConfirmFragmentTextInput instance
      */
     public static ConfirmFragmentTextInput newInstance(
-            String headerText, String messageText, String hintText, String validateType) {
+            String headerText,
+            String messageText,
+            String hintText,
+            TextInputValidator validateType) {
         return newInstance(headerText, messageText, hintText, null, null, validateType);
     }
 
@@ -121,7 +124,9 @@ public class ConfirmFragmentTextInput extends DialogFragment {
         TextInputEditText textEdit = view.findViewById(R.id.text_field);
         Button cancel = view.findViewById(R.id.cancel_button);
         Button confirm = view.findViewById(R.id.confirm_button);
-        String validateType = args.getString(validateKey, TextInputValidator.VALIDATE_STRING);
+        TextInputValidator validateType = (TextInputValidator) args.getSerializable(validateKey);
+
+        if (validateType == null) throw new RuntimeException("No given validation type");
 
         header.setText(args.getString(headerKey));
         message.setText(args.getString(messageKey));
@@ -138,7 +143,8 @@ public class ConfirmFragmentTextInput extends DialogFragment {
             }
             Bundle input = new Bundle();
             String inputText = editText.toString();
-            if (TextInputValidator.isValid(inputText, validateType)) {
+
+            if (validateType.toPattern().matcher(inputText).matches()) {
                 input.putString(inputKey, textEdit.getText().toString());
                 getParentFragmentManager().setFragmentResult(requestKey, input);
                 dismiss();

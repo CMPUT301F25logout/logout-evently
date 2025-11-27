@@ -87,7 +87,7 @@ public class EditProfileFragment extends Fragment {
                     "Change Name",
                     "Please enter your new name below.",
                     "Jane Doe",
-                    TextInputValidator.VALIDATE_NAME);
+                    TextInputValidator.NAME);
             confirmFragment.show(getParentFragmentManager(), "confirmTextInput");
 
             getParentFragmentManager()
@@ -116,7 +116,7 @@ public class EditProfileFragment extends Fragment {
                     "Change Email",
                     "Please enter your new email below.",
                     "Sample@example.com",
-                    TextInputValidator.VALIDATE_EMAIL);
+                    TextInputValidator.EMAIL);
             confirmFragment.show(getParentFragmentManager(), "confirmTextInput");
 
             getParentFragmentManager()
@@ -143,7 +143,7 @@ public class EditProfileFragment extends Fragment {
                     "Change Phone Number",
                     "Please enter your new phone number below.",
                     "(000) 000-0000",
-                    TextInputValidator.VALIDATE_PHONE);
+                    TextInputValidator.PHONE);
             confirmFragment.show(getParentFragmentManager(), "confirmTextInput");
 
             getParentFragmentManager()
