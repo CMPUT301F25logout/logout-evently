@@ -10,12 +10,12 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.evently.utils.GlideUtils;
 import com.google.firebase.storage.StorageReference;
 
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.databinding.FragmentImageRowBinding;
+import com.example.evently.utils.GlideUtils;
 
 /**
  * {@link RecyclerView.Adapter} that can display an {@link Event}'s poster.

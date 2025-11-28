@@ -13,17 +13,15 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.evently.ui.common.ConfirmFragmentNoInput;
 import com.google.firebase.storage.StorageReference;
 
 import com.example.evently.R;
 import com.example.evently.data.EventsDB;
-import com.example.evently.ui.common.ConfirmDeleteDialog;
+import com.example.evently.ui.common.ConfirmFragmentNoInput;
 
 /**
  * A fragment representing a list of event posters/images the admin can browse and interact with.
@@ -49,13 +47,11 @@ public class AdminBrowseImagesFragment extends Fragment {
         selectedEventPoster = eventID;
 
         ConfirmFragmentNoInput confirmFragment = ConfirmFragmentNoInput.newInstance(
-                "Delete Image",
-                "Are you sure you want to delete this image?");
+                "Delete Image", "Are you sure you want to delete this image?");
         confirmFragment.show(getParentFragmentManager(), "confirmNoInput");
         getParentFragmentManager()
                 .setFragmentResultListener(
-                        ConfirmFragmentNoInput.requestKey, this, this::onDialogConfirmClick
-                );
+                        ConfirmFragmentNoInput.requestKey, this, this::onDialogConfirmClick);
     }
 
     /**
@@ -97,10 +93,11 @@ public class AdminBrowseImagesFragment extends Fragment {
     }
 
     /**
-     * The dialog closed with a positive click (confirm).
+     * The dialog closed with a confirm click.
      * Delete the event poster from the eventsDB and update the dictionary as well as the adapter.
      */
     public void onDialogConfirmClick(String s, Bundle bundle) {
+        if (!bundle.getBoolean(ConfirmFragmentNoInput.inputKey)) return;
         // Delete the event poster
         eventsDB.deleteEvent(selectedEventPoster);
 
@@ -110,5 +107,4 @@ public class AdminBrowseImagesFragment extends Fragment {
 
         Toast.makeText(requireContext(), "Image deleted.", Toast.LENGTH_SHORT).show();
     }
-
 }

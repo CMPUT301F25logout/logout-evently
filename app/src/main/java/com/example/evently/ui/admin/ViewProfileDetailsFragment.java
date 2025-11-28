@@ -7,17 +7,15 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.evently.data.AccountDB;
 import com.example.evently.databinding.FragmentAdminProfileBinding;
-import com.example.evently.ui.common.ConfirmDeleteDialog;
+import com.example.evently.ui.common.ConfirmFragmentNoInput;
 
-public class ViewProfileDetailsFragment extends Fragment
-        implements ConfirmDeleteDialog.ConfirmDeleteListener {
+public class ViewProfileDetailsFragment extends Fragment {
     private FragmentAdminProfileBinding binding;
 
     private final AccountDB accountDB = new AccountDB();
@@ -52,6 +50,13 @@ public class ViewProfileDetailsFragment extends Fragment
 
         // Define the delete button click listener to open a dialog
         binding.delete.setOnClickListener(v -> {
+            ConfirmFragmentNoInput confirmFragment = ConfirmFragmentNoInput.newInstance(
+                    "Delete Account", "Are you sure you want to delete " + accountEmail);
+            confirmFragment.show(getParentFragmentManager(), "confirmNoInput");
+            getParentFragmentManager()
+                    .setFragmentResultListener(
+                            ConfirmFragmentNoInput.requestKey, this, this::onDialogConfirmClick);
+            /*
             DialogFragment dialog = new ConfirmDeleteDialog();
 
             // Make a bundle to send args to the dialog
@@ -62,15 +67,15 @@ public class ViewProfileDetailsFragment extends Fragment
             args.putString("message", message);
             dialog.setArguments(args);
             dialog.show(getParentFragmentManager(), "ConfirmDeleteAccountDialog");
+             */
         });
     }
     /**
      * The dialog closed with a positive click (confirm).
      * Delete the Account from the AccountDB and navigate the user back to the profile list.
-     * @param dialog The dialog that was showed.
      */
-    @Override
-    public void onDialogConfirmClick(DialogFragment dialog) {
+    public void onDialogConfirmClick(String s, Bundle bundle) {
+        if (!bundle.getBoolean(ConfirmFragmentNoInput.inputKey)) return;
         accountDB.deleteAccount(accountEmail);
 
         Toast.makeText(requireContext(), "Account is deleted.", Toast.LENGTH_SHORT)
@@ -79,17 +84,5 @@ public class ViewProfileDetailsFragment extends Fragment
         // Navigate back to the profile list
         NavController navController = NavHostFragment.findNavController(this);
         navController.popBackStack();
-        /*
-        var action = ViewProfileDetailsFragmentDirections.actionProfileDetailsToNavAccounts();
-        navController.navigate(action);
-         */
     }
-
-    /**
-     * The dialog closed with a negative click (cancel).
-     * Do nothing
-     * @param dialog The dialog that was showed.
-     */
-    @Override
-    public void onDialogCancelClick(DialogFragment dialog) {}
 }

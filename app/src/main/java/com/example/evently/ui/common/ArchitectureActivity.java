@@ -23,12 +23,12 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
-import com.example.evently.ui.auth.AuthActivity;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import com.example.evently.data.model.Role;
 import com.example.evently.databinding.ActivityArchitectureBinding;
 import com.example.evently.ui.admin.AdminActivity;
+import com.example.evently.ui.auth.AuthActivity;
 import com.example.evently.ui.entrant.EntrantActivity;
 import com.example.evently.ui.organizer.OrganizerActivity;
 import com.example.evently.utils.FirebaseMessagingUtils;
