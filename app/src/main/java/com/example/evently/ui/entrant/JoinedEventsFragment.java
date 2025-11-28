@@ -4,13 +4,10 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import android.util.Log;
-import android.widget.Button;
 import android.widget.Toast;
-import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.evently.R;
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.common.EventsFragment;
@@ -34,22 +31,6 @@ public class JoinedEventsFragment extends EventsFragment {
         var action = HomeFragmentDirections.actionNavHomeToEventDetails(event.eventID());
         NavController navController = NavHostFragment.findNavController(this);
         navController.navigate(action);
-    }
-
-    /**
-     * Applies selected/unselected styling to a tab button.
-     *
-     * @param b the button to style
-     * @param selected true to show the selected style; false for unselected.
-     */
-    private void styleSelected(Button b, boolean selected) {
-        if (selected) {
-            b.setBackgroundResource(R.drawable.bg_tab_selected);
-            b.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white));
-        } else {
-            b.setBackgroundResource(R.drawable.bg_tab_unselected);
-            b.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black));
-        }
     }
 
     /**

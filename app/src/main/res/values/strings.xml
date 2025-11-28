@@ -41,4 +41,12 @@
     <string name="event_entrants_header">Entrants</string>
     <string name="entrant_limit_header">In Waitlist:</string>
     <string name="entrant_limit_separator">/</string>
+    <string name="event_title">Event title</string>
+    <string name="channel">channel</string>
+    <string name="send_notification">Send Notification</string>
+    <string name="previous_notifications">Previous Notifications</string>
+    <string name="description">Description</string>
+    <string name="notification_title">Notification Title</string>
+    <string name="action_dumb_login">Sign in with Device ID</string>
+    <string name="dumb_register_txt">Sign up with Device ID</string>
 </resources>
