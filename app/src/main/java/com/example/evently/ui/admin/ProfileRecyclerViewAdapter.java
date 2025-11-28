@@ -27,6 +27,11 @@ public class ProfileRecyclerViewAdapter
     private final List<Account> profiles;
     private final ProfileOnClickListener onProfileClick;
 
+    /**
+     * Constructor for the profile recycler adapter
+     * @param profiles An array of accounts representing the profiles to be displayed
+     * @param onProfileClick Listener method for the delete account button
+     */
     public ProfileRecyclerViewAdapter(
             List<Account> profiles, ProfileOnClickListener onProfileClick) {
         this.profiles = profiles;
@@ -51,8 +56,6 @@ public class ProfileRecyclerViewAdapter
 
         // Set the name of each profile
         binding.profileName.setText(holder.acc.name());
-        // Set the picture of each profile
-        // TODO binding.profilePicture
 
         // Set the profile details button click listener
         binding.btnDetails.setOnClickListener(v -> onProfileClick.accept(holder.acc));

@@ -36,6 +36,12 @@ public class ImageRecyclerViewAdapter
     private final Map<UUID, StorageReference> images;
     private final ImageOnClickListener onImageClick;
 
+    /**
+     * Constructor for the image recycler adapter
+     * @param images A Map containing the UUID of the event as the key and the StorageReference
+     *               of the image as the value
+     * @param onImageClick Listener method for the delete image button
+     */
     public ImageRecyclerViewAdapter(
             Map<UUID, StorageReference> images, ImageOnClickListener onImageClick) {
         this.images = images;

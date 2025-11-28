@@ -25,6 +25,7 @@ import com.example.evently.ui.common.ConfirmFragmentNoInput;
 
 /**
  * A fragment representing a list of event posters/images the admin can browse and interact with.
+ * Images can be deleted from the list of images presented
  */
 public class AdminBrowseImagesFragment extends Fragment {
 
@@ -95,9 +96,11 @@ public class AdminBrowseImagesFragment extends Fragment {
     /**
      * The dialog closed with a confirm click.
      * Delete the event poster from the eventsDB and update the dictionary as well as the adapter.
+     * @param requestKey key of request in bundle
+     * @param result confirmation result
      */
-    public void onDialogConfirmClick(String s, Bundle bundle) {
-        if (!bundle.getBoolean(ConfirmFragmentNoInput.inputKey)) return;
+    public void onDialogConfirmClick(String requestKey, Bundle result) {
+        if (!result.getBoolean(ConfirmFragmentNoInput.inputKey)) return;
         // Delete the event poster
         eventsDB.deleteEvent(selectedEventPoster);
 

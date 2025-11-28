@@ -15,6 +15,10 @@ import com.example.evently.data.AccountDB;
 import com.example.evently.databinding.FragmentAdminProfileBinding;
 import com.example.evently.ui.common.ConfirmFragmentNoInput;
 
+/**
+ * Fragment that displays the account details for admin viewing.
+ * The admin can delete the account from this fragment.
+ */
 public class ViewProfileDetailsFragment extends Fragment {
     private FragmentAdminProfileBinding binding;
 
@@ -44,8 +48,10 @@ public class ViewProfileDetailsFragment extends Fragment {
 
         // Fetch the account information and define the information
         accountDB.fetchAccount(accountEmail).thenRun(accountData -> {
-            binding.accountEmail.setText(accountData.get().email());
-            binding.accountName.setText(accountData.get().name());
+            String name = "Name: " + accountData.get().name();
+            String email = "Email: " + accountData.get().email();
+            binding.accountEmail.setText(email);
+            binding.accountName.setText(name);
         });
 
         // Define the delete button click listener to open a dialog
@@ -56,26 +62,17 @@ public class ViewProfileDetailsFragment extends Fragment {
             getParentFragmentManager()
                     .setFragmentResultListener(
                             ConfirmFragmentNoInput.requestKey, this, this::onDialogConfirmClick);
-            /*
-            DialogFragment dialog = new ConfirmDeleteDialog();
-
-            // Make a bundle to send args to the dialog
-            String title = "Delete Account";
-            String message = "Are you sure you want to delete " + accountEmail;
-            Bundle args = new Bundle();
-            args.putString("title", title);
-            args.putString("message", message);
-            dialog.setArguments(args);
-            dialog.show(getParentFragmentManager(), "ConfirmDeleteAccountDialog");
-             */
         });
     }
+
     /**
-     * The dialog closed with a positive click (confirm).
+     * The dialog closed with a confirm click.
      * Delete the Account from the AccountDB and navigate the user back to the profile list.
+     * @param requestKey key of request in bundle
+     * @param result confirmation result
      */
-    public void onDialogConfirmClick(String s, Bundle bundle) {
-        if (!bundle.getBoolean(ConfirmFragmentNoInput.inputKey)) return;
+    public void onDialogConfirmClick(String requestKey, Bundle result) {
+        if (!result.getBoolean(ConfirmFragmentNoInput.inputKey)) return;
         accountDB.deleteAccount(accountEmail);
 
         Toast.makeText(requireContext(), "Account is deleted.", Toast.LENGTH_SHORT)

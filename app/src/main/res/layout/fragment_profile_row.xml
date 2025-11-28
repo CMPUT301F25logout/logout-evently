@@ -8,31 +8,16 @@
     android:orientation="horizontal"
     android:id="@+id/profileListRow">
 
-    <ImageView
-        android:id="@+id/profilePicture"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:contentDescription="TODO"
-        android:scaleType="centerCrop"
-        android:src="@android:drawable/ic_menu_report_image"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/profile_name"
-        app:layout_constraintHorizontal_bias="0.056"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.833" />
-
     <TextView
         android:id="@+id/profile_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="56dp"
         android:padding="10dp"
         android:text="Name"
         android:textSize="15sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/btn_details"
-        app:layout_constraintHorizontal_bias="0.004"
+        app:layout_constraintHorizontal_bias="0.061"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

@@ -27,7 +27,6 @@ import com.example.evently.utils.GlideUtils;
  * Images for the event
  * <p>
  * Layout: fragment_event_details.xml
- * @author Vinson Lou
  */
 public abstract class EventDetailsFragment<E extends Fragment, A extends Fragment>
         extends Fragment {

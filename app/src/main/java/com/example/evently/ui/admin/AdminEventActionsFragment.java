@@ -20,7 +20,7 @@ import com.example.evently.ui.model.EventViewModel;
 /**
  * The actions button for the admin {@link AdminEventDetailsFragment } fragment.
  * This takes care of setting up the action buttons for the admin view.
- * MUST be used by {@link AdminEventDetailsFragment } as it requires ViewModels from there.
+ * Used by {@link AdminEventDetailsFragment } as it requires ViewModels from there.
  */
 public class AdminEventActionsFragment extends Fragment {
     private FragmentAdminEventActionsBinding binding;
@@ -53,29 +53,16 @@ public class AdminEventActionsFragment extends Fragment {
                     .setFragmentResultListener(
                             ConfirmFragmentNoInput.requestKey, this, this::onDialogConfirmClick);
         });
-        /*
-        binding.removeEvent.setOnClickListener(v -> {
-            final ConfirmDeleteDialog cdDialog = new ConfirmDeleteDialog();
-
-            // Make a bundle to store the arguments
-            String title = "Delete Event";
-            String message = "Are you sure you want to delete "
-                    + eventViewModel.getEventLive().getValue().name();
-            Bundle args = new Bundle();
-            args.putString("title", title);
-            args.putString("message", message);
-            cdDialog.setArguments(args);
-            cdDialog.show(getParentFragmentManager(), "ConfirmDeleteEventDialog");
-        });
-         */
     }
 
     /**
      * The dialog closed with a confirm click.
      * Delete the event from the eventsDB and navigate back to the event list
+     * @param requestKey key of request in bundle
+     * @param result confirmation result
      */
-    public void onDialogConfirmClick(String s, Bundle bundle) {
-        if (!bundle.getBoolean(ConfirmFragmentNoInput.inputKey)) return;
+    public void onDialogConfirmClick(String requestKey, Bundle result) {
+        if (!result.getBoolean(ConfirmFragmentNoInput.inputKey)) return;
         // Delete event
         final EventsDB eventDB = new EventsDB();
         eventDB.deleteEvent(eventViewModel.eventID);
