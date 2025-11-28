@@ -172,7 +172,8 @@ public class CreateEventFragment extends Fragment {
                     new Timestamp(selectionTime),
                     new Timestamp(selectionTime.plus(Duration.ofDays(2))),
                     FirebaseAuthUtils.getCurrentEmail(),
-                    winners);
+                    winners,
+                    wait.get());
 
             btnCreate.setEnabled(false);
 

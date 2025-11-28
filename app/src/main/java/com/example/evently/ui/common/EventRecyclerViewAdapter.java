@@ -5,12 +5,16 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.evently.data.generic.Promise;
+import com.example.evently.data.generic.PromiseOpt;
+import com.example.evently.data.model.EventEntrants;
 import com.google.firebase.storage.StorageReference;
 
 import com.example.evently.data.EventsDB;
@@ -82,6 +86,18 @@ public class EventRecyclerViewAdapter
                 new EventsDB().getPosterStorageRef(holder.mItem.eventID());
         GlideUtils.loadPosterIntoImageView(posterReference, binding.imgPoster);
 
+        // Gets a reference to the event image, and stores it in the image view.
+        // If image doesn't exist, we set the image visibility to gone
+        StorageReference eventImageReference =
+                new EventsDB().getEventImageStorageRef(holder.mItem.eventID());
+        eventImageReference.getMetadata().addOnSuccessListener(metadata -> {
+            // Event image exists, load image normally
+            GlideUtils.loadEventImageIntoImageView(eventImageReference, binding.imgMain);
+        }).addOnFailureListener(e -> {
+            // Event image does NOT exist, hide the image
+            binding.imgMain.setVisibility(android.view.View.GONE);
+        });
+
         // Status + selectionDate
         EventStatus status = holder.mItem.computeStatus(Instant.now());
 
@@ -102,8 +118,35 @@ public class EventRecyclerViewAdapter
         // Event date
         binding.txtDate.setText(some_date.format(holder.mItem.eventTime().toInstant()));
 
-        // Details button with given click logic.
+        // Card with click logic.
         binding.eventCard.setOnClickListener(v -> onEventClick.accept(holder.mItem));
+
+        // Event description
+        binding.txtDescription.setText(holder.mItem.description());
+
+        // Event category
+        binding.txtCategory.setText(holder.mItem.category().toString());
+
+        // Entrants count
+        EventsDB db = new EventsDB();
+        db.fetchEventEntrants(holder.mItem.eventID()).thenRun(eventEntrants -> {
+            Integer entrants = eventEntrants.get().all().size();
+            if (holder.mItem.optionalEntrantLimit().isEmpty()) {
+                binding.txtEntrants.setText(MessageFormat.format(
+                        "{0} Entrants",
+                        entrants));
+            } else {
+                binding.txtEntrants.setText(MessageFormat.format(
+                        "{0} / {1} Entrants",
+                        entrants,
+                        holder.mItem.optionalEntrantLimit().get()));
+            }
+        });
+
+        // Selection Limit
+        binding.txtSelectionLimit.setText(MessageFormat.format(
+                "Selection Limit: {0}",
+                holder.mItem.selectionLimit()));
     }
 
     /**

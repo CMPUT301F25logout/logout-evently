@@ -17,11 +17,12 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- HEADER -->
+        <!-- HEADER: Poster + Title + Top-right metadata -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <!-- Poster -->
             <com.google.android.material.imageview.ShapeableImageView
@@ -41,6 +42,44 @@
                 android:layout_marginStart="12dp"
                 android:text="Event Title"
                 android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+
+            <!-- Top-right metadata -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="end">
+
+                <!-- Event Category -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/txtCategory"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Category Placeholder"
+                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:layout_marginBottom="2dp"/>
+
+                <!-- Entrants Count / Capacity -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/txtEntrants"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="X / Y entrants"
+                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:layout_marginBottom="2dp"/>
+
+                <!-- Selection Limit -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/txtSelectionLimit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="X Winners"
+                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:layout_marginBottom="8dp"/>
+            </LinearLayout>
         </LinearLayout>
 
         <!-- MAIN IMAGE -->
@@ -72,6 +111,7 @@
                 android:focusable="false"
                 android:height="0dp"/>
 
+            <!-- Selection date -->
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/txtselection_date"
                 android:layout_width="wrap_content"
@@ -79,7 +119,7 @@
                 android:text="Selection on DATE"
                 android:textAppearance="@style/TextAppearance.Material3.BodySmall"
                 android:textColor="?attr/colorOnSurfaceVariant"
-                android:layout_marginBottom="0dp"/>
+                android:layout_marginBottom="2dp"/>
 
             <!-- Invisible date kept for code compatibility -->
             <com.google.android.material.textview.MaterialTextView
@@ -93,13 +133,15 @@
                 android:height="0dp"/>
         </LinearLayout>
 
-        <!-- DESCRIPTION PLACEHOLDER -->
+        <!-- Short Description -->
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/txtDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Event description"
+            android:text="Event description preview..."
             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:ellipsize="end"
+            android:maxLines="2"
             android:layout_marginBottom="0dp"/>
     </LinearLayout>
 

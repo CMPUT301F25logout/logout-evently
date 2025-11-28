@@ -44,4 +44,27 @@ public class GlideUtils {
                     .into(imageView);
         });
     }
+
+    /**
+     * Clone of loadPosterIntoImageView, but for event images.
+     * @param eventImageReference
+     * @param imageView
+     */
+    public static void loadEventImageIntoImageView(
+            StorageReference eventImageReference, ImageView imageView) {
+
+        // Gets the metadata for the event image
+        Promise.promise(eventImageReference.getMetadata()).thenRun(metadata -> {
+            // Gets updated time
+            long lastUpdated = metadata.getUpdatedTimeMillis();
+
+            // Loads image into provided ImageView
+            Glide.with(imageView.getContext())
+                    .load(eventImageReference)
+                    .placeholder(android.R.drawable.ic_menu_report_image)
+                    .error(android.R.drawable.ic_menu_report_image)
+                    .signature(new ObjectKey(lastUpdated)) // Updates cache if changed
+                    .into(imageView);
+        });
+    }
 }
