@@ -8,11 +8,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static com.example.evently.MatcherUtils.assertRecyclerViewItem;
 import static com.example.evently.MatcherUtils.p;
 
-import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ExecutionException;
 
 import androidx.navigation.NavGraph;
@@ -45,78 +42,72 @@ public class SearchEventsTest extends EmulatedFragmentTest<SearchEventsFragment>
 
     // Create a few events.
     private static final Event[] mockEvents = new Event[] {
-            new Event(
-                    "1",
-                    "description",
-                    Category.EDUCATIONAL,
-                    selectionTime,
-                    eventTime,
-                    "orgEmail",
-                    50),
-            new Event(
-                    "2",
-                    "description1",
-                    Category.EDUCATIONAL,
-                    new Timestamp(now.plus(Duration.ofMinutes(1))),
-                    new Timestamp(now.plus(Duration.ofMinutes(11))),
-                    "orgEmail",
-                    50),
-            new Event(
-                    "3",
-                    "description2",
-                    Category.EDUCATIONAL,
-                    new Timestamp(now.plus(Duration.ofMinutes(2))),
-                    new Timestamp(now.plus(Duration.ofMinutes(12))),
-                    "orgEmail",
-                    50),
-            new Event(
-                    "4",
-                    "description3",
-                    Category.EDUCATIONAL,
-                    new Timestamp(now.plus(Duration.ofMinutes(3))),
-                    new Timestamp(now.plus(Duration.ofMinutes(13))),
-                    "orgEmail",
-                    50),
-            new Event(
-                    "5",
-                    "description4",
-                    Category.EDUCATIONAL,
-                    new Timestamp(now.plus(Duration.ofMinutes(4))),
-                    new Timestamp(now.plus(Duration.ofMinutes(14))),
-                    "orgEmail",
-                    50),
-            new Event(
-                    "6",
-                    "description5",
-                    Category.EDUCATIONAL,
-                    new Timestamp(now.plus(Duration.ofMinutes(5))),
-                    new Timestamp(now.plus(Duration.ofMinutes(15))),
-                    "orgEmail",
-                    50),
-            new Event(
-                    "7",
-                    "description6",
-                    Category.EDUCATIONAL,
-                    new Timestamp(now.plus(Duration.ofMinutes(6))),
-                    new Timestamp(now.plus(Duration.ofMinutes(16))),
-                    "orgEmail",
-                    50),
-            new Event(
-                    "8",
-                    "description7",
-                    Category.EDUCATIONAL,
-                    new Timestamp(now.plus(Duration.ofMinutes(7))),
-                    new Timestamp(now.plus(Duration.ofMinutes(17))),
-                    "orgEmail",
-                    50),
-            new Event(
-                    "12345678",
-                    "description8",
-                    Category.EDUCATIONAL,
-                    new Timestamp(now.plus(Duration.ofMinutes(8))),
-                    new Timestamp(now.plus(Duration.ofMinutes(18))),
-                    "orgEmail",
-                    50)
+        new Event(
+                "1", "description", Category.EDUCATIONAL, selectionTime, eventTime, "orgEmail", 50),
+        new Event(
+                "2",
+                "description1",
+                Category.EDUCATIONAL,
+                new Timestamp(now.plus(Duration.ofMinutes(1))),
+                new Timestamp(now.plus(Duration.ofMinutes(11))),
+                "orgEmail",
+                50),
+        new Event(
+                "3",
+                "description2",
+                Category.EDUCATIONAL,
+                new Timestamp(now.plus(Duration.ofMinutes(2))),
+                new Timestamp(now.plus(Duration.ofMinutes(12))),
+                "orgEmail",
+                50),
+        new Event(
+                "4",
+                "description3",
+                Category.EDUCATIONAL,
+                new Timestamp(now.plus(Duration.ofMinutes(3))),
+                new Timestamp(now.plus(Duration.ofMinutes(13))),
+                "orgEmail",
+                50),
+        new Event(
+                "5",
+                "description4",
+                Category.EDUCATIONAL,
+                new Timestamp(now.plus(Duration.ofMinutes(4))),
+                new Timestamp(now.plus(Duration.ofMinutes(14))),
+                "orgEmail",
+                50),
+        new Event(
+                "6",
+                "description5",
+                Category.EDUCATIONAL,
+                new Timestamp(now.plus(Duration.ofMinutes(5))),
+                new Timestamp(now.plus(Duration.ofMinutes(15))),
+                "orgEmail",
+                50),
+        new Event(
+                "7",
+                "description6",
+                Category.EDUCATIONAL,
+                new Timestamp(now.plus(Duration.ofMinutes(6))),
+                new Timestamp(now.plus(Duration.ofMinutes(16))),
+                "orgEmail",
+                50),
+        new Event(
+                "8",
+                "description7",
+                Category.EDUCATIONAL,
+                new Timestamp(now.plus(Duration.ofMinutes(7))),
+                new Timestamp(now.plus(Duration.ofMinutes(17))),
+                "orgEmail",
+                50),
+        new Event(
+                "12345678",
+                "description8",
+                Category.EDUCATIONAL,
+                new Timestamp(now.plus(Duration.ofMinutes(8))),
+                new Timestamp(now.plus(Duration.ofMinutes(18))),
+                "orgEmail",
+                50)
     };
 
     @BeforeClass
@@ -139,21 +130,19 @@ public class SearchEventsTest extends EmulatedFragmentTest<SearchEventsFragment>
         // Allow initial load
         Thread.sleep(1500);
 
-        String[] searchTerms = new String[] {
-                "1", "2", "3", "4", "5", "6", "7", "8", "0", "123"
-        };
+        String[] searchTerms = new String[] {"1", "2", "3", "4", "5", "6", "7", "8", "0", "123"};
 
         Event[][] expectedLists = new Event[][] {
-                {mockEvents[0], mockEvents[8]},   // "1"
-                {mockEvents[1], mockEvents[8]},   // "2"
-                {mockEvents[2], mockEvents[8]},   // "3"
-                {mockEvents[3], mockEvents[8]},   // "4"
-                {mockEvents[4], mockEvents[8]},   // "5"
-                {mockEvents[5], mockEvents[8]},   // "6"
-                {mockEvents[6], mockEvents[8]},   // "7"
-                {mockEvents[8]},                  // "8"
-                {},                               // "0"
-                {mockEvents[8]}                   // "123"
+            {mockEvents[0], mockEvents[8]}, // "1"
+            {mockEvents[1], mockEvents[8]}, // "2"
+            {mockEvents[2], mockEvents[8]}, // "3"
+            {mockEvents[3], mockEvents[8]}, // "4"
+            {mockEvents[4], mockEvents[8]}, // "5"
+            {mockEvents[5], mockEvents[8]}, // "6"
+            {mockEvents[6], mockEvents[8]}, // "7"
+            {mockEvents[8]}, // "8"
+            {}, // "0"
+            {mockEvents[8]} // "123"
         };
 
         for (int i = 0; i < searchTerms.length; i++) {
@@ -164,28 +153,22 @@ public class SearchEventsTest extends EmulatedFragmentTest<SearchEventsFragment>
 
             // Type new search term
             onView(withId(R.id.eventSearch)).perform(typeText(searchTerms[i]));
-            Thread.sleep(1000);  // allow filtering + adapter update
+            Thread.sleep(1000); // allow filtering + adapter update
 
             Event[] expectedForTerm = expectedLists[i];
 
             if (expectedForTerm.length == 0) {
                 // Nothing should be visible
-                onView(withId(R.id.event_list))
-                        .check(matches(isDisplayed()));
+                onView(withId(R.id.event_list)).check(matches(isDisplayed()));
                 continue;
             }
 
             // Assert these events appear
             for (Event e : expectedForTerm) {
-                assertRecyclerViewItem(
-                        R.id.event_list,
-                        p(R.id.content, e.name())
-                );
+                assertRecyclerViewItem(R.id.event_list, p(R.id.content, e.name()));
             }
         }
     }
-
-
 
     @AfterClass
     public static void tearDownEvents() throws ExecutionException, InterruptedException {
