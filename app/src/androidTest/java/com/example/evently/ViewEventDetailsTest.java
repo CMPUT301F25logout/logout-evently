@@ -6,6 +6,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.example.evently.MatcherUtils.assertRecyclerViewItem;
 import static com.example.evently.MatcherUtils.p;
+import static org.junit.Assert.assertThrows;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -17,6 +18,7 @@ import java.util.concurrent.ExecutionException;
 
 import android.os.Bundle;
 import androidx.navigation.NavGraph;
+import androidx.test.espresso.PerformException;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.firebase.Timestamp;
@@ -26,7 +28,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.example.evently.data.EventsDB;
-import com.example.evently.data.generic.Promise;
 import com.example.evently.data.model.Account;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
@@ -81,7 +82,7 @@ public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsF
 
     @AfterClass
     public static void tearDownEventEnroll() throws ExecutionException, InterruptedException {
-        Promise.all(eventsDB.nuke()).await();
+        eventsDB.deleteEvent(mockEvent.eventID()).await();
     }
 
     @Test
@@ -96,6 +97,16 @@ public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsF
         // Test if the account's emails shows up on the recycler view
         for (final var expectedAccount : expectedAccounts) {
             assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, expectedAccount.email()));
+        }
+
+        // Ensure unexpected account(s) do not show up in here.
+        for (int i = 0; i < extraAccounts.length; i++) {
+            if (i % 2 == 0) continue;
+            final var unexpectedAccount = extraAccounts[i];
+            assertThrows(
+                    PerformException.class,
+                    () -> assertRecyclerViewItem(
+                            R.id.entrantList, p(R.id.entrant_name, unexpectedAccount.email())));
         }
     }
 
