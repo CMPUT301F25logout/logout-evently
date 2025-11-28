@@ -31,6 +31,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 import org.jetbrains.annotations.TestOnly;
 
@@ -344,12 +345,14 @@ public class EventsDB {
     }
 
     /**
-     * Remove given event from DB, and deletes it's event entrants
+     * Remove given event alongside its relevant information.
      * @param eventID UUID of event
      */
     public Promise<Void> deleteEvent(UUID eventID) {
-        return promise(eventsRef.document(eventID.toString()).delete())
-                .alongside(promise(eventEntrantsRef.document(eventID.toString()).delete()));
+        final var eventIDStr = eventID.toString();
+        return promise(eventsRef.document(eventIDStr).delete())
+                .alongside(promise(eventEntrantsRef.document(eventIDStr).delete()))
+                .alongside(deletePoster(eventID));
     }
 
     /**
@@ -422,6 +425,21 @@ public class EventsDB {
         // to return a Promise<Void>
         var posterStorageTask = imageRef.putFile(uri);
         return promise(posterStorageTask).map(taskSnapshot -> null);
+    }
+
+    // Delete the event associated poster if it exists. Ignore otherwise.
+    private Promise<Void> deletePoster(UUID eventID) {
+        return promise(getPosterStorageRef(eventID).delete().continueWith(res -> {
+            final var exc = res.getException();
+            if (exc == null) {
+                return null;
+            }
+            if (exc instanceof StorageException storageExc
+                    && storageExc.getErrorCode() == StorageException.ERROR_OBJECT_NOT_FOUND) {
+                return null;
+            }
+            throw exc;
+        }));
     }
 
     /**
