@@ -227,6 +227,9 @@ public class CreateEventFragment extends Fragment {
         });
     }
 
+    /**
+     * Sets up the selection deadline date picker and writes the chosen date to the form
+     */
     private void setupSelectionDeadlinePicker() {
         final View.OnClickListener listener = _v -> {
             final var pickerBuilder = MaterialDatePicker.Builder.datePicker();
@@ -251,6 +254,9 @@ public class CreateEventFragment extends Fragment {
         binding.etSelectionDeadline.setOnClickListener(listener);
     }
 
+    /**
+     * Sets up the event date picker and writes the chosen date to the form
+     */
     private void setupEventDatePicker() {
         final View.OnClickListener listener = _v -> {
             final var pickerBuilder = MaterialDatePicker.Builder.datePicker();
@@ -275,6 +281,9 @@ public class CreateEventFragment extends Fragment {
         binding.etEventDate.setOnClickListener(listener);
     }
 
+    /**
+     * Sets up the event time picker and writes the chosen time to the form
+     */
     private void setupEventTimePicker() {
         final View.OnClickListener listener = _v -> {
             final var builder =
@@ -298,10 +307,22 @@ public class CreateEventFragment extends Fragment {
         binding.etEventTime.setOnClickListener(listener);
     }
 
+    /**
+     * Converts milliseconds since epoch to a UTC {@link LocalDate}
+     *
+     * @param epochMillis epoch milliseconds to convert
+     * @return the resulting {@link LocalDate}
+     */
     private LocalDate toLocalDate(long epochMillis) {
         return Instant.ofEpochMilli(epochMillis).atZone(ZoneOffset.UTC).toLocalDate();
     }
 
+    /**
+     * Converts a {@link LocalDate} to milliseconds since epoch at UTC midnight
+     *
+     * @param date the {@link LocalDate} to convert
+     * @return epoch milliseconds for the provided date
+     */
     private long toEpochMillis(LocalDate date) {
         return date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
     }
@@ -359,6 +380,9 @@ public class CreateEventFragment extends Fragment {
         Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Clears the view binding reference when the view hierarchy is destroyed to avoid leaks
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();
