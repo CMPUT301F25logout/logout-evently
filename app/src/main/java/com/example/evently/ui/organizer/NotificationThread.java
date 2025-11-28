@@ -9,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -30,6 +32,7 @@ public class NotificationThread extends DialogFragment {
 
     private FragmentNotificationThreadBinding binding;
 
+    @Override
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -41,29 +44,14 @@ public class NotificationThread extends DialogFragment {
         UUID eventID = args.getEventID();
         Channel channel = Channel.valueOf(args.getChannel());
 
-        // Forwards arguments to the viewThreadNotifications fragment
-        ViewThreadNotifications viewThreadNotifications = new ViewThreadNotifications();
-        viewThreadNotifications.setArguments(getArguments());
-
-        if (savedInstanceState == null) {
-            // Load the notification threads into the container
-            getChildFragmentManager()
-                    .beginTransaction()
-                    .setReorderingAllowed(true)
-                    .add(R.id.notificationThreadContainer, viewThreadNotifications, null)
-                    .commit();
-        }
-
         // Sets the event title
-        new EventsDB().fetchEvent(eventID).thenRun(event -> {
-            event.ifPresent(value -> {
-                String eventText = "Event: " + value.name();
-                binding.tvEventTitle.setText(eventText);
-            });
-        });
+        new EventsDB()
+                .fetchEvent(eventID)
+                .thenRun(event -> event.ifPresent(value ->
+                        binding.tvEventTitle.setText(String.format("Event: %s", value.name()))));
 
         // Sets the channel
-        String channelText = "Channel: " + channel.toString();
+        String channelText = "Channel: " + channel.name();
         binding.tvNotificationChannel.setText(channelText);
 
         // Sets up the button to send a notification when pressed.
@@ -74,12 +62,9 @@ public class NotificationThread extends DialogFragment {
             String description = binding.etDescription.getText().toString().strip();
 
             // If title or description is missing, we do not create anything.
-            if (title.isEmpty()) {
-                toast("Error: Please enter a title");
-                return;
-            }
-            if (description.isEmpty()) {
-                toast("Error: Please enter a description");
+            String miss = title.isEmpty() ? "title" : description.isEmpty() ? "description" : null;
+            if (miss != null) {
+                toast("Error: Please enter a " + miss);
                 return;
             }
 
@@ -94,6 +79,22 @@ public class NotificationThread extends DialogFragment {
 
         // Returns the view
         return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        // Forwards arguments to the viewThreadNotifications fragment
+        ViewThreadNotifications viewThreadNotifications = new ViewThreadNotifications();
+        viewThreadNotifications.setArguments(getArguments());
+
+        if (savedInstanceState == null) {
+            getChildFragmentManager()
+                    .beginTransaction()
+                    .setReorderingAllowed(true)
+                    .add(R.id.notificationThreadContainer, viewThreadNotifications, null)
+                    .commit();
+        }
     }
 
     /**

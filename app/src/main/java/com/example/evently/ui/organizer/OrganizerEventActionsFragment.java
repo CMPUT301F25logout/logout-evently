@@ -60,15 +60,9 @@ public class OrganizerEventActionsFragment extends Fragment {
         binding.sendNotif.setText(String.format("Notify %s", currentlySelectedChannel.name()));
         binding.selectChannel.setCheckable(true);
         binding.selectChannel.setOnClickListener(this::selectChannel);
-        binding.sendNotif.setOnClickListener(v -> {
-            NavHostFragment
-                    .findNavController(this)
-                    .navigate(
-                            EditEventDetailsFragmentDirections.actionEventDetailsToNavThread(
-                                    eventViewModel.eventID,
-                                    currentlySelectedChannel.name())
-                            );
-        });
+        binding.sendNotif.setOnClickListener(v -> NavHostFragment.findNavController(this)
+                .navigate(EditEventDetailsFragmentDirections.actionEventDetailsToNavThread(
+                        eventViewModel.eventID, currentlySelectedChannel.name())));
     }
 
     /**
