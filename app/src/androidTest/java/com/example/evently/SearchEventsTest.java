@@ -4,18 +4,20 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.pressKey;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
+import static androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.CoreMatchers.allOf;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.ExecutionException;
 
 import android.view.KeyEvent;
-import android.view.View;
-import android.widget.TextView;
 import androidx.navigation.NavGraph;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.firebase.Timestamp;
@@ -155,7 +157,7 @@ public class SearchEventsTest extends EmulatedFragmentTest<SearchEventsFragment>
 
             // Type new search term
             onView(withId(R.id.eventSearch)).perform(typeText(searchTerms[i]));
-            Thread.sleep(1000); // allow filtering + adapter update
+            Thread.sleep(150); // allow filtering + adapter update
 
             Event[] expectedForTerm = expectedLists[i];
 
@@ -167,19 +169,17 @@ public class SearchEventsTest extends EmulatedFragmentTest<SearchEventsFragment>
 
             // Assert these events appear
             for (Event e : expectedForTerm) {
-                onView(withId(R.id.event_list)).check((view, noViewFoundException) -> {
-                    RecyclerView recyclerView = (RecyclerView) view;
+                // Makes sure that events exist
+                onView(withId(R.id.event_list))
+                        .perform(RecyclerViewActions.scrollTo(
+                                hasDescendant(allOf(withId(R.id.content), withText(e.name())))));
 
-                    for (int j = 0; j < recyclerView.getChildCount(); j++) {
-                        View child = recyclerView.getChildAt(j); // each visible row
-                        TextView textView =
-                                child.findViewById(R.id.content); // your TextView inside row
-                        if (textView != null) {
-                            String eventName = textView.getText().toString();
-                            System.out.println("Visible event: " + eventName);
-                        }
-                    }
-                });
+                // Makes sure that events are actually displayed and visible
+                onView(allOf(
+                                withId(R.id.content),
+                                withText(e.name()),
+                                isDescendantOfA(withId(R.id.event_list))))
+                        .check(matches(isDisplayed()));
             }
         }
     }
