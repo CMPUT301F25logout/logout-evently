@@ -1,7 +1,8 @@
 package com.example.evently.ui.model;
 
 import java.time.Instant;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -31,8 +32,10 @@ public class BrowseEventsViewModel extends ViewModel {
     private final MutableLiveData<List<Event>> browseEvents = new MutableLiveData<>(List.of());
     private final MutableLiveData<Set<Category>> selectedCategories =
             new MutableLiveData<>(Collections.emptySet());
-    private final MutableLiveData<LocalDate> afterDateFilter = new MutableLiveData<>(null);
-    private final MutableLiveData<LocalDate> beforeDateFilter = new MutableLiveData<>(null);
+    private final MutableLiveData<LocalDateTime> afterDateFilter = new MutableLiveData<>(null);
+    private final MutableLiveData<LocalDateTime> beforeDateFilter = new MutableLiveData<>(null);
+    private final MutableLiveData<LocalTime> afterTimeFilter = new MutableLiveData<>(null);
+    private final MutableLiveData<LocalTime> beforeTimeFilter = new MutableLiveData<>(null);
 
     private final MediatorLiveData<List<Event>> filteredBrowseEvents = new MediatorLiveData<>();
 
@@ -46,28 +49,54 @@ public class BrowseEventsViewModel extends ViewModel {
                         events,
                         selectedCategories.getValue(),
                         afterDateFilter.getValue(),
-                        beforeDateFilter.getValue())));
+                        beforeDateFilter.getValue(),
+                        afterTimeFilter.getValue(),
+                        beforeTimeFilter.getValue())));
         filteredBrowseEvents.addSource(
                 selectedCategories,
                 categories -> filteredBrowseEvents.setValue(applyFilters(
                         browseEvents.getValue(),
                         categories,
                         afterDateFilter.getValue(),
-                        beforeDateFilter.getValue())));
+                        beforeDateFilter.getValue(),
+                        afterTimeFilter.getValue(),
+                        beforeTimeFilter.getValue())));
         filteredBrowseEvents.addSource(
                 afterDateFilter,
                 afterDate -> filteredBrowseEvents.setValue(applyFilters(
                         browseEvents.getValue(),
                         selectedCategories.getValue(),
                         afterDate,
-                        beforeDateFilter.getValue())));
+                        beforeDateFilter.getValue(),
+                        afterTimeFilter.getValue(),
+                        beforeTimeFilter.getValue())));
         filteredBrowseEvents.addSource(
                 beforeDateFilter,
                 beforeDate -> filteredBrowseEvents.setValue(applyFilters(
                         browseEvents.getValue(),
                         selectedCategories.getValue(),
                         afterDateFilter.getValue(),
-                        beforeDate)));
+                        beforeDate,
+                        afterTimeFilter.getValue(),
+                        beforeTimeFilter.getValue())));
+        filteredBrowseEvents.addSource(
+                afterTimeFilter,
+                afterTime -> filteredBrowseEvents.setValue(applyFilters(
+                        browseEvents.getValue(),
+                        selectedCategories.getValue(),
+                        afterDateFilter.getValue(),
+                        beforeDateFilter.getValue(),
+                        afterTime,
+                        beforeTimeFilter.getValue())));
+        filteredBrowseEvents.addSource(
+                beforeTimeFilter,
+                beforeTime -> filteredBrowseEvents.setValue(applyFilters(
+                        browseEvents.getValue(),
+                        selectedCategories.getValue(),
+                        afterDateFilter.getValue(),
+                        beforeDateFilter.getValue(),
+                        afterTimeFilter.getValue(),
+                        beforeTime)));
     }
 
     /**
@@ -87,19 +116,35 @@ public class BrowseEventsViewModel extends ViewModel {
     }
 
     /**
-     * Exposes the selected lower-bound event date filter.
-     * @return live updates of the selected lower-bound date.
+     * Exposes the selected lower-bound event date/time filter.
+     * @return live updates of the selected lower-bound date/time.
      */
-    public LiveData<LocalDate> getAfterDateFilter() {
+    public LiveData<LocalDateTime> getAfterDateFilter() {
         return afterDateFilter;
     }
 
     /**
-     * Exposes the selected upper-bound event date filter.
-     * @return live updates of the selected upper-bound date.
+     * Exposes the selected upper-bound event date/time filter.
+     * @return live updates of the selected upper-bound date/time.
      */
-    public LiveData<LocalDate> getBeforeDateFilter() {
+    public LiveData<LocalDateTime> getBeforeDateFilter() {
         return beforeDateFilter;
+    }
+
+    /**
+     * Exposes the selected lower-bound event time filter.
+     * @return live updates of the selected lower-bound time.
+     */
+    public LiveData<LocalTime> getAfterTimeFilter() {
+        return afterTimeFilter;
+    }
+
+    /**
+     * Exposes the selected upper-bound event time filter.
+     * @return live updates of the selected upper-bound time.
+     */
+    public LiveData<LocalTime> getBeforeTimeFilter() {
+        return beforeTimeFilter;
     }
 
     /**
@@ -122,16 +167,26 @@ public class BrowseEventsViewModel extends ViewModel {
     }
 
     /**
-     * Updates the active event date filters.
+     * Updates the active event date/time filters.
      *
      * @param afterDate only show events occurring on or after this date; {@code null} clears the
-     *                  lower bound.
+     *                  lower date bound.
      * @param beforeDate only show events occurring on or before this date; {@code null} clears the
-     *                   upper bound.
+     *                   upper date bound.
+     * @param afterTime only show events occurring at or after this time of day; {@code null} clears
+     *                  the lower time bound.
+     * @param beforeTime only show events occurring at or before this time of day; {@code null}
+     *                   clears the upper time bound.
      */
-    public void setDateFilters(@Nullable LocalDate afterDate, @Nullable LocalDate beforeDate) {
+    public void setDateFilters(
+            @Nullable LocalDateTime afterDate,
+            @Nullable LocalDateTime beforeDate,
+            @Nullable LocalTime afterTime,
+            @Nullable LocalTime beforeTime) {
         afterDateFilter.setValue(afterDate);
         beforeDateFilter.setValue(beforeDate);
+        afterTimeFilter.setValue(afterTime);
+        beforeTimeFilter.setValue(beforeTime);
     }
 
     /**
@@ -152,16 +207,24 @@ public class BrowseEventsViewModel extends ViewModel {
     private List<Event> applyFilters(
             List<Event> events,
             Set<Category> categories,
-            LocalDate afterDate,
-            LocalDate beforeDate) {
+            LocalDateTime afterDate,
+            LocalDateTime beforeDate,
+            LocalTime afterTime,
+            LocalTime beforeTime) {
         final var safeEvents = events == null ? List.<Event>of() : events;
         final var safeCategories =
                 categories == null ? Collections.<Category>emptySet() : categories;
 
-        final var stream = safeEvents.stream()
-                .filter(event -> categoryMatches(event, safeCategories))
-                .filter(event -> afterDate == null || !eventDate(event).isBefore(afterDate))
-                .filter(event -> beforeDate == null || !eventDate(event).isAfter(beforeDate));
+        final var stream = safeEvents.stream().filter(event -> {
+            final var eventDateTime = eventDateTime(event);
+            final var eventDate = eventDateTime.toLocalDate();
+            final var eventTime = eventDateTime.toLocalTime();
+            return categoryMatches(event, safeCategories)
+                    && (afterDate == null || !eventDate.isBefore(afterDate.toLocalDate()))
+                    && (beforeDate == null || !eventDate.isAfter(beforeDate.toLocalDate()))
+                    && (afterTime == null || !eventTime.isBefore(afterTime))
+                    && (beforeTime == null || !eventTime.isAfter(beforeTime));
+        });
 
         return stream.collect(Collectors.toList());
     }
@@ -176,9 +239,9 @@ public class BrowseEventsViewModel extends ViewModel {
         return categorySet.contains(event.category());
     }
 
-    private LocalDate eventDate(Event event) {
+    private LocalDateTime eventDateTime(Event event) {
         final Instant instant = Instant.ofEpochSecond(
                 event.eventTime().getSeconds(), event.eventTime().getNanoseconds());
-        return instant.atZone(ZoneId.systemDefault()).toLocalDate();
+        return instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
 }
