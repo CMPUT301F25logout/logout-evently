@@ -51,6 +51,7 @@ public class NotificationThreadTest extends EmulatedFragmentTest<NotificationThr
             "name",
             "description",
             Category.EDUCATIONAL,
+            false,
             selectionTime,
             eventTime,
             mockAccount.email(),
