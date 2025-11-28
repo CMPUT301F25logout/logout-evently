@@ -34,8 +34,8 @@ import com.example.evently.data.model.Notification.Channel;
 import com.example.evently.ui.organizer.NotificationThread;
 
 /**
- * The following class tests the ManageNotificationsFragment, which displays the notifications an
- * organizer has sent. This test module reuses code from the ViewNotificationsTest.
+ * The following class tests the NotificationThread fragment, which displays the notifications sent
+ * to a specified channel of an event.
  */
 public class NotificationThreadTest extends EmulatedFragmentTest<NotificationThread> {
     private static final EventsDB eventsDB = new EventsDB();
@@ -66,7 +66,7 @@ public class NotificationThreadTest extends EmulatedFragmentTest<NotificationThr
 
     /**
      * Stores some notifications for the tests. Not functionally necessary, since ViewNotifThreads
-     * will be tested in another class.
+     * will be tested in another class. Looks nice while testing though.
      * @throws ExecutionException
      * @throws InterruptedException
      */

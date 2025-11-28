@@ -20,6 +20,12 @@ import com.example.evently.data.model.Notification.Channel;
 import com.example.evently.databinding.FragmentNotificationThreadBinding;
 import com.example.evently.ui.common.NotificationsFragment;
 
+/**
+ * The following class is a notification thread, which displays the event title, and notification
+ * channel. It also allows a user to see the previous notifications sent to the same channel for the
+ * event, and to send more notifications to that channel.
+ * @author alexander-b
+ */
 public class NotificationThread extends DialogFragment {
 
     private FragmentNotificationThreadBinding binding;
@@ -27,14 +33,15 @@ public class NotificationThread extends DialogFragment {
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        // Gets the binding
+        // Gets the binding, and arguments
         binding = FragmentNotificationThreadBinding.inflate(inflater, container, false);
         NotificationThreadArgs args = NotificationThreadArgs.fromBundle(getArguments());
+
         // Gets the eventID, and channel from the fragment.
         UUID eventID = args.getEventID();
         Channel channel = Channel.valueOf(args.getChannel());
 
-        // Forwards arguments to the
+        // Forwards arguments to the viewThreadNotifications fragment
         ViewThreadNotifications viewThreadNotifications = new ViewThreadNotifications();
         viewThreadNotifications.setArguments(getArguments());
 
@@ -47,7 +54,7 @@ public class NotificationThread extends DialogFragment {
                     .commit();
         }
 
-        // Sets the event title, and channel in the thread
+        // Sets the event title
         new EventsDB().fetchEvent(eventID).thenRun(event -> {
             event.ifPresent(value -> {
                 String eventText = "Event: " + value.name();
@@ -55,14 +62,18 @@ public class NotificationThread extends DialogFragment {
             });
         });
 
+        // Sets the channel
         String channelText = "Channel: " + channel.toString();
         binding.tvNotificationChannel.setText(channelText);
 
         // Sets up the button to send a notification when pressed.
         binding.btnSendNotification.setOnClickListener(v -> {
+
+            // Gets entered title and description
             String title = binding.etTitle.getText().toString().strip();
             String description = binding.etDescription.getText().toString().strip();
 
+            // If title or description is missing, we do not create anything.
             if (title.isEmpty()) {
                 toast("Error: Please enter a title");
                 return;
@@ -72,7 +83,7 @@ public class NotificationThread extends DialogFragment {
                 return;
             }
 
-            // If notification is valid, it is sent!
+            // If notification is valid, it is sent, and navigates to previous fragment.
             new NotificationDB()
                     .storeNotification(new Notification(eventID, channel, title, description))
                     .thenRun(x -> {
@@ -94,7 +105,9 @@ public class NotificationThread extends DialogFragment {
     }
 
     /**
-     * The following class is for viewing a thread notification
+     * The following class is for viewing the notifications to a specific event, and notification
+     * channel
+     * @author alexander-b
      */
     public static class ViewThreadNotifications extends NotificationsFragment {
 

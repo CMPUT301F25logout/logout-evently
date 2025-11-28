@@ -161,7 +161,7 @@ public class ManageNotificationsTest extends EmulatedFragmentTest<ManageNotifica
 
     @Test
     public void test_expectNotification_winner() throws InterruptedException {
-        // Notifications sent to the Winner channel for won event IDs should show up.
+        // Notifications for the events the user organized should show up.
         final var expectedNotifications = new Notification[] {
             templateNotification(0, Channel.All),
             templateNotification(2, Channel.Winners),

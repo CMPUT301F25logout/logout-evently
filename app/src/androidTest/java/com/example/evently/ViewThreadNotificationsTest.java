@@ -34,8 +34,9 @@ import com.example.evently.data.model.Notification.Channel;
 import com.example.evently.ui.organizer.NotificationThread;
 
 /**
- * The following class tests the ManageNotificationsFragment, which displays the notifications an
- * organizer has sent. This test module reuses code from the ViewNotificationsTest.
+ * The following class tests the NotificationThread.ViewThreadNotifications, which displays the
+ * notifications an organizer has sent to a specific notification channel.
+ * This test module reuses code from the ViewNotificationsTest.
  */
 public class ViewThreadNotificationsTest
         extends EmulatedFragmentTest<NotificationThread.ViewThreadNotifications> {
@@ -46,8 +47,6 @@ public class ViewThreadNotificationsTest
     private static final Timestamp selectionTime = new Timestamp(now.plus(Duration.ofMillis(100)));
     private static final Timestamp eventTime = new Timestamp(now.plus(Duration.ofMinutes(10)));
     private static final Account mockAccount = defaultMockAccount;
-
-    // Create a few events.
 
     // Create a event.
     private static final Event myEvent = new Event(
@@ -99,9 +98,14 @@ public class ViewThreadNotificationsTest
         Promise.all(notificationDB.nuke(), eventsDB.nuke()).await();
     }
 
+    /**
+     * The following test ensures that the notifications from the event the user organized show up
+     * if they are from the channel which the notification thread is from
+     * @throws InterruptedException
+     */
     @Test
     public void test_expectNotifications() throws InterruptedException {
-        // Notifications sent to the Winner channel for won event IDs should show up.
+        // Notifications sent to the all channel for the event the user organized should show up
         final var expectedNotifications = new Notification[] {
             templateNotification(0, Channel.All, 0),
             templateNotification(0, Channel.All, 1),
@@ -126,10 +130,12 @@ public class ViewThreadNotificationsTest
         // Notifications from other people's events should not pop up.
         Notification notMyEvent1 = templateNotification(1, Channel.All, 0);
         Notification notMyEvent2 = templateNotification(1, Channel.All, 1);
+
+        // My notifications from other channels should not pop up.
         Notification notMyEvent3 = templateNotification(0, Channel.Winners, 0);
         Notification notMyEvent4 = templateNotification(0, Channel.Winners, 1);
 
-        // Checks that no notifications for other organizer's events show up.
+        // Confirms they don't pop up.
         Thread.sleep(2000);
         onView(withText(notMyEvent1.title())).check(doesNotExist());
         onView(withText(notMyEvent2.title())).check(doesNotExist());
