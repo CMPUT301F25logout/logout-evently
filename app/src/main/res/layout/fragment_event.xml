@@ -1,92 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/eventCard"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_marginVertical="6dp"
-    android:orientation="vertical"
-    android:padding="12dp"
-    android:background="@drawable/bg_event_item">
+    android:layout_margin="12dp"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="3dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-        <!-- Poster -->
-        <ImageView
-            android:id="@+id/imgPoster"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:contentDescription="TODO"
-            android:scaleType="centerCrop"
-            android:src="@android:drawable/ic_menu_report_image"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <!-- Left column: title + status -->
+        <!-- HEADER -->
         <LinearLayout
-            android:id="@+id/leftColumn"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical">
+
+            <!-- Poster -->
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/imgPoster"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:src="@drawable/ic_person_24"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+                android:contentDescription="poster" />
+
+            <!-- Title -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/content"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:text="Event Title"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+        </LinearLayout>
+
+        <!-- MAIN IMAGE -->
+        <ImageView
+            android:id="@+id/imgMain"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:scaleType="centerCrop"
+            android:src="@android:color/darker_gray"
+            android:contentDescription="event image"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- METADATA BELOW IMAGE -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginStart="12dp"
-            app:layout_constraintStart_toEndOf="@id/imgPoster"
-            app:layout_constraintTop_toTopOf="@id/imgPoster"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/rightColumn">
+            android:layout_marginBottom="8dp">
 
-            <TextView
-                android:id="@+id/content"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Event Title"
-                android:textStyle="bold"
-                android:textSize="16sp" />
-
-            <TextView
+            <!-- Invisible status for code compatibility -->
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/txtStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Open"
-                android:textSize="13sp"
-                android:layout_marginTop="4dp" />
+                android:visibility="invisible"
+                android:clickable="false"
+                android:focusable="false"
+                android:height="0dp"/>
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/txtselection_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="• Selection on 2025-12-01"
-                android:textSize="12sp"
-                android:layout_marginTop="2dp"
-                android:textColor="#7A7A7A"/>
-        </LinearLayout>
+                android:text="Selection on DATE"
+                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:layout_marginBottom="0dp"/>
 
-        <!-- Right column: date + Details -->
-        <LinearLayout
-            android:id="@+id/rightColumn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="end"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-
-            <TextView
+            <!-- Invisible date kept for code compatibility -->
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/txtDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="2026-03-01"
-                android:textSize="13sp"
-                android:layout_marginTop="6dp" />
-
-            <Button
-                android:id="@+id/btnDetails"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Details"
-                android:layout_marginTop="8dp"/>
+                android:text="DATE"
+                android:visibility="invisible"
+                android:clickable="false"
+                android:focusable="false"
+                android:height="0dp"/>
         </LinearLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</LinearLayout>
+        <!-- DESCRIPTION PLACEHOLDER -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/txtDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Event description"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:layout_marginBottom="0dp"/>
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

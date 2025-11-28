@@ -103,7 +103,7 @@ public class EventRecyclerViewAdapter
         binding.txtDate.setText(some_date.format(holder.mItem.eventTime().toInstant()));
 
         // Details button with given click logic.
-        binding.btnDetails.setOnClickListener(v -> onEventClick.accept(holder.mItem));
+        binding.eventCard.setOnClickListener(v -> onEventClick.accept(holder.mItem));
     }
 
     /**

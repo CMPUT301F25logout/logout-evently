@@ -146,7 +146,7 @@ dependencies {
     annotationProcessor(libs.compiler)
     implementation(libs.firebase.ui.storage)
 
-
+    implementation("com.google.android.material:material:1.13.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.runner)
     androidTestImplementation(libs.ext.junit)
