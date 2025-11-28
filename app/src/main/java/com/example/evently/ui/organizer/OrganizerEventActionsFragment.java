@@ -77,8 +77,6 @@ public class OrganizerEventActionsFragment extends Fragment {
         for (Notification.Channel channel : Notification.Channel.values())
             popup.getMenu().add(0, channel.ordinal(), channel.ordinal(), channel.name());
 
-        // popup.getMenuInflater().inflate(R.menu.notification_channels_menu, popup.getMenu());
-
         popup.setOnMenuItemClickListener(menuItem -> {
             currentlySelectedChannel = (String) menuItem.getTitle();
             binding.sendNotif.setText(String.format("Notify %s", currentlySelectedChannel));
