@@ -1,8 +1,5 @@
 package com.example.evently.ui.organizer;
 
-import java.util.Arrays;
-import java.util.List;
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +11,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.evently.R;
 import com.example.evently.data.model.Notification;
 import com.example.evently.databinding.FragmentOrganizerEventActionsBinding;
 import com.example.evently.ui.common.EventQRDialogFragment;
@@ -27,16 +23,15 @@ import com.example.evently.ui.model.EventViewModel;
  */
 public class OrganizerEventActionsFragment extends Fragment {
     private FragmentOrganizerEventActionsBinding binding;
-    private Notification.Channel currentlySelectedChannel = Notification.Channel.All;
+    private String currentlySelectedChannel = Notification.Channel.All.name();
     private EventViewModel eventViewModel;
-    private final List<Notification.Channel> channels =
-            Arrays.asList(Notification.Channel.values());
 
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
+
         binding =
                 FragmentOrganizerEventActionsBinding.inflate(getLayoutInflater(), container, false);
 
@@ -57,12 +52,18 @@ public class OrganizerEventActionsFragment extends Fragment {
             qrDialog.show(getChildFragmentManager(), "QR_DIALOG");
         });
 
-        binding.sendNotif.setText(String.format("Notify %s", currentlySelectedChannel.name()));
+        binding.sendNotif.setText(String.format("Notify %s", currentlySelectedChannel));
         binding.selectChannel.setCheckable(true);
         binding.selectChannel.setOnClickListener(this::selectChannel);
         binding.sendNotif.setOnClickListener(v -> NavHostFragment.findNavController(this)
                 .navigate(EditEventDetailsFragmentDirections.actionEventDetailsToNavThread(
-                        eventViewModel.eventID, currentlySelectedChannel.name())));
+                        eventViewModel.eventID, currentlySelectedChannel)));
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
     /**
@@ -73,14 +74,14 @@ public class OrganizerEventActionsFragment extends Fragment {
         PopupMenu popup = new PopupMenu(getContext(), v);
         binding.selectChannel.setChecked(true);
 
-        for (Notification.Channel channel : channels)
+        for (Notification.Channel channel : Notification.Channel.values())
             popup.getMenu().add(0, channel.ordinal(), channel.ordinal(), channel.name());
 
-        popup.getMenuInflater().inflate(R.menu.notification_channels_menu, popup.getMenu());
+        // popup.getMenuInflater().inflate(R.menu.notification_channels_menu, popup.getMenu());
 
         popup.setOnMenuItemClickListener(menuItem -> {
-            currentlySelectedChannel = channels.get(menuItem.getItemId());
-            binding.sendNotif.setText(String.format("Notify %s", currentlySelectedChannel.name()));
+            currentlySelectedChannel = (String) menuItem.getTitle();
+            binding.sendNotif.setText(String.format("Notify %s", currentlySelectedChannel));
             return true;
         });
 

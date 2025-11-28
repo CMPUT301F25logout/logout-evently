@@ -78,20 +78,20 @@ public abstract class EventDetailsFragment<E extends Fragment, A extends Fragmen
                     String.valueOf(eventEntrants.all().size()));
         });
 
-        if (savedInstanceState == null) {
-            // Load the entrants list fragment if we were not recreated.
-            getChildFragmentManager()
-                    .beginTransaction()
-                    .setReorderingAllowed(true)
-                    .add(R.id.entrantListContainer, getFragmentForEntrantListContainer(), null)
-                    .commit();
-            // Also load the action buttons fragment.
-            getChildFragmentManager()
-                    .beginTransaction()
-                    .setReorderingAllowed(true)
-                    .add(R.id.actionButtonsContainer, getFragmentForActionButtonsContainer(), null)
-                    .commit();
-        }
+        if (savedInstanceState != null) return;
+
+        // Load the entrants list fragment if we were not recreated.
+        getChildFragmentManager()
+                .beginTransaction()
+                .setReorderingAllowed(true)
+                .add(R.id.entrantListContainer, getFragmentForEntrantListContainer(), null)
+                .commit();
+        // Also load the action buttons fragment.
+        getChildFragmentManager()
+                .beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.actionButtonsContainer, getFragmentForActionButtonsContainer(), null)
+                .commit();
     }
 
     /**
