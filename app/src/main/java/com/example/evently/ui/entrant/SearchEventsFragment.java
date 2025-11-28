@@ -12,6 +12,12 @@ import androidx.fragment.app.Fragment;
 import com.example.evently.R;
 import com.example.evently.databinding.FragmentEventSearchBinding;
 
+/**
+ * Fragment that hosts an event search bar and a child fragment displaying a filtered list of events.
+ * <p>
+ * This fragment manages a {@link SearchView} and forwards text changes to
+ * {@link SearchEventsListFragment} so the list updates in real time based on the search query.
+ */
 public class SearchEventsFragment extends Fragment {
     private FragmentEventSearchBinding binding;
     private SearchEventsListFragment listFragment;
@@ -32,11 +38,24 @@ public class SearchEventsFragment extends Fragment {
         SearchView searchView = binding.eventSearch;
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            /**
+             * Handles the search submit action. Currently unused.
+             *
+             * @param query The submitted search text.
+             * @return false to allow default handling.
+             */
             @Override
             public boolean onQueryTextSubmit(String query) {
                 return false;
             }
 
+            /**
+             * Called each time the user modifies the search text.
+             * Sends the new text to the child list fragment for filtering.
+             *
+             * @param newText Updated text entered by the user.
+             * @return false to allow default handling.
+             */
             @Override
             public boolean onQueryTextChange(String newText) {
                 if (listFragment != null) {
@@ -46,12 +65,12 @@ public class SearchEventsFragment extends Fragment {
             }
         });
 
-        // Check if child fragment exists
+        // Attempt to retrieve existing child fragment
         listFragment = (SearchEventsListFragment)
                 getChildFragmentManager().findFragmentByTag("searchListTag");
 
+        // Create if not found
         if (listFragment == null) {
-            // Create a new instance and assign to listFragment immediately
             listFragment = new SearchEventsListFragment();
 
             getChildFragmentManager()

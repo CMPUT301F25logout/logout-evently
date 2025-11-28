@@ -22,6 +22,11 @@ public class SearchEventsListFragment extends EventsFragment {
     private List<Event> eventList = new ArrayList<>();
     public List<Event> filteredList = new ArrayList<>();
 
+    /**
+     * Filters events and updates the list view accordingly
+     * based on a search term.
+     * @param text The search term.
+     */
     public void filter(String text) {
         if (adapter == null || text.isEmpty()) {
             adapter.updateEvents(eventList);
