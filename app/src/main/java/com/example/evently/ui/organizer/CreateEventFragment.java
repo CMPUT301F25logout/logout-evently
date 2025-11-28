@@ -16,7 +16,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
@@ -59,6 +61,8 @@ public class CreateEventFragment extends Fragment {
 
     private Uri imageUri;
     private ImageButton imageButton;
+    private Category selectedCategory = Category.SPORTS;
+    private Spinner categorySpinner;
 
     // The following code defines a launcher to pick a picture. For more details, see the android
     // photo picker docs:
@@ -118,6 +122,8 @@ public class CreateEventFragment extends Fragment {
                 _x -> NavHostFragment.findNavController(this).navigateUp());
 
         imageButton = v.findViewById(R.id.btnPickPoster);
+        categorySpinner = binding.spCategory;
+        setupCategoryPicker();
 
         // Launches the poster picker when clicked.
         imageButton.setOnClickListener(view -> {
@@ -192,7 +198,7 @@ public class CreateEventFragment extends Fragment {
             Event created = new Event(
                     name,
                     desc,
-                    Category.SPORTS,
+                    selectedCategory,
                     new Timestamp(selectionTime),
                     new Timestamp(eventInstant),
                     FirebaseAuthUtils.getCurrentEmail(),
@@ -221,6 +227,9 @@ public class CreateEventFragment extends Fragment {
         });
     }
 
+    /**
+     * Sets up the selection deadline date picker and writes the chosen date to the form
+     */
     private void setupSelectionDeadlinePicker() {
         final View.OnClickListener listener = _v -> {
             final var pickerBuilder = MaterialDatePicker.Builder.datePicker();
@@ -245,6 +254,9 @@ public class CreateEventFragment extends Fragment {
         binding.etSelectionDeadline.setOnClickListener(listener);
     }
 
+    /**
+     * Sets up the event date picker and writes the chosen date to the form
+     */
     private void setupEventDatePicker() {
         final View.OnClickListener listener = _v -> {
             final var pickerBuilder = MaterialDatePicker.Builder.datePicker();
@@ -269,6 +281,9 @@ public class CreateEventFragment extends Fragment {
         binding.etEventDate.setOnClickListener(listener);
     }
 
+    /**
+     * Sets up the event time picker and writes the chosen time to the form
+     */
     private void setupEventTimePicker() {
         final View.OnClickListener listener = _v -> {
             final var builder =
@@ -292,12 +307,69 @@ public class CreateEventFragment extends Fragment {
         binding.etEventTime.setOnClickListener(listener);
     }
 
+    /**
+     * Converts milliseconds since epoch to a UTC {@link LocalDate}
+     *
+     * @param epochMillis epoch milliseconds to convert
+     * @return the resulting {@link LocalDate}
+     */
     private LocalDate toLocalDate(long epochMillis) {
         return Instant.ofEpochMilli(epochMillis).atZone(ZoneOffset.UTC).toLocalDate();
     }
 
+    /**
+     * Converts a {@link LocalDate} to milliseconds since epoch at UTC midnight
+     *
+     * @param date the {@link LocalDate} to convert
+     * @return epoch milliseconds for the provided date
+     */
     private long toEpochMillis(LocalDate date) {
         return date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
+    }
+
+    /**
+     * Sets up the category spinner.
+     */
+    private void setupCategoryPicker() {
+        final var categories = Category.values();
+        final var labels = new String[categories.length];
+        for (int i = 0; i < categories.length; i++) {
+            labels[i] = formatCategory(categories[i]);
+        }
+
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, labels);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        categorySpinner.setAdapter(adapter);
+
+        int defaultIndex =
+                Math.max(0, java.util.Arrays.asList(categories).indexOf(selectedCategory));
+        categorySpinner.setSelection(defaultIndex);
+
+        categorySpinner.setOnItemSelectedListener(
+                new android.widget.AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(
+                            android.widget.AdapterView<?> parent,
+                            View view,
+                            int position,
+                            long id) {
+                        selectedCategory = categories[position];
+                    }
+
+                    @Override
+                    public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+                });
+    }
+
+    /**
+     *
+     * @param category the category to format
+     * @return the formatted category string
+     */
+    private static String formatCategory(Category category) {
+        final String lower = category.name().toLowerCase().replace('_', ' ');
+        return Character.toUpperCase(lower.charAt(0)) + lower.substring(1);
     }
 
     /**
@@ -308,6 +380,9 @@ public class CreateEventFragment extends Fragment {
         Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Clears the view binding reference when the view hierarchy is destroyed to avoid leaks
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();
