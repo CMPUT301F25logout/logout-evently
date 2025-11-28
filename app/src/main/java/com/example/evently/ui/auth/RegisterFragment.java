@@ -24,10 +24,10 @@ import androidx.fragment.app.Fragment;
 import com.google.firebase.auth.AuthResult;
 
 import com.example.evently.databinding.FragmentRegisterBinding;
-import com.example.evently.ui.common.ConfirmFragmentEmailInput;
 import com.example.evently.ui.common.ConfirmFragmentTextInput;
 import com.example.evently.utils.AuthConstants;
 import com.example.evently.utils.FirebaseAuthUtils;
+import com.example.evently.utils.TextInputValidator;
 
 /**
  * This fragment manages the register form. It should solely be used in AuthActivity.
@@ -135,10 +135,8 @@ public class RegisterFragment extends Fragment {
         final var nameInp = binding.name.getText().toString().strip();
         final var phoneInp = binding.phone.getText().toString().strip();
         final var fragManager = getChildFragmentManager();
-        final var confirmFragment = new ConfirmFragmentEmailInput();
-        final var fragmentArgs = ConfirmFragmentTextInput.instanceArgs(
-                "Sign up", "Enter email", "sample@example.com");
-        confirmFragment.setArguments(fragmentArgs);
+        final var confirmFragment = ConfirmFragmentTextInput.newInstance(
+                "Sign up", "Enter email", "sample@example.com", TextInputValidator.EMAIL);
         confirmFragment.show(fragManager, "signupEmailInput");
 
         fragManager.setFragmentResultListener(
