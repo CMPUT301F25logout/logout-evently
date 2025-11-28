@@ -39,4 +39,27 @@
         android:name="com.example.evently.ui.organizer.CreateEventFragment"
         android:label="Create Event"
         tools:layout="@layout/fragment_create_event" />
+
+    <fragment
+        android:id="@+id/nav_notifs"
+        android:name="com.example.evently.ui.organizer.ManageNotificationsFragment"
+        android:label="Notifications"
+        tools:layout="@layout/fragment_notifs">
+        <action
+            android:id="@+id/action_nav_notifs_to_nav_thread"
+            app:destination="@id/nav_thread" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_thread"
+        android:name="com.example.evently.ui.organizer.NotificationThread"
+        android:label="Notification Thread"
+        tools:layout="@layout/fragment_notification_thread">
+        <argument
+            android:name="eventID"
+            app:argType="java.util.UUID" />
+        <argument
+            android:name="channel"
+            app:argType="string" />
+    </fragment>
 </navigation>

@@ -110,6 +110,21 @@ public class NotificationDB {
     }
 
     /**
+     * The following function fetches event notifications from a specific channel.
+     * @param eventID The event where the notification is from
+     * @param channel The channel where the notif is from
+     * @return A promise of a list of notifications.
+     */
+    public Promise<List<Notification>> fetchEventNotifications(
+            UUID eventID, Notification.Channel channel) {
+        return promise(notificationsRef
+                        .whereEqualTo("eventId", eventID.toString())
+                        .whereEqualTo("channel", channel.toString())
+                        .get())
+                .map(NotificationDB::parseQuerySnapshot);
+    }
+
+    /**
      * Gets the notifications for a specific event
      * @param eventID     The event being searched for notifications.
      */
