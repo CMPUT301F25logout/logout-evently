@@ -1,5 +1,7 @@
 package com.example.evently;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.time.Instant;
@@ -92,5 +94,48 @@ public class NotificationDatabaseTest extends FirebaseEmulatorTest {
         notificationList =
                 notificationDB.fetchEventNotifications(event.eventID()).await();
         assertTrue(notificationList.contains(n));
+    }
+
+    /**
+     * Test fetching events by a specific channel.
+     */
+    @Test
+    public void testFetchEventChannelNotifs() throws InterruptedException, ExecutionException {
+        NotificationDB notificationDB = new NotificationDB();
+        EventsDB eventsDB = new EventsDB();
+
+        // Adds an event to the DB.
+        Event event = testEvent();
+        eventsDB.storeEvent(event).await();
+
+        // Creates a winning notification, and all notifcation for the event.
+        Notification allNotification = getTestNotification(event);
+        Notification winnerNotification = new Notification(
+                event.eventID(),
+                Notification.Channel.Winners,
+                "Winner! You are selected",
+                "You can join, or not");
+
+        // Stores the notifications
+        notificationDB
+                .storeNotification(allNotification)
+                .alongside(notificationDB.storeNotification(winnerNotification))
+                .await();
+
+        // Tests testing fetching for all channel.
+        List<Notification> notificationList = notificationDB
+                .fetchEventNotifications(event.eventID(), Notification.Channel.All)
+                .await();
+        assertTrue(notificationList.contains(allNotification));
+        assertFalse(notificationList.contains(winnerNotification));
+        assertEquals(1, notificationList.size());
+
+        // Tests testing fetching for Winners channel.
+        notificationList = notificationDB
+                .fetchEventNotifications(event.eventID(), Notification.Channel.Winners)
+                .await();
+        assertFalse(notificationList.contains(allNotification));
+        assertTrue(notificationList.contains(winnerNotification));
+        assertEquals(1, notificationList.size());
     }
 }

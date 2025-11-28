@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import com.example.evently.R;
 import com.example.evently.data.AccountDB;
 import com.example.evently.utils.FirebaseAuthUtils;
+import com.example.evently.utils.TextInputValidator;
 
 /**
  * Fragment for editing profile
@@ -82,10 +83,11 @@ public class EditProfileFragment extends Fragment {
         Button editName = v.findViewById(R.id.name_button);
 
         editName.setOnClickListener(view -> {
-            final var confirmFragment = new ConfirmFragmentNameInput();
-            final var fragmentArgs = ConfirmFragmentTextInput.instanceArgs(
-                    "Change Name", "Please enter your new name below.", "Jane Doe");
-            confirmFragment.setArguments(fragmentArgs);
+            final var confirmFragment = ConfirmFragmentTextInput.newInstance(
+                    "Change Name",
+                    "Please enter your new name below.",
+                    "Jane Doe",
+                    TextInputValidator.NAME);
             confirmFragment.show(getParentFragmentManager(), "confirmTextInput");
 
             getParentFragmentManager()
@@ -110,10 +112,11 @@ public class EditProfileFragment extends Fragment {
         Button editEmail = v.findViewById(R.id.email_button);
 
         editEmail.setOnClickListener(view -> {
-            final var confirmFragment = new ConfirmFragmentEmailInput();
-            final var fragmentArgs = ConfirmFragmentTextInput.instanceArgs(
-                    "Change Email", "Please enter your new email below.", "Sample@example.com");
-            confirmFragment.setArguments(fragmentArgs);
+            final var confirmFragment = ConfirmFragmentTextInput.newInstance(
+                    "Change Email",
+                    "Please enter your new email below.",
+                    "Sample@example.com",
+                    TextInputValidator.EMAIL);
             confirmFragment.show(getParentFragmentManager(), "confirmTextInput");
 
             getParentFragmentManager()
@@ -136,12 +139,11 @@ public class EditProfileFragment extends Fragment {
         TextView phoneView = v.findViewById(R.id.phone_text);
         Button editPhone = v.findViewById(R.id.phone_button);
         editPhone.setOnClickListener(view -> {
-            final var confirmFragment = new ConfirmFragmentPhoneInput();
-            final var fragmentArgs = ConfirmFragmentTextInput.instanceArgs(
+            final var confirmFragment = ConfirmFragmentTextInput.newInstance(
                     "Change Phone Number",
                     "Please enter your new phone number below.",
-                    "(000) 000-0000");
-            confirmFragment.setArguments(fragmentArgs);
+                    "(000) 000-0000",
+                    TextInputValidator.PHONE);
             confirmFragment.show(getParentFragmentManager(), "confirmTextInput");
 
             getParentFragmentManager()
