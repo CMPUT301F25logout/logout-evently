@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.evently.R;
 import com.example.evently.data.model.Notification;
@@ -41,7 +42,6 @@ public class OrganizerEventActionsFragment extends Fragment {
 
         eventViewModel = new ViewModelProvider(requireParentFragment()).get(EventViewModel.class);
 
-        // TODO: Move out of material button layout, make a linearlayout with spinner and buttons
         return binding.getRoot();
     }
 
@@ -57,19 +57,30 @@ public class OrganizerEventActionsFragment extends Fragment {
             qrDialog.show(getChildFragmentManager(), "QR_DIALOG");
         });
 
-        binding.sendNotif.setOnClickListener(this::sendNotification);
         binding.sendNotif.setText(String.format("Notify %s", currentlySelectedChannel.name()));
         binding.selectChannel.setCheckable(true);
         binding.selectChannel.setOnClickListener(this::selectChannel);
+        binding.sendNotif.setOnClickListener(v -> {
+            NavHostFragment
+                    .findNavController(this)
+                    .navigate(
+                            EditEventDetailsFragmentDirections.actionEventDetailsToNavThread(
+                                    eventViewModel.eventID,
+                                    currentlySelectedChannel.name())
+                            );
+        });
     }
 
+    /**
+     * Shows the menu to select notification channel
+     * @param v View of button
+     */
     private void selectChannel(View v) {
         PopupMenu popup = new PopupMenu(getContext(), v);
         binding.selectChannel.setChecked(true);
 
-        for (Notification.Channel channel : channels) {
+        for (Notification.Channel channel : channels)
             popup.getMenu().add(0, channel.ordinal(), channel.ordinal(), channel.name());
-        }
 
         popup.getMenuInflater().inflate(R.menu.notification_channels_menu, popup.getMenu());
 
@@ -81,11 +92,5 @@ public class OrganizerEventActionsFragment extends Fragment {
 
         popup.setOnDismissListener(menu -> binding.selectChannel.setChecked(false));
         popup.show();
-    }
-
-    private void sendNotification(View view) {
-        final var bundle = new Bundle();
-        bundle.putSerializable("eventID", eventViewModel.eventID);
-        bundle.putSerializable("channel", currentlySelectedChannel);
     }
 }
