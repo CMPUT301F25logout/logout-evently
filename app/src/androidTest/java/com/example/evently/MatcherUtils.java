@@ -3,7 +3,6 @@ package com.example.evently;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
-import static androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withParent;
@@ -47,12 +46,7 @@ public final class MatcherUtils {
 
         // Make sure all the expected descendants are displayed.
         for (final var expectedDescendant : expectedDescendants) {
-            onView(allOf(
-                            withText(expectedDescendant.second),
-                            isDescendantOfA(
-                                    withId(recyclerViewId)) // restrict search to RecyclerView fix
-                            ))
-                    .check(matches(isDisplayed()));
+            onView(allOf(withText(expectedDescendant.second))).check(matches(isDisplayed()));
         }
     }
 

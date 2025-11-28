@@ -80,10 +80,8 @@ public class EventRecyclerViewAdapter
         // Filtering start
         if (hiddenEvents.contains(holder.mItem)) {
             holder.itemView.setVisibility(View.GONE);
-            holder.itemView.getLayoutParams().height = 0;
         } else {
             holder.itemView.setVisibility(View.VISIBLE);
-            holder.itemView.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
         }
         // Filtering end
 

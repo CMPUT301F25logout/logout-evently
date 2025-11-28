@@ -1,6 +1,7 @@
 package com.example.evently;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -148,7 +149,7 @@ public class SearchEventsTest extends EmulatedFragmentTest<SearchEventsFragment>
         for (int i = 0; i < searchTerms.length; i++) {
 
             // Clear SearchView
-            onView(withId(R.id.eventSearch)).perform(typeText(""));
+            onView(withId(R.id.eventSearch)).perform(clearText());
             Thread.sleep(150);
 
             // Type new search term
