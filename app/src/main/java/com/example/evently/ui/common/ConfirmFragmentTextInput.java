@@ -53,7 +53,7 @@ public class ConfirmFragmentTextInput extends DialogFragment {
         args.putString(cancelKey, cancelText);
         args.putString(confirmKey, confirmText);
         args.putString(hintKey, hintText);
-        args.putSerializable(validateKey, validateType);
+        args.putString(validateKey, validateType.name());
         fragment.setArguments(args);
         return fragment;
     }
@@ -124,9 +124,7 @@ public class ConfirmFragmentTextInput extends DialogFragment {
         TextInputEditText textEdit = view.findViewById(R.id.text_field);
         Button cancel = view.findViewById(R.id.cancel_button);
         Button confirm = view.findViewById(R.id.confirm_button);
-        TextInputValidator validateType = (TextInputValidator) args.getSerializable(validateKey);
-
-        if (validateType == null) throw new RuntimeException("No given validation type");
+        var validateType = TextInputValidator.valueOf(args.getString(validateKey));
 
         header.setText(args.getString(headerKey));
         message.setText(args.getString(messageKey));
