@@ -2,7 +2,6 @@ package com.example.evently;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.junit.Assert.assertEquals;
@@ -74,17 +73,15 @@ public class DateFiltersTest extends EmulatedFragmentTest<DateFiltersFragment> {
                     .setText(TIME_FORMATTER.format(endTime));
         });
 
-        onView(withId(R.id.btnConfirmDateFilters)).perform(scrollTo(), click());
+        onView(withId(R.id.btnConfirmDateFilters)).perform(click());
 
         scenario.onFragment(fragment -> {
             final var viewModel = new ViewModelProvider(fragment.requireActivity())
                     .get(BrowseEventsViewModel.class);
 
-            assertEquals(
-                    LocalDateTime.of(startDate, LocalTime.MIDNIGHT),
+            assertEquals(LocalDateTime.of(startDate, LocalTime.MIDNIGHT),
                     viewModel.getAfterDateFilter().getValue());
-            assertEquals(
-                    LocalDateTime.of(endDate, LocalTime.MIDNIGHT),
+            assertEquals(LocalDateTime.of(endDate, LocalTime.MIDNIGHT),
                     viewModel.getBeforeDateFilter().getValue());
             assertEquals(startTime, viewModel.getAfterTimeFilter().getValue());
             assertEquals(endTime, viewModel.getBeforeTimeFilter().getValue());
@@ -114,7 +111,7 @@ public class DateFiltersTest extends EmulatedFragmentTest<DateFiltersFragment> {
                     .setText(TIME_FORMATTER.format(endTime));
         });
 
-        onView(withId(R.id.btnConfirmDateFilters)).perform(scrollTo(), click());
+        onView(withId(R.id.btnConfirmDateFilters)).perform(click());
 
         scenario.onFragment(fragment -> {
             final var viewModel = new ViewModelProvider(fragment.requireActivity())
@@ -164,7 +161,7 @@ public class DateFiltersTest extends EmulatedFragmentTest<DateFiltersFragment> {
                     .setText(TIME_FORMATTER.format(existingEndTime));
         });
 
-        onView(withText("Clear Filter")).perform(scrollTo(), click());
+        onView(withText("Clear Filter")).perform(click());
 
         scenario.onFragment(fragment -> {
             final var viewModel = new ViewModelProvider(fragment.requireActivity())
@@ -175,26 +172,14 @@ public class DateFiltersTest extends EmulatedFragmentTest<DateFiltersFragment> {
             assertNull(viewModel.getAfterTimeFilter().getValue());
             assertNull(viewModel.getBeforeTimeFilter().getValue());
 
-            assertEquals(
-                    "",
-                    ((TextView) fragment.requireView().findViewById(R.id.etStartDate))
-                            .getText()
-                            .toString());
-            assertEquals(
-                    "",
-                    ((TextView) fragment.requireView().findViewById(R.id.etEndDate))
-                            .getText()
-                            .toString());
-            assertEquals(
-                    "",
-                    ((TextView) fragment.requireView().findViewById(R.id.etStartTime))
-                            .getText()
-                            .toString());
-            assertEquals(
-                    "",
-                    ((TextView) fragment.requireView().findViewById(R.id.etEndTime))
-                            .getText()
-                            .toString());
+            assertEquals("", ((TextView) fragment.requireView().findViewById(R.id.etStartDate))
+                    .getText().toString());
+            assertEquals("", ((TextView) fragment.requireView().findViewById(R.id.etEndDate))
+                    .getText().toString());
+            assertEquals("", ((TextView) fragment.requireView().findViewById(R.id.etStartTime))
+                    .getText().toString());
+            assertEquals("", ((TextView) fragment.requireView().findViewById(R.id.etEndTime))
+                    .getText().toString());
         });
     }
 
