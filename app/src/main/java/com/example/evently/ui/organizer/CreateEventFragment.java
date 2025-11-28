@@ -8,20 +8,29 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.Timestamp;
 
+import com.example.evently.R;
 import com.example.evently.data.EventsDB;
+import com.example.evently.data.generic.Promise;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.databinding.FragmentCreateEventBinding;
@@ -39,6 +48,22 @@ import com.example.evently.utils.FirebaseAuthUtils;
 public class CreateEventFragment extends Fragment {
 
     private FragmentCreateEventBinding binding;
+
+    private Uri imageUri;
+    private ImageButton imageButton;
+
+    // The following code defines a launcher to pick a picture. For more details, see the android
+    // photo picker docs:
+    // https://developer.android.com/training/data-storage/shared/photo-picker
+    private final ActivityResultLauncher<PickVisualMediaRequest> pickPoster =
+            registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+                if (uri != null) {
+                    imageUri = uri;
+                    Glide.with(getContext()).load(imageUri).into(imageButton);
+                } else {
+                    Log.d("Poster Picker", "No poster selected");
+                }
+            });
 
     /**
      * Inflates the "Create Event" form
@@ -77,6 +102,15 @@ public class CreateEventFragment extends Fragment {
 
         binding.btnCancel.setOnClickListener(
                 _x -> NavHostFragment.findNavController(this).navigateUp());
+
+        imageButton = v.findViewById(R.id.btnPickPoster);
+
+        // Launches the poster picker when clicked.
+        imageButton.setOnClickListener(view -> {
+            pickPoster.launch(new PickVisualMediaRequest.Builder()
+                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                    .build());
+        });
 
         btnCreate.setOnClickListener(_x -> {
             String name = binding.etEventName.getText().toString().trim();
@@ -138,13 +172,20 @@ public class CreateEventFragment extends Fragment {
                     new Timestamp(selectionTime),
                     new Timestamp(selectionTime.plus(Duration.ofDays(2))),
                     FirebaseAuthUtils.getCurrentEmail(),
-                    winners,
-                    wait.orElse(null));
+                    winners);
 
             btnCreate.setEnabled(false);
 
-            new EventsDB()
-                    .storeEvent(created)
+            EventsDB eventsDB = new EventsDB();
+
+            // Gets the upload promise if an image has been selected through the photo picker.
+            var uploadPromise = imageUri != null
+                    ? eventsDB.storePoster(created.eventID(), imageUri)
+                    : Promise.of(null);
+
+            // Stores the event, and uploads the poster.
+            eventsDB.storeEvent(created)
+                    .alongside(uploadPromise)
                     .thenRun(_v -> {
                         toast("Event created.");
                         NavHostFragment.findNavController(this).navigateUp();

@@ -141,6 +141,12 @@ dependencies {
     implementation(libs.zxing.android.embedded)
 
     implementation(libs.espresso.core)
+    implementation(libs.firebase.storage)
+    implementation(libs.espresso.intents)
+    annotationProcessor(libs.compiler)
+    implementation(libs.firebase.ui.storage)
+
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.runner)
     androidTestImplementation(libs.ext.junit)

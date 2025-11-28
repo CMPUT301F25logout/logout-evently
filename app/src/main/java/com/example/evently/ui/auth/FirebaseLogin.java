@@ -5,7 +5,6 @@ import static com.google.android.libraries.identity.googleid.GoogleIdTokenCreden
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import androidx.annotation.NonNull;
@@ -17,6 +16,7 @@ import androidx.credentials.GetCredentialRequest;
 import androidx.credentials.GetCredentialResponse;
 import androidx.credentials.exceptions.GetCredentialException;
 import androidx.credentials.exceptions.NoCredentialException;
+import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
@@ -31,7 +31,7 @@ import com.example.evently.BuildConfig;
  */
 class FirebaseLogin {
     // Context under which the auth may be used.
-    private final Activity act;
+    private final FragmentActivity act;
     private final FirebaseAuth mAuth;
     private final CredentialManager credentialManager;
 
@@ -40,7 +40,7 @@ class FirebaseLogin {
      * @apiNote Take care to keep the activity context up to date. If the activity is recreated, this object
      *   must be recreated too.
      */
-    protected FirebaseLogin(Activity act) {
+    protected FirebaseLogin(FragmentActivity act) {
         this.act = act;
         this.mAuth = FirebaseAuth.getInstance();
         this.credentialManager = CredentialManager.create(act.getBaseContext());
@@ -105,27 +105,30 @@ class FirebaseLogin {
             Credential credential,
             Consumer<AuthResult> onSuccess,
             Consumer<Exception> onException) {
-        if (credential instanceof CustomCredential customCredential
-                && credential.getType().equals(TYPE_GOOGLE_ID_TOKEN_CREDENTIAL)) {
-            // Create Google ID Token
-            Bundle credentialData = customCredential.getData();
-            var googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credentialData);
 
-            // Sign in to Firebase with using the token
-            var firebaseCred =
-                    GoogleAuthProvider.getCredential(googleIdTokenCredential.getIdToken(), null);
-            mAuth.signInWithCredential(firebaseCred).addOnCompleteListener(act, task -> {
-                if (task.isSuccessful()) {
-                    // Sign in success, delegate to callback.
-                    act.runOnUiThread(() -> onSuccess.accept(task.getResult()));
-                } else {
-                    // Exceptional scenario where firebase auth fails.
-                    act.runOnUiThread(() -> onException.accept(task.getException()));
-                }
-            });
-        } else {
-            // This _shouldn't_ happen.
+        if (!(credential instanceof CustomCredential customCredential)
+                || !credential
+                        .getType()
+                        .equals(TYPE_GOOGLE_ID_TOKEN_CREDENTIAL)) { // This shouldn't happen.
             onException.accept(new Exception("absurd: Credential was not a Google ID token"));
+            return;
         }
+
+        // Create Google ID Token
+        Bundle credentialData = customCredential.getData();
+        var googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credentialData);
+
+        // Sign in to Firebase with using the token
+        var firebaseCred =
+                GoogleAuthProvider.getCredential(googleIdTokenCredential.getIdToken(), null);
+        mAuth.signInWithCredential(firebaseCred).addOnCompleteListener(act, task -> {
+            if (task.isSuccessful()) {
+                // Sign in success, delegate to callback.
+                act.runOnUiThread(() -> onSuccess.accept(task.getResult()));
+            } else {
+                // Exceptional scenario where firebase auth fails.
+                act.runOnUiThread(() -> onException.accept(task.getException()));
+            }
+        });
     }
 }

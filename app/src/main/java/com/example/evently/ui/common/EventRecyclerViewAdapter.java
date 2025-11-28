@@ -13,9 +13,13 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.storage.StorageReference;
+
+import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.data.model.EventStatus;
 import com.example.evently.databinding.FragmentEventBinding;
+import com.example.evently.utils.GlideUtils;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link Event}.
@@ -86,8 +90,10 @@ public class EventRecyclerViewAdapter
         // Title / name
         binding.content.setText(holder.mItem.name());
 
-        // Poster
-        binding.imgPoster.setImageResource(android.R.drawable.ic_menu_report_image);
+        // Gets a reference to the poster, and stores it in the image view.
+        StorageReference posterReference =
+                new EventsDB().getPosterStorageRef(holder.mItem.eventID());
+        GlideUtils.loadPosterIntoImageView(posterReference, binding.imgPoster);
 
         // Status + selectionDate
         EventStatus status = holder.mItem.computeStatus(Instant.now());

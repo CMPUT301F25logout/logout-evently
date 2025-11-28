@@ -1,5 +1,7 @@
 package com.example.evently.ui.common;
 
+import java.util.UUID;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,10 +11,14 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.firebase.storage.StorageReference;
+
 import com.example.evently.R;
+import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.databinding.FragmentEventDetailsBinding;
 import com.example.evently.ui.model.EventViewModel;
+import com.example.evently.utils.GlideUtils;
 
 /**
  * Fragment that displays the event information as well as the entrants that have been waitlisted.
@@ -26,8 +32,8 @@ import com.example.evently.ui.model.EventViewModel;
  */
 public abstract class EventDetailsFragment<E extends Fragment, A extends Fragment>
         extends Fragment {
-    private FragmentEventDetailsBinding binding;
-
+    protected FragmentEventDetailsBinding binding;
+    protected UUID eventID;
     protected EventViewModel eventViewModel;
 
     /**
@@ -96,6 +102,11 @@ public abstract class EventDetailsFragment<E extends Fragment, A extends Fragmen
         binding.eventName.setText(event.name());
         binding.eventDescription.setText(event.description());
         binding.eventCategory.setText(event.category().toString());
+        eventID = event.eventID();
+
+        // Loads the picture into the image view.
+        StorageReference posterRef = new EventsDB().getPosterStorageRef(eventID);
+        GlideUtils.loadPosterIntoImageView(posterRef, binding.eventPicture);
 
         event.optionalEntrantLimit().ifPresent(limit -> {
             binding.entrantLimitSection.setVisibility(View.VISIBLE);
