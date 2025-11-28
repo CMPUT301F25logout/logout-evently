@@ -5,16 +5,12 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.evently.data.generic.Promise;
-import com.example.evently.data.generic.PromiseOpt;
-import com.example.evently.data.model.EventEntrants;
 import com.google.firebase.storage.StorageReference;
 
 import com.example.evently.data.EventsDB;
@@ -90,13 +86,16 @@ public class EventRecyclerViewAdapter
         // If image doesn't exist, we set the image visibility to gone
         StorageReference eventImageReference =
                 new EventsDB().getEventImageStorageRef(holder.mItem.eventID());
-        eventImageReference.getMetadata().addOnSuccessListener(metadata -> {
-            // Event image exists, load image normally
-            GlideUtils.loadEventImageIntoImageView(eventImageReference, binding.imgMain);
-        }).addOnFailureListener(e -> {
-            // Event image does NOT exist, hide the image
-            binding.imgMain.setVisibility(android.view.View.GONE);
-        });
+        eventImageReference
+                .getMetadata()
+                .addOnSuccessListener(metadata -> {
+                    // Event image exists, load image normally
+                    GlideUtils.loadEventImageIntoImageView(eventImageReference, binding.imgMain);
+                })
+                .addOnFailureListener(e -> {
+                    // Event image does NOT exist, hide the image
+                    binding.imgMain.setVisibility(android.view.View.GONE);
+                });
 
         // Status + selectionDate
         EventStatus status = holder.mItem.computeStatus(Instant.now());
@@ -132,21 +131,17 @@ public class EventRecyclerViewAdapter
         db.fetchEventEntrants(holder.mItem.eventID()).thenRun(eventEntrants -> {
             Integer entrants = eventEntrants.get().all().size();
             if (holder.mItem.optionalEntrantLimit().isEmpty()) {
-                binding.txtEntrants.setText(MessageFormat.format(
-                        "{0} Entrants",
-                        entrants));
+                binding.txtEntrants.setText(MessageFormat.format("{0} Entrants", entrants));
             } else {
                 binding.txtEntrants.setText(MessageFormat.format(
                         "{0} / {1} Entrants",
-                        entrants,
-                        holder.mItem.optionalEntrantLimit().get()));
+                        entrants, holder.mItem.optionalEntrantLimit().get()));
             }
         });
 
         // Selection Limit
-        binding.txtSelectionLimit.setText(MessageFormat.format(
-                "Selection Limit: {0}",
-                holder.mItem.selectionLimit()));
+        binding.txtSelectionLimit.setText(
+                MessageFormat.format("Selection Limit: {0}", holder.mItem.selectionLimit()));
     }
 
     /**
