@@ -176,22 +176,15 @@ public class DateFiltersFragment extends Fragment {
                 ? null
                 : LocalDateTime.of(selectedEndDate, LocalTime.MIDNIGHT);
 
-        if (startDateTime == null
-                && endDateTime == null
-                && selectedStartTime == null
-                && selectedEndTime == null) {
+        final LocalDateTime startBoundary = resolveStartBoundary();
+        final LocalDateTime endBoundary = resolveEndBoundary();
+
+        if (startBoundary == null && endBoundary == null) {
             eventsViewModel.setDateFilters(null, null, null, null);
             return true;
         }
 
-        if (startDateTime != null && endDateTime != null && startDateTime.isAfter(endDateTime)) {
-            showError(R.string.date_filters_invalid_order);
-            return false;
-        }
-
-        if (selectedStartTime != null
-                && selectedEndTime != null
-                && selectedStartTime.isAfter(selectedEndTime)) {
+        if (startBoundary != null && endBoundary != null && startBoundary.isAfter(endBoundary)) {
             showError(R.string.date_filters_invalid_order);
             return false;
         }
@@ -199,6 +192,38 @@ public class DateFiltersFragment extends Fragment {
         eventsViewModel.setDateFilters(
                 startDateTime, endDateTime, selectedStartTime, selectedEndTime);
         return true;
+    }
+
+    private LocalDateTime resolveStartBoundary() {
+        if (selectedStartDate != null && selectedStartTime != null) {
+            return LocalDateTime.of(selectedStartDate, selectedStartTime);
+        }
+
+        if (selectedStartDate != null) {
+            return LocalDateTime.of(selectedStartDate, LocalTime.MIN);
+        }
+
+        if (selectedStartTime != null) {
+            return LocalDate.now().atTime(selectedStartTime);
+        }
+
+        return null;
+    }
+
+    private LocalDateTime resolveEndBoundary() {
+        if (selectedEndDate != null && selectedEndTime != null) {
+            return LocalDateTime.of(selectedEndDate, selectedEndTime);
+        }
+
+        if (selectedEndDate != null) {
+            return LocalDateTime.of(selectedEndDate, LocalTime.MAX);
+        }
+
+        if (selectedEndTime != null) {
+            return LocalDate.now().atTime(selectedEndTime);
+        }
+
+        return null;
     }
 
     /**

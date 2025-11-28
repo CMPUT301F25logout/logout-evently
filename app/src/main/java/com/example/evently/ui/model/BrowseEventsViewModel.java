@@ -1,6 +1,7 @@
 package com.example.evently.ui.model;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -215,15 +216,14 @@ public class BrowseEventsViewModel extends ViewModel {
         final var safeCategories =
                 categories == null ? Collections.<Category>emptySet() : categories;
 
+        final LocalDateTime lowerBound = combineLowerBound(afterDate, afterTime);
+        final LocalDateTime upperBound = combineUpperBound(beforeDate, beforeTime);
+
         final var stream = safeEvents.stream().filter(event -> {
             final var eventDateTime = eventDateTime(event);
-            final var eventDate = eventDateTime.toLocalDate();
-            final var eventTime = eventDateTime.toLocalTime();
             return categoryMatches(event, safeCategories)
-                    && (afterDate == null || !eventDate.isBefore(afterDate.toLocalDate()))
-                    && (beforeDate == null || !eventDate.isAfter(beforeDate.toLocalDate()))
-                    && (afterTime == null || !eventTime.isBefore(afterTime))
-                    && (beforeTime == null || !eventTime.isAfter(beforeTime));
+                    && (lowerBound == null || !eventDateTime.isBefore(lowerBound))
+                    && (upperBound == null || !eventDateTime.isAfter(upperBound));
         });
 
         return stream.collect(Collectors.toList());
@@ -243,5 +243,39 @@ public class BrowseEventsViewModel extends ViewModel {
         final Instant instant = Instant.ofEpochSecond(
                 event.eventTime().getSeconds(), event.eventTime().getNanoseconds());
         return instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+    }
+
+    private LocalDateTime combineLowerBound(
+            @Nullable LocalDateTime date, @Nullable LocalTime time) {
+        if (date != null && time != null) {
+            return LocalDateTime.of(date.toLocalDate(), time);
+        }
+
+        if (date != null) {
+            return LocalDateTime.of(date.toLocalDate(), LocalTime.MIN);
+        }
+
+        if (time != null) {
+            return LocalDate.now().atTime(time);
+        }
+
+        return null;
+    }
+
+    private LocalDateTime combineUpperBound(
+            @Nullable LocalDateTime date, @Nullable LocalTime time) {
+        if (date != null && time != null) {
+            return LocalDateTime.of(date.toLocalDate(), time);
+        }
+
+        if (date != null) {
+            return LocalDateTime.of(date.toLocalDate(), LocalTime.MAX);
+        }
+
+        if (time != null) {
+            return LocalDate.now().atTime(time);
+        }
+
+        return null;
     }
 }
