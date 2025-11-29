@@ -11,6 +11,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import com.example.evently.R;
 import com.example.evently.data.EventsDB;
 import com.example.evently.databinding.FragmentEntrantEventActionsBinding;
@@ -46,6 +48,15 @@ public class EntrantEventActionsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         final var self = FirebaseAuthUtils.getCurrentEmail();
+
+        binding.lotteryGuidelinesButton.setOnClickListener(
+                v -> new MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(R.string.lottery_guidelines_dialog_title)
+                        .setMessage(R.string.lottery_guidelines_dialog_message)
+                        .setPositiveButton(
+                                R.string.lottery_guidelines_dialog_positive,
+                                (dialog, which) -> dialog.dismiss())
+                        .show());
 
         eventViewModel.getEventLive().observe(getViewLifecycleOwner(), event -> {
             if (event.isFull()) {

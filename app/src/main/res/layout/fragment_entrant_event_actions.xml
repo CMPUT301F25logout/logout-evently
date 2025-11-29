@@ -6,6 +6,13 @@
     tools:context=".ui.entrant.EntrantEventActionsFragment">
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/lotteryGuidelinesButton"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/lottery_guidelines_button" />
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/waitlistAction"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

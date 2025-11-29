@@ -49,4 +49,8 @@
     <string name="notification_title">Notification Title</string>
     <string name="action_dumb_login">Sign in with Device ID</string>
     <string name="dumb_register_txt">Sign up with Device ID</string>
+    <string name="lottery_guidelines_button">Selection Details</string>
+    <string name="lottery_guidelines_dialog_title">How this lottery works</string>
+    <string name="lottery_guidelines_dialog_message">This is placeholder text describing how entrants are chosen during the lottery selection. Update this message with the final guidelines for your event.</string>
+    <string name="lottery_guidelines_dialog_positive">Got it</string>
 </resources>
