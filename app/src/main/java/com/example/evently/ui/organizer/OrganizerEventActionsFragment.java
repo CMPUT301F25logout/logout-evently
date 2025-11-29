@@ -17,8 +17,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.evently.data.model.EventEntrants;
 import com.example.evently.data.model.Notification;
+import com.example.evently.data.model.EventEntrants;
 import com.example.evently.databinding.FragmentOrganizerEventActionsBinding;
 import com.example.evently.ui.common.EventQRDialogFragment;
 import com.example.evently.ui.model.EventViewModel;
@@ -128,5 +128,12 @@ public class OrganizerEventActionsFragment extends Fragment {
                     }
                 })
                 .launch(intent);
+
+        binding.sendNotif.setText(String.format("Notify %s", currentlySelectedChannel));
+        binding.selectChannel.setCheckable(true);
+        binding.selectChannel.setOnClickListener(this::selectChannel);
+        binding.sendNotif.setOnClickListener(v -> NavHostFragment.findNavController(this)
+                .navigate(EditEventDetailsFragmentDirections.actionEventDetailsToNavThread(
+                        eventViewModel.eventID, currentlySelectedChannel)));
     }
 }
