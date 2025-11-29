@@ -14,20 +14,13 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
-import com.example.evently.data.model.EventEntrants;
 import com.example.evently.databinding.FragmentEventMetaBinding;
 import com.example.evently.ui.model.EventViewModel;
 
@@ -68,9 +61,7 @@ public class EventMetaFragment extends Fragment {
             // Must use the parent fragment manager so the children have access to the original view
             // model.
             viewPager.setAdapter(new EventPeopleAdapter(
-                    getParentFragmentManager(),
-                    getLifecycle(),
-                    event.requiresLocation()));
+                    getParentFragmentManager(), getLifecycle(), event.requiresLocation()));
 
             new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
                         switch (position) {
