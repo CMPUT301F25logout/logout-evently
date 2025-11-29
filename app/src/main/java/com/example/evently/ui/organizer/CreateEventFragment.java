@@ -8,7 +8,6 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -122,8 +121,10 @@ public class CreateEventFragment extends Fragment {
                     .build());
         });
 
-        binding.etSelectionDeadline.setOnClickListener(ignored -> setupDatePicker("Selection deadline", binding.etSelectionDeadline));
-        binding.etEventDate.setOnClickListener(ignored -> setupDatePicker("Event date", binding.etEventDate));
+        binding.etSelectionDeadline.setOnClickListener(
+                ignored -> setupDatePicker("Selection deadline", binding.etSelectionDeadline));
+        binding.etEventDate.setOnClickListener(
+                ignored -> setupDatePicker("Event date", binding.etEventDate));
 
         setupEventTimePicker();
 

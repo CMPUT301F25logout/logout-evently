@@ -7,11 +7,11 @@ import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
-import androidx.annotation.IdRes;
-
 import java.time.LocalDate;
 import java.time.format.TextStyle;
 import java.util.Locale;
+
+import androidx.annotation.IdRes;
 
 /**
  * Helper for working with material date time pickers because no such helpers exist yet...
@@ -27,17 +27,18 @@ public final class MaterialDateTimeUtils {
     public static void selectDateInMonth(@IdRes int res, int dateInMonth) {
         final var today = LocalDate.now();
         final var targetDate = LocalDate.of(today.getYear(), today.getMonth(), dateInMonth);
-        final var targetMonth = today.getMonth().getDisplayName(TextStyle.FULL_STANDALONE, Locale.ENGLISH);
+        final var targetMonth =
+                today.getMonth().getDisplayName(TextStyle.FULL_STANDALONE, Locale.ENGLISH);
         // This should open the selection date picker
         onView(withId(res)).perform(click());
-        final var selectionDay = targetDate.getDayOfWeek().getDisplayName(TextStyle.FULL_STANDALONE, Locale.ENGLISH);
+        final var selectionDay =
+                targetDate.getDayOfWeek().getDisplayName(TextStyle.FULL_STANDALONE, Locale.ENGLISH);
         // Fill in the date in the date picker
-        onView(withContentDescription(selectionDay + ", " + targetMonth + " " + dateInMonth)) // e.g Saturday, November 29
+        onView(withContentDescription(selectionDay + ", " + targetMonth + " "
+                        + dateInMonth)) // e.g Saturday, November 29
                 .inRoot(isDialog())
                 .perform(click());
-        onView(withText("OK"))
-                .inRoot(isDialog())
-                .perform(click());
+        onView(withText("OK")).inRoot(isDialog()).perform(click());
     }
 
     /**
@@ -57,8 +58,6 @@ public final class MaterialDateTimeUtils {
                 .inRoot(isDialog())
                 .perform(click());
 
-        onView(withText("OK"))
-                .inRoot(isDialog())
-                .perform(click());
+        onView(withText("OK")).inRoot(isDialog()).perform(click());
     }
 }

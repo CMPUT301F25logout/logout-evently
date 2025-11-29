@@ -257,7 +257,8 @@ public class EventsDB {
      * @return All currently open (for enrollment) events.
      */
     public Promise<List<Event>> fetchOpenEvents() {
-        return parseQuerySnapShots(eventsRef.whereGreaterThan("selectionTime", Timestamp.now()).get());
+        return parseQuerySnapShots(
+                eventsRef.whereGreaterThan("selectionTime", Timestamp.now()).get());
     }
 
     /**
