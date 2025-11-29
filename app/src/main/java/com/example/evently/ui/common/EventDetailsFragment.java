@@ -78,9 +78,9 @@ public abstract class EventDetailsFragment<E extends Fragment, A extends Fragmen
                     String.valueOf(eventEntrants.all().size()));
         });
 
+        // Load the entrants list fragment if we were not recreated.
         if (savedInstanceState != null) return;
 
-        // Load the entrants list fragment if we were not recreated.
         getChildFragmentManager()
                 .beginTransaction()
                 .setReorderingAllowed(true)

@@ -34,10 +34,22 @@ public class NotificationThread extends DialogFragment {
 
     @Override
     public View onCreateView(
-            LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         // Gets the binding, and arguments
         binding = FragmentNotificationThreadBinding.inflate(inflater, container, false);
+
+        // Returns the view
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        // Forwards arguments to the viewThreadNotifications fragment
+        ViewThreadNotifications viewThreadNotifications = new ViewThreadNotifications();
+        viewThreadNotifications.setArguments(getArguments());
+
         NotificationThreadArgs args = NotificationThreadArgs.fromBundle(getArguments());
 
         // Gets the eventID, and channel from the fragment.
@@ -77,24 +89,12 @@ public class NotificationThread extends DialogFragment {
                     });
         });
 
-        // Returns the view
-        return binding.getRoot();
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        // Forwards arguments to the viewThreadNotifications fragment
-        ViewThreadNotifications viewThreadNotifications = new ViewThreadNotifications();
-        viewThreadNotifications.setArguments(getArguments());
-
-        if (savedInstanceState == null) {
-            getChildFragmentManager()
-                    .beginTransaction()
-                    .setReorderingAllowed(true)
-                    .add(R.id.notificationThreadContainer, viewThreadNotifications, null)
-                    .commit();
-        }
+        if (savedInstanceState != null) return;
+        getChildFragmentManager()
+                .beginTransaction()
+                .setReorderingAllowed(true)
+                .add(R.id.notificationThreadContainer, viewThreadNotifications, null)
+                .commit();
     }
 
     /**
