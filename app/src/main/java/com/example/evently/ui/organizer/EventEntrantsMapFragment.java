@@ -36,18 +36,23 @@ public class EventEntrantsMapFragment extends SupportMapFragment implements OnMa
         //  intercept google map touches.
         gMap.getUiSettings().setZoomControlsEnabled(true);
         eventViewModel.getEventEntrantsLive().observe(getViewLifecycleOwner(), eventEntrants -> {
+            final var entrantLocations = eventEntrants.locations();
+            if (entrantLocations.isEmpty()) {
+                // Nothing to do!
+                return;
+            }
             // We are going to use a bounds builder to figure out the bounds
             // encompassing all markers.
             LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
             // Add all the locations per entrant as markers.
-            eventEntrants.locations().forEach((email, loc) -> {
+            entrantLocations.forEach((email, loc) -> {
                 final var latLng = new LatLng(loc.getLatitude(), loc.getLongitude());
                 final var markerOpts = new MarkerOptions().position(latLng).title(email);
                 gMap.addMarker(markerOpts);
                 boundsBuilder.include(latLng);
             });
             // Move the camera such that it shows all the markers in view.
-            final var cameraUpdate = CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 0);
+            final var cameraUpdate = CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 50);
             gMap.animateCamera(cameraUpdate);
         });
     }
