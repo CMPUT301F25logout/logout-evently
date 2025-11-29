@@ -50,80 +50,73 @@
             android:paddingBottom="6dp"/>
 
         <!-- Event Name -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Event Name:"/>
-        <EditText
-            android:id="@+id/etEventName"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Your Event"
-            android:inputType="textPersonName"
-            android:padding="10dp"
-            android:background="@android:drawable/edit_text" />
+            android:hint="Event Name"
+            app:counterEnabled="true"
+            app:counterMaxLength="20">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etEventName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textShortMessage"
+                android:padding="10dp"
+                android:maxLength="20"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Description -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="10dp"
-            android:text="Description:"/>
-        <EditText
-            android:id="@+id/etDescription"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minLines="2"
-            android:maxLines="4"
-            android:gravity="top|start"
-            android:hint="Event Description"
-            android:inputType="textMultiLine"
-            android:padding="10dp"
-            android:background="@android:drawable/edit_text" />
+            android:hint="Description">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minLines="2"
+                android:maxLines="4"
+                android:gravity="top|start"
+                android:inputType="textMultiLine"
+                android:padding="10dp"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Waiting List Limit -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="10dp"
-            android:text="Waiting List Limit (Optional):"/>
-        <EditText
-            android:id="@+id/etWaitLimit"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="e.g., 200"
-            android:inputType="number"
-            android:padding="10dp"
-            android:background="@android:drawable/edit_text" />
+            android:hint="Waiting List Limit (Optional)">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etWaitLimit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:padding="10dp"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Number of Winners -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="10dp"
-            android:text="Number of Winners:"/>
-        <EditText
-            android:id="@+id/etWinners"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="e.g., 20"
-            android:inputType="number"
-            android:padding="10dp"
-            android:background="@android:drawable/edit_text" />
+            android:hint="Number of Winners">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etWinners"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:padding="10dp"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Selection Date -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="10dp"
-            android:text="Selection Date:" />
-
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilSelectionDeadline"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
+            android:hint="Selection Date"
             app:endIconMode="none">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -132,16 +125,10 @@
                 android:layout_height="wrap_content"
                 android:clickable="true"
                 android:focusable="false"
-                android:hint="YYYY/MM/DD"
                 android:inputType="none" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Event Deadline -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="10dp"
-            android:text="Event Deadline:" />
+        <!-- Event date -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -150,12 +137,11 @@
             android:weightSum="2">
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilEventDate"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                app:endIconMode="none">
+                app:endIconMode="none"
+                android:hint="Event date">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etEventDate"
@@ -163,7 +149,6 @@
                     android:layout_height="wrap_content"
                     android:clickable="true"
                     android:focusable="false"
-                    android:hint="YYYY/MM/DD"
                     android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -172,11 +157,10 @@
                 android:layout_height="wrap_content" />
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilEventTime"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:hint="Event time"
                 app:endIconMode="none">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -185,7 +169,6 @@
                     android:layout_height="wrap_content"
                     android:clickable="true"
                     android:focusable="false"
-                    android:hint="HH:mm (optional)"
                     android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>

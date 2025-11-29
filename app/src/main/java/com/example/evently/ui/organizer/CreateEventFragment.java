@@ -153,6 +153,11 @@ public class CreateEventFragment extends Fragment {
                 return;
             }
 
+            if (eventTime == null) {
+                toast("Please select an event date.");
+                return;
+            }
+
             long winners;
             try {
                 winners = Long.parseLong(winnersStr);
@@ -174,9 +179,7 @@ public class CreateEventFragment extends Fragment {
 
             final Instant selectionTime =
                     selectionDeadline.atStartOfDay(ZoneId.systemDefault()).toInstant();
-            final LocalTime eventTimeOrDefault =
-                    Optional.ofNullable(eventTime).orElse(LocalTime.MIDNIGHT);
-            final Instant eventInstant = LocalDateTime.of(eventDate, eventTimeOrDefault)
+            final Instant eventInstant = LocalDateTime.of(eventDate, eventTime)
                     .atZone(ZoneId.systemDefault())
                     .toInstant();
 
@@ -185,10 +188,6 @@ public class CreateEventFragment extends Fragment {
                 return;
             }
 
-            String organizer = FirebaseAuthUtils.getCurrentEmail();
-
-            // For now, eventTime == selectionTime + 2 days (until organizer add event date/time
-            // fields)
             Event created = new Event(
                     name,
                     desc,
@@ -196,7 +195,8 @@ public class CreateEventFragment extends Fragment {
                     new Timestamp(selectionTime),
                     new Timestamp(eventInstant),
                     FirebaseAuthUtils.getCurrentEmail(),
-                    winners);
+                    winners,
+                    wait.orElse(null));
 
             btnCreate.setEnabled(false);
 
@@ -241,7 +241,6 @@ public class CreateEventFragment extends Fragment {
             picker.show(getParentFragmentManager(), "selection_deadline_picker");
         };
 
-        binding.tilSelectionDeadline.setOnClickListener(listener);
         binding.etSelectionDeadline.setOnClickListener(listener);
     }
 
@@ -265,14 +264,13 @@ public class CreateEventFragment extends Fragment {
             picker.show(getParentFragmentManager(), "event_date_picker");
         };
 
-        binding.tilEventDate.setOnClickListener(listener);
         binding.etEventDate.setOnClickListener(listener);
     }
 
     private void setupEventTimePicker() {
         final View.OnClickListener listener = _v -> {
             final var builder =
-                    new MaterialTimePicker.Builder().setTimeFormat(TimeFormat.CLOCK_24H);
+                    new MaterialTimePicker.Builder().setTimeFormat(TimeFormat.CLOCK_12H);
 
             if (eventTime != null) {
                 builder.setHour(eventTime.getHour());
@@ -288,7 +286,6 @@ public class CreateEventFragment extends Fragment {
             picker.show(getParentFragmentManager(), "event_time_picker");
         };
 
-        binding.tilEventTime.setOnClickListener(listener);
         binding.etEventTime.setOnClickListener(listener);
     }
 
