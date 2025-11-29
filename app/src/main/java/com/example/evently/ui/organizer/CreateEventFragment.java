@@ -167,7 +167,7 @@ public class CreateEventFragment extends Fragment {
                     name,
                     desc,
                     Category.SPORTS,
-                    false,
+                    binding.enableLocation.isChecked(),
                     new Timestamp(selectionTime),
                     new Timestamp(selectionTime.plus(Duration.ofDays(2))),
                     FirebaseAuthUtils.getCurrentEmail(),
