@@ -49,26 +49,22 @@ public abstract sealed class EntrantsFragment extends Fragment
 
         eventViewModel = new ViewModelProvider(requireParentFragment()).get(EventViewModel.class);
 
-        if (view instanceof RecyclerView recyclerView) {
-            Context context = recyclerView.getContext();
-            recyclerView.setLayoutManager(new LinearLayoutManager(context));
-
-            // We set up an initial empty adapter, to allow the usage of swapAdapter later.
-            recyclerView.setAdapter(new EntrantRecyclerViewAdapter());
-
-            // Set up an observer to update the event entrants as they change.
-            eventViewModel
-                    .getEventEntrantsLive()
-                    .observe(getViewLifecycleOwner(), eventEntrants -> {
-                        final var adapter =
-                                new EntrantRecyclerViewAdapter(selectEntrantList(eventEntrants));
-                        recyclerView.swapAdapter(adapter, false);
-                    });
-
-            return view;
-        } else {
+        if (!(view instanceof RecyclerView recyclerView))
             throw new AssertionError("EntrantsFragment.onCreateView called with non RecyclerView");
-        }
+
+        Context context = recyclerView.getContext();
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+
+        // We set up an initial empty adapter, to allow the usage of swapAdapter later.
+        recyclerView.setAdapter(new EntrantRecyclerViewAdapter());
+
+        // Set up an observer to update the event entrants as they change.
+        eventViewModel.getEventEntrantsLive().observe(getViewLifecycleOwner(), eventEntrants -> {
+            final var adapter = new EntrantRecyclerViewAdapter(selectEntrantList(eventEntrants));
+            recyclerView.swapAdapter(adapter, false);
+        });
+
+        return view;
     }
 
     public static final class EnrolledEntrantsFragment extends EntrantsFragment {
