@@ -2,6 +2,7 @@ package com.example.evently;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -202,6 +203,14 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
                     () -> assertRecyclerViewItem(
                             R.id.entrantList, p(R.id.entrant_name, expectedAccount.email())));
         }
+    }
+
+    @Test
+    public void testNoMap() throws InterruptedException {
+        Thread.sleep(1000);
+
+        // Ensure the map tab is not displayed.
+        onView(withText("Map")).check(doesNotExist());
     }
 
     @Override
