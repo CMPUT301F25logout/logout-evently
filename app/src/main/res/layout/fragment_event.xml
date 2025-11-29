@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/eventCard"
+    android:id="@+id/btnDetails"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="12dp"
@@ -82,16 +82,17 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- MAIN IMAGE -->
+        <!-- MAIN IMAGE by default is invisible to prevent glitching-->
         <ImageView
             android:id="@+id/imgMain"
             android:layout_width="match_parent"
             android:layout_height="180dp"
-            android:scaleType="centerCrop"
+            android:scaleType="centerCrop"  
             android:src="@android:color/darker_gray"
             android:contentDescription="event image"
             android:layout_marginTop="12dp"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"/>
 
         <!-- METADATA BELOW IMAGE -->
         <LinearLayout

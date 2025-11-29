@@ -89,12 +89,13 @@ public class EventRecyclerViewAdapter
         eventImageReference
                 .getMetadata()
                 .addOnSuccessListener(metadata -> {
-                    // Event image exists, load image normally
+                    // Event image exists, set image visible and display it
+                    binding.imgMain.setVisibility(android.view.View.VISIBLE);
                     GlideUtils.loadEventImageIntoImageView(eventImageReference, binding.imgMain);
                 })
                 .addOnFailureListener(e -> {
-                    // Event image does NOT exist, hide the image
-                    binding.imgMain.setVisibility(android.view.View.GONE);
+                    // Event image does NOT exist, do nothing
+                    ;
                 });
 
         // Status + selectionDate
@@ -118,7 +119,7 @@ public class EventRecyclerViewAdapter
         binding.txtDate.setText(some_date.format(holder.mItem.eventTime().toInstant()));
 
         // Card with click logic.
-        binding.eventCard.setOnClickListener(v -> onEventClick.accept(holder.mItem));
+        binding.btnDetails.setOnClickListener(v -> onEventClick.accept(holder.mItem));
 
         // Event description
         binding.txtDescription.setText(holder.mItem.description());
