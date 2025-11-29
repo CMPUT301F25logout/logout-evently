@@ -1,8 +1,10 @@
 package com.example.evently;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.example.evently.MatcherUtils.assertRecyclerViewItem;
 import static com.example.evently.MatcherUtils.p;
@@ -90,6 +92,17 @@ public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsF
         for (final var expectedAccount : expectedAccounts) {
             assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, expectedAccount.email()));
         }
+    }
+
+    @Test
+    public void testSelectionDetailsButtonOpensDialog() throws InterruptedException {
+        Thread.sleep(2000);
+
+        onView(withId(R.id.lotteryGuidelinesButton)).check(matches(isDisplayed()));
+        onView(withId(R.id.lotteryGuidelinesButton)).perform(click());
+        onView(withText(R.string.lottery_guidelines_dialog_title)).check(matches(isDisplayed()));
+        onView(withText(R.string.lottery_guidelines_dialog_message)).check(matches(isDisplayed()));
+        onView(withText(R.string.lottery_guidelines_dialog_positive)).perform(click());
     }
 
     @Override
