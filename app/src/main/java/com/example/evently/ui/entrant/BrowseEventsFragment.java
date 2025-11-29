@@ -42,7 +42,7 @@ public class BrowseEventsFragment extends EventsFragment {
     @Override
     protected void initEvents(Consumer<List<Event>> callback) {
         new EventsDB()
-                .fetchEventsByDate(Timestamp.now(), true)
+                .fetchOpenEvents()
                 .thenRun(callback)
                 .catchE(e -> {
                     Log.e("BrowseEvents", e.toString());

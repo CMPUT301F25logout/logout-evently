@@ -158,12 +158,19 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
         }
     }
 
+    @AfterClass
+    public static void removeEvents() throws ExecutionException, InterruptedException {
+        for (final var mockEvent : mockEvents) {
+            eventsDB.deleteEvent(mockEvent.eventID()).await();
+        }
+    }
+
     @Test
     public void testViewingEvents() throws InterruptedException {
         Thread.sleep(2000);
 
         // Test if each event added shows up on the recyclerview, one of the events is closed
-        for (int i = 0; i < mockEvents.length; i++) {
+        for (int i = 1; i < mockEvents.length; i++) {
             final var expectedEvent = mockEvents[i];
 
             onView(withId(R.id.event_list)).perform(RecyclerViewActions.scrollToPosition(i));
