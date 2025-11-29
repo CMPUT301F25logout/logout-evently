@@ -30,6 +30,7 @@ public record Event(
         String name,
         String description,
         Category category,
+        boolean requiresLocation,
         Timestamp selectionTime,
         Timestamp eventTime,
         String organizer,
@@ -69,6 +70,7 @@ public record Event(
             String name,
             String description,
             Category category,
+            boolean requiresLocation,
             Timestamp selectionTime,
             Timestamp eventTime,
             String organizer,
@@ -79,6 +81,7 @@ public record Event(
                 name,
                 description,
                 category,
+                requiresLocation,
                 selectionTime,
                 eventTime,
                 organizer,
@@ -91,6 +94,7 @@ public record Event(
             String name,
             String description,
             Category category,
+            boolean requiresLocation,
             Timestamp selectionTime,
             Timestamp eventTime,
             String organizer,
@@ -100,6 +104,7 @@ public record Event(
                 name,
                 description,
                 category,
+                requiresLocation,
                 selectionTime,
                 eventTime,
                 organizer,
@@ -119,6 +124,7 @@ public record Event(
         hashMap.put("name", this.name);
         hashMap.put("description", this.description);
         hashMap.put("category", this.category.toString());
+        hashMap.put("requiresLocation", this.requiresLocation);
         hashMap.put("selectionTime", this.selectionTime);
         hashMap.put("eventTime", this.eventTime);
         hashMap.put("organizer", this.organizer);

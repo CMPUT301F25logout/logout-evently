@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import com.google.firebase.firestore.GeoPoint;
+
 /**
  * Lists of entrants associated with an event.
  * @param eventID The ID of the event in question.
@@ -18,10 +20,17 @@ public record EventEntrants(
         List<String> all,
         List<String> selected,
         List<String> accepted,
-        List<String> cancelled) {
+        List<String> cancelled,
+        HashMap<String, GeoPoint> locations) {
 
     public EventEntrants(UUID eventID) {
-        this(eventID, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        this(
+                eventID,
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new HashMap<>());
     }
 
     /**
@@ -36,6 +45,7 @@ public record EventEntrants(
         hashMap.put("selectedEntrants", this.selected);
         hashMap.put("acceptedEntrants", this.accepted);
         hashMap.put("cancelledEntrants", this.cancelled);
+        hashMap.put("entrantLocations", this.locations);
 
         return hashMap;
     }
