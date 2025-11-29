@@ -101,7 +101,7 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
 
     @Test
     public void testEnrolledPeople() throws InterruptedException {
-        Thread.sleep(2000);
+        Thread.sleep(1000);
 
         onView(withText(mockEvent.description())).check(matches(isDisplayed()));
 
@@ -123,12 +123,15 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
 
     @Test
     public void testSelectedPeople() throws InterruptedException {
-        Thread.sleep(2000);
+        Thread.sleep(1000);
 
         onView(withText(mockEvent.description())).check(matches(isDisplayed()));
 
         // Check the selected tab.
         onView(withText("Selected")).perform(click());
+
+        // For whatever reason, it takes time for viewpager to get rid of the old tab.
+        Thread.sleep(1000);
 
         // Test if the account's emails shows up on the recycler view
         for (int i = 1; i <= selectionLimit; i++) {
@@ -148,12 +151,15 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
 
     @Test
     public void testAcceptedPeople() throws InterruptedException {
-        Thread.sleep(2000);
+        Thread.sleep(1000);
 
         onView(withText(mockEvent.description())).check(matches(isDisplayed()));
 
         // Check the accepted tab.
         onView(withText("Accepted")).perform(click());
+
+        // For whatever reason, it takes time for viewpager to get rid of the old tab.
+        Thread.sleep(1000);
 
         // Test if the account's emails shows up on the recycler view
         for (int i = 2; i <= selectionLimit - 1; i++) {
@@ -174,12 +180,15 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
 
     @Test
     public void testCancelledPeople() throws InterruptedException {
-        Thread.sleep(2000);
+        Thread.sleep(1000);
 
         onView(withText(mockEvent.description())).check(matches(isDisplayed()));
 
         // Check the cancelled tab.
         onView(withText("Cancelled")).perform(click());
+
+        // For whatever reason, it takes time for viewpager to get rid of the old view.
+        Thread.sleep(1000);
 
         // Test if the account's emails shows up on the recycler view
         assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, extraAccounts[1].email()));
