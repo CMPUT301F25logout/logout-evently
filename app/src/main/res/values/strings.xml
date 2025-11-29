@@ -32,6 +32,7 @@
     <string name="event_share_btn">Share</string>
     <string name="event_notify_selected_btn">Notify Selected</string>
     <string name="event_send_notification_button">Notify</string>
+    <string name="event_export_entrants_button">Export List</string>
     <string name="event_join_btn_full">Waitlist Full</string>
     <string name="event_join_btn_joined">Leave Waitlist</string>
     <string name="event_image_description">Event image</string>

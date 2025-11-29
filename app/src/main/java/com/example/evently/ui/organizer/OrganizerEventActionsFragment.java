@@ -1,16 +1,23 @@
 package com.example.evently.ui.organizer;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.evently.data.model.EventEntrants;
 import com.example.evently.data.model.Notification;
 import com.example.evently.databinding.FragmentOrganizerEventActionsBinding;
 import com.example.evently.ui.common.EventQRDialogFragment;
@@ -25,6 +32,8 @@ public class OrganizerEventActionsFragment extends Fragment {
     private FragmentOrganizerEventActionsBinding binding;
     private String currentlySelectedChannel = Notification.Channel.All.name();
     private EventViewModel eventViewModel;
+    private EventEntrants entrantsDB;
+    private static final int CREATE_FILE = 1;
 
     @Override
     public View onCreateView(
@@ -36,6 +45,8 @@ public class OrganizerEventActionsFragment extends Fragment {
                 FragmentOrganizerEventActionsBinding.inflate(getLayoutInflater(), container, false);
 
         eventViewModel = new ViewModelProvider(requireParentFragment()).get(EventViewModel.class);
+
+        entrantsDB = new EventEntrants(eventViewModel.eventID);
 
         return binding.getRoot();
     }
@@ -58,6 +69,9 @@ public class OrganizerEventActionsFragment extends Fragment {
         binding.sendNotif.setOnClickListener(v -> NavHostFragment.findNavController(this)
                 .navigate(EditEventDetailsFragmentDirections.actionEventDetailsToNavThread(
                         eventViewModel.eventID, currentlySelectedChannel)));
+
+        binding.exportEntrants.setClickable(!entrantsDB.accepted().isEmpty());
+        binding.exportEntrants.setOnClickListener(this::exportCSV);
     }
 
     @Override
@@ -71,7 +85,7 @@ public class OrganizerEventActionsFragment extends Fragment {
      * @param v View of button
      */
     private void selectChannel(View v) {
-        PopupMenu popup = new PopupMenu(getContext(), v);
+        var popup = new PopupMenu(getContext(), v);
         binding.selectChannel.setChecked(true);
 
         for (Notification.Channel channel : Notification.Channel.values())
@@ -85,5 +99,34 @@ public class OrganizerEventActionsFragment extends Fragment {
 
         popup.setOnDismissListener(menu -> binding.selectChannel.setChecked(false));
         popup.show();
+    }
+
+    private void exportCSV(View v) {
+        if (entrantsDB.accepted().isEmpty()) return;
+
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("text/csv");
+        intent.putExtra(Intent.EXTRA_TITLE, "entrants.csv");
+
+        registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                    if (result.getResultCode() != OrganizerActivity.RESULT_OK)
+                        return; // May need to change returns to making a toast
+
+                    if (result.getData() == null) return;
+                    var uri = result.getData().getData();
+                    if (uri == null) return;
+
+                    var csvString = String.join(",", entrantsDB.accepted());
+
+                    try (OutputStream os =
+                            requireContext().getContentResolver().openOutputStream(uri)) {
+                        os.write(csvString.getBytes(StandardCharsets.UTF_8));
+                        os.flush();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .launch(intent);
     }
 }
