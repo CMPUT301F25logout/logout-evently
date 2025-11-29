@@ -87,7 +87,7 @@
             android:id="@+id/imgMain"
             android:layout_width="match_parent"
             android:layout_height="180dp"
-            android:scaleType="centerCrop"  
+            android:scaleType="centerCrop"
             android:src="@android:color/darker_gray"
             android:contentDescription="event image"
             android:layout_marginTop="12dp"
