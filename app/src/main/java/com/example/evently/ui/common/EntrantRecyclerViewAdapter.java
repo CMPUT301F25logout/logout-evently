@@ -5,10 +5,12 @@ import java.util.List;
 import java.util.UUID;
 
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.evently.data.EventsDB;
 import com.example.evently.databinding.FragmentEntrantBinding;
 
 /**
@@ -31,9 +33,11 @@ public class EntrantRecyclerViewAdapter
         showRemoveButton = false;
     }
 
-    public EntrantRecyclerViewAdapter(List<String> entrants, UUID eventID) {
+    public EntrantRecyclerViewAdapter(
+            List<String> entrants, boolean showRemoveButton, UUID eventID) {
         this.entrants = entrants;
-        showRemoveButton = true;
+        this.showRemoveButton = showRemoveButton;
+        this.eventID = eventID;
     }
 
     public static class EntrantViewHolder extends RecyclerView.ViewHolder {
@@ -60,22 +64,28 @@ public class EntrantRecyclerViewAdapter
         }
         var binding = holder.binding;
 
-        // TODO: Add a remove button with default invisibility to the XML
-
-        if (showRemoveButton) {
-
-            // TODO: Change visibility in this section
-
-            // TODO Add an onclick listener to delete the user from the selectedEntrants,
-            //  and move to canceled
-
-        }
-
         // Define the names
         String name = entrants.get(position);
 
         // Set the name of each person
         binding.entrantName.setText(name);
+
+        // If we need to have the remove button, it is shown
+        if (showRemoveButton) {
+            // Sets visibility
+            binding.removeButton.setVisibility(View.VISIBLE);
+            // Sets Onclick listener.
+
+            binding.removeButton.setOnClickListener(v -> {
+                EventsDB eventsDB = new EventsDB();
+                eventsDB.addCancelled(eventID, name)
+                        .alongside(eventsDB.unSelect(eventID, name))
+                        .thenRun(x -> {
+                            entrants.remove(position);
+                            notifyItemRemoved(position);
+                        });
+            });
+        }
     }
 
     @Override

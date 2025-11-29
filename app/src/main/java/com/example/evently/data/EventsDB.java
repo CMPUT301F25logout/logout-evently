@@ -181,6 +181,16 @@ public class EventsDB {
     }
 
     /**
+     * Remove user from selected list of event.
+     * @param eventID Target event.
+     * @param email Target user email
+     * @return Promise.
+     */
+    public Promise<Void> unSelect(UUID eventID, String email) {
+        return removeEntrantFromList(eventID, email, "selectedEntrants");
+    }
+
+    /**
      * Add a user to the accepted list of an event.
      * @param eventID Target event.
      * @param email Email of the user to enroll.

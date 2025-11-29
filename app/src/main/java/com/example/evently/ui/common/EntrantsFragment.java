@@ -31,7 +31,7 @@ public abstract sealed class EntrantsFragment extends Fragment
                 EntrantsFragment.AcceptedEntrantsFragment,
                 EntrantsFragment.CancelledEntrantsFragment {
 
-    private EventViewModel eventViewModel;
+    protected EventViewModel eventViewModel;
 
     /**
      * Select the type of entrants we aim to display.
@@ -56,12 +56,11 @@ public abstract sealed class EntrantsFragment extends Fragment
             // We set up an initial empty adapter, to allow the usage of swapAdapter later.
             recyclerView.setAdapter(new EntrantRecyclerViewAdapter());
 
-            // Set up an observer to update the event entrants as they change.
+            // Set to update the event entrants as they change.
             eventViewModel
                     .getEventEntrantsLive()
                     .observe(getViewLifecycleOwner(), eventEntrants -> {
-                        final var adapter =
-                                new EntrantRecyclerViewAdapter(selectEntrantList(eventEntrants));
+                        final var adapter = getAdapter(eventEntrants);
                         recyclerView.swapAdapter(adapter, false);
                     });
 
@@ -69,6 +68,15 @@ public abstract sealed class EntrantsFragment extends Fragment
         } else {
             throw new AssertionError("EntrantsFragment.onCreateView called with non RecyclerView");
         }
+    }
+
+    /**
+     * Gets the EntrantRecyclerViewAdapter for the entrants
+     * @param entrants The entrants being adapted
+     * @return An entrant adapter.
+     */
+    protected EntrantRecyclerViewAdapter getAdapter(EventEntrants entrants) {
+        return new EntrantRecyclerViewAdapter(selectEntrantList(entrants));
     }
 
     public static final class EnrolledEntrantsFragment extends EntrantsFragment {
@@ -79,6 +87,17 @@ public abstract sealed class EntrantsFragment extends Fragment
     }
 
     public static final class SelectedEntrantsFragment extends EntrantsFragment {
+
+        /**
+         * SelectedEntrantsFragment should have the remove button.
+         * @param entrants The entrants being adapted
+         * @return an entrant recycler view adapter
+         */
+        @Override
+        protected EntrantRecyclerViewAdapter getAdapter(EventEntrants entrants) {
+            return new EntrantRecyclerViewAdapter(
+                    selectEntrantList(entrants), true, eventViewModel.eventID);
+        }
 
         @Override
         protected List<String> selectEntrantList(EventEntrants entrantsInfo) {
