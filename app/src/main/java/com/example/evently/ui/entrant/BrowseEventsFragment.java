@@ -8,8 +8,6 @@ import android.widget.Toast;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.google.firebase.Timestamp;
-
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.common.EventsFragment;
@@ -41,13 +39,10 @@ public class BrowseEventsFragment extends EventsFragment {
      */
     @Override
     protected void initEvents(Consumer<List<Event>> callback) {
-        new EventsDB()
-                .fetchEventsByDate(Timestamp.now(), true)
-                .thenRun(callback)
-                .catchE(e -> {
-                    Log.e("BrowseEvents", e.toString());
-                    Toast.makeText(requireContext(), "Something went wrong...", Toast.LENGTH_SHORT)
-                            .show();
-                });
+        new EventsDB().fetchOpenEvents().thenRun(callback).catchE(e -> {
+            Log.e("BrowseEvents", e.toString());
+            Toast.makeText(requireContext(), "Something went wrong...", Toast.LENGTH_SHORT)
+                    .show();
+        });
     }
 }
