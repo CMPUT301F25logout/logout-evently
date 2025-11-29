@@ -25,16 +25,18 @@ android {
 
         // Load API credentials
         val keystoreFile = project.rootProject.file("keys.properties")
-        val properties = Properties()
-        properties.load(keystoreFile.inputStream())
+        val secrets = Properties()
+        secrets.load(keystoreFile.inputStream())
 
-        val gclientID = properties.getProperty("GOOGLE_CLIENT_ID") ?: ""
+        val gclientID = secrets.getProperty("GOOGLE_CLIENT_ID") ?: ""
 
         buildConfigField(
             type = "String",
             name = "GOOGLE_CLIENT_ID",
             value = gclientID
         )
+
+        manifestPlaceholders["MAPS_API_KEY"] = secrets.getProperty("MAPS_API_KEY") ?: ""
 
         // Load emulator connection preference
         val preferencesFile = project.rootProject.file("preferences.properties")
@@ -145,6 +147,7 @@ dependencies {
 
     implementation(libs.espresso.core)
     implementation(libs.espresso.intents)
+    implementation(libs.play.services.maps)
     annotationProcessor(libs.compiler)
 
     testImplementation(libs.junit)
