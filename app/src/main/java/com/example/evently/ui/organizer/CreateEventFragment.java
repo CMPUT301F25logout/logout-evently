@@ -8,6 +8,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -28,6 +29,7 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 import com.google.firebase.Timestamp;
@@ -72,12 +74,6 @@ public class CreateEventFragment extends Fragment {
                     Log.d("Poster Picker", "No poster selected");
                 }
             });
-
-    @Nullable private LocalDate selectionDeadline;
-
-    @Nullable private LocalDate eventDate;
-
-    @Nullable private LocalTime eventTime;
 
     /**
      * Inflates the "Create Event" form
@@ -126,14 +122,18 @@ public class CreateEventFragment extends Fragment {
                     .build());
         });
 
-        setupSelectionDeadlinePicker();
-        setupEventDatePicker();
+        binding.etSelectionDeadline.setOnClickListener(ignored -> setupDatePicker("Selection deadline", binding.etSelectionDeadline));
+        binding.etEventDate.setOnClickListener(ignored -> setupDatePicker("Event date", binding.etEventDate));
+
         setupEventTimePicker();
 
         btnCreate.setOnClickListener(_x -> {
             String name = binding.etEventName.getText().toString().trim();
             String desc = binding.etDescription.getText().toString().trim();
             String winnersStr = binding.etWinners.getText().toString().trim();
+            final var selectionDeadlineTxt = binding.etSelectionDeadline.getText();
+            final var eventDateTxt = binding.etEventDate.getText();
+            final var eventTimeTxt = binding.etEventTime.getText();
 
             if (TextUtils.isEmpty(name)) {
                 toast("Please enter an event name.");
@@ -143,20 +143,24 @@ public class CreateEventFragment extends Fragment {
                 toast("Please enter number of winners.");
                 return;
             }
-            if (selectionDeadline == null) {
+            if (TextUtils.isEmpty(selectionDeadlineTxt)) {
                 toast("Please select a selection date.");
                 return;
             }
 
-            if (eventDate == null) {
+            if (TextUtils.isEmpty(eventDateTxt)) {
                 toast("Please select an event date.");
                 return;
             }
 
-            if (eventTime == null) {
-                toast("Please select an event date.");
+            if (TextUtils.isEmpty(eventTimeTxt)) {
+                toast("Please select an event time.");
                 return;
             }
+
+            final var selectionDeadline = LocalDate.parse(selectionDeadlineTxt, DATE_FORMATTER);
+            final var eventDate = LocalDate.parse(eventDateTxt, DATE_FORMATTER);
+            final var eventTime = LocalTime.parse(eventTimeTxt, TIME_FORMATTER);
 
             long winners;
             try {
@@ -221,50 +225,24 @@ public class CreateEventFragment extends Fragment {
         });
     }
 
-    private void setupSelectionDeadlinePicker() {
-        final View.OnClickListener listener = _v -> {
-            final var pickerBuilder = MaterialDatePicker.Builder.datePicker();
-            pickerBuilder.setTitleText("Select selection date");
+    private void setupDatePicker(String title, TextInputEditText target) {
+        final var pickerBuilder = MaterialDatePicker.Builder.datePicker();
+        pickerBuilder.setTitleText(title);
 
-            if (selectionDeadline != null) {
-                pickerBuilder.setSelection(toEpochMillis(selectionDeadline));
+        final var targetText = target.getText();
+        if (!TextUtils.isEmpty(targetText)) {
+            final var existingDate = LocalDate.parse(targetText, DATE_FORMATTER);
+            pickerBuilder.setSelection(toEpochMillis(existingDate));
+        }
+
+        final var picker = pickerBuilder.build();
+        picker.addOnPositiveButtonClickListener(selection -> {
+            if (selection != null) {
+                target.setText(DATE_FORMATTER.format(toLocalDate(selection)));
             }
+        });
 
-            final var picker = pickerBuilder.build();
-            picker.addOnPositiveButtonClickListener(selection -> {
-                if (selection != null) {
-                    selectionDeadline = toLocalDate(selection);
-                    binding.etSelectionDeadline.setText(DATE_FORMATTER.format(selectionDeadline));
-                }
-            });
-
-            picker.show(getParentFragmentManager(), "selection_deadline_picker");
-        };
-
-        binding.etSelectionDeadline.setOnClickListener(listener);
-    }
-
-    private void setupEventDatePicker() {
-        final View.OnClickListener listener = _v -> {
-            final var pickerBuilder = MaterialDatePicker.Builder.datePicker();
-            pickerBuilder.setTitleText("Select event date");
-
-            if (eventDate != null) {
-                pickerBuilder.setSelection(toEpochMillis(eventDate));
-            }
-
-            final var picker = pickerBuilder.build();
-            picker.addOnPositiveButtonClickListener(selection -> {
-                if (selection != null) {
-                    eventDate = toLocalDate(selection);
-                    binding.etEventDate.setText(DATE_FORMATTER.format(eventDate));
-                }
-            });
-
-            picker.show(getParentFragmentManager(), "event_date_picker");
-        };
-
-        binding.etEventDate.setOnClickListener(listener);
+        picker.show(getParentFragmentManager(), "date_picker");
     }
 
     private void setupEventTimePicker() {
@@ -272,14 +250,16 @@ public class CreateEventFragment extends Fragment {
             final var builder =
                     new MaterialTimePicker.Builder().setTimeFormat(TimeFormat.CLOCK_12H);
 
-            if (eventTime != null) {
+            final var eventTimeText = binding.etEventTime.getText();
+            if (!TextUtils.isEmpty(eventTimeText)) {
+                final var eventTime = LocalTime.parse(eventTimeText, TIME_FORMATTER);
                 builder.setHour(eventTime.getHour());
                 builder.setMinute(eventTime.getMinute());
             }
 
             final var picker = builder.build();
             picker.addOnPositiveButtonClickListener(_selection -> {
-                eventTime = LocalTime.of(picker.getHour(), picker.getMinute());
+                final var eventTime = LocalTime.of(picker.getHour(), picker.getMinute());
                 binding.etEventTime.setText(TIME_FORMATTER.format(eventTime));
             });
 
