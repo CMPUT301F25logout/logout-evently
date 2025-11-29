@@ -13,60 +13,65 @@ import androidx.fragment.app.DialogFragment;
 import com.google.android.material.textfield.TextInputEditText;
 
 import com.example.evently.R;
+import com.example.evently.utils.TextInputValidator;
 
 /**
  * Fragment to query user for confirmation with user text input
  * Connected to fragment_confirmation_text_input.xml
  */
-public abstract class ConfirmFragmentTextInput extends DialogFragment {
+public class ConfirmFragmentTextInput extends DialogFragment {
     static final String headerKey = "header";
     static final String messageKey = "message";
     static final String cancelKey = "cancel";
     static final String confirmKey = "confirm";
     static final String hintKey = "hint";
+    static final String validateKey = "validate";
     public static final String requestKey = "confirmResult";
     public static final String inputKey = "input";
 
     /**
-     * Criteria the input string must satisfy.
-     * @param inp Input string
-     * @return Whether or not input is valid
-     */
-    protected abstract boolean validateInput(String inp);
-
-    /**
-     * Initializes the arguments bundle for a ConfirmFragmentTextInput
+     * Initializes a ConfirmFragmentTextInput with bundled arguments
      * @param headerText Text for header of fragment
      * @param messageText Text for message of fragment
      * @param cancelText Text for cancel button
      * @param confirmText Text for confirm button
+     * @param validateType Type of validation for input string
      *
-     * @return Bundle to set on a ConfirmFragmentTextInput
+     * @return new ConfirmFragmentTextInput instance
      */
-    public static Bundle instanceArgs(
+    public static ConfirmFragmentTextInput newInstance(
             String headerText,
             String messageText,
             String hintText,
             String cancelText,
-            String confirmText) {
+            String confirmText,
+            TextInputValidator validateType) {
+        var fragment = new ConfirmFragmentTextInput();
         Bundle args = new Bundle();
         args.putString(headerKey, headerText);
         args.putString(messageKey, messageText);
         args.putString(cancelKey, cancelText);
         args.putString(confirmKey, confirmText);
         args.putString(hintKey, hintText);
-        return args;
+        args.putString(validateKey, validateType.name());
+        fragment.setArguments(args);
+        return fragment;
     }
 
     /**
-     * Initializes the arguments bundle for a ConfirmFragmentTextInput
+     * Initializes a ConfirmFragmentTextInput with bundled arguments
      * @param headerText Text for header of fragment
      * @param messageText Text for message of fragment
+     * @param validateType Type of validation for input string
      *
-     * @return Bundle to set on a ConfirmFragmentTextInput
+     * @return new ConfirmFragmentTextInput instance
      */
-    public static Bundle instanceArgs(String headerText, String messageText, String hintText) {
-        return instanceArgs(headerText, messageText, hintText, null, null);
+    public static ConfirmFragmentTextInput newInstance(
+            String headerText,
+            String messageText,
+            String hintText,
+            TextInputValidator validateType) {
+        return newInstance(headerText, messageText, hintText, null, null, validateType);
     }
 
     /**
@@ -119,6 +124,7 @@ public abstract class ConfirmFragmentTextInput extends DialogFragment {
         TextInputEditText textEdit = view.findViewById(R.id.text_field);
         Button cancel = view.findViewById(R.id.cancel_button);
         Button confirm = view.findViewById(R.id.confirm_button);
+        var validateType = TextInputValidator.valueOf(args.getString(validateKey));
 
         header.setText(args.getString(headerKey));
         message.setText(args.getString(messageKey));
@@ -135,11 +141,13 @@ public abstract class ConfirmFragmentTextInput extends DialogFragment {
             }
             Bundle input = new Bundle();
             String inputText = editText.toString();
-            if (validateInput(inputText)) {
+
+            if (validateType.toPattern().matcher(inputText).matches()) {
                 input.putString(inputKey, textEdit.getText().toString());
                 getParentFragmentManager().setFragmentResult(requestKey, input);
                 dismiss();
             }
+            message.setText(args.getString(messageKey)); // Stops from repeat invalid appending
             message.append("\nINVALID INPUT");
         });
     }
