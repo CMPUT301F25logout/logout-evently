@@ -49,6 +49,7 @@ public class JoinedToEventDetailsTest extends EmulatedFragmentTest<JoinedEventsF
                 "name",
                 "description",
                 Category.EDUCATIONAL,
+                false,
                 selectionTime,
                 eventTime,
                 "orgEmail",
