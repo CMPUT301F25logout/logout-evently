@@ -265,7 +265,7 @@ public class EventsDB {
                 .collect(Collectors.toList()));
     }
 
-     /**
+    /**
      * @return All currently open (for enrollment) events.
      */
     public Promise<List<Event>> fetchOpenEvents() {

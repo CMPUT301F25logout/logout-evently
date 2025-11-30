@@ -108,6 +108,7 @@ public class AdminBrowseImagesFragment extends Fragment {
         posterDictionary.remove(selectedEventPoster);
         adapter.notifyDataSetChanged();
 
-        Toast.makeText(requireContext(), "Image deleted.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), R.string.Image_deleted_toast, Toast.LENGTH_SHORT)
+                .show();
     }
 }

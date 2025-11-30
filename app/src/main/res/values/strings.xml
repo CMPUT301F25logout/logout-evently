@@ -57,4 +57,7 @@
     <string name="notification_title">Notification Title</string>
     <string name="action_dumb_login">Sign in with Device ID</string>
     <string name="dumb_register_txt">Sign up with Device ID</string>
+    <string name="Event_deleted_toast">"Event was removed."</string>
+    <string name="Profile_deleted_toast">Profile was deleted.</string>
+    <string name="Image_deleted_toast">Image was deleted.</string>
 </resources>

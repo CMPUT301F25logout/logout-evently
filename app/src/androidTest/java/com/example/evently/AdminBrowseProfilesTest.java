@@ -33,7 +33,7 @@ public class AdminBrowseProfilesTest extends EmulatedFragmentTest<BrowseProfiles
     };
 
     @BeforeClass
-    public static void setUpAccounts() throws ExecutionException, InterruptedException {
+    public static void setUpAccount() throws ExecutionException, InterruptedException {
         // Store the accounts into the database
         for (int i = 0; i < extraAccounts.length; i++) {
             accountsDB.storeAccount(extraAccounts[i]).await();
@@ -50,7 +50,7 @@ public class AdminBrowseProfilesTest extends EmulatedFragmentTest<BrowseProfiles
     }
 
     @AfterClass
-    public static void tearDownAccounts() throws ExecutionException, InterruptedException {
+    public static void tearDownAccount() throws ExecutionException, InterruptedException {
         Promise.all(accountsDB.nuke()).await();
     }
 

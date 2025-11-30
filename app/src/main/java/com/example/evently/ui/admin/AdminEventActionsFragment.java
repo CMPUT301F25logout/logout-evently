@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.evently.R;
 import com.example.evently.data.EventsDB;
 import com.example.evently.databinding.FragmentAdminEventActionsBinding;
 import com.example.evently.ui.common.ConfirmFragmentNoInput;
@@ -67,7 +68,7 @@ public class AdminEventActionsFragment extends Fragment {
         final EventsDB eventDB = new EventsDB();
         eventDB.deleteEvent(eventViewModel.eventID);
 
-        Toast.makeText(requireContext(), "Event was removed.", Toast.LENGTH_SHORT)
+        Toast.makeText(requireContext(), R.string.Event_deleted_toast, Toast.LENGTH_SHORT)
                 .show();
 
         // Return to the event list

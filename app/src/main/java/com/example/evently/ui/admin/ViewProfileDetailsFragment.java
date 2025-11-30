@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.evently.R;
 import com.example.evently.data.AccountDB;
 import com.example.evently.databinding.FragmentAdminProfileBinding;
 import com.example.evently.ui.common.ConfirmFragmentNoInput;
@@ -75,7 +76,7 @@ public class ViewProfileDetailsFragment extends Fragment {
         if (!result.getBoolean(ConfirmFragmentNoInput.inputKey)) return;
         accountDB.deleteAccount(accountEmail);
 
-        Toast.makeText(requireContext(), "Account is deleted.", Toast.LENGTH_SHORT)
+        Toast.makeText(requireContext(), R.string.Profile_deleted_toast, Toast.LENGTH_SHORT)
                 .show();
 
         // Navigate back to the profile list

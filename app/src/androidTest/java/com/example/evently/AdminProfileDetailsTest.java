@@ -7,11 +7,14 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 import android.os.Bundle;
 import androidx.navigation.NavGraph;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import com.example.evently.ui.admin.ViewProfileDetailsFragment;
 
+@RunWith(AndroidJUnit4.class)
 public class AdminProfileDetailsTest extends EmulatedFragmentTest<ViewProfileDetailsFragment> {
 
     @Test

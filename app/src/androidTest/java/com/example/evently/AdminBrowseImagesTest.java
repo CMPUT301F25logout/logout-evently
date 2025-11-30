@@ -1,9 +1,13 @@
 package com.example.evently;
 
 import androidx.navigation.NavGraph;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
+import org.junit.runner.RunWith;
 
 import com.example.evently.ui.admin.AdminBrowseImagesFragment;
 
+@RunWith(AndroidJUnit4.class)
 public class AdminBrowseImagesTest extends EmulatedFragmentTest<AdminBrowseImagesFragment> {
 
     @Override
