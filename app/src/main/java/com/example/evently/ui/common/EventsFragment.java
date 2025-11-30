@@ -3,19 +3,14 @@ package com.example.evently.ui.common;
 import java.util.List;
 import java.util.function.Consumer;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.evently.R;
 import com.example.evently.data.model.Event;
 
 /**

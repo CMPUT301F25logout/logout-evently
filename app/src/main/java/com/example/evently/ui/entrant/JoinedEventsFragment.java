@@ -4,13 +4,10 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import android.util.Log;
-import android.widget.Button;
 import android.widget.Toast;
-import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.evently.R;
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.common.EventsFragment;
