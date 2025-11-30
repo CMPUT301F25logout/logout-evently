@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.evently.R;
@@ -42,54 +40,24 @@ public abstract class LiveEventsFragment<T> extends Fragment {
     protected abstract void updateEventsBy(T target, Consumer<List<Event>> act);
 
     /**
-     * Called when the fragment is ready to request a data refresh.
-     */
-    protected abstract void requestRefresh();
-
-    /**
-     * Handles clicks on an {@link Event} row.
-     *
-     * @param event clicked event.
+     * Listener to attach to the event on click.
+     * This may be different for the entrant vs organizer event click.
+     * @param event The structural representation of the Event view that was clicked.
      */
     protected abstract void onEventClick(Event event);
-
-    /**
-     * Override to provide a custom layout containing a RecyclerView.
-     * @return the layout resource ID.
-     */
-    protected int getLayoutResId() {
-        return R.layout.fragment_event_list;
-    }
-
-    /**
-     * Override to locate a nested RecyclerView within a custom layout.
-     * @param root the root view of the fragment.
-     * @return the nested RecyclerView.
-     */
-    protected RecyclerView getRecyclerView(View root) {
-        if (root instanceof RecyclerView recyclerView) {
-            return recyclerView;
-        }
-
-        final var recyclerView = root.findViewById(R.id.event_list);
-        if (recyclerView == null) {
-            throw new AssertionError(
-                    "LiveEventsFragment requires a RecyclerView with id event_list");
-        }
-
-        return (RecyclerView) recyclerView;
-    }
 
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
-        final var root = inflater.inflate(getLayoutResId(), container, false);
-        final var recyclerView = getRecyclerView(root);
+        RecyclerView recyclerView =
+                (RecyclerView) inflater.inflate(R.layout.fragment_event_list, container, false);
 
-        Context context = recyclerView.getContext();
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        if (recyclerView == null) {
+            throw new AssertionError("EventsFragment.onCreateView called with non RecyclerView");
+        }
+
         recyclerView.setAdapter(
                 new EventRecyclerViewAdapter(new ArrayList<>(), this::onEventClick));
 
@@ -100,8 +68,6 @@ public abstract class LiveEventsFragment<T> extends Fragment {
             });
         });
 
-        requestRefresh();
-
-        return root;
+        return recyclerView;
     }
 }

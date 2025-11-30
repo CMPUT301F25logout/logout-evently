@@ -8,7 +8,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,19 +25,24 @@ import com.example.evently.data.model.Event;
  * Extending classes will also have access to the {@link EventRecyclerViewAdapter} to modify dynamically.
  * @see EventRecyclerViewAdapter
  */
-public abstract class EventsFragment extends Fragment {
+public abstract class EventsFragment extends LiveEventsFragment<Void> {
 
     /**
      * Adapter to manage the events list dynamically.
      */
     protected EventRecyclerViewAdapter adapter;
 
-    /**
-     * Listener to attach to the event on click.
-     * This may be different for the entrant vs organizer event click.
-     * @param event The structural representation of the Event view that was clicked.
-     */
-    protected abstract void onEventClick(Event event);
+    private final MutableLiveData<Void> trivial = new MutableLiveData<>();
+
+    @Override
+    protected LiveData<Void> getLiveData() {
+        return trivial;
+    }
+
+    @Override
+    protected void updateEventsBy(Void target, Consumer<List<Event>> act) {
+        initEvents(act);
+    }
 
     /**
      * This method will be called by onCreateView to set up the events view.
@@ -58,11 +64,8 @@ public abstract class EventsFragment extends Fragment {
         Context context = recyclerView.getContext();
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
 
-        // Set up the recycler view adapter with the initial list of events (asynchronous).
-        initEvents(events -> {
-            adapter = new EventRecyclerViewAdapter(events, this::onEventClick);
-            recyclerView.setAdapter(adapter);
-        });
+        // Set the value so the observer triggers.
+        trivial.setValue(null);
 
         return recyclerView;
     }
