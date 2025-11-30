@@ -36,7 +36,9 @@ runs:
       env:
         GOOGLE_CLIENT_ID: ${{ inputs.GOOGLE_CLIENT_ID }}
         MAPS_API_KEY: ${{ inputs.MAPS_API_KEY }}
-      run: echo "GOOGLE_CLIENT_ID=\"$GOOGLE_CLIENT_ID\"\nMAPS_API_KEY=$MAPS_API_KEY" > keys.properties
+      run: echo "GOOGLE_CLIENT_ID=\"foo\"\nMAPS_API_KEY=bar\n" > keys.properties
+      shell: bash
+    - run: cat keys.properties
       shell: bash
 
     - name: Create directory for android keystore
