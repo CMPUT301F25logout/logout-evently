@@ -3,6 +3,7 @@ package com.example.evently.utils;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 
 public final class DateTimeUtils {
@@ -13,16 +14,18 @@ public final class DateTimeUtils {
      * @return The converted local datetime.
      */
     public static LocalDateTime toLocalDateTime(Instant instant) {
-        return instant.atZone(ZoneOffset.UTC).toLocalDateTime();
+        return instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
 
     /**
-     * Converts an epoch millis to a local date.
+     * Treat the given epoch millis as local date.
      * @param epochMillis The epoch milliseconds to convert.
      * @return The converted local date.
      */
-    public static LocalDate toLocalDate(long epochMillis) {
-        return toLocalDateTime(Instant.ofEpochMilli(epochMillis)).toLocalDate();
+    public static LocalDate treatAsLocalDate(long epochMillis) {
+        // The "atZone(UTC) basically tells Instant: Don't do any conversion, it's already in system
+        // default time zone.
+        return Instant.ofEpochMilli(epochMillis).atZone(ZoneOffset.UTC).toLocalDate();
     }
 
     /**
@@ -31,7 +34,7 @@ public final class DateTimeUtils {
      * @return The converted epoch millis.
      */
     public static long toEpochMillis(LocalDate localDate) {
-        return localDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
+        return localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
     }
 
     private DateTimeUtils() {}

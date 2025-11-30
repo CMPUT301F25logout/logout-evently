@@ -1,13 +1,13 @@
 package com.example.evently.ui.entrant;
 
 import static com.example.evently.utils.DateTimeUtils.toEpochMillis;
-import static com.example.evently.utils.DateTimeUtils.toLocalDate;
 import static com.example.evently.utils.DateTimeUtils.toLocalDateTime;
+import static com.example.evently.utils.DateTimeUtils.treatAsLocalDate;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.EnumSet;
 import java.util.Locale;
@@ -208,7 +208,8 @@ public class FiltersFragment extends DialogFragment {
                     binding.btnClearFilters.setVisibility(View.VISIBLE);
                     final var timeSelection =
                             LocalTime.of(timePicker.getHour(), timePicker.getMinute());
-                    final var selectedDateTime = toLocalDate(dateSelection).atTime(timeSelection);
+                    final var selectedDateTime =
+                            treatAsLocalDate(dateSelection).atTime(timeSelection);
                     dateTimeBinding.setText(DATE_TIME_FORMATTER.format(selectedDateTime));
                 });
 
@@ -228,7 +229,9 @@ public class FiltersFragment extends DialogFragment {
         if (TextUtils.isEmpty(inpText)) {
             return null;
         }
-        return LocalDateTime.parse(inpText, DATE_TIME_FORMATTER).toInstant(ZoneOffset.UTC);
+        return LocalDateTime.parse(inpText, DATE_TIME_FORMATTER)
+                .atZone(ZoneId.systemDefault())
+                .toInstant();
     }
 
     /**

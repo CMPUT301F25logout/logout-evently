@@ -1,7 +1,7 @@
 package com.example.evently.ui.organizer;
 
 import static com.example.evently.utils.DateTimeUtils.toEpochMillis;
-import static com.example.evently.utils.DateTimeUtils.toLocalDate;
+import static com.example.evently.utils.DateTimeUtils.treatAsLocalDate;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -66,7 +66,7 @@ public class CreateEventFragment extends Fragment {
 
     private Uri imageUri;
     private ImageButton imageButton;
-    private Category selectedCategory = Category.SPORTS;
+    private Category selectedCategory = Category.OTHERS;
     private Spinner categorySpinner;
 
     // The following code defines a launcher to pick a picture. For more details, see the android
@@ -254,7 +254,7 @@ public class CreateEventFragment extends Fragment {
         final var picker = pickerBuilder.build();
         picker.addOnPositiveButtonClickListener(selection -> {
             if (selection != null) {
-                target.setText(DATE_FORMATTER.format(toLocalDate(selection)));
+                target.setText(DATE_FORMATTER.format(treatAsLocalDate(selection)));
             }
         });
 
