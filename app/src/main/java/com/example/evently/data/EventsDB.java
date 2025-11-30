@@ -263,7 +263,8 @@ public class EventsDB {
                 .map(EventsDB::getEventFromSnapshot)
                 .flatMap(Optional::stream)
                 .collect(Collectors.toList()));
-      
+    }
+
      /**
      * @return All currently open (for enrollment) events.
      */
