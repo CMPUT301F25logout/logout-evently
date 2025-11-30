@@ -222,7 +222,7 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
         onView(withText("Selected")).perform(scrollTo(), click());
 
         // Wait for viewpager
-        Thread.sleep(2000);
+        Thread.sleep(1000);
 
         String cancelingEmail = "email2@gmail.com";
 
