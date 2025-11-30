@@ -31,6 +31,8 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.DateValidatorPointForward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.timepicker.MaterialTimePicker;
@@ -237,6 +239,10 @@ public class CreateEventFragment extends Fragment {
     private void setupDatePicker(String title, TextInputEditText target) {
         final var pickerBuilder = MaterialDatePicker.Builder.datePicker();
         pickerBuilder.setTitleText(title);
+        // Allow only present and future dates.
+        final var calendarConstraints = new CalendarConstraints.Builder();
+        calendarConstraints.setValidator(DateValidatorPointForward.now());
+        pickerBuilder.setCalendarConstraints(calendarConstraints.build());
 
         final var targetText = target.getText();
         if (!TextUtils.isEmpty(targetText)) {

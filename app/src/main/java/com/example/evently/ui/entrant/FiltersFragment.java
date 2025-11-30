@@ -27,6 +27,8 @@ import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.chip.Chip;
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.DateValidatorPointForward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
@@ -171,6 +173,10 @@ public class FiltersFragment extends DialogFragment {
     private void setupDateTimePicker(@StringRes int titleRes, TextInputEditText dateTimeBinding) {
         final var pickerBuilder = MaterialDatePicker.Builder.datePicker();
         pickerBuilder.setTitleText(titleRes);
+        // Allow only present and future dates.
+        final var calendarConstraints = new CalendarConstraints.Builder();
+        calendarConstraints.setValidator(DateValidatorPointForward.now());
+        pickerBuilder.setCalendarConstraints(calendarConstraints.build());
 
         // Show the existing selection on the picker.
         final var existingDateTimeTxt = dateTimeBinding.getText();
