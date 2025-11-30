@@ -229,7 +229,7 @@ public class EventsDB {
      * @param email Target user email
      * @return Promise.
      */
-    public Promise<Void> unSelect(UUID eventID, String email) {
+    public Promise<Void> deselectEntrant(UUID eventID, String email) {
         return removeEntrantFromList(eventID, email, "selectedEntrants");
     }
 

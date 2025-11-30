@@ -96,9 +96,8 @@ public abstract sealed class EntrantsFragment extends Fragment
             return new EntrantRecyclerViewAdapter(selectEntrantList(entrants), true) {
 
                 /**
-                 * The following function cancels a selected entrant, and moves them to the canceled
-                 * section.
-                 * @param email the email of the selected user
+                 * The following function cancels a selected entrant, and deselects them.
+                 * @param email the email of the soon to be canceled user
                  */
                 @Override
                 public void cancelEntrant(String email) {
@@ -106,7 +105,7 @@ public abstract sealed class EntrantsFragment extends Fragment
                     EventsDB eventsDB = new EventsDB();
 
                     eventsDB.addCancelled(eventViewModel.eventID, email)
-                            .alongside(eventsDB.unSelect(eventViewModel.eventID, email))
+                            .alongside(eventsDB.deselectEntrant(eventViewModel.eventID, email))
                             .thenRun(x -> {
                                 eventViewModel.requestEntrantsUpdate();
                             });
