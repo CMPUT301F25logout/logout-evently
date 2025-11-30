@@ -77,12 +77,23 @@ public class EntrantRecyclerViewAdapter
             // Sets Onclick listener.
 
             binding.removeButton.setOnClickListener(v -> {
+
+                // The following line of code is from Google, Gemini 3 Pro
+                // "I have a recycler view adapter, and I am removing items from the recycler view
+                // when a button within each recycler view item is clicked.
+                //
+                // I am currently trying to fix the remove button from my binding. The first clicked
+                // item is deleting, but then when another item is clicked, it is removing an item
+                // other than the one I clicked. How to fix this?"
+                int current_pos = holder.getBindingAdapterPosition();
+                String current_name = entrants.get(current_pos);
+
                 EventsDB eventsDB = new EventsDB();
-                eventsDB.addCancelled(eventID, name)
-                        .alongside(eventsDB.unSelect(eventID, name))
+                eventsDB.addCancelled(eventID, current_name)
+                        .alongside(eventsDB.unSelect(eventID, current_name))
                         .thenRun(x -> {
-                            entrants.remove(position);
-                            notifyItemRemoved(position);
+                            notifyItemRemoved(current_pos);
+                            entrants.remove(current_pos);
                         });
             });
         }
