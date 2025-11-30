@@ -73,7 +73,7 @@ public abstract class FirebaseEmulatorTest {
     }
 
     @Before
-    public void setUpAccounts() throws ExecutionException, InterruptedException {
+    public void setUpAccount() throws ExecutionException, InterruptedException {
         // Create the mock accounts and register them in our DB.
         final var accountDB = new AccountDB();
         final var accounts = this.extraMockAccounts();
