@@ -10,10 +10,12 @@ import static com.example.evently.MatcherUtils.p;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ExecutionException;
 
+import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.firebase.Timestamp;
@@ -35,10 +37,35 @@ import com.example.evently.ui.admin.AdminBrowseEventsFragment;
 public class AdminBrowseEventsTest extends EmulatedFragmentTest<AdminBrowseEventsFragment> {
     private static final EventsDB eventsDB = new EventsDB();
 
-    private static final Instant now = Instant.now();
-    // We can use the same times for these tests.
-    private static final Timestamp selectionTime = new Timestamp(now.plus(Duration.ofMillis(100)));
-    private static final Timestamp eventTime = new Timestamp(now.plus(Duration.ofMinutes(10)));
+    private static final LocalDate now = LocalDate.now();
+    private static final DateTimeFormatter SELECTION_DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault());
+    private static final DateTimeFormatter EVENT_DATE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
+    private static final Duration EVENT_GAP = Duration.ofDays(2);
+    private static final Timestamp[] selectionTimes = new Timestamp[] {
+        startOfDayTimestamp(now.plusDays(8)),
+        startOfDayTimestamp(now.plusDays(1)),
+        startOfDayTimestamp(now.plusDays(2)),
+        startOfDayTimestamp(now.plusDays(3)),
+        startOfDayTimestamp(now.plusDays(4)),
+        startOfDayTimestamp(now.plusDays(5)),
+        startOfDayTimestamp(now.plusDays(6)),
+        startOfDayTimestamp(now.plusDays(7))
+    };
+
+    private static final Timestamp pastSelectionTimes = startOfDayTimestamp(now.minusDays(10));
+    private static final Timestamp pastEventDate = startOfDayTimestamp(now.minusDays(8));
+
+    private static Timestamp startOfDayTimestamp(LocalDate date) {
+        return new Timestamp(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    }
+
+    private static Timestamp eventTimeAfter(Timestamp selectionTime) {
+        Instant selectionInstant =
+                Instant.ofEpochSecond(selectionTime.getSeconds(), selectionTime.getNanoseconds());
+        return new Timestamp(selectionInstant.plus(EVENT_GAP));
+    }
 
     // Create a few events.
     private static final Event[] mockEvents = new Event[] {
@@ -46,72 +73,81 @@ public class AdminBrowseEventsTest extends EmulatedFragmentTest<AdminBrowseEvent
                 "name",
                 "description",
                 Category.EDUCATIONAL,
-                new Timestamp(now.plus(Duration.ofMinutes(8))),
-                new Timestamp(now.plus(Duration.ofMinutes(18))),
+                false,
+                selectionTimes[0],
+                eventTimeAfter(selectionTimes[0]),
                 "orgEmail",
                 50),
         new Event(
                 "name1",
                 "description1",
                 Category.EDUCATIONAL,
-                new Timestamp(now.plus(Duration.ofMinutes(1))),
-                new Timestamp(now.plus(Duration.ofMinutes(11))),
+                false,
+                selectionTimes[1],
+                eventTimeAfter(selectionTimes[1]),
                 "orgEmail",
                 50),
         new Event(
                 "name2",
                 "description2",
                 Category.EDUCATIONAL,
-                new Timestamp(now.plus(Duration.ofMinutes(2))),
-                new Timestamp(now.plus(Duration.ofMinutes(12))),
+                false,
+                selectionTimes[2],
+                eventTimeAfter(selectionTimes[2]),
                 "orgEmail",
                 50),
         new Event(
                 "name3",
                 "description3",
                 Category.EDUCATIONAL,
-                new Timestamp(now.plus(Duration.ofMinutes(3))),
-                new Timestamp(now.plus(Duration.ofMinutes(13))),
+                false,
+                selectionTimes[3],
+                eventTimeAfter(selectionTimes[3]),
                 "orgEmail",
                 50),
         new Event(
                 "name4",
                 "description4",
                 Category.EDUCATIONAL,
-                new Timestamp(now.plus(Duration.ofMinutes(4))),
-                new Timestamp(now.plus(Duration.ofMinutes(14))),
+                false,
+                selectionTimes[4],
+                eventTimeAfter(selectionTimes[4]),
                 "orgEmail",
                 50),
         new Event(
                 "name5",
                 "description5",
                 Category.EDUCATIONAL,
-                new Timestamp(now.plus(Duration.ofMinutes(5))),
-                new Timestamp(now.plus(Duration.ofMinutes(15))),
+                false,
+                selectionTimes[5],
+                eventTimeAfter(selectionTimes[5]),
                 "orgEmail",
                 50),
         new Event(
                 "name6",
                 "description6",
                 Category.EDUCATIONAL,
-                new Timestamp(now.plus(Duration.ofMinutes(6))),
-                new Timestamp(now.plus(Duration.ofMinutes(16))),
+                false,
+                selectionTimes[6],
+                eventTimeAfter(selectionTimes[6]),
                 "orgEmail",
                 50),
         new Event(
                 "name7",
                 "description7",
                 Category.EDUCATIONAL,
-                new Timestamp(now.plus(Duration.ofMinutes(7))),
-                new Timestamp(now.plus(Duration.ofMinutes(17))),
+                false,
+                selectionTimes[7],
+                eventTimeAfter(selectionTimes[7]),
                 "orgEmail",
                 50),
         new Event(
                 "name8",
                 "description8",
                 Category.EDUCATIONAL,
-                new Timestamp(now.minus(Duration.ofDays(20))),
-                new Timestamp(now.minus(Duration.ofDays(18))),
+                false,
+                pastSelectionTimes,
+                pastEventDate,
                 "orgEmail",
                 50)
     };
@@ -128,11 +164,13 @@ public class AdminBrowseEventsTest extends EmulatedFragmentTest<AdminBrowseEvent
     @Test
     public void testViewingEvents() throws InterruptedException {
         Thread.sleep(2000);
-        final DateTimeFormatter some_date =
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("UTC"));
 
         // Test if each closed, open, and past events appear on the recycler view
-        for (final var expectedEvent : mockEvents) {
+        for (int i = 1; i < mockEvents.length; i++) {
+            final var expectedEvent = mockEvents[i];
+
+            onView(withId(R.id.event_list)).perform(RecyclerViewActions.scrollToPosition(i));
+            // name8 is the past event which admin should still be able to view
             if (expectedEvent.name().equals("name8")) {
                 assertRecyclerViewItem(
                         R.id.event_list,
@@ -140,7 +178,8 @@ public class AdminBrowseEventsTest extends EmulatedFragmentTest<AdminBrowseEvent
                         p(R.id.txtselection_date, "Waitlist closed"),
                         p(
                                 R.id.txtDate,
-                                some_date.format(expectedEvent.eventTime().toInstant())));
+                                EVENT_DATE_TIME_FORMATTER.format(
+                                        expectedEvent.eventTime().toInstant())));
             } else {
                 assertRecyclerViewItem(
                         R.id.event_list,
@@ -148,12 +187,13 @@ public class AdminBrowseEventsTest extends EmulatedFragmentTest<AdminBrowseEvent
                         p(
                                 R.id.txtselection_date,
                                 MessageFormat.format(
-                                        "Selection on {0}",
-                                        some_date.format(
+                                        "Selection date: {0}",
+                                        SELECTION_DATE_FORMATTER.format(
                                                 expectedEvent.selectionTime().toInstant()))),
                         p(
                                 R.id.txtDate,
-                                some_date.format(expectedEvent.eventTime().toInstant())));
+                                EVENT_DATE_TIME_FORMATTER.format(
+                                        expectedEvent.eventTime().toInstant())));
             }
         }
         onView(withId(R.id.event_list)).check(matches(isDisplayed()));

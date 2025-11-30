@@ -40,6 +40,8 @@ public class AdminBrowseToEventDetailsTest extends EmulatedFragmentTest<AdminBro
     // We can use the same times for these tests.
     private static final Timestamp selectionTime = new Timestamp(now.plus(Duration.ofMillis(100)));
     private static final Timestamp eventTime = new Timestamp(now.plus(Duration.ofMinutes(10)));
+    private static final DateTimeFormatter EVENT_DATE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
 
     // Create a few events.
     private static final Event[] mockEvents = new Event[] {
@@ -47,6 +49,7 @@ public class AdminBrowseToEventDetailsTest extends EmulatedFragmentTest<AdminBro
                 "name",
                 "description",
                 Category.EDUCATIONAL,
+                false,
                 selectionTime,
                 eventTime,
                 "orgEmail",
@@ -62,8 +65,6 @@ public class AdminBrowseToEventDetailsTest extends EmulatedFragmentTest<AdminBro
     @Test
     public void testSwitchingToEventDetails() throws InterruptedException {
         Thread.sleep(2000);
-        final DateTimeFormatter some_date =
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("UTC"));
 
         Event expectedEvent = mockEvents[0];
 
@@ -71,7 +72,10 @@ public class AdminBrowseToEventDetailsTest extends EmulatedFragmentTest<AdminBro
                 R.id.event_list,
                 p(R.id.content, expectedEvent.name()),
                 p(R.id.txtselection_date, "Waitlist closed"),
-                p(R.id.txtDate, some_date.format(expectedEvent.eventTime().toInstant())));
+                p(
+                        R.id.txtDate,
+                        EVENT_DATE_TIME_FORMATTER.format(
+                                expectedEvent.eventTime().toInstant())));
 
         // Test if pressing the event details button navigates to event_details
         onView(withId(R.id.btnDetails)).perform(ViewActions.click());

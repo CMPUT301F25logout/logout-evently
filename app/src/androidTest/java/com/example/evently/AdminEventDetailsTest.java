@@ -1,6 +1,7 @@
 package com.example.evently;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -42,7 +43,14 @@ public class AdminEventDetailsTest extends EmulatedFragmentTest<AdminEventDetail
     private static final Timestamp eventTime = new Timestamp(now.plus(Duration.ofMinutes(10)));
 
     private static final Event mockEvent = new Event(
-            "name", "description", Category.EDUCATIONAL, selectionTime, eventTime, "orgEmail", 50);
+            "name",
+            "description",
+            Category.EDUCATIONAL,
+            false,
+            selectionTime,
+            eventTime,
+            "orgEmail",
+            50);
 
     private static final Account[] extraAccounts = new Account[] {
         new Account("email@gmail.com", "User", Optional.empty(), "email@gmail.com"),
@@ -121,15 +129,18 @@ public class AdminEventDetailsTest extends EmulatedFragmentTest<AdminEventDetail
         }
     }
 
-    /*
     @Test
     public void testViewingSelected() throws InterruptedException {
         Thread.sleep(2000);
 
-        Account[] expectedAccounts =
-                new Account[] {extraAccounts[0], extraAccounts[2], extraAccounts[4]};
+        Account[] expectedAccounts = new Account[] {
+            extraAccounts[0], extraAccounts[1], extraAccounts[2], extraAccounts[3], extraAccounts[4]
+        };
 
         // Select selected on the tab layout
+        onView(withText("Selected")).perform(click());
+
+        Thread.sleep(1000);
 
         // Test if the account's emails shows up on the recycler view
         for (final var expectedAccount : expectedAccounts) {
@@ -141,10 +152,12 @@ public class AdminEventDetailsTest extends EmulatedFragmentTest<AdminEventDetail
     public void testViewingAccepted() throws InterruptedException {
         Thread.sleep(2000);
 
-        Account[] expectedAccounts =
-                new Account[] {extraAccounts[1], extraAccounts[3]};
+        Account[] expectedAccounts = new Account[] {extraAccounts[1], extraAccounts[3]};
 
         // Select accepted on the tab layout
+        onView(withText("Accepted")).perform(click());
+
+        Thread.sleep(1000);
 
         // Test if the account's emails shows up on the recycler view
         for (final var expectedAccount : expectedAccounts) {
@@ -156,17 +169,18 @@ public class AdminEventDetailsTest extends EmulatedFragmentTest<AdminEventDetail
     public void testViewingCancelled() throws InterruptedException {
         Thread.sleep(2000);
 
-        Account[] expectedAccounts =
-                new Account[] {extraAccounts[5], extraAccounts[6];
+        Account[] expectedAccounts = new Account[] {extraAccounts[5], extraAccounts[6]};
 
-        // Select accepted on the tab layout
+        // Select cancelled on the tab layout
+        onView(withText("Cancelled")).perform(click());
+
+        Thread.sleep(1000);
 
         // Test if the account's emails shows up on the recycler view
         for (final var expectedAccount : expectedAccounts) {
             assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, expectedAccount.email()));
         }
     }
-     */
 
     @AfterClass
     public static void tearDownEventEnroll() throws ExecutionException, InterruptedException {
