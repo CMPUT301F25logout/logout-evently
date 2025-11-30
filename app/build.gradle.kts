@@ -25,16 +25,18 @@ android {
 
         // Load API credentials
         val keystoreFile = project.rootProject.file("keys.properties")
-        val properties = Properties()
-        properties.load(keystoreFile.inputStream())
+        val secrets = Properties()
+        secrets.load(keystoreFile.inputStream())
 
-        val gclientID = properties.getProperty("GOOGLE_CLIENT_ID") ?: ""
+        val gclientID = secrets.getProperty("GOOGLE_CLIENT_ID") ?: ""
 
         buildConfigField(
             type = "String",
             name = "GOOGLE_CLIENT_ID",
             value = gclientID
         )
+
+        manifestPlaceholders["MAPS_API_KEY"] = secrets.getProperty("MAPS_API_KEY") ?: ""
 
         // Load emulator connection preference
         val preferencesFile = project.rootProject.file("preferences.properties")
@@ -125,11 +127,14 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.messaging)
+    implementation(libs.firebase.storage)
+    implementation(libs.firebase.ui.storage)
 
     implementation(libs.credentials)
     implementation(libs.credentials.play.services.auth)
     implementation(libs.googleid)
     implementation(libs.play.services.auth)
+    implementation(libs.play.services.location)
 
     implementation(libs.recyclerview)
     implementation(libs.navigation.fragment)
@@ -141,11 +146,9 @@ dependencies {
     implementation(libs.zxing.android.embedded)
 
     implementation(libs.espresso.core)
-    implementation(libs.firebase.storage)
     implementation(libs.espresso.intents)
+    implementation(libs.play.services.maps)
     annotationProcessor(libs.compiler)
-    implementation(libs.firebase.ui.storage)
-
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.runner)
