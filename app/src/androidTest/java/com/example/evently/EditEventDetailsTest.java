@@ -30,8 +30,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.firebase.Timestamp;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Account;
@@ -41,6 +43,7 @@ import com.example.evently.ui.organizer.EditEventDetailsFragment;
 import com.example.evently.utils.FirebaseAuthUtils;
 
 @RunWith(AndroidJUnit4.class)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsFragment> {
     private static final EventsDB eventsDB = new EventsDB();
 
@@ -105,7 +108,7 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
     }
 
     @Test
-    public void testEnrolledPeople() throws InterruptedException {
+    public void test1_EnrolledPeople() throws InterruptedException {
         Thread.sleep(1000);
 
         onView(withText(mockEvent.description())).check(matches(isDisplayed()));
@@ -127,7 +130,7 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
     }
 
     @Test
-    public void testSelectedPeople() throws InterruptedException {
+    public void test2_SelectedPeople() throws InterruptedException {
         Thread.sleep(1000);
 
         onView(withText(mockEvent.description())).check(matches(isDisplayed()));
@@ -155,7 +158,7 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
     }
 
     @Test
-    public void testAcceptedPeople() throws InterruptedException {
+    public void test3_AcceptedPeople() throws InterruptedException {
         Thread.sleep(1000);
 
         onView(withText(mockEvent.description())).check(matches(isDisplayed()));
@@ -184,7 +187,7 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
     }
 
     @Test
-    public void testCancelledPeople() throws InterruptedException {
+    public void test4_CancelledPeople() throws InterruptedException {
         Thread.sleep(1000);
 
         onView(withText(mockEvent.description())).check(matches(isDisplayed()));
@@ -210,7 +213,7 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
     }
 
     @Test
-    public void testCancelSelected() throws InterruptedException {
+    public void test5_CancelSelected() throws InterruptedException {
         Thread.sleep(1000);
 
         onView(withText(mockEvent.description())).check(matches(isDisplayed()));
@@ -219,7 +222,7 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
         onView(withText("Selected")).perform(scrollTo(), click());
 
         // Wait for viewpager
-        Thread.sleep(1500);
+        Thread.sleep(1000);
 
         String cancelingEmail = "email2@gmail.com";
 
@@ -233,7 +236,7 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
                 .perform(click());
 
         // Waits for EventViewModel to update
-        Thread.sleep(1500);
+        Thread.sleep(1000);
 
         // Ensure unexpected account(s) do not show up in here.
         assertThrows(
@@ -245,14 +248,14 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
         onView(withText("Cancelled")).perform(scrollTo(), click());
 
         // Wait for viewpager
-        Thread.sleep(2000);
+        Thread.sleep(1000);
 
         // Asserts the canceled email is in the canceled tab
         assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, cancelingEmail));
     }
 
     @Test
-    public void testNoMap() throws InterruptedException {
+    public void test6_NoMap() throws InterruptedException {
         Thread.sleep(1000);
 
         // Ensure the map tab is not displayed.
