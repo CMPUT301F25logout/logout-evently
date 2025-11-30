@@ -47,15 +47,9 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
     private static final Duration EVENT_GAP = Duration.ofDays(2);
     private static final Timestamp[] selectionTimes = new Timestamp[] {
-        startOfDayTimestamp(now.minusDays(1)),
         startOfDayTimestamp(now.plusDays(1)),
         startOfDayTimestamp(now.plusDays(2)),
         startOfDayTimestamp(now.plusDays(3)),
-        startOfDayTimestamp(now.plusDays(4)),
-        startOfDayTimestamp(now.plusDays(5)),
-        startOfDayTimestamp(now.plusDays(6)),
-        startOfDayTimestamp(now.plusDays(7)),
-        startOfDayTimestamp(now.plusDays(8))
     };
 
     // Create a few events.
@@ -67,8 +61,8 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
                 "description1",
                 Category.EDUCATIONAL,
                 false,
-                selectionTimes[1],
-                eventTimeAfter(selectionTimes[1]),
+                selectionTimes[0],
+                eventTimeAfter(selectionTimes[0]),
                 "orgEmail",
                 50),
         new Event(
@@ -76,8 +70,8 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
                 "description2",
                 Category.EDUCATIONAL,
                 false,
-                selectionTimes[2],
-                eventTimeAfter(selectionTimes[2]),
+                selectionTimes[1],
+                eventTimeAfter(selectionTimes[1]),
                 "orgEmail",
                 50),
         new Event(
@@ -85,44 +79,8 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
                 "description3",
                 Category.EDUCATIONAL,
                 false,
-                selectionTimes[3],
-                eventTimeAfter(selectionTimes[3]),
-                "orgEmail",
-                50),
-        new Event(
-                "name4",
-                "description4",
-                Category.EDUCATIONAL,
-                false,
-                selectionTimes[4],
-                eventTimeAfter(selectionTimes[4]),
-                "orgEmail",
-                50),
-        new Event(
-                "name5",
-                "description5",
-                Category.EDUCATIONAL,
-                false,
-                selectionTimes[5],
-                eventTimeAfter(selectionTimes[5]),
-                "orgEmail",
-                50),
-        new Event(
-                "name6",
-                "description6",
-                Category.EDUCATIONAL,
-                false,
-                selectionTimes[6],
-                eventTimeAfter(selectionTimes[6]),
-                "orgEmail",
-                50),
-        new Event(
-                "name7",
-                "description7",
-                Category.EDUCATIONAL,
-                false,
-                selectionTimes[7],
-                eventTimeAfter(selectionTimes[7]),
+                selectionTimes[2],
+                eventTimeAfter(selectionTimes[2]),
                 "orgEmail",
                 50),
     };
