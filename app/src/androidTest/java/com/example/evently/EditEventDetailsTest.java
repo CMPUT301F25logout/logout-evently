@@ -225,7 +225,7 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
 
         // The following line of code is from Google, Gemini 3 Pro:
         // "Using hasSibling, show me how to click on a button R.id.removeButton in a recycler view
-        // next to a known email"
+        // next to a known email", 2025-11-30
         onView(allOf(
                         withId(R.id.removeButton),
                         hasSibling(withText(cancelingEmail)),

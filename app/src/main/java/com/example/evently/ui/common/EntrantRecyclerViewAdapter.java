@@ -79,7 +79,7 @@ public class EntrantRecyclerViewAdapter
                 //
                 // I am currently trying to fix the remove button from my binding. The first clicked
                 // item is deleting, but then when another item is clicked, it is removing an item
-                // other than the one I clicked. How to fix this?"
+                // other than the one I clicked. How to fix this?", 2025-11-30
                 int current_pos = holder.getBindingAdapterPosition();
                 String email = entrants.get(current_pos);
 
