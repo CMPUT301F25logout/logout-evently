@@ -1,11 +1,13 @@
 package com.example.evently.ui.organizer;
 
+import static com.example.evently.utils.DateTimeUtils.toEpochMillis;
+import static com.example.evently.utils.DateTimeUtils.toLocalDate;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
@@ -277,26 +279,6 @@ public class CreateEventFragment extends Fragment {
         };
 
         binding.etEventTime.setOnClickListener(listener);
-    }
-
-    /**
-     * Converts milliseconds since epoch to a UTC {@link LocalDate}
-     *
-     * @param epochMillis epoch milliseconds to convert
-     * @return the resulting {@link LocalDate}
-     */
-    private LocalDate toLocalDate(long epochMillis) {
-        return Instant.ofEpochMilli(epochMillis).atZone(ZoneOffset.UTC).toLocalDate();
-    }
-
-    /**
-     * Converts a {@link LocalDate} to milliseconds since epoch at UTC midnight
-     *
-     * @param date the {@link LocalDate} to convert
-     * @return epoch milliseconds for the provided date
-     */
-    private long toEpochMillis(LocalDate date) {
-        return date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
     }
 
     /**
