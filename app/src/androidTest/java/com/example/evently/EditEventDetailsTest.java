@@ -5,10 +5,13 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.hasSibling;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.example.evently.MatcherUtils.assertRecyclerViewItem;
 import static com.example.evently.MatcherUtils.p;
+import static org.hamcrest.Matchers.allOf;
 import static org.junit.Assert.assertThrows;
 
 import java.time.Duration;
@@ -204,6 +207,48 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
                     () -> assertRecyclerViewItem(
                             R.id.entrantList, p(R.id.entrant_name, expectedAccount.email())));
         }
+    }
+
+    @Test
+    public void testCancelSelected() throws InterruptedException {
+        Thread.sleep(1000);
+
+        onView(withText(mockEvent.description())).check(matches(isDisplayed()));
+
+        // Check the selected tab.
+        onView(withText("Selected")).perform(scrollTo(), click());
+
+        // Wait for viewpager
+        Thread.sleep(1000);
+
+        String cancelingEmail = "email2@gmail.com";
+
+        // The following line of code is from Google, Gemini 3 Pro:
+        // "Using hasSibling, show me how to click on a button R.id.removeButton in a recycler view
+        // next to a known email"
+        onView(allOf(
+                        withId(R.id.removeButton),
+                        hasSibling(withText(cancelingEmail)),
+                        isDisplayed()))
+                .perform(click());
+
+        // Waits for EventViewModel to update
+        Thread.sleep(500);
+
+        // Ensure unexpected account(s) do not show up in here.
+        assertThrows(
+                PerformException.class,
+                () -> assertRecyclerViewItem(
+                        R.id.entrantList, p(R.id.entrant_name, cancelingEmail)));
+
+        // Navigate to the cancelled tab.
+        onView(withText("Cancelled")).perform(scrollTo(), click());
+
+        // Wait for viewpager
+        Thread.sleep(1000);
+
+        // Asserts the canceled email is in the canceled tab
+        assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, cancelingEmail));
     }
 
     @Test
