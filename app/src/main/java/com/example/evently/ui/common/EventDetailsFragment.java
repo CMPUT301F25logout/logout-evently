@@ -1,5 +1,7 @@
 package com.example.evently.ui.common;
 
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 import android.os.Bundle;
@@ -34,6 +36,9 @@ public abstract class EventDetailsFragment<E extends Fragment, A extends Fragmen
         extends Fragment {
     protected FragmentEventDetailsBinding binding;
     protected UUID eventID;
+
+    private static final DateTimeFormatter EVENT_DATE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
     protected EventViewModel eventViewModel;
 
     /**
@@ -102,6 +107,28 @@ public abstract class EventDetailsFragment<E extends Fragment, A extends Fragmen
         binding.eventName.setText(event.name());
         binding.eventDescription.setText(event.description());
         binding.eventCategory.setText(event.category().toString());
+
+        // Sets the seat text:
+        String seatLimit = String.valueOf(event.selectionLimit());
+        binding.seatsText.setText(seatLimit);
+
+        // If we have a limit, it is shown
+        if (event.optionalEntrantLimit().isPresent()) {
+            binding.waitlistSeparator.setVisibility(View.VISIBLE);
+            binding.entrantLimit.setVisibility(View.VISIBLE);
+            // Sets the entrant limit text.
+            String entrantLimit = event.optionalEntrantLimit().get().toString();
+            binding.entrantLimit.setText(entrantLimit);
+        } else {
+            binding.waitlistSeparator.setVisibility(View.INVISIBLE);
+            binding.entrantLimit.setVisibility(View.INVISIBLE);
+        }
+
+        // Formats the date, and stores it in the selection date text
+        String formattedDate =
+                EVENT_DATE_TIME_FORMATTER.format(event.selectionTime().toInstant());
+        binding.selectionDateText.setText(formattedDate);
+
         eventID = event.eventID();
 
         // Loads the picture into the image view.

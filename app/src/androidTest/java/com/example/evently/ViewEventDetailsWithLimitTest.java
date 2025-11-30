@@ -5,10 +5,6 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static com.example.evently.MatcherUtils.assertRecyclerViewItem;
-import static com.example.evently.MatcherUtils.p;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThrows;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -22,7 +18,6 @@ import java.util.concurrent.ExecutionException;
 
 import android.os.Bundle;
 import androidx.navigation.NavGraph;
-import androidx.test.espresso.PerformException;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.firebase.Timestamp;
@@ -37,8 +32,13 @@ import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.entrant.ViewEventDetailsFragment;
 
+
+/**
+ * The following test is similar to the ViewEventDetailsTest, however it tests the entrant limit
+ * functionality when a limit is enforced.
+ */
 @RunWith(AndroidJUnit4.class)
-public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsFragment> {
+public class ViewEventDetailsWithLimitTest extends EmulatedFragmentTest<ViewEventDetailsFragment> {
     private static final EventsDB eventsDB = new EventsDB();
 
     private static final Instant now = Instant.now();
@@ -57,7 +57,8 @@ public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsF
             selectionTime,
             eventTime,
             "orgEmail",
-            50);
+            50,
+            100L);
 
     private static final Account[] extraAccounts = new Account[] {
         new Account("email@gmail.com", "User", Optional.empty(), "email@gmail.com"),
@@ -93,50 +94,17 @@ public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsF
     }
 
     @Test
-    public void testViewingEventDetails() throws InterruptedException {
-        Thread.sleep(2000);
-
-        onView(withText(mockEvent.description())).check(matches(isDisplayed()));
-
-        Account[] expectedAccounts =
-                new Account[] {extraAccounts[0], extraAccounts[2], extraAccounts[4]};
-
-        // Test if the account's emails shows up on the recycler view
-        for (final var expectedAccount : expectedAccounts) {
-            assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, expectedAccount.email()));
-        }
-
-        // Ensure unexpected account(s) do not show up in here.
-        for (int i = 0; i < extraAccounts.length; i++) {
-            if (i % 2 == 0) continue;
-            final var unexpectedAccount = extraAccounts[i];
-            assertThrows(
-                    PerformException.class,
-                    () -> assertRecyclerViewItem(
-                            R.id.entrantList, p(R.id.entrant_name, unexpectedAccount.email())));
-        }
-    }
-
-    @Test
-    public void testDateFormatting() throws InterruptedException {
-        Thread.sleep(2000);
-
-        onView(withText(mockEvent.description())).check(matches(isDisplayed()));
-
-        // Asserts the correct selection time is shown
-        String formattedDate =
-                EVENT_DATE_TIME_FORMATTER.format(mockEvent.selectionTime().toInstant());
-        onView(withText(formattedDate)).check(matches(isDisplayed()));
-    }
-
-    @Test
     public void testEntrantLimit() throws InterruptedException {
         Thread.sleep(2000);
 
-        // Because the entrant list is not limited, the waitlist separator, and limit should not be
-        // shown.
-        onView(withId(R.id.waitlist_separator)).check(matches(not(isDisplayed())));
-        onView(withId(R.id.entrantLimit)).check(matches(not(isDisplayed())));
+        // Because the entrant list is limited, the waitlist separator, and limit should be shown.
+        onView(withId(R.id.waitlist_separator)).check(matches(isDisplayed()));
+        onView(withId(R.id.entrantLimit)).check(matches(isDisplayed()));
+
+        // Asserts 100 is shown as the limit
+        assert mockEvent.optionalEntrantLimit().isPresent();
+        String entrantLimit = mockEvent.optionalEntrantLimit().get().toString();
+        onView(withId(R.id.entrantLimit)).check(matches(withText(entrantLimit)));
 
         // Asserts 3 is shown as the number of entrants
         onView(withId(R.id.currentEntrantCount)).check(matches(withText("3")));
@@ -145,15 +113,6 @@ public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsF
         String formattedDate =
                 EVENT_DATE_TIME_FORMATTER.format(mockEvent.selectionTime().toInstant());
         onView(withText(formattedDate)).check(matches(isDisplayed()));
-    }
-
-    @Test
-    public void testSeatLimit() throws InterruptedException {
-        Thread.sleep(2000);
-
-        // Asserts correct seat limit is shown
-        String seatLimit = String.valueOf(mockEvent.selectionLimit());
-        onView(withId(R.id.seatsText)).check(matches(withText(seatLimit)));
     }
 
     @Override

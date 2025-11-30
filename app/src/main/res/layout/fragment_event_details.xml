@@ -186,12 +186,11 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
         android:orientation="horizontal"
-        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/actionButtonsContainer">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="4dp"
             android:text="@string/entrant_limit_header" />
@@ -204,10 +203,13 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/entrant_limit_separator" />
+            android:visibility="invisible"
+            android:id="@+id/waitlist_separator"
+            android:text="@string/waitlist_separator" />
 
         <TextView
             android:id="@+id/entrantLimit"
+            android:visibility="invisible"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </LinearLayout>
