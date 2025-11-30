@@ -52,7 +52,7 @@ public class EventEntrantsMapFragment extends SupportMapFragment implements OnMa
                 boundsBuilder.include(latLng);
             });
             // Move the camera such that it shows all the markers in view.
-            final var cameraUpdate = CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 50);
+            final var cameraUpdate = CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 0);
             gMap.animateCamera(cameraUpdate);
         });
     }
