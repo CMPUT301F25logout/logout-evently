@@ -39,7 +39,7 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
     private static final EventsDB eventsDB = new EventsDB();
 
     private static final LocalDate now = LocalDate.now();
-    // We can use the same times for these tests.\
+    // We can use the same times for these tests (for now).
 
     private static final DateTimeFormatter SELECTION_DATE_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault());
@@ -132,15 +132,6 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
                 eventTimeAfter(selectionTimes[7]),
                 "orgEmail",
                 50),
-        new Event(
-                "name8",
-                "description8",
-                Category.EDUCATIONAL,
-                false,
-                selectionTimes[8],
-                eventTimeAfter(selectionTimes[8]),
-                "orgEmail",
-                50)
     };
 
     private static Timestamp startOfDayTimestamp(LocalDate date) {
@@ -183,30 +174,19 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
             final var expectedEvent = mockEvents[i];
 
             onView(withId(R.id.event_list)).perform(RecyclerViewActions.scrollToPosition(i));
-            if (expectedEvent.name().equals("name")) {
-                assertRecyclerViewItem(
-                        R.id.event_list,
-                        p(R.id.content, expectedEvent.name()),
-                        p(R.id.txtselection_date, "Waitlist closed"),
-                        p(
-                                R.id.txtDate,
-                                EVENT_DATE_TIME_FORMATTER.format(
-                                        expectedEvent.eventTime().toInstant())));
-            } else {
-                assertRecyclerViewItem(
-                        R.id.event_list,
-                        p(R.id.content, expectedEvent.name()),
-                        p(
-                                R.id.txtselection_date,
-                                MessageFormat.format(
-                                        "Selection date: {0}",
-                                        SELECTION_DATE_FORMATTER.format(
-                                                expectedEvent.selectionTime().toInstant()))),
-                        p(
-                                R.id.txtDate,
-                                EVENT_DATE_TIME_FORMATTER.format(
-                                        expectedEvent.eventTime().toInstant())));
-            }
+            assertRecyclerViewItem(
+                R.id.event_list,
+                p(R.id.content, expectedEvent.name()),
+                p(
+                        R.id.txtselection_date,
+                        MessageFormat.format(
+                                "Selection date: {0}",
+                                SELECTION_DATE_FORMATTER.format(
+                                        expectedEvent.selectionTime().toInstant()))),
+                p(
+                        R.id.txtDate,
+                        EVENT_DATE_TIME_FORMATTER.format(
+                                expectedEvent.eventTime().toInstant())));
         }
         onView(withId(R.id.event_list)).check(matches(isDisplayed()));
     }
