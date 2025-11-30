@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.evently.R;
-import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.EventEntrants;
 import com.example.evently.ui.model.EventViewModel;
 
@@ -33,6 +32,7 @@ public abstract sealed class EntrantsFragment extends Fragment
                 EntrantsFragment.CancelledEntrantsFragment {
 
     protected EventViewModel eventViewModel;
+    protected boolean showRemoveButton = false;
 
     /**
      * Select the type of entrants we aim to display.
@@ -61,20 +61,12 @@ public abstract sealed class EntrantsFragment extends Fragment
 
         // Set up an observer to update the event entrants as they change.
         eventViewModel.getEventEntrantsLive().observe(getViewLifecycleOwner(), eventEntrants -> {
-            final var adapter = getAdapter(eventEntrants);
+            final var adapter = new EntrantRecyclerViewAdapter(
+                    selectEntrantList(eventEntrants), showRemoveButton, eventViewModel);
             recyclerView.swapAdapter(adapter, false);
         });
 
         return view;
-    }
-
-    /**
-     * Gets the EntrantRecyclerViewAdapter for the entrants
-     * @param entrants The entrants being adapted
-     * @return An entrant adapter.
-     */
-    protected EntrantRecyclerViewAdapter getAdapter(EventEntrants entrants) {
-        return new EntrantRecyclerViewAdapter(selectEntrantList(entrants));
     }
 
     public static final class EnrolledEntrantsFragment extends EntrantsFragment {
@@ -86,31 +78,12 @@ public abstract sealed class EntrantsFragment extends Fragment
 
     public static final class SelectedEntrantsFragment extends EntrantsFragment {
 
-        /**
-         * SelectedEntrantsFragment should have the remove button.
-         * @param entrants The entrants being adapted
-         * @return an entrant recycler view adapter
-         */
+        // Overrides the onCreateView to show the remove button.
         @Override
-        protected EntrantRecyclerViewAdapter getAdapter(EventEntrants entrants) {
-            return new EntrantRecyclerViewAdapter(selectEntrantList(entrants), true) {
-
-                /**
-                 * The following function cancels a selected entrant, and deselects them.
-                 * @param email the email of the soon to be canceled user
-                 */
-                @Override
-                public void cancelEntrant(String email) {
-
-                    EventsDB eventsDB = new EventsDB();
-
-                    eventsDB.addCancelled(eventViewModel.eventID, email)
-                            .alongside(eventsDB.deselectEntrant(eventViewModel.eventID, email))
-                            .thenRun(x -> {
-                                eventViewModel.requestEntrantsUpdate();
-                            });
-                }
-            };
+        public View onCreateView(
+                LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            showRemoveButton = true;
+            return super.onCreateView(inflater, container, savedInstanceState);
         }
 
         @Override
