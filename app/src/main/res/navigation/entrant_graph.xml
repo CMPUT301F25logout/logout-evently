@@ -25,18 +25,6 @@
         tools:layout="@layout/fragment_notifs"/>
 
     <fragment
-        android:id="@+id/nav_filters"
-        android:name="com.example.evently.ui.entrant.CategoryFiltersFragment"
-        android:label="Filters"
-        tools:layout="@layout/fragment_filters" />
-
-    <fragment
-        android:id="@+id/nav_date_filters"
-        android:name="com.example.evently.ui.entrant.DateFiltersFragment"
-        android:label="Date Filters"
-        tools:layout="@layout/fragment_date_filters" />
-
-    <fragment
         android:id="@+id/event_details"
         android:name="com.example.evently.ui.entrant.ViewEventDetailsFragment"
         android:label="Event Details"
@@ -53,12 +41,4 @@
         android:label="Account"
         tools:layout="@layout/fragment_edit_profile">
     </fragment>
-    <action
-        android:id="@+id/action_global_date_filters"
-        app:destination="@id/nav_date_filters" />
-
-
-    <action
-        android:id="@+id/action_global_filters"
-        app:destination="@id/nav_filters" />
 </navigation>

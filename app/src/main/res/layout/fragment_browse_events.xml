@@ -1,43 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:paddingTop="4dp"
-    android:paddingStart="12dp"
-    android:paddingEnd="12dp">
+    tools:context=".ui.entrant.BrowseEventsFragment">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnBrowseFilters"
+        style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginBottom="4dp">
+        android:layout_marginEnd="16dp"
+        android:layout_weight="1"
+        android:text="@string/filters_button_label"
+        app:icon="@drawable/filter_list"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnBrowseFilters"
-            style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginEnd="6dp"
-            android:text="@string/filters_button_label" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnBrowseDateFilters"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="6dp"
-            android:text="@string/date_filters_button_label" />
-    </LinearLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/event_list"
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/filteredEventsContainer"
+        android:name="com.example.evently.ui.entrant.FilteredEventsFragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="4dp"
-        android:layout_weight="1"
-        app:layoutManager="LinearLayoutManager" />
-</LinearLayout>
+        android:layout_marginTop="8dp"
+        app:layout_goneMarginTop="8dp"
+        app:layout_constraintEnd_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnBrowseFilters"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
