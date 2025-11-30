@@ -1,22 +1,23 @@
 package com.example.evently;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.example.evently.MatcherUtils.assertRecyclerViewItem;
 import static com.example.evently.MatcherUtils.p;
+import static org.junit.Assert.assertTrue;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import android.os.Bundle;
 import androidx.navigation.NavGraph;
+import androidx.test.espresso.action.ViewActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.firebase.Timestamp;
@@ -33,7 +34,7 @@ import com.example.evently.data.model.Event;
 import com.example.evently.ui.admin.AdminEventDetailsFragment;
 
 @RunWith(AndroidJUnit4.class)
-public class AdminEventDetailsTest extends EmulatedFragmentTest<AdminEventDetailsFragment> {
+public class AdminDeleteEventTest extends EmulatedFragmentTest<AdminEventDetailsFragment> {
     private static final EventsDB eventsDB = new EventsDB();
 
     private static final Instant now = Instant.now();
@@ -82,25 +83,8 @@ public class AdminEventDetailsTest extends EmulatedFragmentTest<AdminEventDetail
         eventsDB.addCancelled(mockEvent.eventID(), extraAccounts[6].email()).await();
     }
 
-    @Override
-    public List<Account> extraMockAccounts() {
-        return new ArrayList<>(Arrays.asList(extraAccounts));
-    }
-
-    @Override
-    protected int getSelfDestination(NavGraph graph) {
-        return R.id.event_details;
-    }
-
-    @Override
-    protected Bundle getSelfDestinationArgs() {
-        final var bundle = new Bundle();
-        bundle.putSerializable("eventID", mockEvent.eventID());
-        return bundle;
-    }
-
     @Test
-    public void testViewingEventDetails() throws InterruptedException {
+    public void testDeleteEvent() throws InterruptedException {
         Thread.sleep(2000);
 
         onView(withText(mockEvent.description())).check(matches(isDisplayed()));
@@ -119,58 +103,34 @@ public class AdminEventDetailsTest extends EmulatedFragmentTest<AdminEventDetail
         for (final var expectedAccount : expectedAccounts) {
             assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, expectedAccount.email()));
         }
+
+        // Test if deleting the event will remove the event and entrants from the database
+        onView(withId(R.id.removeEvent)).perform(ViewActions.click());
+        onView(withId(R.id.confirm_button)).perform(click());
+
+        eventsDB.fetchEvent(mockEvent.eventID()).thenRun(event -> {
+            assertTrue(event.isEmpty());
+        });
+        eventsDB.fetchEventEntrants(mockEvent.eventID()).thenRun(entrants -> {
+            assertTrue(entrants.isEmpty());
+        });
     }
-
-    /*
-    @Test
-    public void testViewingSelected() throws InterruptedException {
-        Thread.sleep(2000);
-
-        Account[] expectedAccounts =
-                new Account[] {extraAccounts[0], extraAccounts[2], extraAccounts[4]};
-
-        // Select selected on the tab layout
-
-        // Test if the account's emails shows up on the recycler view
-        for (final var expectedAccount : expectedAccounts) {
-            assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, expectedAccount.email()));
-        }
-    }
-
-    @Test
-    public void testViewingAccepted() throws InterruptedException {
-        Thread.sleep(2000);
-
-        Account[] expectedAccounts =
-                new Account[] {extraAccounts[1], extraAccounts[3]};
-
-        // Select accepted on the tab layout
-
-        // Test if the account's emails shows up on the recycler view
-        for (final var expectedAccount : expectedAccounts) {
-            assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, expectedAccount.email()));
-        }
-    }
-
-    @Test
-    public void testViewingCancelled() throws InterruptedException {
-        Thread.sleep(2000);
-
-        Account[] expectedAccounts =
-                new Account[] {extraAccounts[5], extraAccounts[6];
-
-        // Select accepted on the tab layout
-
-        // Test if the account's emails shows up on the recycler view
-        for (final var expectedAccount : expectedAccounts) {
-            assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, expectedAccount.email()));
-        }
-    }
-     */
 
     @AfterClass
     public static void tearDownEventEnroll() throws ExecutionException, InterruptedException {
         Promise.all(eventsDB.nuke()).await();
+    }
+
+    @Override
+    protected int getSelfDestination(NavGraph graph) {
+        return R.id.event_details;
+    }
+
+    @Override
+    protected Bundle getSelfDestinationArgs() {
+        final var bundle = new Bundle();
+        bundle.putSerializable("eventID", mockEvent.eventID());
+        return bundle;
     }
 
     @Override

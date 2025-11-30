@@ -21,6 +21,7 @@ public class AdminProfileDetailsTest extends EmulatedFragmentTest<ViewProfileDet
     public void testViewingProfileDetails() throws InterruptedException {
         Thread.sleep(2000);
 
+        // Test for name and email being displayed
         onView(withText("Name: " + defaultMockAccount.name())).check(matches(isDisplayed()));
         onView(withText("Email: " + defaultMockAccount.email())).check(matches(isDisplayed()));
     }
