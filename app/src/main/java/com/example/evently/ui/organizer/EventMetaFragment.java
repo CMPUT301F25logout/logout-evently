@@ -12,8 +12,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
@@ -60,8 +58,8 @@ public class EventMetaFragment extends Fragment {
         eventViewModel.getEventLive().observe(getViewLifecycleOwner(), event -> {
             // Must use the parent fragment manager so the children have access to the original view
             // model.
-            viewPager.setAdapter(new EventPeopleAdapter(
-                    getParentFragmentManager(), getLifecycle(), event.requiresLocation()));
+            viewPager.setAdapter(
+                    new EventPeopleAdapter(requireParentFragment(), event.requiresLocation()));
 
             new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
                         switch (position) {
@@ -83,11 +81,8 @@ public class EventMetaFragment extends Fragment {
 
         private final boolean requiresLocation;
 
-        public EventPeopleAdapter(
-                @NonNull FragmentManager fragmentManager,
-                @NonNull Lifecycle lifecycle,
-                boolean requiresLocation) {
-            super(fragmentManager, lifecycle);
+        public EventPeopleAdapter(@NonNull Fragment fragment, boolean requiresLocation) {
+            super(fragment);
             this.requiresLocation = requiresLocation;
         }
 

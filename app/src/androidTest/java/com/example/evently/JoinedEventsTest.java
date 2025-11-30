@@ -10,11 +10,13 @@ import static com.example.evently.MatcherUtils.p;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ExecutionException;
 
 import androidx.navigation.NavGraph;
+import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.firebase.Timestamp;
@@ -37,10 +39,25 @@ import com.example.evently.ui.entrant.JoinedEventsFragment;
 public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment> {
     private static final EventsDB eventsDB = new EventsDB();
 
-    private static final Instant now = Instant.now();
+    private static final LocalDate now = LocalDate.now();
     // We can use the same times for these tests.
-    private static final Timestamp selectionTime = new Timestamp(now.plus(Duration.ofMillis(100)));
-    private static final Timestamp eventTime = new Timestamp(now.plus(Duration.ofMinutes(10)));
+
+    private static final DateTimeFormatter SELECTION_DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault());
+    private static final DateTimeFormatter EVENT_DATE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
+    private static final Duration EVENT_GAP = Duration.ofHours(2);
+    private static final Timestamp[] selectionTimes = new Timestamp[] {
+        startOfDayTimestamp(now.minusDays(1)),
+        startOfDayTimestamp(now.plusDays(1)),
+        startOfDayTimestamp(now.plusDays(2)),
+        startOfDayTimestamp(now.plusDays(3)),
+        startOfDayTimestamp(now.plusDays(4)),
+        startOfDayTimestamp(now.plusDays(5)),
+        startOfDayTimestamp(now.plusDays(6)),
+        startOfDayTimestamp(now.plusDays(7)),
+        startOfDayTimestamp(now.plusDays(8))
+    };
 
     // Create a few events.
     private static final Event[] mockEvents = new Event[] {
@@ -49,8 +66,8 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
                 "description",
                 Category.EDUCATIONAL,
                 false,
-                selectionTime,
-                eventTime,
+                selectionTimes[0],
+                eventTimeAfter(selectionTimes[0]),
                 "orgEmail",
                 50),
         new Event(
@@ -58,8 +75,8 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
                 "description1",
                 Category.EDUCATIONAL,
                 false,
-                new Timestamp(now.plus(Duration.ofMinutes(1))),
-                new Timestamp(now.plus(Duration.ofMinutes(11))),
+                selectionTimes[1],
+                eventTimeAfter(selectionTimes[1]),
                 "orgEmail",
                 50),
         new Event(
@@ -67,8 +84,8 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
                 "description2",
                 Category.EDUCATIONAL,
                 false,
-                new Timestamp(now.plus(Duration.ofMinutes(2))),
-                new Timestamp(now.plus(Duration.ofMinutes(12))),
+                selectionTimes[2],
+                eventTimeAfter(selectionTimes[2]),
                 "orgEmail",
                 50),
         new Event(
@@ -76,8 +93,8 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
                 "description3",
                 Category.EDUCATIONAL,
                 false,
-                new Timestamp(now.plus(Duration.ofMinutes(3))),
-                new Timestamp(now.plus(Duration.ofMinutes(13))),
+                selectionTimes[3],
+                eventTimeAfter(selectionTimes[3]),
                 "orgEmail",
                 50),
         new Event(
@@ -85,8 +102,8 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
                 "description4",
                 Category.EDUCATIONAL,
                 false,
-                new Timestamp(now.plus(Duration.ofMinutes(4))),
-                new Timestamp(now.plus(Duration.ofMinutes(14))),
+                selectionTimes[4],
+                eventTimeAfter(selectionTimes[4]),
                 "orgEmail",
                 50),
         new Event(
@@ -94,8 +111,8 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
                 "description5",
                 Category.EDUCATIONAL,
                 false,
-                new Timestamp(now.plus(Duration.ofMinutes(5))),
-                new Timestamp(now.plus(Duration.ofMinutes(15))),
+                selectionTimes[5],
+                eventTimeAfter(selectionTimes[5]),
                 "orgEmail",
                 50),
         new Event(
@@ -103,8 +120,8 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
                 "description6",
                 Category.EDUCATIONAL,
                 false,
-                new Timestamp(now.plus(Duration.ofMinutes(6))),
-                new Timestamp(now.plus(Duration.ofMinutes(16))),
+                selectionTimes[6],
+                eventTimeAfter(selectionTimes[6]),
                 "orgEmail",
                 50),
         new Event(
@@ -112,8 +129,8 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
                 "description7",
                 Category.EDUCATIONAL,
                 false,
-                new Timestamp(now.plus(Duration.ofMinutes(7))),
-                new Timestamp(now.plus(Duration.ofMinutes(17))),
+                selectionTimes[7],
+                eventTimeAfter(selectionTimes[7]),
                 "orgEmail",
                 50),
         new Event(
@@ -121,11 +138,21 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
                 "description8",
                 Category.EDUCATIONAL,
                 false,
-                new Timestamp(now.plus(Duration.ofMinutes(8))),
-                new Timestamp(now.plus(Duration.ofMinutes(18))),
+                selectionTimes[8],
+                eventTimeAfter(selectionTimes[8]),
                 "orgEmail",
                 50)
     };
+
+    private static Timestamp startOfDayTimestamp(LocalDate date) {
+        return new Timestamp(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    }
+
+    private static Timestamp eventTimeAfter(Timestamp selectionTime) {
+        Instant selectionInstant =
+                Instant.ofEpochSecond(selectionTime.getSeconds(), selectionTime.getNanoseconds());
+        return new Timestamp(selectionInstant.plus(EVENT_GAP));
+    }
 
     @BeforeClass
     public static void storeEvents() throws ExecutionException, InterruptedException {
@@ -145,8 +172,6 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
     public void testViewingJoinedEvents() throws InterruptedException {
 
         Thread.sleep(2000);
-        final DateTimeFormatter some_date =
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("UTC"));
 
         Event[] expectedEvents = new Event[] {
             mockEvents[0], mockEvents[2], mockEvents[4], mockEvents[6], mockEvents[8],
@@ -154,7 +179,10 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
 
         // Test if every other event is enrolled by the user
         for (int i = 0; i < expectedEvents.length; i++) {
-            var expectedEvent = mockEvents[i * 2];
+            var expectedEvent = expectedEvents[i];
+
+            onView(withId(R.id.event_list)).perform(RecyclerViewActions.scrollToPosition(i));
+
             if (expectedEvent.name().equals("name")) {
                 assertRecyclerViewItem(
                         R.id.event_list,
@@ -162,7 +190,8 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
                         p(R.id.txtselection_date, "Waitlist closed"),
                         p(
                                 R.id.txtDate,
-                                some_date.format(expectedEvent.eventTime().toInstant())));
+                                EVENT_DATE_TIME_FORMATTER.format(
+                                        expectedEvent.eventTime().toInstant())));
             } else {
                 assertRecyclerViewItem(
                         R.id.event_list,
@@ -170,12 +199,13 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
                         p(
                                 R.id.txtselection_date,
                                 MessageFormat.format(
-                                        "Selection on {0}",
-                                        some_date.format(
+                                        "Selection date: {0}",
+                                        SELECTION_DATE_FORMATTER.format(
                                                 expectedEvent.selectionTime().toInstant()))),
                         p(
                                 R.id.txtDate,
-                                some_date.format(expectedEvent.eventTime().toInstant())));
+                                EVENT_DATE_TIME_FORMATTER.format(
+                                        expectedEvent.eventTime().toInstant())));
             }
         }
         onView(withId(R.id.event_list)).check(matches(isDisplayed()));

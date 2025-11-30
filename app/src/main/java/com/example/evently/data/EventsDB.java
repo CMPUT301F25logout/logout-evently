@@ -297,6 +297,14 @@ public class EventsDB {
     }
 
     /**
+     * @return All currently open (for enrollment) events.
+     */
+    public Promise<List<Event>> fetchOpenEvents() {
+        return parseQuerySnapShots(
+                eventsRef.whereGreaterThan("selectionTime", Timestamp.now()).get());
+    }
+
+    /**
      * Fetch events from database in a date range.
      * @param startTime Date range start
      * @param endTime Date range end
