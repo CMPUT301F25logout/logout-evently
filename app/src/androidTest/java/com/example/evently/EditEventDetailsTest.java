@@ -219,7 +219,7 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
         onView(withText("Selected")).perform(scrollTo(), click());
 
         // Wait for viewpager
-        Thread.sleep(1000);
+        Thread.sleep(1500);
 
         String cancelingEmail = "email2@gmail.com";
 
@@ -233,7 +233,7 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
                 .perform(click());
 
         // Waits for EventViewModel to update
-        Thread.sleep(500);
+        Thread.sleep(1500);
 
         // Ensure unexpected account(s) do not show up in here.
         assertThrows(
@@ -245,7 +245,7 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
         onView(withText("Cancelled")).perform(scrollTo(), click());
 
         // Wait for viewpager
-        Thread.sleep(1000);
+        Thread.sleep(2000);
 
         // Asserts the canceled email is in the canceled tab
         assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, cancelingEmail));
