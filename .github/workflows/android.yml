@@ -21,9 +21,8 @@ jobs:
       with:
         GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+        MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
         DEBUG_KEYSTORE: ${{ secrets.DEBUG_KEYSTORE }}
-    - name: Check signing report
-      run: ./gradlew signingReport
     - name: Build the project (no tests, no lint etc)
       run: ./gradlew assemble
     - name: Upload the APK
@@ -40,6 +39,7 @@ jobs:
       with:
         GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+        MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
         DEBUG_KEYSTORE: ${{ secrets.DEBUG_KEYSTORE }}
     - name: Lint with Gradle
       run: ./gradlew lint
@@ -52,6 +52,7 @@ jobs:
       with:
         GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+        MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
         DEBUG_KEYSTORE: ${{ secrets.DEBUG_KEYSTORE }}
     - name: Spotless with Gradle
       run: ./gradlew spotlessCheck
@@ -64,6 +65,7 @@ jobs:
       with:
         GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+        MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
         DEBUG_KEYSTORE: ${{ secrets.DEBUG_KEYSTORE }}
     - name: Test with Gradle
       run: ./gradlew test
@@ -72,7 +74,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: unit-test-report
-        path: app/build/reports/tests/testDebugUnitTest/index.html
+        path: app/build/reports/tests/testDebugUnitTest/
 
   instrumented-tests:
     runs-on: ubuntu-latest
@@ -85,6 +87,7 @@ jobs:
         with:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
           DEBUG_KEYSTORE: ${{ secrets.DEBUG_KEYSTORE }}
       - name: Run instrumented tests with emulator
         uses: ./.github/composite/emulators
@@ -93,4 +96,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: connected-test-report
-          path: app/build/reports/androidTests/connected/debug/index.html
+          path: app/build/reports/androidTests/connected/debug/

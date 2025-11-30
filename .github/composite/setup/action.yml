@@ -8,6 +8,9 @@ inputs:
   GOOGLE_CLIENT_ID:
     description: 'GOOGLE_CLIENT_ID from secrets'
     required: true
+  MAPS_API_KEY:
+    description: 'MAPS_API_KEY from secrets'
+    required: true
   DEBUG_KEYSTORE:
     description: 'Android debug keystore'
     required: true
@@ -32,7 +35,8 @@ runs:
     - name: Create keys.properties
       env:
         GOOGLE_CLIENT_ID: ${{ inputs.GOOGLE_CLIENT_ID }}
-      run: echo "GOOGLE_CLIENT_ID=\"$GOOGLE_CLIENT_ID\"" > keys.properties
+        MAPS_API_KEY: ${{ inputs.MAPS_API_KEY }}
+      run: echo -e "GOOGLE_CLIENT_ID=\"foo\"\nMAPS_API_KEY=bar" > keys.properties
       shell: bash
 
     - name: Create directory for android keystore
