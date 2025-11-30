@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -460,6 +459,28 @@ public class EventsDB {
             }
             throw exc;
         }));
+    }
+
+    /**
+     * The function below fetches the storage references for all events with posters.
+     * @return A promise of a map of eventID's to posters.
+     */
+    public Promise<Map<UUID, StorageReference>> fetchAllPosters() {
+        StorageReference postersRef = storageRef.child("posters/");
+
+        return promise(postersRef.listAll()).map(listResult -> {
+            // Creates map, and gets items from the list.
+            Map<UUID, StorageReference> dict = new HashMap<>();
+            List<StorageReference> imageRefs = listResult.getItems();
+
+            // Adds the eventID, and storageRef to the dictionary
+            for (StorageReference imageRef : imageRefs) {
+                UUID eventID = UUID.fromString(imageRef.getName());
+                dict.put(eventID, imageRef);
+            }
+
+            return dict;
+        });
     }
 
     /**

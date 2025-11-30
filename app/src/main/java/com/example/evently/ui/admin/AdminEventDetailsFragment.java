@@ -1,20 +1,20 @@
 package com.example.evently.ui.admin;
 
 import com.example.evently.ui.common.EventDetailsFragment;
-import com.example.evently.ui.organizer.EventPeopleFragment;
+import com.example.evently.ui.organizer.EventMetaFragment;
 
 /**
  * Admin view of the event details.
- * Uses {@link EventPeopleFragment} as one of the viewmodels.
+ * Uses {@link EventMetaFragment} as one of the viewmodels.
  * Uses {@link AdminEventActionsFragment} as one of the viewmodels.
  * The event is removeable from this fragment using the {@link AdminEventActionsFragment}
  */
 public class AdminEventDetailsFragment
-        extends EventDetailsFragment<EventPeopleFragment, AdminEventActionsFragment> {
+        extends EventDetailsFragment<EventMetaFragment, AdminEventActionsFragment> {
 
     @Override
-    protected Class<EventPeopleFragment> getFragmentForEntrantListContainer() {
-        return EventPeopleFragment.class;
+    protected Class<EventMetaFragment> getFragmentForEntrantListContainer() {
+        return EventMetaFragment.class;
     }
 
     @Override
