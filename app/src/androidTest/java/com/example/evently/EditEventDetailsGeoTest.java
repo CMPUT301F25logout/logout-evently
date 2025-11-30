@@ -71,8 +71,10 @@ public class EditEventDetailsGeoTest extends EmulatedFragmentTest<EditEventDetai
 
     private static final Map<String, GeoPoint> entrantLocations = Arrays.stream(extraAccounts)
             .map(acc -> {
-                final var lat = rand.nextInt(-90, 91);
-                final var lng = rand.nextInt(-90, 91);
+                final var maxExcl = 91;
+                final var min = -90;
+                final var lat = rand.nextInt(maxExcl - min) + min;
+                final var lng = rand.nextInt(maxExcl - min) + min;
                 return entry(acc.email(), new GeoPoint(lat, lng));
             })
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
