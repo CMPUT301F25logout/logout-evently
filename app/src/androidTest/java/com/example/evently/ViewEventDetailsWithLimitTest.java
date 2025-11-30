@@ -32,7 +32,6 @@ import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.entrant.ViewEventDetailsFragment;
 
-
 /**
  * The following test is similar to the ViewEventDetailsTest, however it tests the entrant limit
  * functionality when a limit is enforced.
