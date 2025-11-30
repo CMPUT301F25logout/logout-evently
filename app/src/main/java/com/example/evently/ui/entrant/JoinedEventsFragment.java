@@ -37,22 +37,6 @@ public class JoinedEventsFragment extends EventsFragment {
     }
 
     /**
-     * Applies selected/unselected styling to a tab button.
-     *
-     * @param b        the button to style
-     * @param selected true to show the selected style; false for unselected.
-     */
-    private void styleSelected(Button b, boolean selected) {
-        if (selected) {
-            b.setBackgroundResource(R.drawable.bg_tab_selected);
-            b.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white));
-        } else {
-            b.setBackgroundResource(R.drawable.bg_tab_unselected);
-            b.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black));
-        }
-    }
-
-    /**
      * Supplies the “Joined” list with placeholder events.
      *
      * @param callback Callback that will be passed the events into.
