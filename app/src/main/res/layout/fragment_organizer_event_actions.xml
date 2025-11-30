@@ -1,16 +1,33 @@
-<com.google.android.material.button.MaterialButtonGroup xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="12dp"
-    tools:context=".ui.organizer.OrganizerEventActionsFragment">
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/notifySelected"
+    <com.google.android.material.button.MaterialSplitButton
+        android:id="@+id/notify_split_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <com.google.android.material.button.MaterialButton
+
+        style="?attr/materialSplitButtonLeadingFilledStyle"
+            android:id="@+id/send_notif"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/event_send_notification_button" />
+        <com.google.android.material.button.MaterialButton
+            style="?attr/materialSplitButtonIconFilledStyle"
+            android:id="@+id/select_channel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/m3_split_button_chevron_avd" />
+    </com.google.android.material.button.MaterialSplitButton>
+
+    <include
+        android:id="@+id/util_share_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/event_notify_selected_btn" />
-
-    <include android:id="@+id/util_share_btn" layout="@layout/util_share_btn" />
-
-</com.google.android.material.button.MaterialButtonGroup>
+        android:layout_marginTop="10dp"
+        layout="@layout/util_share_btn" />
+</LinearLayout>
