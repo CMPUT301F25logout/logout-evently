@@ -175,18 +175,18 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
 
             onView(withId(R.id.event_list)).perform(RecyclerViewActions.scrollToPosition(i));
             assertRecyclerViewItem(
-                R.id.event_list,
-                p(R.id.content, expectedEvent.name()),
-                p(
-                        R.id.txtselection_date,
-                        MessageFormat.format(
-                                "Selection date: {0}",
-                                SELECTION_DATE_FORMATTER.format(
-                                        expectedEvent.selectionTime().toInstant()))),
-                p(
-                        R.id.txtDate,
-                        EVENT_DATE_TIME_FORMATTER.format(
-                                expectedEvent.eventTime().toInstant())));
+                    R.id.event_list,
+                    p(R.id.content, expectedEvent.name()),
+                    p(
+                            R.id.txtselection_date,
+                            MessageFormat.format(
+                                    "Selection date: {0}",
+                                    SELECTION_DATE_FORMATTER.format(
+                                            expectedEvent.selectionTime().toInstant()))),
+                    p(
+                            R.id.txtDate,
+                            EVENT_DATE_TIME_FORMATTER.format(
+                                    expectedEvent.eventTime().toInstant())));
         }
         onView(withId(R.id.event_list)).check(matches(isDisplayed()));
     }
