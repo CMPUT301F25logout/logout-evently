@@ -36,7 +36,11 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
 
     @AfterClass
     public static void tearDown() throws ExecutionException, InterruptedException {
-        eventsDB.nuke().await();
+        List<Event> mine = eventsDB.fetchEventsByOrganizers(FirebaseAuthUtils.getCurrentEmail()).await();
+        for (final var event : mine) {
+            eventsDB.deleteEvent(event.eventID()).await();
+        }
+
     }
 
     @Test
