@@ -17,7 +17,7 @@ import com.example.evently.data.EventsDB;
 import com.example.evently.ui.common.EventDetailsFragment;
 
 public class EditEventDetailsFragment
-        extends EventDetailsFragment<EventPeopleFragment, OrganizerEventActionsFragment> {
+        extends EventDetailsFragment<EventMetaFragment, OrganizerEventActionsFragment> {
 
     private ImageView imageView;
 
@@ -54,8 +54,8 @@ public class EditEventDetailsFragment
     }
 
     @Override
-    protected Class<EventPeopleFragment> getFragmentForEntrantListContainer() {
-        return EventPeopleFragment.class;
+    protected Class<EventMetaFragment> getFragmentForEntrantListContainer() {
+        return EventMetaFragment.class;
     }
 
     @Override
