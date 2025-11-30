@@ -2,6 +2,7 @@ package com.example.evently;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -186,7 +187,7 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
         onView(withText(mockEvent.description())).check(matches(isDisplayed()));
 
         // Check the cancelled tab.
-        onView(withText("Cancelled")).perform(click());
+        onView(withText("Cancelled")).perform(scrollTo(), click());
 
         // For whatever reason, it takes time for viewpager to get rid of the old view.
         Thread.sleep(1000);

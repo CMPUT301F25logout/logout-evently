@@ -2,6 +2,7 @@ package com.example.evently;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -111,7 +112,7 @@ public class EditEventDetailsGeoTest extends EmulatedFragmentTest<EditEventDetai
         onView(withText(mockEvent.description())).check(matches(isDisplayed()));
 
         // Check the enrolled tab.
-        onView(withText("Map")).perform(click());
+        onView(withText("Map")).perform(scrollTo(), click());
 
         Thread.sleep(10000);
 
