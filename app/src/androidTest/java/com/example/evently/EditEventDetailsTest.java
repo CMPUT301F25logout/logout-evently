@@ -226,6 +226,9 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
 
         String cancelingEmail = "email2@gmail.com";
 
+        // Used to scroll to recycler view item
+        assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, cancelingEmail));
+
         // The following line of code is from Google, Gemini 3 Pro:
         // "Using hasSibling, show me how to click on a button R.id.removeButton in a recycler view
         // next to a known email", 2025-11-30
