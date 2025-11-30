@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -53,20 +55,8 @@ public abstract class EventsFragment extends LiveEventsFragment<Void> {
 
     @Override
     public View onCreateView(
-            LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        RecyclerView recyclerView =
-                (RecyclerView) inflater.inflate(R.layout.fragment_event_list, container, false);
-
-        if (recyclerView == null) {
-            throw new AssertionError("EventsFragment.onCreateView called with non RecyclerView");
-        }
-
-        Context context = recyclerView.getContext();
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
-
-        // Set the value so the observer triggers.
+            @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         trivial.setValue(null);
-
-        return recyclerView;
+        return super.onCreateView(inflater, container, savedInstanceState);
     }
 }
