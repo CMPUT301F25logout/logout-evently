@@ -12,8 +12,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -50,7 +48,8 @@ public class EventPeopleFragment extends Fragment {
 
         // Must use parent fragment manager so that the children tabs will have access to
         // viewmodel...
-        viewPager.setAdapter(new EventPeopleAdapter(getParentFragmentManager(), getLifecycle()));
+        // Hierarchy: EventDetailsFragment -> EventPeopleFragment -> EntrantsFragment
+        viewPager.setAdapter(new EventPeopleAdapter(requireParentFragment()));
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
                     switch (position) {
@@ -68,23 +67,20 @@ public class EventPeopleFragment extends Fragment {
      */
     private static class EventPeopleAdapter extends FragmentStateAdapter {
 
-        public EventPeopleAdapter(
-                @NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
-            super(fragmentManager, lifecycle);
+        public EventPeopleAdapter(@NonNull Fragment fragment) {
+            super(fragment);
         }
 
         @NonNull @Override
         public Fragment createFragment(int position) {
-            final var frag =
-                    switch (position) {
-                        case 0 -> new EnrolledEntrantsFragment();
-                        case 1 -> new SelectedEntrantsFragment();
-                        case 2 -> new AcceptedEntrantsFragment();
-                        case 3 -> new CancelledEntrantsFragment();
-                        // This should never happen. See getItemCount.
-                        default -> new Fragment();
-                    };
-            return frag;
+            return switch (position) {
+                case 0 -> new EnrolledEntrantsFragment();
+                case 1 -> new SelectedEntrantsFragment();
+                case 2 -> new AcceptedEntrantsFragment();
+                case 3 -> new CancelledEntrantsFragment();
+                // This should never happen. See getItemCount.
+                default -> new Fragment();
+            };
         }
 
         @Override
