@@ -59,16 +59,9 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
     };
 
     // Create a few events.
+    // Note: some events have been removed from here due to them not fitting on screen
+    // and recyclerview scroll action not bringing them fully into view.
     private static final Event[] mockEvents = new Event[] {
-        new Event(
-                "name",
-                "description",
-                Category.EDUCATIONAL,
-                false,
-                selectionTimes[0],
-                eventTimeAfter(selectionTimes[0]),
-                "orgEmail",
-                50),
         new Event(
                 "name1",
                 "description1",
