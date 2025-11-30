@@ -2,7 +2,6 @@ package com.example.evently.ui.common;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +9,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.evently.data.EventsDB;
 import com.example.evently.databinding.FragmentEntrantBinding;
 
 /**
@@ -21,7 +19,6 @@ public class EntrantRecyclerViewAdapter
         extends RecyclerView.Adapter<EntrantRecyclerViewAdapter.EntrantViewHolder> {
     private final List<String> entrants;
     private final boolean showRemoveButton;
-    private UUID eventID;
 
     public EntrantRecyclerViewAdapter() {
         this.entrants = new ArrayList<>();
@@ -33,11 +30,9 @@ public class EntrantRecyclerViewAdapter
         showRemoveButton = false;
     }
 
-    public EntrantRecyclerViewAdapter(
-            List<String> entrants, boolean showRemoveButton, UUID eventID) {
+    public EntrantRecyclerViewAdapter(List<String> entrants, boolean showRemoveButton) {
         this.entrants = entrants;
         this.showRemoveButton = showRemoveButton;
-        this.eventID = eventID;
     }
 
     public static class EntrantViewHolder extends RecyclerView.ViewHolder {
@@ -86,18 +81,19 @@ public class EntrantRecyclerViewAdapter
                 // item is deleting, but then when another item is clicked, it is removing an item
                 // other than the one I clicked. How to fix this?"
                 int current_pos = holder.getBindingAdapterPosition();
-                String current_name = entrants.get(current_pos);
+                String email = entrants.get(current_pos);
 
-                EventsDB eventsDB = new EventsDB();
-                eventsDB.addCancelled(eventID, current_name)
-                        .alongside(eventsDB.unSelect(eventID, current_name))
-                        .thenRun(x -> {
-                            notifyItemRemoved(current_pos);
-                            entrants.remove(current_pos);
-                        });
+                cancelEntrant(email);
             });
         }
     }
+
+    /**
+     * Function to remove an item from selected, and move to canceled. Does nothing unless
+     * overridden.
+     * @param email the email of the user being canceled
+     */
+    public void cancelEntrant(String email) {}
 
     @Override
     public int getItemCount() {

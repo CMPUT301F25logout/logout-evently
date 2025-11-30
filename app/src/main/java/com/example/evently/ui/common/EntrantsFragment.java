@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.evently.R;
+import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.EventEntrants;
 import com.example.evently.ui.model.EventViewModel;
 
@@ -92,8 +93,25 @@ public abstract sealed class EntrantsFragment extends Fragment
          */
         @Override
         protected EntrantRecyclerViewAdapter getAdapter(EventEntrants entrants) {
-            return new EntrantRecyclerViewAdapter(
-                    selectEntrantList(entrants), true, eventViewModel.eventID);
+            return new EntrantRecyclerViewAdapter(selectEntrantList(entrants), true) {
+
+                /**
+                 * The following function cancels a selected entrant, and moves them to the canceled
+                 * section.
+                 * @param email the email of the selected user
+                 */
+                @Override
+                public void cancelEntrant(String email) {
+
+                    EventsDB eventsDB = new EventsDB();
+
+                    eventsDB.addCancelled(eventViewModel.eventID, email)
+                            .alongside(eventsDB.unSelect(eventViewModel.eventID, email))
+                            .thenRun(x -> {
+                                eventViewModel.requestEntrantsUpdate();
+                            });
+                }
+            };
         }
 
         @Override
