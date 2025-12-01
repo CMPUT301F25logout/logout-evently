@@ -16,7 +16,6 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
@@ -143,7 +142,7 @@ public class OrganizerEventActionsTest extends EmulatedFragmentTest<EditEventDet
 
         String writtenContent;
         try (FileInputStream input = new FileInputStream(tempFile);
-                Scanner scanner = new Scanner(input, StandardCharsets.UTF_8)) {
+                Scanner scanner = new Scanner(input, "UTF-8")) {
             writtenContent = scanner.useDelimiter("\\A").next();
         }
 
