@@ -91,5 +91,6 @@
     <string name="filters_clear">Clear</string>
     <string name="entrant_map_btn">View Map</string>
     <string name="event_dialog_msg">Event: %1$s\n%2$s.</string>
+    <string name="expired_btn_text">EXPIRED</string>
 
 </resources>
