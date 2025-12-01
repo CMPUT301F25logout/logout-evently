@@ -49,8 +49,13 @@ public final class MaterialDateTimeUtils {
         Thread.sleep(500);
 
         // Fill in the date in the date picker
-        onView(withContentDescription(targetDay + ", " + targetMonth + " "
-                        + targetDate.getDayOfMonth())) // e.g Saturday, November 29
+        var targetContentDescription =
+                targetDay + ", " + targetMonth + " " + targetDate.getDayOfMonth();
+        // If this future date is next year, the content description will include the year as well.
+        if (targetDate.getYear() > dateThisMonth.getYear()) {
+            targetContentDescription += ", " + targetDate.getYear();
+        }
+        onView(withContentDescription(targetContentDescription)) // e.g Saturday, November 29
                 .inRoot(isDialog())
                 .perform(click());
         onView(withText("OK")).inRoot(isDialog()).perform(click());
