@@ -9,20 +9,33 @@
     app:cardElevation="3dp"
     android:clickable="true"
     android:focusable="true"
-    android:foreground="?attr/selectableItemBackground">
+    android:foreground="?attr/selectableItemBackground"
+    style="?attr/materialCardViewOutlinedStyle">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:orientation="vertical">
+
+    <!-- IMAGE BELOW TOP ROW -->
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/imgPoster"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_share"
+        android:visibility="visible"
+        app:shapeAppearance="?attr/shapeAppearanceCornerMedium" />
 
         <!-- TOP ROW: Title + Category + Winners -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:layout_marginTop="8dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp">
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/content"
@@ -31,7 +44,7 @@
                 android:layout_weight="1"
                 android:text="Event Title"
                 android:layout_gravity="top"
-                android:textAppearance="@style/TextAppearance.Material3.TitleLarge.Emphasized" />
+                android:textAppearance="?attr/textAppearanceHeadline6" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -48,7 +61,7 @@
                     android:textColor="?attr/colorOnSurfaceVariant"
                     android:layout_marginBottom="2dp"/>
 
-                    <com.google.android.material.textview.MaterialTextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/txtSelectionLimit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -58,21 +71,13 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- IMAGE BELOW TOP ROW -->
-        <ImageView
-            android:id="@+id/imgPoster"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_marginTop="8dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_person_24"
-            android:visibility="gone"/>
-
         <!-- METADATA BELOW IMAGE -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
             android:layout_marginTop="4dp">
 
             <com.google.android.material.textview.MaterialTextView
@@ -90,8 +95,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:layout_marginBottom="9dp"
-                android:layout_marginTop="6dp">
+                android:layout_marginTop="4dp">
 
                 <ImageView
                     android:layout_height="wrap_content"
@@ -103,8 +107,7 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    >
+                    android:orientation="vertical">
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/txtDate"
@@ -131,6 +134,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
+                android:padding="8dp"
                 android:layout_marginBottom="2dp">
 
                 <ImageView
@@ -155,11 +159,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Event description preview..."
-                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                android:textAppearance="?attr/textAppearanceBody2"
+                android:padding="8dp"
                 android:ellipsize="end"
                 android:maxLines="2"
-                android:layout_marginBottom="0dp"
-                android:layout_marginTop="5dp"/>
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="4dp"
+                android:layout_marginTop="4dp"/>
         </LinearLayout>
     </LinearLayout>
 
