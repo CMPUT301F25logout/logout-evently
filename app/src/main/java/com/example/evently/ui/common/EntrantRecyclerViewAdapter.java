@@ -1,8 +1,6 @@
 package com.example.evently.ui.common;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -41,7 +39,9 @@ public class EntrantRecyclerViewAdapter
     }
 
     public EntrantRecyclerViewAdapter(
-            Map<String, String> entrants, boolean showRemoveButton, OnRemoveButtonClickListener listener) {
+            Map<String, String> entrants,
+            boolean showRemoveButton,
+            OnRemoveButtonClickListener listener) {
         this.entrants = entrants;
         this.showRemoveButton = showRemoveButton;
         this.removeButtonListener = listener;
@@ -75,7 +75,6 @@ public class EntrantRecyclerViewAdapter
         String email = entrants.keySet().stream().collect(Collectors.toList()).get(position);
         String name = entrants.get(email);
 
-
         // Set the name of each person
         binding.entrantName.setText(name);
 
@@ -85,7 +84,8 @@ public class EntrantRecyclerViewAdapter
         }
 
         // Sets Onclick listener for the remove button
-        binding.removeButton.setOnClickListener(v -> removeButtonListener.onRemoveButtonClick(email));
+        binding.removeButton.setOnClickListener(
+                v -> removeButtonListener.onRemoveButtonClick(email));
     }
 
     @Override
