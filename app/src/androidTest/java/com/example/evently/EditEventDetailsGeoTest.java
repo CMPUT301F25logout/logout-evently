@@ -2,7 +2,10 @@ package com.example.evently;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
+import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static java.util.Map.entry;
@@ -20,6 +23,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import android.os.Bundle;
+
+import androidx.core.widget.NestedScrollView;
 import androidx.navigation.NavGraph;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -110,8 +115,11 @@ public class EditEventDetailsGeoTest extends EmulatedFragmentTest<EditEventDetai
 
         onView(withText(mockEvent.description())).check(matches(isDisplayed()));
 
-        // Check the enrolled tab.
-        onView(withText(R.string.entrant_map_btn)).perform(click());
+        // Get to the bottom of the scroll view.
+        onView(isAssignableFrom(NestedScrollView.class)).perform(swipeUp());
+
+        // Open the map!
+        onView(withText(R.string.entrant_map_btn)).perform(scrollTo(), click());
 
         Thread.sleep(10000);
 

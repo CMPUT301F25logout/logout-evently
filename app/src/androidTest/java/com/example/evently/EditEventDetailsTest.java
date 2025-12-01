@@ -234,6 +234,9 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
 
         onView(withText(mockEvent.description())).check(matches(isDisplayed()));
 
+        // Get to the bottom of the scroll view.
+        onView(isAssignableFrom(NestedScrollView.class)).perform(swipeUp());
+
         // Check the selected tab.
         onView(withText("Selected")).perform(scrollTo(), click());
 
@@ -276,6 +279,9 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
     @Test
     public void test6_NoMap() throws InterruptedException {
         Thread.sleep(1000);
+
+        // Get to the bottom of the scroll view.
+        onView(isAssignableFrom(NestedScrollView.class)).perform(swipeUp());
 
         // Ensure the map button is not displayed.
         onView(withId(R.id.open_map))

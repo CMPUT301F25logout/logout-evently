@@ -49,7 +49,7 @@ runs:
         target: google_apis
         arch: x86_64
         force-avd-creation: false
-        emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -timezone Etc/UTC
+        emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
         disable-animations: false
         script: echo "Generated AVD snapshot for caching."
 
@@ -60,7 +60,7 @@ runs:
         target: google_apis
         arch: x86_64
         force-avd-creation: false
-        emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -timezone Etc/UTC
+        emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
         disable-animations: true
         working-directory: ./firebase
-        script: firebase emulators:exec "../gradlew connectedAndroidTest -P android.testInstrumentationRunnerArguments.class=com.example.evently.EditEventDetailsTest --no-parallel -p ../"
+        script: firebase emulators:exec "../gradlew connectedAndroidTest -P android.testInstrumentationRunnerArguments.notAnnotation=androidx.test.filters.LargeTest --no-parallel -p ../"
