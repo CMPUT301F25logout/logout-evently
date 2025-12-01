@@ -32,11 +32,13 @@ import androidx.core.content.FileProvider;
 import androidx.navigation.NavGraph;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.intent.Intents;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.firebase.Timestamp;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.generic.Promise;
@@ -45,12 +47,14 @@ import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.organizer.EditEventDetailsFragment;
 
+@RunWith(AndroidJUnit4.class)
 public class OrganizerEventActionsTest extends EmulatedFragmentTest<EditEventDetailsFragment> {
     private static final EventsDB eventsDB = new EventsDB();
     private static final Event mockEvent = new Event(
             "name",
             "description",
             Category.EDUCATIONAL,
+            false,
             new Timestamp(Instant.now().plus(Duration.ofHours(1))),
             new Timestamp(Instant.now().plus(Duration.ofDays(2))),
             "orgEmail",
