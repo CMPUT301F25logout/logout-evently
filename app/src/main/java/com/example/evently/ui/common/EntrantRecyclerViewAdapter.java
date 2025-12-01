@@ -73,8 +73,7 @@ public class EntrantRecyclerViewAdapter
         String name = entrants.get(position);
 
         // Set the name of each person
-        new AccountDB().fetchAccount(name).optionally(account ->
-                binding.entrantName.setText(account.name()));
+        binding.entrantName.setText(name);
 
         // If we need to have the remove button, it is shown
         if (showRemoveButton) {

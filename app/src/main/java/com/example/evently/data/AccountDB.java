@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
 import org.jetbrains.annotations.TestOnly;
@@ -85,6 +86,13 @@ public class AccountDB {
     public PromiseOpt<Account> fetchAccount(String email) {
         return promiseOpt(
                 promise(accountsRef.document(email).get()).map(AccountDB::getAccountFromSnapshot));
+    }
+
+    public Promise<List<Account>> fetchAccounts(List<String> email) {
+        return promise(accountsRef.whereIn(FieldPath.documentId(), email).get()).map(querySnapshot -> querySnapshot.getDocuments().stream()
+                .map(AccountDB::getAccountFromSnapshot)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList()));
     }
 
     public PromiseOpt<Account> fetchAccountByDeviceID(String deviceID) {

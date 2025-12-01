@@ -114,7 +114,6 @@ public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsF
         // Get to the bottom of the scroll view.
         onView(isAssignableFrom(NestedScrollView.class)).perform(swipeUp());
 
-
         // Test if the account's emails shows up on the recycler view
         for (final var expectedAccount : expectedAccounts) {
             assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, expectedAccount.name()));

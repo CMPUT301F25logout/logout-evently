@@ -1,6 +1,7 @@
 package com.example.evently.ui.common;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -13,7 +14,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.evently.R;
+import com.example.evently.data.AccountDB;
 import com.example.evently.data.EventsDB;
+import com.example.evently.data.model.Account;
 import com.example.evently.data.model.EventEntrants;
 import com.example.evently.ui.model.EventViewModel;
 
@@ -62,9 +65,12 @@ public abstract sealed class EntrantsFragment extends Fragment
 
         // Set up an observer to update the event entrants as they change.
         eventViewModel.getEventEntrantsLive().observe(getViewLifecycleOwner(), eventEntrants -> {
-            final var adapter = new EntrantRecyclerViewAdapter(
-                    selectEntrantList(eventEntrants), showRemoveButton, this::cancelEntrant);
-            recyclerView.swapAdapter(adapter, false);
+            final var selectedEntrantList = selectEntrantList(eventEntrants);
+            new AccountDB().fetchAccounts(selectedEntrantList).thenRun(accounts -> {
+                final var accountNames = accounts.stream().map(Account::name).collect(Collectors.toList());
+                final var adapter = new EntrantRecyclerViewAdapter(accountNames, showRemoveButton, this::cancelEntrant);
+                recyclerView.swapAdapter(adapter, false);
+            });
         });
 
         return view;
