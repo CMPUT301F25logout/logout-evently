@@ -89,10 +89,11 @@ public class AccountDB {
     }
 
     public Promise<List<Account>> fetchAccounts(List<String> email) {
-        return promise(accountsRef.whereIn(FieldPath.documentId(), email).get()).map(querySnapshot -> querySnapshot.getDocuments().stream()
-                .map(AccountDB::getAccountFromSnapshot)
-                .flatMap(Optional::stream)
-                .collect(Collectors.toList()));
+        return promise(accountsRef.whereIn(FieldPath.documentId(), email).get())
+                .map(querySnapshot -> querySnapshot.getDocuments().stream()
+                        .map(AccountDB::getAccountFromSnapshot)
+                        .flatMap(Optional::stream)
+                        .collect(Collectors.toList()));
     }
 
     public PromiseOpt<Account> fetchAccountByDeviceID(String deviceID) {

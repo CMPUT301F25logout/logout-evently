@@ -11,12 +11,9 @@ import static org.hamcrest.Matchers.allOf;
 
 import java.util.ArrayList;
 
-import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import androidx.annotation.IdRes;
-import androidx.test.espresso.Espresso;
-import androidx.test.espresso.PerformException;
 import androidx.test.espresso.ViewInteraction;
 import androidx.test.espresso.contrib.RecyclerViewActions;
 
@@ -46,7 +43,6 @@ public final class MatcherUtils {
         // Scroll to the item with given descendants.
         onView(allOf(withId(recyclerViewId), isDisplayed()))
                 .perform(RecyclerViewActions.scrollTo(allDescendantsMatcher));
-
 
         // Make sure all the expected descendants are displayed.
         for (final var expectedDescendant : expectedDescendants) {

@@ -67,8 +67,10 @@ public abstract sealed class EntrantsFragment extends Fragment
         eventViewModel.getEventEntrantsLive().observe(getViewLifecycleOwner(), eventEntrants -> {
             final var selectedEntrantList = selectEntrantList(eventEntrants);
             new AccountDB().fetchAccounts(selectedEntrantList).thenRun(accounts -> {
-                final var accountNames = accounts.stream().map(Account::name).collect(Collectors.toList());
-                final var adapter = new EntrantRecyclerViewAdapter(accountNames, showRemoveButton, this::cancelEntrant);
+                final var accountNames =
+                        accounts.stream().map(Account::name).collect(Collectors.toList());
+                final var adapter = new EntrantRecyclerViewAdapter(
+                        accountNames, showRemoveButton, this::cancelEntrant);
                 recyclerView.swapAdapter(adapter, false);
             });
         });
