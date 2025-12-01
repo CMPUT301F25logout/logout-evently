@@ -30,9 +30,11 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointForward;
 import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.loadingindicator.LoadingIndicator;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
@@ -171,6 +173,11 @@ public class CreateEventFragment extends Fragment {
                 toast("Please select an event time.");
                 return;
             }
+
+            btnCreate.setIcon(new LoadingIndicator(requireContext()).getDrawable());
+            btnCreate.setText(null);
+            btnCreate.setIconPadding(0);
+            btnCreate.setIconGravity(MaterialButton.ICON_GRAVITY_TEXT_START);
 
             final var selectionDeadline = LocalDate.parse(selectionDeadlineTxt, DATE_FORMATTER);
             final var eventDate = LocalDate.parse(eventDateTxt, DATE_FORMATTER);
