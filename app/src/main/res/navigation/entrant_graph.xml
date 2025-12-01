@@ -22,7 +22,14 @@
         android:id="@+id/nav_notifs"
         android:name="com.example.evently.ui.entrant.ViewNotificationsFragment"
         android:label="Notifications"
-        tools:layout="@layout/fragment_notifs"/>
+        tools:layout="@layout/fragment_notifs">
+        <action
+            android:id="@+id/action_nav_notifs_to_event_details"
+            app:destination="@id/event_details"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
 
     <fragment
         android:id="@+id/event_details"
