@@ -3,6 +3,7 @@ package com.example.evently.data;
 import static com.example.evently.data.generic.Promise.promise;
 import static com.example.evently.data.generic.PromiseOpt.promiseOpt;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -89,6 +90,8 @@ public class AccountDB {
     }
 
     public Promise<List<Account>> fetchAccounts(List<String> email) {
+        if (email.isEmpty()) return Promise.of(new ArrayList<>());
+
         return promise(accountsRef.whereIn(FieldPath.documentId(), email).get())
                 .map(querySnapshot -> querySnapshot.getDocuments().stream()
                         .map(AccountDB::getAccountFromSnapshot)
