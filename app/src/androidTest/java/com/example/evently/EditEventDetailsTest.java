@@ -126,14 +126,14 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
         // Test if the account's emails shows up on the recycler view
         for (int i = 1; i < extraAccounts.length; i++) {
             final var expectedAccount = extraAccounts[i];
-            assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, expectedAccount.email()));
+            assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, expectedAccount.name()));
         }
 
         // Ensure unexpected account(s) do not show up in here.
         assertThrows(
                 PerformException.class,
                 () -> assertRecyclerViewItem(
-                        R.id.entrantList, p(R.id.entrant_name, extraAccounts[0].email())));
+                        R.id.entrantList, p(R.id.entrant_name, extraAccounts[0].name())));
     }
 
     @Test
@@ -154,7 +154,7 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
         // Test if the account's emails shows up on the recycler view
         for (int i = 1; i <= selectionLimit; i++) {
             final var expectedAccount = extraAccounts[i];
-            assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, expectedAccount.email()));
+            assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, expectedAccount.name()));
         }
 
         // Ensure unexpected account(s) do not show up in here.
@@ -163,7 +163,7 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
             assertThrows(
                     PerformException.class,
                     () -> assertRecyclerViewItem(
-                            R.id.entrantList, p(R.id.entrant_name, expectedAccount.email())));
+                            R.id.entrantList, p(R.id.entrant_name, expectedAccount.name())));
         }
     }
 
@@ -185,18 +185,18 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
         // Test if the account's emails shows up on the recycler view
         for (int i = 2; i <= selectionLimit - 1; i++) {
             final var expectedAccount = extraAccounts[i];
-            assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, expectedAccount.email()));
+            assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, expectedAccount.name()));
         }
 
         // Ensure unexpected account(s) do not show up in here.
         assertThrows(
                 PerformException.class,
                 () -> assertRecyclerViewItem(
-                        R.id.entrantList, p(R.id.entrant_name, extraAccounts[1].email())));
+                        R.id.entrantList, p(R.id.entrant_name, extraAccounts[1].name())));
         assertThrows(
                 PerformException.class,
                 () -> assertRecyclerViewItem(
-                        R.id.entrantList, p(R.id.entrant_name, extraAccounts[4].email())));
+                        R.id.entrantList, p(R.id.entrant_name, extraAccounts[4].name())));
     }
 
     @Test
@@ -215,8 +215,8 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
         Thread.sleep(1000);
 
         // Test if the account's emails shows up on the recycler view
-        assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, extraAccounts[1].email()));
-        assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, extraAccounts[4].email()));
+        assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, extraAccounts[1].name()));
+        assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, extraAccounts[4].name()));
 
         // Ensure unexpected account(s) do not show up in here.
         for (int i = 2; i <= selectionLimit - 1; i++) {
@@ -224,7 +224,7 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
             assertThrows(
                     PerformException.class,
                     () -> assertRecyclerViewItem(
-                            R.id.entrantList, p(R.id.entrant_name, expectedAccount.email())));
+                            R.id.entrantList, p(R.id.entrant_name, expectedAccount.name())));
         }
     }
 
@@ -243,17 +243,17 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
         // Wait for viewpager
         Thread.sleep(1000);
 
-        String cancelingEmail = "email2@gmail.com";
+        String cancelingName = "user2";
 
         // Used to scroll to recycler view item
-        assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, cancelingEmail));
+        assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, cancelingName));
 
         // The following line of code is from Google, Gemini 3 Pro:
         // "Using hasSibling, show me how to click on a button R.id.removeButton in a recycler view
         // next to a known email", 2025-11-30
         onView(allOf(
                         withId(R.id.removeButton),
-                        hasSibling(withText(cancelingEmail)),
+                        hasSibling(withText(cancelingName)),
                         isDisplayed()))
                 .perform(click());
 
@@ -264,7 +264,7 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
         assertThrows(
                 PerformException.class,
                 () -> assertRecyclerViewItem(
-                        R.id.entrantList, p(R.id.entrant_name, cancelingEmail)));
+                        R.id.entrantList, p(R.id.entrant_name, cancelingName)));
 
         // Navigate to the cancelled tab.
         onView(withText("Cancelled")).perform(scrollTo(), click());
@@ -273,7 +273,7 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
         Thread.sleep(2000);
 
         // Asserts the canceled email is in the canceled tab
-        assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, cancelingEmail));
+        assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, cancelingName));
     }
 
     @Test
