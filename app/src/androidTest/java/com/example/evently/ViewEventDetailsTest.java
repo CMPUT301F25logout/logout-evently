@@ -134,9 +134,7 @@ public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsF
         Thread.sleep(2000);
 
         // Get to the bottom of the scroll view.
-        onView(withId(R.id.lotteryGuidelinesButton)).perform(scrollTo());
-        onView(withId(R.id.lotteryGuidelinesButton)).check(matches(isDisplayed()));
-        onView(withId(R.id.lotteryGuidelinesButton)).perform(click());
+        onView(withId(R.id.lotteryGuidelinesButton)).perform(scrollTo(), click());
         onView(withText(R.string.lottery_guidelines_dialog_title)).check(matches(isDisplayed()));
         onView(withText(R.string.lottery_guidelines_dialog_message)).check(matches(isDisplayed()));
         onView(withText(R.string.lottery_guidelines_dialog_positive)).perform(click());
