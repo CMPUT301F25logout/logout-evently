@@ -82,7 +82,17 @@ public class EventRecyclerViewAdapter
         // Gets a reference to the poster, and stores it in the image view.
         StorageReference posterReference =
                 new EventsDB().getPosterStorageRef(holder.mItem.eventID());
-        GlideUtils.loadPosterIntoImageView(posterReference, binding.imgPoster);
+        posterReference
+                .getMetadata()
+                .addOnSuccessListener(metadata -> {
+                    // Event image exists, set image visible and display it
+                    binding.imgPoster.setVisibility(android.view.View.VISIBLE);
+                    GlideUtils.loadPosterIntoImageView(posterReference, binding.imgPoster);
+                })
+                .addOnFailureListener(e -> {
+                    // Event image does NOT exist, do nothing
+                    ;
+                });
 
         // Status + selectionDate
         EventStatus status = holder.mItem.computeStatus(Instant.now());

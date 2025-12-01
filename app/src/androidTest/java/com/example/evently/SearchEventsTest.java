@@ -6,7 +6,6 @@ import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -193,9 +192,9 @@ public class SearchEventsTest extends EmulatedFragmentTest<EntrantSearchEventsFr
 
                 // Makes sure that events are actually displayed and visible
                 onView(allOf(
-                        withId(R.id.content),
-                        withText(e.name()),
-                        isDescendantOfA(withId(R.id.event_list))))
+                                withId(R.id.content),
+                                withText(e.name()),
+                                isDescendantOfA(withId(R.id.event_list))))
                         .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
             }
         }
