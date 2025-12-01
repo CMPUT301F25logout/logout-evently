@@ -6,8 +6,9 @@ import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static com.example.evently.MaterialDateTimeUtils.selectDateInMonth;
+import static com.example.evently.MaterialDateTimeUtils.selectFutureDate;
 import static com.example.evently.MaterialDateTimeUtils.selectTimeInAM;
+import static com.example.evently.TimeCompareUtils.compareUTC;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -21,6 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.example.evently.data.EventsDB;
+import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.organizer.CreateEventFragment;
 import com.example.evently.utils.FirebaseAuthUtils;
@@ -36,7 +38,11 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
 
     @AfterClass
     public static void tearDown() throws ExecutionException, InterruptedException {
-        eventsDB.nuke().await();
+        List<Event> mine = eventsDB.fetchEventsByOrganizers(FirebaseAuthUtils.getCurrentEmail())
+                .await();
+        for (final var event : mine) {
+            eventsDB.deleteEvent(event.eventID()).await();
+        }
     }
 
     @Test
@@ -44,15 +50,16 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         final String self = FirebaseAuthUtils.getCurrentEmail();
         final String name = "UI Test Event";
         final String desc = "Created by CreateEventFragmentTest";
-        final String winners = "7";
+        final long winners = 7;
 
         // Fill fields
         onView(withId(R.id.etEventName)).perform(replaceText(name), closeSoftKeyboard());
         onView(withId(R.id.etDescription)).perform(replaceText(desc), closeSoftKeyboard());
-        onView(withId(R.id.etWinners)).perform(replaceText(winners), closeSoftKeyboard());
-        selectDateInMonth(R.id.etSelectionDeadline, 1);
-        selectDateInMonth(R.id.etEventDate, 2);
-        selectTimeInAM(R.id.etEventTime, 1, 35);
+        onView(withId(R.id.etWinners))
+                .perform(replaceText(Long.toString(winners)), closeSoftKeyboard());
+        final var selectionDate = selectFutureDate(R.id.etSelectionDeadline, 1);
+        final var eventDate = selectFutureDate(R.id.etEventDate, 2);
+        final var eventTime = selectTimeInAM(R.id.etEventTime, 1, 35);
 
         // Submit
         onView(withId(R.id.btnCreate)).perform(scrollTo(), click());
@@ -60,7 +67,15 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         // Verify persisted to Firestore
         List<Event> mine = eventsDB.fetchEventsByOrganizers(self).await();
         assertTrue(mine.stream()
-                .anyMatch(e -> e.name().equals(name) && e.description().equals(desc)));
+                .anyMatch(e -> e.name().equals(name)
+                        && e.description().equals(desc)
+                        && e.category().equals(Category.OTHERS)
+                        && !e.isFull()
+                        && !e.requiresLocation()
+                        && e.optionalEntrantLimit().isEmpty()
+                        && e.selectionLimit() == winners
+                        && compareUTC(e.selectionTime().toInstant(), selectionDate.atStartOfDay())
+                        && compareUTC(e.eventTime().toInstant(), eventDate.atTime(eventTime))));
     }
 
     @Test
@@ -71,10 +86,6 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         onView(withId(R.id.etEventName)).perform(replaceText("Bad Winners"), closeSoftKeyboard());
         onView(withId(R.id.etDescription)).perform(replaceText("desc"), closeSoftKeyboard());
         onView(withId(R.id.etWinners)).perform(replaceText("abc"), closeSoftKeyboard());
-
-        selectDateInMonth(R.id.etSelectionDeadline, 1);
-        selectDateInMonth(R.id.etEventDate, 2);
-        selectTimeInAM(R.id.etEventTime, 1, 35);
 
         onView(withId(R.id.btnCreate)).perform(scrollTo(), click());
 
@@ -92,10 +103,6 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         onView(withId(R.id.etWinners)).perform(replaceText("5"), closeSoftKeyboard());
         onView(withId(R.id.etWaitLimit)).perform(replaceText("xyz"), closeSoftKeyboard());
 
-        selectDateInMonth(R.id.etSelectionDeadline, 1);
-        selectDateInMonth(R.id.etEventDate, 2);
-        selectTimeInAM(R.id.etEventTime, 1, 35);
-
         onView(withId(R.id.btnCreate)).perform(scrollTo(), click());
 
         int after = eventsDB.fetchEventsByOrganizers(self).await().size();
@@ -110,8 +117,8 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         onView(withId(R.id.etEventName)).perform(replaceText("Bad Date"), closeSoftKeyboard());
         onView(withId(R.id.etDescription)).perform(replaceText("desc"), closeSoftKeyboard());
         onView(withId(R.id.etWinners)).perform(replaceText("3"), closeSoftKeyboard());
-        selectDateInMonth(R.id.etSelectionDeadline, 2);
-        selectDateInMonth(R.id.etEventDate, 1);
+        selectFutureDate(R.id.etSelectionDeadline, 2);
+        selectFutureDate(R.id.etEventDate, 1);
         selectTimeInAM(R.id.etEventTime, 12, 25);
 
         onView(withId(R.id.btnCreate)).perform(scrollTo(), click());
@@ -128,7 +135,7 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         onView(withId(R.id.etEventName)).perform(replaceText("Bad Date"), closeSoftKeyboard());
         onView(withId(R.id.etDescription)).perform(replaceText("desc"), closeSoftKeyboard());
         onView(withId(R.id.etWinners)).perform(replaceText("3"), closeSoftKeyboard());
-        selectDateInMonth(R.id.etEventDate, 2);
+        selectFutureDate(R.id.etEventDate, 2);
         selectTimeInAM(R.id.etEventTime, 12, 25);
 
         onView(withId(R.id.btnCreate)).perform(scrollTo(), click());
@@ -145,7 +152,7 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         onView(withId(R.id.etEventName)).perform(replaceText("Bad Date"), closeSoftKeyboard());
         onView(withId(R.id.etDescription)).perform(replaceText("desc"), closeSoftKeyboard());
         onView(withId(R.id.etWinners)).perform(replaceText("3"), closeSoftKeyboard());
-        selectDateInMonth(R.id.etSelectionDeadline, 2);
+        selectFutureDate(R.id.etSelectionDeadline, 2);
         selectTimeInAM(R.id.etEventTime, 12, 25);
 
         onView(withId(R.id.btnCreate)).perform(scrollTo(), click());
@@ -162,8 +169,8 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         onView(withId(R.id.etEventName)).perform(replaceText("Bad Date"), closeSoftKeyboard());
         onView(withId(R.id.etDescription)).perform(replaceText("desc"), closeSoftKeyboard());
         onView(withId(R.id.etWinners)).perform(replaceText("3"), closeSoftKeyboard());
-        selectDateInMonth(R.id.etSelectionDeadline, 1);
-        selectDateInMonth(R.id.etEventDate, 2);
+        selectFutureDate(R.id.etSelectionDeadline, 1);
+        selectFutureDate(R.id.etEventDate, 2);
 
         onView(withId(R.id.btnCreate)).perform(scrollTo(), click());
 

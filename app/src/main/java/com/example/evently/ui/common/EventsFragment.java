@@ -3,16 +3,14 @@ package com.example.evently.ui.common;
 import java.util.List;
 import java.util.function.Consumer;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
-import com.example.evently.R;
 import com.example.evently.data.model.Event;
 
 /**
@@ -24,19 +22,24 @@ import com.example.evently.data.model.Event;
  * Extending classes will also have access to the {@link EventRecyclerViewAdapter} to modify dynamically.
  * @see EventRecyclerViewAdapter
  */
-public abstract class EventsFragment extends Fragment {
+public abstract class EventsFragment extends LiveEventsFragment<Void> {
 
     /**
      * Adapter to manage the events list dynamically.
      */
     protected EventRecyclerViewAdapter adapter;
 
-    /**
-     * Listener to attach to the event on click.
-     * This may be different for the entrant vs organizer event click.
-     * @param event The structural representation of the Event view that was clicked.
-     */
-    protected abstract void onEventClick(Event event);
+    private final MutableLiveData<Void> trivial = new MutableLiveData<>();
+
+    @Override
+    protected LiveData<Void> getLiveData() {
+        return trivial;
+    }
+
+    @Override
+    protected void updateEventsBy(Void target, Consumer<List<Event>> act) {
+        initEvents(act);
+    }
 
     /**
      * This method will be called by onCreateView to set up the events view.
@@ -47,23 +50,8 @@ public abstract class EventsFragment extends Fragment {
 
     @Override
     public View onCreateView(
-            LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        RecyclerView recyclerView =
-                (RecyclerView) inflater.inflate(R.layout.fragment_event_list, container, false);
-
-        if (recyclerView == null) {
-            throw new AssertionError("EventsFragment.onCreateView called with non RecyclerView");
-        }
-
-        Context context = recyclerView.getContext();
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
-
-        // Set up the recycler view adapter with the initial list of events (asynchronous).
-        initEvents(events -> {
-            adapter = new EventRecyclerViewAdapter(events, this::onEventClick);
-            recyclerView.setAdapter(adapter);
-        });
-
-        return recyclerView;
+            @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        trivial.setValue(null);
+        return super.onCreateView(inflater, container, savedInstanceState);
     }
 }

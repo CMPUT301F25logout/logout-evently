@@ -40,6 +40,7 @@ import com.example.evently.data.generic.PromiseOpt;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.data.model.EventEntrants;
+import com.example.evently.data.model.EventFilter;
 
 /**
  * The Event database for managing events
@@ -315,11 +316,23 @@ public class EventsDB {
     }
 
     /**
-     * @return All currently open (for enrollment) events.
+     * @param filters Filters to apply on the events.
+     * @return All currently open (for enrollment) events as per given filters.
      */
-    public Promise<List<Event>> fetchOpenEvents() {
-        return parseQuerySnapShots(
-                eventsRef.whereGreaterThan("selectionTime", Timestamp.now()).get());
+    public Promise<List<Event>> fetchEventByFilters(EventFilter filters) {
+        var query = eventsRef.whereGreaterThan("selectionTime", Timestamp.now());
+        if (!filters.categories().isEmpty()) {
+            query = eventsRef.whereIn("category", new ArrayList<>(filters.categories()));
+        }
+        if (filters.startTime().isPresent()) {
+            final var startTime = filters.startTime().get();
+            query = eventsRef.whereGreaterThanOrEqualTo("eventTime", startTime);
+        }
+        if (filters.endTime().isPresent()) {
+            final var endTime = filters.endTime().get();
+            query = eventsRef.whereLessThan("eventTime", endTime);
+        }
+        return parseQuerySnapShots(query.get());
     }
 
     /**
