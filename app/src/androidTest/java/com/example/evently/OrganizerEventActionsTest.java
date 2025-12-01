@@ -52,7 +52,7 @@ public class OrganizerEventActionsTest extends EmulatedFragmentTest<EditEventDet
     private static final Event mockEvent = new Event(
             "name",
             "description",
-            Category.EDUCATIONAL,
+            Category.Educational,
             false,
             new Timestamp(Instant.now().plus(Duration.ofHours(1))),
             new Timestamp(Instant.now().plus(Duration.ofDays(2))),
