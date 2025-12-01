@@ -23,7 +23,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import android.os.Bundle;
-
 import androidx.core.widget.NestedScrollView;
 import androidx.navigation.NavGraph;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
