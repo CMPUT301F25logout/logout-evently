@@ -71,7 +71,7 @@ public class AdminBrowseToEventDetailsTest extends EmulatedFragmentTest<AdminBro
         assertRecyclerViewItem(
                 R.id.event_list,
                 p(R.id.content, expectedEvent.name()),
-                p(R.id.txtselection_date, "Waitlist closed"),
+                p(R.id.txtselectionDate, "Waitlist closed"),
                 p(
                         R.id.txtDate,
                         EVENT_DATE_TIME_FORMATTER.format(
