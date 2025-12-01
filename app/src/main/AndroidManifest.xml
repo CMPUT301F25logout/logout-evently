@@ -80,6 +80,10 @@
             android:name=".ui.organizer.OrganizerActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.admin.AdminActivity"
+            android:exported="false"/>
+
         <service
             android:name=".FirebaseNotificationService"
             android:exported="false">
