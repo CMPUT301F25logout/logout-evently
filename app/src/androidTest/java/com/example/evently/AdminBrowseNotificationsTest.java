@@ -53,7 +53,7 @@ public class AdminBrowseNotificationsTest
         new Event(
                 "name",
                 "description",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 selectionTime,
                 eventTime,
@@ -62,7 +62,7 @@ public class AdminBrowseNotificationsTest
         new Event(
                 "name1",
                 "description1",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 selectionTime,
                 eventTime,
@@ -71,7 +71,7 @@ public class AdminBrowseNotificationsTest
         new Event(
                 "name2",
                 "description2",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 selectionTime,
                 eventTime,
@@ -80,7 +80,7 @@ public class AdminBrowseNotificationsTest
         new Event(
                 "name3",
                 "description3",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 selectionTime,
                 eventTime,
@@ -89,7 +89,7 @@ public class AdminBrowseNotificationsTest
         new Event(
                 "name4",
                 "description4",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 selectionTime,
                 eventTime,
@@ -98,7 +98,7 @@ public class AdminBrowseNotificationsTest
         new Event(
                 "name5",
                 "description5",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 selectionTime,
                 eventTime,
@@ -107,7 +107,7 @@ public class AdminBrowseNotificationsTest
         new Event(
                 "name6",
                 "description6",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 selectionTime,
                 eventTime,
@@ -116,7 +116,7 @@ public class AdminBrowseNotificationsTest
         new Event(
                 "name7",
                 "description7",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 selectionTime,
                 eventTime,
@@ -125,7 +125,7 @@ public class AdminBrowseNotificationsTest
         new Event(
                 "name8",
                 "description8",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 selectionTime,
                 eventTime,

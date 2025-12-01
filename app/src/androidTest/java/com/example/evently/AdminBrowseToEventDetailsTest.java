@@ -48,7 +48,7 @@ public class AdminBrowseToEventDetailsTest extends EmulatedFragmentTest<AdminBro
         new Event(
                 "name",
                 "description",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 selectionTime,
                 eventTime,

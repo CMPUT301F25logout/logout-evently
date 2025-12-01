@@ -45,7 +45,7 @@ public class AdminDeleteEventTest extends EmulatedFragmentTest<AdminEventDetails
     private static final Event mockEvent = new Event(
             "name",
             "description",
-            Category.EDUCATIONAL,
+            Category.Educational,
             false,
             selectionTime,
             eventTime,

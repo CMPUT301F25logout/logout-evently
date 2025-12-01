@@ -49,7 +49,7 @@ public class AdminDeleteProfileTest extends EmulatedFragmentTest<ViewProfileDeta
         new Event(
                 "name",
                 "description",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 new Timestamp(now.plus(Duration.ofMinutes(8))),
                 new Timestamp(now.plus(Duration.ofMinutes(18))),
@@ -58,7 +58,7 @@ public class AdminDeleteProfileTest extends EmulatedFragmentTest<ViewProfileDeta
         new Event(
                 "name1",
                 "description1",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 new Timestamp(now.plus(Duration.ofMinutes(1))),
                 new Timestamp(now.plus(Duration.ofMinutes(11))),
@@ -67,7 +67,7 @@ public class AdminDeleteProfileTest extends EmulatedFragmentTest<ViewProfileDeta
         new Event(
                 "name2",
                 "description2",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 new Timestamp(now.plus(Duration.ofMinutes(2))),
                 new Timestamp(now.plus(Duration.ofMinutes(12))),
@@ -76,7 +76,7 @@ public class AdminDeleteProfileTest extends EmulatedFragmentTest<ViewProfileDeta
         new Event(
                 "name3",
                 "description3",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 new Timestamp(now.minus(Duration.ofDays(20))),
                 new Timestamp(now.minus(Duration.ofDays(18))),
