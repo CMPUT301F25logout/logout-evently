@@ -134,7 +134,7 @@ public class AdminEventDetailsTest extends EmulatedFragmentTest<AdminEventDetail
 
         // Test if the account's emails shows up on the recycler view
         for (final var expectedAccount : expectedAccounts) {
-            assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, expectedAccount.email()));
+            assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, expectedAccount.name()));
         }
     }
 
@@ -155,7 +155,7 @@ public class AdminEventDetailsTest extends EmulatedFragmentTest<AdminEventDetail
 
         // Test if the account's emails shows up on the recycler view
         for (final var expectedAccount : expectedAccounts) {
-            assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, expectedAccount.email()));
+            assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, expectedAccount.name()));
         }
     }
 
@@ -175,7 +175,7 @@ public class AdminEventDetailsTest extends EmulatedFragmentTest<AdminEventDetail
 
         // Test if the account's emails shows up on the recycler view
         for (final var expectedAccount : expectedAccounts) {
-            assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, expectedAccount.email()));
+            assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, expectedAccount.name()));
         }
     }
 
@@ -195,7 +195,7 @@ public class AdminEventDetailsTest extends EmulatedFragmentTest<AdminEventDetail
 
         // Test if the account's emails shows up on the recycler view
         for (final var expectedAccount : expectedAccounts) {
-            assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, expectedAccount.email()));
+            assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, expectedAccount.name()));
         }
     }
 
