@@ -227,7 +227,7 @@ public class ManageNotificationsTest extends EmulatedFragmentTest<ManageNotifica
         // The following section of code confirms we were brought to the correct fragment, and was
         // created by Anthropic, Claude Sonnet 4.5 with the following prompt:
         // "In java for android, how can you verify that once clicking on an item, the fragment
-        // changes to an expected fragment"
+        // changes to an expected fragment", 2025-11-26
         scenario.onFragment(fragment -> {
             final var dest = NavHostFragment.findNavController(fragment)
                     .getCurrentDestination()

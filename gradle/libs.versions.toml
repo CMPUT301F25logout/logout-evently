@@ -26,7 +26,7 @@ fragment = "1.8.9"
 firebaseStorage = "22.0.1"
 zxing = "4.3.0"
 lifecycleViewmodel = "2.9.4"
-espressoIntents = "3.7.0"
+lifecycleLivedata = "2.9.4"
 playServicesLocation = "21.3.0"
 playServicesMaps = "19.2.0"
 
@@ -62,7 +62,7 @@ fragment-testing = { group = "androidx.fragment", name = "fragment-testing", ver
 firebase-storage = { group = "com.google.firebase", name = "firebase-storage", version.ref = "firebaseStorage" }
 zxing-android-embedded = { group = "com.journeyapps", name = "zxing-android-embedded", version.ref = "zxing" }
 lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "lifecycleViewmodel" }
-espresso-intents = { group = "androidx.test.espresso", name = "espresso-intents", version.ref = "espressoIntents" }
+lifecycle-livedata = { group = "androidx.lifecycle", name = "lifecycle-livedata", version.ref = "lifecycleLivedata" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
 
