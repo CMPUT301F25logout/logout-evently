@@ -12,9 +12,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.firebase.messaging.FirebaseMessaging;
+
 import com.example.evently.R;
 import com.example.evently.data.AccountDB;
 import com.example.evently.utils.FirebaseAuthUtils;
+import com.example.evently.utils.FirebaseMessagingUtils;
 import com.example.evently.utils.TextInputValidator;
 
 /**
@@ -45,6 +49,7 @@ public class EditProfileFragment extends Fragment {
         connectEditName(v, accountEmail);
         connectEditEmail(v, accountEmail);
         connectEditPhone(v, accountEmail);
+        connectNotificationToggle(v);
         connectSignOut(v);
         connectDeleteAccount(v);
     }
@@ -69,6 +74,28 @@ public class EditProfileFragment extends Fragment {
                             n -> phoneView.setText(formatPhoneNumber(n)),
                             () -> phoneView.setText("None"));
             headerView.setText(String.format("%s's Profile", account.name()));
+        });
+    }
+
+    /**
+     *
+     * @param v
+     */
+    private void connectNotificationToggle(View v) {
+        final var notificationToggle = (SwitchMaterial) v.findViewById(R.id.notifications_toggle);
+        final var notificationStatus = v.findViewById(R.id.notifications_status_text);
+
+        final var isEnabled = FirebaseMessaging.getInstance().isAutoInitEnabled();
+        notificationToggle.setChecked(isEnabled);
+        updateNotificationStatus((TextView) notificationStatus, isEnabled);
+
+        notificationToggle.setOnCheckedChangeListener((buttonView, checked) -> {
+            updateNotificationStatus((TextView) notificationStatus, checked);
+            if (checked) {
+                FirebaseMessagingUtils.enableNotifications();
+            } else {
+                FirebaseMessagingUtils.disableNotifications();
+            }
         });
     }
 
@@ -220,6 +247,18 @@ public class EditProfileFragment extends Fragment {
                 e -> {
                     Log.w("EditProfileFragment", "Unable to delete account: ", e);
                 });
+    }
+
+    /**
+     *
+     * @param statusView
+     * @param enabled
+     */
+    private void updateNotificationStatus(TextView statusView, boolean enabled) {
+        final var text = enabled
+                ? getString(R.string.profile_page_notifications_enabled)
+                : getString(R.string.profile_page_notifications_disabled);
+        statusView.setText(text);
     }
 
     /**

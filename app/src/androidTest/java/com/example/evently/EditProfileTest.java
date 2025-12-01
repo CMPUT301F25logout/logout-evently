@@ -7,13 +7,17 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.ExecutionException;
 
 import androidx.navigation.NavGraph;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.messaging.FirebaseMessaging;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -23,7 +27,13 @@ public class EditProfileTest extends EmulatedFragmentTest<EditProfileFragment> {
 
     @Before
     public void waitForLoad() throws InterruptedException {
+        FirebaseMessaging.getInstance().setAutoInitEnabled(true);
         Thread.sleep(1000);
+    }
+
+    @After
+    public void resetNotificationState() {
+        FirebaseMessaging.getInstance().setAutoInitEnabled(true);
     }
 
     /**
@@ -85,6 +95,41 @@ public class EditProfileTest extends EmulatedFragmentTest<EditProfileFragment> {
         Thread.sleep(1000);
         assertNull(FirebaseAuth.getInstance().getCurrentUser());
         signBackIn();
+    }
+
+    /**
+     * Verifies toggling notifications off updates the UI and disables FCM auto-init.
+     */
+    @Test
+    public void disableNotificationsUpdatesStatus() {
+        onView(withId(R.id.notifications_status_text))
+                .check(matches(withText(R.string.profile_page_notifications_enabled)));
+
+        onView(withId(R.id.notifications_toggle)).perform(click());
+
+        onView(withId(R.id.notifications_status_text))
+                .check(matches(withText(R.string.profile_page_notifications_disabled)));
+        assertFalse(FirebaseMessaging.getInstance().isAutoInitEnabled());
+    }
+
+    /**
+     * Verifies toggling notifications back on re-enables auto-init and updates text.
+     */
+    @Test
+    public void enableNotificationsUpdatesStatus() {
+        if (FirebaseMessaging.getInstance().isAutoInitEnabled()) {
+            onView(withId(R.id.notifications_toggle)).perform(click());
+        }
+
+        onView(withId(R.id.notifications_status_text))
+                .check(matches(withText(R.string.profile_page_notifications_disabled)));
+        assertFalse(FirebaseMessaging.getInstance().isAutoInitEnabled());
+
+        onView(withId(R.id.notifications_toggle)).perform(click());
+
+        onView(withId(R.id.notifications_status_text))
+                .check(matches(withText(R.string.profile_page_notifications_enabled)));
+        assertTrue(FirebaseMessaging.getInstance().isAutoInitEnabled());
     }
 
     /**
