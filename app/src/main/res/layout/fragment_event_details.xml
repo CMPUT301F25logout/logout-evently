@@ -264,4 +264,3 @@
             app:layout_constraintTop_toTopOf="@+id/eventDateTimeTitle" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
-
