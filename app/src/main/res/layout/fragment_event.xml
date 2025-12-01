@@ -34,8 +34,8 @@
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:layout_marginTop="8dp"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp">
+            android:paddingStart="17dp"
+            android:paddingEnd="17dp">
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/content"
@@ -95,7 +95,8 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:layout_marginTop="4dp">
+                android:layout_marginTop="4dp"
+                android:padding="8dp">
 
                 <ImageView
                     android:layout_height="wrap_content"
@@ -163,7 +164,7 @@
                 android:padding="8dp"
                 android:ellipsize="end"
                 android:maxLines="2"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="4dp"
                 android:layout_marginBottom="4dp"
                 android:layout_marginTop="4dp"/>
         </LinearLayout>
