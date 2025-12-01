@@ -9,19 +9,26 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.evently.data.EventsDB;
 import com.example.evently.databinding.FragmentEntrantBinding;
-import com.example.evently.ui.model.EventViewModel;
 
 /**
  * Recycler view that displays each entrant as a row with their profile picture and name
- * @Author Vinson Lou
+ * @author Vinson Lou
  */
 public class EntrantRecyclerViewAdapter
         extends RecyclerView.Adapter<EntrantRecyclerViewAdapter.EntrantViewHolder> {
+
+    /**
+     * Listener to set on the "remove entrant" button active during cancelled entrants list.
+     */
+    @FunctionalInterface
+    public interface OnRemoveButtonClickListener {
+        void onRemoveButtonClick(String email);
+    }
+
     private final List<String> entrants;
     private boolean showRemoveButton = false;
-    private EventViewModel eventViewModel = null;
+    private OnRemoveButtonClickListener removeButtonListener = ignored -> {};
 
     public EntrantRecyclerViewAdapter() {
         this.entrants = new ArrayList<>();
@@ -32,10 +39,10 @@ public class EntrantRecyclerViewAdapter
     }
 
     public EntrantRecyclerViewAdapter(
-            List<String> entrants, boolean showRemoveButton, EventViewModel model) {
+            List<String> entrants, boolean showRemoveButton, OnRemoveButtonClickListener listener) {
         this.entrants = entrants;
         this.showRemoveButton = showRemoveButton;
-        eventViewModel = model;
+        this.removeButtonListener = listener;
     }
 
     public static class EntrantViewHolder extends RecyclerView.ViewHolder {
@@ -55,7 +62,7 @@ public class EntrantRecyclerViewAdapter
     }
 
     @Override
-    public void onBindViewHolder(final EntrantViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final EntrantViewHolder holder, int position) {
         // Only set the names if the entrant list is not empty
         if (entrants.isEmpty()) {
             return;
@@ -86,13 +93,7 @@ public class EntrantRecyclerViewAdapter
             int current_pos = holder.getBindingAdapterPosition();
             String email = entrants.get(current_pos);
 
-            EventsDB eventsDB = new EventsDB();
-
-            eventsDB.addCancelled(eventViewModel.eventID, email)
-                    .alongside(eventsDB.deselectEntrant(eventViewModel.eventID, email))
-                    .thenRun(x -> {
-                        eventViewModel.requestEntrantsUpdate();
-                    });
+            removeButtonListener.onRemoveButtonClick(email);
         });
     }
 

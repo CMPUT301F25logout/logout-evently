@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.evently.R;
+import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.EventEntrants;
 import com.example.evently.ui.model.EventViewModel;
 
@@ -62,7 +63,7 @@ public abstract sealed class EntrantsFragment extends Fragment
         // Set up an observer to update the event entrants as they change.
         eventViewModel.getEventEntrantsLive().observe(getViewLifecycleOwner(), eventEntrants -> {
             final var adapter = new EntrantRecyclerViewAdapter(
-                    selectEntrantList(eventEntrants), showRemoveButton, eventViewModel);
+                    selectEntrantList(eventEntrants), showRemoveButton, this::cancelEntrant);
             recyclerView.swapAdapter(adapter, false);
         });
 
@@ -106,5 +107,17 @@ public abstract sealed class EntrantsFragment extends Fragment
         protected List<String> selectEntrantList(EventEntrants entrantsInfo) {
             return entrantsInfo.cancelled();
         }
+    }
+
+    /**
+     * Cancel a selected entrant.
+     * @param email The target entrant
+     */
+    private void cancelEntrant(String email) {
+        EventsDB eventsDB = new EventsDB();
+
+        assert eventViewModel.eventID != null;
+        eventsDB.cancelSelectedUser(eventViewModel.eventID, email)
+                .thenRun(x -> eventViewModel.requestEntrantsUpdate());
     }
 }
