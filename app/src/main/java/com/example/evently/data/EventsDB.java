@@ -389,30 +389,4 @@ public class EventsDB {
         // https://firebase.google.com/docs/storage/android/download-files?_gl=1
         return storageRef.child("posters/" + eventID.toString());
     }
-
-    /**
-     * Uploads the event image to firebase
-     * @param eventID the eventID of the event image.
-     * @param uri the uri of the image
-     * @return a promise of the upload task
-     */
-    public Promise<Void> storeEventImage(UUID eventID, Uri uri) {
-        StorageReference imageRef = storageRef.child("eventimage/" + eventID.toString());
-
-        // Stores the file in the database. Since the TaskSnapshot is not used, it is mapped to null
-        // to return a Promise<Void>
-        var eventImageStorageTask = imageRef.putFile(uri);
-        return promise(eventImageStorageTask).map(taskSnapshot -> null);
-    }
-
-    /**
-     * The code below returns the storage reference to the selected event image.
-     * @param eventID the eventID of the event image
-     * @return The storage reference to the event image
-     */
-    public StorageReference getEventImageStorageRef(UUID eventID) {
-        // The following code is based on the downloading files section from the firebase docs:
-        // https://firebase.google.com/docs/storage/android/download-files?_gl=1
-        return storageRef.child("eventimage/" + eventID.toString());
-    }
 }

@@ -82,22 +82,6 @@ public class EventRecyclerViewAdapter
                 new EventsDB().getPosterStorageRef(holder.mItem.eventID());
         GlideUtils.loadPosterIntoImageView(posterReference, binding.imgPoster);
 
-        // Gets a reference to the event image, and stores it in the image view.
-        // If image doesn't exist, we set the image visibility to gone
-        StorageReference eventImageReference =
-                new EventsDB().getEventImageStorageRef(holder.mItem.eventID());
-        eventImageReference
-                .getMetadata()
-                .addOnSuccessListener(metadata -> {
-                    // Event image exists, set image visible and display it
-                    binding.imgMain.setVisibility(android.view.View.VISIBLE);
-                    GlideUtils.loadEventImageIntoImageView(eventImageReference, binding.imgMain);
-                })
-                .addOnFailureListener(e -> {
-                    // Event image does NOT exist, do nothing
-                    ;
-                });
-
         // Status + selectionDate
         EventStatus status = holder.mItem.computeStatus(Instant.now());
 
@@ -105,7 +89,7 @@ public class EventRecyclerViewAdapter
             case OPEN -> {
                 binding.txtStatus.setText("Open");
                 binding.txtselectionDate.setText(MessageFormat.format(
-                        "Selection on {0}",
+                        "{0}",
                         some_date.format(holder.mItem.selectionTime().toInstant())));
             }
             case CLOSED -> {
@@ -113,10 +97,6 @@ public class EventRecyclerViewAdapter
                 binding.txtselectionDate.setText("Waitlist closed");
             }
         }
-        binding.txtselectionDate.setVisibility(android.view.View.VISIBLE);
-
-        // Event date
-        binding.txtDate.setText(some_date.format(holder.mItem.eventTime().toInstant()));
 
         // Card with click logic.
         binding.btnDetails.setOnClickListener(v -> onEventClick.accept(holder.mItem));
@@ -142,7 +122,7 @@ public class EventRecyclerViewAdapter
 
         // Selection Limit
         binding.txtSelectionLimit.setText(
-                MessageFormat.format("Selection Limit: {0}", holder.mItem.selectionLimit()));
+                MessageFormat.format("Seats: {0}", holder.mItem.selectionLimit()));
     }
 
     /**

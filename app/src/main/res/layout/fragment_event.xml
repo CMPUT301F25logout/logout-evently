@@ -17,40 +17,28 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- HEADER: Poster + Title + Top-right metadata -->
+        <!-- TOP ROW: Title + Category + Winners -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-            <!-- Poster -->
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/imgPoster"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:src="@drawable/ic_person_24"
-                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
-                android:contentDescription="poster" />
-
-            <!-- Title -->
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/content"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="12dp"
                 android:text="Event Title"
-                android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+                android:layout_gravity="top"
+                android:textAppearance="@style/TextAppearance.Material3.TitleLarge.Emphasized" />
 
-            <!-- Top-right metadata -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="end">
 
-                <!-- Event Category -->
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/txtCategory"
                     android:layout_width="wrap_content"
@@ -60,48 +48,32 @@
                     android:textColor="?attr/colorOnSurfaceVariant"
                     android:layout_marginBottom="2dp"/>
 
-                <!-- Entrants Count / Capacity -->
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/txtEntrants"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="X / Y entrants"
-                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    android:layout_marginBottom="2dp"/>
-
-                <!-- Selection Limit -->
-                <com.google.android.material.textview.MaterialTextView
+                    <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/txtSelectionLimit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="X Winners"
                     android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    android:layout_marginBottom="8dp"/>
+                    android:textColor="?attr/colorOnSurfaceVariant" />
             </LinearLayout>
         </LinearLayout>
 
-        <!-- MAIN IMAGE by default is invisible to prevent glitching-->
+        <!-- IMAGE BELOW TOP ROW -->
         <ImageView
-            android:id="@+id/imgMain"
+            android:id="@+id/imgPoster"
             android:layout_width="match_parent"
-            android:layout_height="180dp"
+            android:layout_height="200dp"
+            android:layout_marginTop="8dp"
             android:scaleType="centerCrop"
-            android:src="@android:color/darker_gray"
-            android:contentDescription="event image"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="8dp"
-            android:visibility="gone"/>
+            android:src="@drawable/ic_person_24"/>
 
         <!-- METADATA BELOW IMAGE -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginBottom="8dp">
+            android:layout_marginTop="8dp">
 
-            <!-- Invisible status for code compatibility -->
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/txtStatus"
                 android:layout_width="wrap_content"
@@ -112,38 +84,65 @@
                 android:focusable="false"
                 android:height="0dp"/>
 
-            <!-- Selection date -->
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/txtselection_date"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Selection on DATE"
-                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:layout_marginBottom="2dp"/>
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:layout_marginBottom="2dp"
+                android:layout_marginTop="3dp">
 
-            <!-- Invisible date kept for code compatibility -->
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/txtDate"
+                <ImageView
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:src="@drawable/ic_calendar_clock_24"
+                    android:layout_marginEnd="6dp"
+                    android:tint="?attr/colorSecondary" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/txtselectionDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="DATE"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="DATE"
-                android:visibility="invisible"
-                android:clickable="false"
-                android:focusable="false"
-                android:height="0dp"/>
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:layout_marginBottom="2dp">
+
+                <ImageView
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:src="@drawable/ic_person_24"
+                    android:layout_marginEnd="6dp"
+                    android:tint="?attr/colorSecondary" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/txtEntrants"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="X / Y entrants"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:layout_marginBottom="2dp"/>
+            </LinearLayout>
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/txtDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Event description preview..."
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:layout_marginBottom="0dp"
+                android:layout_marginTop="5dp"/>
         </LinearLayout>
-
-        <!-- Short Description -->
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/txtDescription"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Event description preview..."
-            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-            android:ellipsize="end"
-            android:maxLines="2"
-            android:layout_marginBottom="0dp"/>
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>
