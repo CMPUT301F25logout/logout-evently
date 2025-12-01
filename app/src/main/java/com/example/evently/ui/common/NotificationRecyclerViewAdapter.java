@@ -8,6 +8,7 @@ import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -60,8 +61,10 @@ public class NotificationRecyclerViewAdapter
         var ctx = binding.getRoot().getContext();
 
         binding.notifTitle.setText(notif.title());
+        binding.notifTitle.setVisibility(View.VISIBLE);
         binding.notifDescription.setText(notif.description());
         binding.notifDate.setText(DATE_TIME_FORMATTER.format(notif.creationTime()));
+        binding.notifDate.setVisibility(View.VISIBLE);
 
         // Highlight if not seen.
         if (!notif.hasSeen(entrantEmail)) {
