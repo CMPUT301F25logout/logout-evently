@@ -1,11 +1,13 @@
 package com.example.evently.ui.organizer;
 
+import static com.example.evently.utils.DateTimeUtils.toEpochMillis;
+import static com.example.evently.utils.DateTimeUtils.treatAsLocalDate;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
@@ -16,7 +18,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
@@ -27,6 +31,8 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.DateValidatorPointForward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.timepicker.MaterialTimePicker;
@@ -60,6 +66,8 @@ public class CreateEventFragment extends Fragment {
 
     private Uri imageUri;
     private ImageButton imageButton;
+    private Category selectedCategory = Category.OTHERS;
+    private Spinner categorySpinner;
 
     // The following code defines a launcher to pick a picture. For more details, see the android
     // photo picker docs:
@@ -113,6 +121,8 @@ public class CreateEventFragment extends Fragment {
                 _x -> NavHostFragment.findNavController(this).navigateUp());
 
         imageButton = v.findViewById(R.id.btnPickPoster);
+        categorySpinner = binding.spCategory;
+        setupCategoryPicker();
 
         // Launches the poster picker when clicked.
         imageButton.setOnClickListener(view -> {
@@ -196,7 +206,7 @@ public class CreateEventFragment extends Fragment {
             Event created = new Event(
                     name,
                     desc,
-                    Category.SPORTS,
+                    selectedCategory,
                     binding.enableLocation.isChecked(),
                     new Timestamp(selectionTime),
                     new Timestamp(eventInstant),
@@ -230,6 +240,10 @@ public class CreateEventFragment extends Fragment {
     private void setupDatePicker(String title, TextInputEditText target) {
         final var pickerBuilder = MaterialDatePicker.Builder.datePicker();
         pickerBuilder.setTitleText(title);
+        // Allow only present and future dates.
+        final var calendarConstraints = new CalendarConstraints.Builder();
+        calendarConstraints.setValidator(DateValidatorPointForward.now());
+        pickerBuilder.setCalendarConstraints(calendarConstraints.build());
 
         final var targetText = target.getText();
         if (!TextUtils.isEmpty(targetText)) {
@@ -240,13 +254,16 @@ public class CreateEventFragment extends Fragment {
         final var picker = pickerBuilder.build();
         picker.addOnPositiveButtonClickListener(selection -> {
             if (selection != null) {
-                target.setText(DATE_FORMATTER.format(toLocalDate(selection)));
+                target.setText(DATE_FORMATTER.format(treatAsLocalDate(selection)));
             }
         });
 
         picker.show(getParentFragmentManager(), "date_picker");
     }
 
+    /**
+     * Sets up the event time picker and writes the chosen time to the form
+     */
     private void setupEventTimePicker() {
         final View.OnClickListener listener = _v -> {
             final var builder =
@@ -271,12 +288,49 @@ public class CreateEventFragment extends Fragment {
         binding.etEventTime.setOnClickListener(listener);
     }
 
-    private LocalDate toLocalDate(long epochMillis) {
-        return Instant.ofEpochMilli(epochMillis).atZone(ZoneOffset.UTC).toLocalDate();
+    /**
+     * Sets up the category spinner.
+     */
+    private void setupCategoryPicker() {
+        final var categories = Category.values();
+        final var labels = new String[categories.length];
+        for (int i = 0; i < categories.length; i++) {
+            labels[i] = formatCategory(categories[i]);
+        }
+
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, labels);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        categorySpinner.setAdapter(adapter);
+
+        int defaultIndex =
+                Math.max(0, java.util.Arrays.asList(categories).indexOf(selectedCategory));
+        categorySpinner.setSelection(defaultIndex);
+
+        categorySpinner.setOnItemSelectedListener(
+                new android.widget.AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(
+                            android.widget.AdapterView<?> parent,
+                            View view,
+                            int position,
+                            long id) {
+                        selectedCategory = categories[position];
+                    }
+
+                    @Override
+                    public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+                });
     }
 
-    private long toEpochMillis(LocalDate date) {
-        return date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
+    /**
+     *
+     * @param category the category to format
+     * @return the formatted category string
+     */
+    private static String formatCategory(Category category) {
+        final String lower = category.name().toLowerCase().replace('_', ' ');
+        return Character.toUpperCase(lower.charAt(0)) + lower.substring(1);
     }
 
     /**
@@ -287,6 +341,9 @@ public class CreateEventFragment extends Fragment {
         Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Clears the view binding reference when the view hierarchy is destroyed to avoid leaks
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();

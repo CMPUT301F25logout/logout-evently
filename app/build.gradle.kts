@@ -135,6 +135,7 @@ dependencies {
     implementation(libs.googleid)
     implementation(libs.play.services.auth)
     implementation(libs.play.services.location)
+    implementation(libs.play.services.maps)
 
     implementation(libs.recyclerview)
     implementation(libs.navigation.fragment)
@@ -142,12 +143,10 @@ dependencies {
     implementation(libs.recyclerview)
     implementation(libs.fragment)
     implementation(libs.lifecycle.viewmodel)
+    implementation(libs.lifecycle.livedata)
 
     implementation(libs.zxing.android.embedded)
 
-    implementation(libs.espresso.core)
-    implementation(libs.espresso.intents)
-    implementation(libs.play.services.maps)
     annotationProcessor(libs.compiler)
 
     testImplementation(libs.junit)
