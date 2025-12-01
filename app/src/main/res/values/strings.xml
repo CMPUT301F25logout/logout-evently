@@ -24,6 +24,9 @@
     <string name="profile_page_email_header">Email:</string>
     <string name="profile_page_phone_header">Phone Number:</string>
     <string name="profile_page_edit_button_text">Edit</string>
+    <string name="profile_page_notifications_header">Notifications:</string>
+    <string name="profile_page_notifications_enabled">Push notifications enabled</string>
+    <string name="profile_page_notifications_disabled">Push notifications disabled</string>
     <string name="action_delete_account">Delete Account</string>
     <string name="create_event_btn_description">Create event</string>
     <string name="selected_role_icon_description">Currently selected role</string>
@@ -58,6 +61,10 @@
     <string name="notification_title">Notification Title</string>
     <string name="action_dumb_login">Sign in with Device ID</string>
     <string name="dumb_register_txt">Sign up with Device ID</string>
+    <string name="lottery_guidelines_button">Policy</string>
+    <string name="lottery_guidelines_dialog_title">How this lottery works</string>
+    <string name="lottery_guidelines_dialog_positive">Got it</string>
+    <string name="lottery_guidelines_dialog_message">The lottery selection process uses a fair distribution random selection algorithm, namely Fisher–Yates shuffle. It is run when the selection deadline is reached. Firstly, it uses this algorithm to shuffle the input set, which is the set of all entrants. Next, it picks the first N elements from the resulting list, where N is the number of seats in the event, as set by the organizer.  By default, all events have an unlimited number of entrants - that is, people can keep joining the entrant list. The organizer may decide to limit the maximum number of entrants allowed in the waiting list. If this is the case, you\'ll see the limit in the event details page. Regardless of this option, the input set for shuffle is always the whole waiting list at the time of selection for your event.</string>
     <string name="Event_deleted_toast">"Event was removed."</string>
     <string name="Profile_deleted_toast">Profile was deleted.</string>
     <string name="Image_deleted_toast">Image was deleted.</string>
