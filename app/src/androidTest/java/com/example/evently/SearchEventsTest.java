@@ -50,7 +50,7 @@ public class SearchEventsTest extends EmulatedFragmentTest<EntrantSearchEventsFr
         new Event(
                 "a",
                 "description",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 selectionTime,
                 eventTime,
@@ -59,7 +59,7 @@ public class SearchEventsTest extends EmulatedFragmentTest<EntrantSearchEventsFr
         new Event(
                 "b",
                 "description1",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 new Timestamp(now.plus(Duration.ofMinutes(1))),
                 new Timestamp(now.plus(Duration.ofMinutes(11))),
@@ -68,7 +68,7 @@ public class SearchEventsTest extends EmulatedFragmentTest<EntrantSearchEventsFr
         new Event(
                 "c",
                 "description2",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 new Timestamp(now.plus(Duration.ofMinutes(2))),
                 new Timestamp(now.plus(Duration.ofMinutes(12))),
@@ -77,7 +77,7 @@ public class SearchEventsTest extends EmulatedFragmentTest<EntrantSearchEventsFr
         new Event(
                 "d",
                 "description3",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 new Timestamp(now.plus(Duration.ofMinutes(3))),
                 new Timestamp(now.plus(Duration.ofMinutes(13))),
@@ -86,7 +86,7 @@ public class SearchEventsTest extends EmulatedFragmentTest<EntrantSearchEventsFr
         new Event(
                 "e",
                 "description4",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 new Timestamp(now.plus(Duration.ofMinutes(4))),
                 new Timestamp(now.plus(Duration.ofMinutes(14))),
@@ -95,7 +95,7 @@ public class SearchEventsTest extends EmulatedFragmentTest<EntrantSearchEventsFr
         new Event(
                 "f",
                 "description5",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 new Timestamp(now.plus(Duration.ofMinutes(5))),
                 new Timestamp(now.plus(Duration.ofMinutes(15))),
@@ -104,7 +104,7 @@ public class SearchEventsTest extends EmulatedFragmentTest<EntrantSearchEventsFr
         new Event(
                 "g",
                 "description6",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 new Timestamp(now.plus(Duration.ofMinutes(6))),
                 new Timestamp(now.plus(Duration.ofMinutes(16))),
@@ -113,7 +113,7 @@ public class SearchEventsTest extends EmulatedFragmentTest<EntrantSearchEventsFr
         new Event(
                 "h",
                 "description7",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 new Timestamp(now.plus(Duration.ofMinutes(7))),
                 new Timestamp(now.plus(Duration.ofMinutes(17))),
@@ -122,7 +122,7 @@ public class SearchEventsTest extends EmulatedFragmentTest<EntrantSearchEventsFr
         new Event(
                 "abcdefgh",
                 "description8",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 new Timestamp(now.plus(Duration.ofMinutes(8))),
                 new Timestamp(now.plus(Duration.ofMinutes(18))),
@@ -178,7 +178,7 @@ public class SearchEventsTest extends EmulatedFragmentTest<EntrantSearchEventsFr
 
             // Type new search term
             onView(withId(R.id.eventSearch)).perform(typeText(searchTerms[i]));
-            Thread.sleep(150); // allow filtering + adapter update
+            Thread.sleep(500); // allow filtering + adapter update
 
             Event[] expectedForTerm = expectedLists[i];
 
