@@ -4,7 +4,9 @@ import static com.example.evently.data.generic.Promise.promise;
 import static com.example.evently.data.generic.PromiseOpt.promiseOpt;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.firebase.firestore.CollectionReference;
@@ -95,6 +97,17 @@ public class AccountDB {
                 return getAccountFromSnapshot(qs.getDocuments().get(0));
             }
         }));
+    }
+
+    /**
+     * Returns all accounts for admin viewing
+     * @return A list of accounts
+     */
+    public Promise<List<Account>> fetchAllAccounts() {
+        return promise(accountsRef.get()).map(querySnapshot -> querySnapshot.getDocuments().stream()
+                .map(AccountDB::getAccountFromSnapshot)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList()));
     }
 
     /**

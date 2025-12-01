@@ -358,6 +358,17 @@ public class EventsDB {
     }
 
     /**
+     * Gets all events for admin viewing purposes
+     * @return A list of events
+     */
+    public Promise<List<Event>> fetchAllEvents() {
+        return promise(eventsRef.get()).map(querySnapshot -> querySnapshot.getDocuments().stream()
+                .map(EventsDB::getEventFromSnapshot)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList()));
+    }
+
+    /**
      * @param filters Filters to apply on the events.
      * @return All currently open (for enrollment) events as per given filters.
      */
@@ -521,6 +532,28 @@ public class EventsDB {
             }
             throw exc;
         }));
+    }
+
+    /**
+     * The function below fetches the storage references for all events with posters.
+     * @return A promise of a map of eventID's to posters.
+     */
+    public Promise<Map<UUID, StorageReference>> fetchAllPosters() {
+        StorageReference postersRef = storageRef.child("posters/");
+
+        return promise(postersRef.listAll()).map(listResult -> {
+            // Creates map, and gets items from the list.
+            Map<UUID, StorageReference> dict = new HashMap<>();
+            List<StorageReference> imageRefs = listResult.getItems();
+
+            // Adds the eventID, and storageRef to the dictionary
+            for (StorageReference imageRef : imageRefs) {
+                UUID eventID = UUID.fromString(imageRef.getName());
+                dict.put(eventID, imageRef);
+            }
+
+            return dict;
+        });
     }
 
     /**

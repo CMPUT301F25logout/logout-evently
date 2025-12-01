@@ -13,7 +13,6 @@ import com.example.evently.databinding.FragmentEntrantBinding;
 
 /**
  * Recycler view that displays each entrant as a row with their profile picture and name
- * @author Vinson Lou
  */
 public class EntrantRecyclerViewAdapter
         extends RecyclerView.Adapter<EntrantRecyclerViewAdapter.EntrantViewHolder> {
