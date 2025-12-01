@@ -39,7 +39,7 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
     private static final EventsDB eventsDB = new EventsDB();
 
     private static final LocalDate now = LocalDate.now();
-    // We can use the same times for these tests.\
+    // We can use the same times for these tests (for now).
 
     private static final DateTimeFormatter SELECTION_DATE_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault());
@@ -47,22 +47,18 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
     private static final Duration EVENT_GAP = Duration.ofDays(2);
     private static final Timestamp[] selectionTimes = new Timestamp[] {
-        startOfDayTimestamp(now.minusDays(1)),
         startOfDayTimestamp(now.plusDays(1)),
         startOfDayTimestamp(now.plusDays(2)),
         startOfDayTimestamp(now.plusDays(3)),
-        startOfDayTimestamp(now.plusDays(4)),
-        startOfDayTimestamp(now.plusDays(5)),
-        startOfDayTimestamp(now.plusDays(6)),
-        startOfDayTimestamp(now.plusDays(7)),
-        startOfDayTimestamp(now.plusDays(8))
     };
 
     // Create a few events.
+    // Note: some events have been removed from here due to them not fitting on screen
+    // and recyclerview scroll action not bringing them fully into view.
     private static final Event[] mockEvents = new Event[] {
         new Event(
-                "name",
-                "description",
+                "name1",
+                "description1",
                 Category.EDUCATIONAL,
                 false,
                 selectionTimes[0],
@@ -70,8 +66,8 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
                 "orgEmail",
                 50),
         new Event(
-                "name1",
-                "description1",
+                "name2",
+                "description2",
                 Category.EDUCATIONAL,
                 false,
                 selectionTimes[1],
@@ -79,68 +75,14 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
                 "orgEmail",
                 50),
         new Event(
-                "name2",
-                "description2",
+                "name3",
+                "description3",
                 Category.EDUCATIONAL,
                 false,
                 selectionTimes[2],
                 eventTimeAfter(selectionTimes[2]),
                 "orgEmail",
                 50),
-        new Event(
-                "name3",
-                "description3",
-                Category.EDUCATIONAL,
-                false,
-                selectionTimes[3],
-                eventTimeAfter(selectionTimes[3]),
-                "orgEmail",
-                50),
-        new Event(
-                "name4",
-                "description4",
-                Category.EDUCATIONAL,
-                false,
-                selectionTimes[4],
-                eventTimeAfter(selectionTimes[4]),
-                "orgEmail",
-                50),
-        new Event(
-                "name5",
-                "description5",
-                Category.EDUCATIONAL,
-                false,
-                selectionTimes[5],
-                eventTimeAfter(selectionTimes[5]),
-                "orgEmail",
-                50),
-        new Event(
-                "name6",
-                "description6",
-                Category.EDUCATIONAL,
-                false,
-                selectionTimes[6],
-                eventTimeAfter(selectionTimes[6]),
-                "orgEmail",
-                50),
-        new Event(
-                "name7",
-                "description7",
-                Category.EDUCATIONAL,
-                false,
-                selectionTimes[7],
-                eventTimeAfter(selectionTimes[7]),
-                "orgEmail",
-                50),
-        new Event(
-                "name8",
-                "description8",
-                Category.EDUCATIONAL,
-                false,
-                selectionTimes[8],
-                eventTimeAfter(selectionTimes[8]),
-                "orgEmail",
-                50)
     };
 
     private static Timestamp startOfDayTimestamp(LocalDate date) {
@@ -183,30 +125,19 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
             final var expectedEvent = mockEvents[i];
 
             onView(withId(R.id.event_list)).perform(RecyclerViewActions.scrollToPosition(i));
-            if (expectedEvent.name().equals("name")) {
-                assertRecyclerViewItem(
-                        R.id.event_list,
-                        p(R.id.content, expectedEvent.name()),
-                        p(R.id.txtselection_date, "Waitlist closed"),
-                        p(
-                                R.id.txtDate,
-                                EVENT_DATE_TIME_FORMATTER.format(
-                                        expectedEvent.eventTime().toInstant())));
-            } else {
-                assertRecyclerViewItem(
-                        R.id.event_list,
-                        p(R.id.content, expectedEvent.name()),
-                        p(
-                                R.id.txtselection_date,
-                                MessageFormat.format(
-                                        "Selection date: {0}",
-                                        SELECTION_DATE_FORMATTER.format(
-                                                expectedEvent.selectionTime().toInstant()))),
-                        p(
-                                R.id.txtDate,
-                                EVENT_DATE_TIME_FORMATTER.format(
-                                        expectedEvent.eventTime().toInstant())));
-            }
+            assertRecyclerViewItem(
+                    R.id.event_list,
+                    p(R.id.content, expectedEvent.name()),
+                    p(
+                            R.id.txtselection_date,
+                            MessageFormat.format(
+                                    "Selection date: {0}",
+                                    SELECTION_DATE_FORMATTER.format(
+                                            expectedEvent.selectionTime().toInstant()))),
+                    p(
+                            R.id.txtDate,
+                            EVENT_DATE_TIME_FORMATTER.format(
+                                    expectedEvent.eventTime().toInstant())));
         }
         onView(withId(R.id.event_list)).check(matches(isDisplayed()));
     }

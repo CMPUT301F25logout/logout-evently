@@ -1,48 +1,37 @@
 package com.example.evently.ui.entrant;
 
-import java.util.List;
-import java.util.function.Consumer;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
-import android.util.Log;
-import android.widget.Toast;
-import androidx.navigation.NavController;
-import androidx.navigation.fragment.NavHostFragment;
-
-import com.example.evently.data.EventsDB;
-import com.example.evently.data.model.Event;
-import com.example.evently.ui.common.EventsFragment;
+import com.example.evently.databinding.FragmentBrowseEventsBinding;
+import com.example.evently.ui.model.EventFilterViewModel;
 
 /**
  * A fragment representing a list of events the Entrant can join
  */
-public class BrowseEventsFragment extends EventsFragment {
+public class BrowseEventsFragment extends Fragment {
+    private FragmentBrowseEventsBinding binding;
 
-    /**
-     * Handles clicks on an event row in the Browse list.
-     * <p>
-     * Uses the Navigation Component to navigate to the Event Details screen,
-     * passing the clicked event’s ID as a String argument.
-     * @param event The structural representation of the Event view that was clicked.
-     */
-    @Override
-    protected void onEventClick(Event event) {
-        // The action for clicking on the event, pass the event ID to the next event details
-        // fragment
-        var action = HomeFragmentDirections.actionNavHomeToEventDetails(event.eventID());
-        NavController navController = NavHostFragment.findNavController(this);
-        navController.navigate(action);
+    @Nullable @Override
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
+        binding = FragmentBrowseEventsBinding.inflate(getLayoutInflater(), container, false);
+        EventFilterViewModel ignored = new ViewModelProvider(this).get(EventFilterViewModel.class);
+        return binding.getRoot();
     }
 
-    /**
-     * Supplies the Browse list with placeholder events
-     * @param callback Callback that will be passed the events into.
-     */
     @Override
-    protected void initEvents(Consumer<List<Event>> callback) {
-        new EventsDB().fetchOpenEvents().thenRun(callback).catchE(e -> {
-            Log.e("BrowseEvents", e.toString());
-            Toast.makeText(requireContext(), "Something went wrong...", Toast.LENGTH_SHORT)
-                    .show();
-        });
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        binding.btnBrowseFilters.setOnClickListener(
+                ignored -> new FiltersFragment().show(getChildFragmentManager(), "filters_dialog"));
     }
 }

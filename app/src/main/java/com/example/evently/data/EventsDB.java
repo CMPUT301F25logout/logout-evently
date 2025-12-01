@@ -40,6 +40,7 @@ import com.example.evently.data.generic.PromiseOpt;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.data.model.EventEntrants;
+import com.example.evently.data.model.EventFilter;
 
 /**
  * The Event database for managing events
@@ -224,6 +225,19 @@ public class EventsDB {
     }
 
     /**
+     * Remove user from selected list of event and add them to cancelled.
+     * @param eventID Target event.
+     * @param email Target user email
+     * @return Promise.
+     */
+    public Promise<Void> cancelSelectedUser(UUID eventID, String email) {
+        final var updateMap = removeEntrantUpdateObj(email, "selectedEntrants");
+        final var additionUpdate = addEntrantUpdateObj(email, "cancelledEntrants");
+        updateMap.putAll(additionUpdate);
+        return fieldPathUpdate(eventEntrantsRef.document(eventID.toString()), updateMap);
+    }
+
+    /**
      * Add a user to the accepted list of an event.
      * @param eventID Target event.
      * @param email Email of the user to enroll.
@@ -253,11 +267,16 @@ public class EventsDB {
         return updateMap;
     }
 
+    private HashMap<FieldPath, Object> removeEntrantUpdateObj(String email, String field) {
+        final var updateMap = new HashMap<FieldPath, Object>();
+        updateMap.put(FieldPath.of(field), FieldValue.arrayRemove(email));
+        return updateMap;
+    }
+
     // Helper to remove a user from one of the lists
     private Promise<Void> removeEntrantFromList(UUID eventID, String email, String field) {
-        final var updateMap = new HashMap<String, Object>();
-        updateMap.put(field, FieldValue.arrayRemove(email));
-        return promise(eventEntrantsRef.document(eventID.toString()).update(updateMap));
+        final var updateMap = removeEntrantUpdateObj(email, field);
+        return fieldPathUpdate(eventEntrantsRef.document(eventID.toString()), updateMap);
     }
 
     /**
@@ -308,11 +327,23 @@ public class EventsDB {
     }
 
     /**
-     * @return All currently open (for enrollment) events.
+     * @param filters Filters to apply on the events.
+     * @return All currently open (for enrollment) events as per given filters.
      */
-    public Promise<List<Event>> fetchOpenEvents() {
-        return parseQuerySnapShots(
-                eventsRef.whereGreaterThan("selectionTime", Timestamp.now()).get());
+    public Promise<List<Event>> fetchEventByFilters(EventFilter filters) {
+        var query = eventsRef.whereGreaterThan("selectionTime", Timestamp.now());
+        if (!filters.categories().isEmpty()) {
+            query = eventsRef.whereIn("category", new ArrayList<>(filters.categories()));
+        }
+        if (filters.startTime().isPresent()) {
+            final var startTime = filters.startTime().get();
+            query = eventsRef.whereGreaterThanOrEqualTo("eventTime", startTime);
+        }
+        if (filters.endTime().isPresent()) {
+            final var endTime = filters.endTime().get();
+            query = eventsRef.whereLessThan("eventTime", endTime);
+        }
+        return parseQuerySnapShots(query.get());
     }
 
     /**
