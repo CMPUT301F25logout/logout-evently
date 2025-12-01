@@ -134,7 +134,7 @@ public class RegisterFragment extends Fragment {
 
         // Phone number validations
         var phoneInp = binding.phone.getText();
-        if (!Patterns.PHONE.matcher(phoneInp).matches()) {
+        if (!Patterns.PHONE.matcher(phoneInp).matches() && !phoneInp.toString().isBlank()) {
             binding.phone.setError("Invalid phone number");
             return false;
         }
