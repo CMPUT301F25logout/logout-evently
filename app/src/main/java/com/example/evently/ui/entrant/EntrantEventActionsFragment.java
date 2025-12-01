@@ -1,13 +1,16 @@
 package com.example.evently.ui.entrant;
 
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.text.HtmlCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -49,14 +52,24 @@ public class EntrantEventActionsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         final var self = FirebaseAuthUtils.getCurrentEmail();
 
-        binding.lotteryGuidelinesButton.setOnClickListener(
-                v -> new MaterialAlertDialogBuilder(requireContext())
-                        .setTitle(R.string.lottery_guidelines_dialog_title)
-                        .setMessage(R.string.lottery_guidelines_dialog_message)
-                        .setPositiveButton(
-                                R.string.lottery_guidelines_dialog_positive,
-                                (dialog, which) -> dialog.dismiss())
-                        .show());
+        binding.lotteryGuidelinesButton.setOnClickListener(v -> {
+            final var dialog = new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(R.string.lottery_guidelines_dialog_title)
+                    .setMessage(
+                            HtmlCompat.fromHtml(
+                                    getString(R.string.lottery_guidelines_dialog_message),
+                                    HtmlCompat.FROM_HTML_MODE_LEGACY))
+                    .setPositiveButton(
+                            R.string.lottery_guidelines_dialog_positive,
+                            (dialogInterface, which) -> dialogInterface.dismiss())
+                    .show();
+
+            final var messageView = (TextView) dialog.findViewById(android.R.id.message);
+            if (messageView != null) {
+                messageView.setMovementMethod(LinkMovementMethod.getInstance());
+            }
+        });
+
 
         eventViewModel.getEventLive().observe(getViewLifecycleOwner(), event -> {
             if (event.isFull()) {
