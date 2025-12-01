@@ -78,7 +78,7 @@ public class AccountDB {
     }
 
     /**
-     * Returns an account based based on an email. Also takes in onSuccess, and onFailure listeners.
+     * Returns an account based on an email. Also takes in onSuccess, and onFailure listeners.
      * @param email The email of the target account
      * @return Reference to the concurrent task yielding to an account (if found).
      */
