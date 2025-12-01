@@ -1,11 +1,14 @@
 package com.example.evently.ui.organizer;
 
-import java.time.Duration;
+import static com.example.evently.utils.DateTimeUtils.toEpochMillis;
+import static com.example.evently.utils.DateTimeUtils.treatAsLocalDate;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 import android.net.Uri;
@@ -15,7 +18,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
@@ -26,6 +31,12 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.DateValidatorPointForward;
+import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
 import com.google.firebase.Timestamp;
 
 import com.example.evently.R;
@@ -47,10 +58,16 @@ import com.example.evently.utils.FirebaseAuthUtils;
  */
 public class CreateEventFragment extends Fragment {
 
+    private static final DateTimeFormatter DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy/MM/dd");
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+
     private FragmentCreateEventBinding binding;
 
     private Uri imageUri;
     private ImageButton imageButton;
+    private Category selectedCategory = Category.OTHERS;
+    private Spinner categorySpinner;
 
     // The following code defines a launcher to pick a picture. For more details, see the android
     // photo picker docs:
@@ -104,6 +121,8 @@ public class CreateEventFragment extends Fragment {
                 _x -> NavHostFragment.findNavController(this).navigateUp());
 
         imageButton = v.findViewById(R.id.btnPickPoster);
+        categorySpinner = binding.spCategory;
+        setupCategoryPicker();
 
         // Launches the poster picker when clicked.
         imageButton.setOnClickListener(view -> {
@@ -112,12 +131,20 @@ public class CreateEventFragment extends Fragment {
                     .build());
         });
 
+        binding.etSelectionDeadline.setOnClickListener(
+                ignored -> setupDatePicker("Selection deadline", binding.etSelectionDeadline));
+        binding.etEventDate.setOnClickListener(
+                ignored -> setupDatePicker("Event date", binding.etEventDate));
+
+        setupEventTimePicker();
+
         btnCreate.setOnClickListener(_x -> {
             String name = binding.etEventName.getText().toString().trim();
             String desc = binding.etDescription.getText().toString().trim();
             String winnersStr = binding.etWinners.getText().toString().trim();
-            String dateStr = binding.etRegDate.getText().toString().trim();
-            String timeStr = binding.etRegTime.getText().toString().trim();
+            final var selectionDeadlineTxt = binding.etSelectionDeadline.getText();
+            final var eventDateTxt = binding.etEventDate.getText();
+            final var eventTimeTxt = binding.etEventTime.getText();
 
             if (TextUtils.isEmpty(name)) {
                 toast("Please enter an event name.");
@@ -127,10 +154,24 @@ public class CreateEventFragment extends Fragment {
                 toast("Please enter number of winners.");
                 return;
             }
-            if (TextUtils.isEmpty(dateStr) || TextUtils.isEmpty(timeStr)) {
-                toast("Please enter deadline date and time.");
+            if (TextUtils.isEmpty(selectionDeadlineTxt)) {
+                toast("Please select a selection date.");
                 return;
             }
+
+            if (TextUtils.isEmpty(eventDateTxt)) {
+                toast("Please select an event date.");
+                return;
+            }
+
+            if (TextUtils.isEmpty(eventTimeTxt)) {
+                toast("Please select an event time.");
+                return;
+            }
+
+            final var selectionDeadline = LocalDate.parse(selectionDeadlineTxt, DATE_FORMATTER);
+            final var eventDate = LocalDate.parse(eventDateTxt, DATE_FORMATTER);
+            final var eventTime = LocalTime.parse(eventTimeTxt, TIME_FORMATTER);
 
             long winners;
             try {
@@ -151,28 +192,27 @@ public class CreateEventFragment extends Fragment {
                 }
             }
 
-            Instant selectionTime;
-            try {
-                LocalDate d = LocalDate.parse(dateStr); // YYYY-MM-DD
-                LocalTime t = LocalTime.parse(timeStr); // HH:mm:ss
-                selectionTime = LocalDateTime.of(d, t).toInstant(ZoneOffset.UTC);
-            } catch (Exception ex) {
-                toast("Invalid date/time. Use YYYY-MM-DD and HH:mm:ss");
+            final Instant selectionTime =
+                    selectionDeadline.atStartOfDay(ZoneId.systemDefault()).toInstant();
+            final Instant eventInstant = LocalDateTime.of(eventDate, eventTime)
+                    .atZone(ZoneId.systemDefault())
+                    .toInstant();
+
+            if (!eventInstant.isAfter(selectionTime)) {
+                toast("Event time must be after the selection deadline.");
                 return;
             }
 
-            String organizer = FirebaseAuthUtils.getCurrentEmail();
-
-            // For now, eventTime == selectionTime + 2 days (until organizer add event date/time
-            // fields)
             Event created = new Event(
                     name,
                     desc,
-                    Category.SPORTS,
+                    selectedCategory,
+                    binding.enableLocation.isChecked(),
                     new Timestamp(selectionTime),
-                    new Timestamp(selectionTime.plus(Duration.ofDays(2))),
+                    new Timestamp(eventInstant),
                     FirebaseAuthUtils.getCurrentEmail(),
-                    winners);
+                    winners,
+                    wait.orElse(null));
 
             btnCreate.setEnabled(false);
 
@@ -197,11 +237,116 @@ public class CreateEventFragment extends Fragment {
         });
     }
 
+    private void setupDatePicker(String title, TextInputEditText target) {
+        final var pickerBuilder = MaterialDatePicker.Builder.datePicker();
+        pickerBuilder.setTitleText(title);
+        // Allow only present and future dates.
+        final var calendarConstraints = new CalendarConstraints.Builder();
+        calendarConstraints.setValidator(DateValidatorPointForward.now());
+        pickerBuilder.setCalendarConstraints(calendarConstraints.build());
+
+        final var targetText = target.getText();
+        if (!TextUtils.isEmpty(targetText)) {
+            final var existingDate = LocalDate.parse(targetText, DATE_FORMATTER);
+            pickerBuilder.setSelection(toEpochMillis(existingDate));
+        }
+
+        final var picker = pickerBuilder.build();
+        picker.addOnPositiveButtonClickListener(selection -> {
+            if (selection != null) {
+                target.setText(DATE_FORMATTER.format(treatAsLocalDate(selection)));
+            }
+        });
+
+        picker.show(getParentFragmentManager(), "date_picker");
+    }
+
+    /**
+     * Sets up the event time picker and writes the chosen time to the form
+     */
+    private void setupEventTimePicker() {
+        final View.OnClickListener listener = _v -> {
+            final var builder =
+                    new MaterialTimePicker.Builder().setTimeFormat(TimeFormat.CLOCK_12H);
+
+            final var eventTimeText = binding.etEventTime.getText();
+            if (!TextUtils.isEmpty(eventTimeText)) {
+                final var eventTime = LocalTime.parse(eventTimeText, TIME_FORMATTER);
+                builder.setHour(eventTime.getHour());
+                builder.setMinute(eventTime.getMinute());
+            }
+
+            final var picker = builder.build();
+            picker.addOnPositiveButtonClickListener(_selection -> {
+                final var eventTime = LocalTime.of(picker.getHour(), picker.getMinute());
+                binding.etEventTime.setText(TIME_FORMATTER.format(eventTime));
+            });
+
+            picker.show(getParentFragmentManager(), "event_time_picker");
+        };
+
+        binding.etEventTime.setOnClickListener(listener);
+    }
+
+    /**
+     * Sets up the category spinner.
+     */
+    private void setupCategoryPicker() {
+        final var categories = Category.values();
+        final var labels = new String[categories.length];
+        for (int i = 0; i < categories.length; i++) {
+            labels[i] = formatCategory(categories[i]);
+        }
+
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, labels);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        categorySpinner.setAdapter(adapter);
+
+        int defaultIndex =
+                Math.max(0, java.util.Arrays.asList(categories).indexOf(selectedCategory));
+        categorySpinner.setSelection(defaultIndex);
+
+        categorySpinner.setOnItemSelectedListener(
+                new android.widget.AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(
+                            android.widget.AdapterView<?> parent,
+                            View view,
+                            int position,
+                            long id) {
+                        selectedCategory = categories[position];
+                    }
+
+                    @Override
+                    public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+                });
+    }
+
+    /**
+     *
+     * @param category the category to format
+     * @return the formatted category string
+     */
+    private static String formatCategory(Category category) {
+        final String lower = category.name().toLowerCase().replace('_', ' ');
+        return Character.toUpperCase(lower.charAt(0)) + lower.substring(1);
+    }
+
     /**
      * Shows a short-length {@link Toast} with the given message in this Fragment's context
      * @param msg message to display to the user
      */
     private void toast(String msg) {
         Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Clears the view binding reference when the view hierarchy is destroyed to avoid leaks
+     */
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 }

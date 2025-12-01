@@ -4,8 +4,12 @@ import static com.example.evently.data.generic.Promise.promise;
 import static com.example.evently.data.generic.PromiseOpt.promiseOpt;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -18,12 +22,16 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Transaction;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 import org.jetbrains.annotations.TestOnly;
 
@@ -32,12 +40,14 @@ import com.example.evently.data.generic.PromiseOpt;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.data.model.EventEntrants;
+import com.example.evently.data.model.EventFilter;
 
 /**
  * The Event database for managing events
  * @author Ronan St. Amand
  */
 public class EventsDB {
+    private final FirebaseFirestore db;
     private final CollectionReference eventsRef;
     private final CollectionReference eventEntrantsRef;
     private final StorageReference storageRef;
@@ -46,7 +56,7 @@ public class EventsDB {
      * Constructor for EventsDB
      */
     public EventsDB() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
         eventEntrantsRef = db.collection("eventEntrants");
         storageRef = FirebaseStorage.getInstance().getReference();
@@ -71,12 +81,13 @@ public class EventsDB {
                 documentSnapshot.getString("name"),
                 documentSnapshot.getString("description"),
                 Category.valueOf(documentSnapshot.getString("category")),
+                Objects.requireNonNullElse(documentSnapshot.getBoolean("requiresLocation"), false),
                 documentSnapshot.getTimestamp("selectionTime"),
                 documentSnapshot.getTimestamp("eventTime"),
                 documentSnapshot.getString("organizer"),
                 documentSnapshot.getLong("selectionLimit"),
                 optionalEntrantLimit,
-                documentSnapshot.getBoolean("isFull")));
+                Objects.requireNonNullElse(documentSnapshot.getBoolean("isFull"), false)));
     }
 
     /**
@@ -95,7 +106,9 @@ public class EventsDB {
                 (List<String>) documentSnapshot.get("enrolledEntrants"),
                 (List<String>) documentSnapshot.get("selectedEntrants"),
                 (List<String>) documentSnapshot.get("acceptedEntrants"),
-                (List<String>) documentSnapshot.get("cancelledEntrants")));
+                (List<String>) documentSnapshot.get("cancelledEntrants"),
+                (HashMap<String, GeoPoint>) Objects.requireNonNullElse(
+                        documentSnapshot.get("entrantLocations"), new HashMap<>())));
     }
 
     /**
@@ -116,6 +129,16 @@ public class EventsDB {
      * @param email Email of the user to enroll.
      */
     public Promise<Void> enroll(UUID eventID, String email) {
+        return enroll(eventID, email, null);
+    }
+
+    /**
+     * Add a user, alongside their current location, to the enrolled list of an event.
+     * @param eventID Target event.
+     * @param email Email of the user to enroll.
+     * @param entrantLocation Location from where the entrant enrolled.
+     */
+    public Promise<Void> enroll(UUID eventID, String email, GeoPoint entrantLocation) {
         final var eventIDStr = eventID.toString();
         final var targetEventRef = eventsRef.document(eventIDStr);
         final var targetEventEntrantsRef = eventEntrantsRef.document(eventIDStr);
@@ -136,7 +159,11 @@ public class EventsDB {
 
             // Add the user to the enrolled list.
             final var entrantUpdateMap = addEntrantUpdateObj(email, "enrolledEntrants");
-            tx.update(targetEventEntrantsRef, entrantUpdateMap);
+            // Add the location if provided.
+            if (entrantLocation != null) {
+                entrantUpdateMap.put(FieldPath.of("entrantLocations", email), entrantLocation);
+            }
+            fieldPathUpdate(tx, targetEventEntrantsRef, entrantUpdateMap);
             // Mark the event full if we've hit the limit.
             event.optionalEntrantLimit().ifPresent(limit -> {
                 if (eventEntrants.all().size() + 1 >= limit) {
@@ -158,7 +185,24 @@ public class EventsDB {
      */
     @TestOnly
     public Promise<Void> unsafeEnroll(UUID eventID, String email) {
-        return addEntrantToList(eventID, email, "enrolledEntrants");
+        return unsafeEnroll(eventID, email, null);
+    }
+
+    /**
+     * Enroll without checking any conditions. Only for testing.
+     * @param eventID Target event.
+     * @param email Email of the user to enroll.
+     * @param entrantLocation Location from where the entrant enrolled.
+     */
+    @TestOnly
+    public Promise<Void> unsafeEnroll(UUID eventID, String email, GeoPoint entrantLocation) {
+        // Add the user to the enrolled list.
+        final var entrantUpdateMap = addEntrantUpdateObj(email, "enrolledEntrants");
+        // Add the location if provided.
+        if (entrantLocation != null) {
+            entrantUpdateMap.put(FieldPath.of("entrantLocations", email), entrantLocation);
+        }
+        return fieldPathUpdate(eventEntrantsRef.document(eventID.toString()), entrantUpdateMap);
     }
 
     /**
@@ -201,12 +245,12 @@ public class EventsDB {
     // Helper to add a user to one of the lists.
     private Promise<Void> addEntrantToList(UUID eventID, String email, String field) {
         final var updateMap = addEntrantUpdateObj(email, field);
-        return promise(eventEntrantsRef.document(eventID.toString()).update(updateMap));
+        return fieldPathUpdate(eventEntrantsRef.document(eventID.toString()), updateMap);
     }
 
-    private HashMap<String, Object> addEntrantUpdateObj(String email, String field) {
-        final var updateMap = new HashMap<String, Object>();
-        updateMap.put(field, FieldValue.arrayUnion(email));
+    private HashMap<FieldPath, Object> addEntrantUpdateObj(String email, String field) {
+        final var updateMap = new HashMap<FieldPath, Object>();
+        updateMap.put(FieldPath.of(field), FieldValue.arrayUnion(email));
         return updateMap;
     }
 
@@ -249,6 +293,26 @@ public class EventsDB {
             query = eventsRef.whereGreaterThan("eventTime", dateConstraint);
         } else {
             query = eventsRef.whereLessThan("eventTime", dateConstraint);
+        }
+        return parseQuerySnapShots(query.get());
+    }
+
+    /**
+     * @param filters Filters to apply on the events.
+     * @return All currently open (for enrollment) events as per given filters.
+     */
+    public Promise<List<Event>> fetchEventByFilters(EventFilter filters) {
+        var query = eventsRef.whereGreaterThan("selectionTime", Timestamp.now());
+        if (!filters.categories().isEmpty()) {
+            query = eventsRef.whereIn("category", new ArrayList<>(filters.categories()));
+        }
+        if (filters.startTime().isPresent()) {
+            final var startTime = filters.startTime().get();
+            query = eventsRef.whereGreaterThanOrEqualTo("eventTime", startTime);
+        }
+        if (filters.endTime().isPresent()) {
+            final var endTime = filters.endTime().get();
+            query = eventsRef.whereLessThan("eventTime", endTime);
         }
         return parseQuerySnapShots(query.get());
     }
@@ -302,12 +366,14 @@ public class EventsDB {
     }
 
     /**
-     * Remove given event from DB, and deletes it's event entrants
+     * Remove given event alongside its relevant information.
      * @param eventID UUID of event
      */
     public Promise<Void> deleteEvent(UUID eventID) {
-        return promise(eventsRef.document(eventID.toString()).delete())
-                .alongside(promise(eventEntrantsRef.document(eventID.toString()).delete()));
+        final var eventIDStr = eventID.toString();
+        return promise(eventsRef.document(eventIDStr).delete())
+                .alongside(promise(eventEntrantsRef.document(eventIDStr).delete()))
+                .alongside(deletePoster(eventID));
     }
 
     /**
@@ -315,23 +381,26 @@ public class EventsDB {
      * @param email email of user
      */
     public Promise<Void> removeUserFromEvents(String email) {
-        final var updateMap = new HashMap<String, Object>();
-        EventEntrants entrants = new EventEntrants(UUID.randomUUID());
-        var keys = entrants.toHashMap().keySet();
-        for (String key : keys) {
-            updateMap.put(key, FieldValue.arrayRemove(email));
+        final var updateMap = new HashMap<FieldPath, Object>();
+        // Remove the user from the entrant arrays.
+        var arrayFields = new String[] {
+            "enrolledEntrants", "selectedEntrants", "acceptedEntrants", "cancelledEntrants"
+        };
+        for (String field : arrayFields) {
+            updateMap.put(FieldPath.of(field), FieldValue.arrayRemove(email));
         }
+        // Remove their location as well.
+        updateMap.put(FieldPath.of("entrantLocations", email), FieldValue.delete());
 
-        return promise(eventEntrantsRef.get())
-                .map(querySnapshot -> querySnapshot.getDocuments().stream()
-                        .map(EventsDB::getEventEntrantsFromSnapshot)
-                        .flatMap(Optional::stream)
-                        .collect(Collectors.toList()))
-                .then(events -> Promise.all(events.stream()
-                                .map(event -> promise(eventEntrantsRef
-                                        .document(event.eventID().toString())
-                                        .update(updateMap))))
-                        .map(ignored -> null));
+        WriteBatch batch = db.batch();
+        // Why the hell does the Java firestore SDK not have `listDocuments`???
+        // There's no need to get the whole document for all of them...
+        return promise(eventEntrantsRef.get()).then(qs -> {
+            for (var doc : qs) {
+                fieldPathUpdate(batch, doc.getReference(), updateMap);
+            }
+            return promise(batch.commit());
+        });
     }
 
     /**
@@ -379,6 +448,21 @@ public class EventsDB {
         return promise(posterStorageTask).map(taskSnapshot -> null);
     }
 
+    // Delete the event associated poster if it exists. Ignore otherwise.
+    private Promise<Void> deletePoster(UUID eventID) {
+        return promise(getPosterStorageRef(eventID).delete().continueWith(res -> {
+            final var exc = res.getException();
+            if (exc == null) {
+                return null;
+            }
+            if (exc instanceof StorageException storageExc
+                    && storageExc.getErrorCode() == StorageException.ERROR_OBJECT_NOT_FOUND) {
+                return null;
+            }
+            throw exc;
+        }));
+    }
+
     /**
      * The code below returns the storage reference to the selected poster.
      * @param eventID the eventID of the poster
@@ -388,5 +472,63 @@ public class EventsDB {
         // The following code is based on the downloading files section from the firebase docs:
         // https://firebase.google.com/docs/storage/android/download-files?_gl=1
         return storageRef.child("posters/" + eventID.toString());
+    }
+
+    // Update using map of FieldPath to object.
+    // For some god forsaken reason, this doesn't already exist in firestore's Java SDK.
+    private static Promise<Void> fieldPathUpdate(
+            DocumentReference docRef, Map<FieldPath, Object> updater) {
+        if (updater.isEmpty()) {
+            return Promise.of(null);
+        }
+        final var arr = flattenMapEntries(updater);
+        // If there is at least one element in the map, the array length must be 2.
+        final var firstFieldPath = (FieldPath) arr[0];
+        final var firstFieldVal = arr[1];
+        return promise(docRef.update(
+                firstFieldPath, firstFieldVal, Arrays.copyOfRange(arr, 2, arr.length)));
+    }
+
+    // Like above, but for transactions.
+    // Yes this could easily be CSEd with lambdas but java lambdas suck.
+    private static Transaction fieldPathUpdate(
+            Transaction tx, DocumentReference doc, Map<FieldPath, Object> updater) {
+        if (updater.isEmpty()) {
+            return tx;
+        }
+        final var arr = flattenMapEntries(updater);
+        // If there is at least one element in the map, the array length must be 2.
+        final var firstFieldPath = (FieldPath) arr[0];
+        final var firstFieldVal = arr[1];
+        return tx.update(
+                doc, firstFieldPath, firstFieldVal, Arrays.copyOfRange(arr, 2, arr.length));
+    }
+
+    // Like above, but for batches.
+    // Yes this could easily be CSEd with lambdas but java lambdas suck.
+    private static WriteBatch fieldPathUpdate(
+            WriteBatch batch, DocumentReference doc, Map<FieldPath, Object> updater) {
+        if (updater.isEmpty()) {
+            return batch;
+        }
+        final var arr = flattenMapEntries(updater);
+        // If there is at least one element in the map, the array length must be 2.
+        final var firstFieldPath = (FieldPath) arr[0];
+        final var firstFieldVal = arr[1];
+        return batch.update(
+                doc, firstFieldPath, firstFieldVal, Arrays.copyOfRange(arr, 2, arr.length));
+    }
+
+    private static <T, V> Object[] flattenMapEntries(Map<T, V> m) {
+        final var entries = new ArrayList<>(m.entrySet());
+        // Two elements per entry (key and value).
+        final var res = new Object[entries.size() * 2];
+        for (int i = 0; i < entries.size(); i++) {
+            final var entry = entries.get(i);
+            final var arrayIx = i * 2;
+            res[arrayIx] = entry.getKey();
+            res[arrayIx + 1] = entry.getValue();
+        }
+        return res;
     }
 }
