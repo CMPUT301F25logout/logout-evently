@@ -30,9 +30,11 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointForward;
 import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.loadingindicator.LoadingIndicator;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
@@ -219,6 +221,11 @@ public class CreateEventFragment extends Fragment {
 
             btnCreate.setEnabled(false);
 
+            btnCreate.setIcon(new LoadingIndicator(requireContext()).getDrawable());
+            btnCreate.setText(null);
+            btnCreate.setIconPadding(0);
+            btnCreate.setIconGravity(MaterialButton.ICON_GRAVITY_TEXT_START);
+
             EventsDB eventsDB = new EventsDB();
 
             // Gets the upload promise if an image has been selected through the photo picker.
@@ -235,6 +242,8 @@ public class CreateEventFragment extends Fragment {
                     })
                     .catchE(e -> {
                         btnCreate.setEnabled(true);
+                        btnCreate.setIcon(null);
+                        btnCreate.setText("Create");
                         toast("Failed to save event. Try again.");
                     });
         });

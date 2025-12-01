@@ -43,7 +43,7 @@ public class OwnEventsFragment extends EventsFragment {
                 .fetchEventsByOrganizers(FirebaseAuthUtils.getCurrentEmail())
                 .thenRun(callback)
                 .catchE(e -> {
-                    Log.e("OwnEvents", e.toString());
+                    Log.e("OwnEvents", "Error showing events", e);
                     Toast.makeText(requireContext(), "Something went wrong...", Toast.LENGTH_SHORT)
                             .show();
                     callback.accept(java.util.List.of());
