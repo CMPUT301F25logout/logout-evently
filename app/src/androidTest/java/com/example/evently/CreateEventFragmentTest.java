@@ -5,16 +5,12 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
-import static androidx.test.espresso.action.ViewActions.swipeUp;
-import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static com.example.evently.MaterialDateTimeUtils.selectFutureDate;
 import static com.example.evently.MaterialDateTimeUtils.selectTimeInAM;
 import static com.example.evently.TimeCompareUtils.compareUTC;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
-import android.widget.ScrollView;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -56,11 +52,11 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         final String desc = "Created by CreateEventFragmentTest";
         final long winners = 7;
 
-        onView(isAssignableFrom(ScrollView.class)).perform(swipeUp());
-
         // Fill fields
-        onView(withId(R.id.etEventName)).perform(scrollTo(), replaceText(name), closeSoftKeyboard());
-        onView(withId(R.id.etDescription)).perform(scrollTo(), replaceText(desc), closeSoftKeyboard());
+        onView(withId(R.id.etEventName))
+                .perform(scrollTo(), replaceText(name), closeSoftKeyboard());
+        onView(withId(R.id.etDescription))
+                .perform(scrollTo(), replaceText(desc), closeSoftKeyboard());
         onView(withId(R.id.etWinners))
                 .perform(scrollTo(), replaceText(Long.toString(winners)), closeSoftKeyboard());
         final var selectionDate = selectFutureDate(R.id.etSelectionDeadline, 1);
@@ -89,9 +85,15 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         final String self = FirebaseAuthUtils.getCurrentEmail();
         final int before = eventsDB.fetchEventsByOrganizers(self).await().size();
 
-        onView(withId(R.id.etEventName)).perform(scrollTo(), replaceText("Bad Winners"), closeSoftKeyboard());
-        onView(withId(R.id.etDescription)).perform(scrollTo(), replaceText("desc"), closeSoftKeyboard());
+        onView(withId(R.id.etEventName))
+                .perform(scrollTo(), replaceText("Bad Winners"), closeSoftKeyboard());
+        onView(withId(R.id.etDescription))
+                .perform(scrollTo(), replaceText("desc"), closeSoftKeyboard());
         onView(withId(R.id.etWinners)).perform(scrollTo(), replaceText("abc"), closeSoftKeyboard());
+
+        selectFutureDate(R.id.etSelectionDeadline, 1);
+        selectFutureDate(R.id.etEventDate, 3);
+        selectTimeInAM(R.id.etEventTime, 12, 25);
 
         onView(withId(R.id.btnCreate)).perform(scrollTo(), click());
 
@@ -104,10 +106,17 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         final String self = FirebaseAuthUtils.getCurrentEmail();
         final int before = eventsDB.fetchEventsByOrganizers(self).await().size();
 
-        onView(withId(R.id.etEventName)).perform(scrollTo(), replaceText("Bad Wait"), closeSoftKeyboard());
-        onView(withId(R.id.etDescription)).perform(scrollTo(), replaceText("desc"), closeSoftKeyboard());
+        onView(withId(R.id.etEventName))
+                .perform(scrollTo(), replaceText("Bad Wait"), closeSoftKeyboard());
+        onView(withId(R.id.etDescription))
+                .perform(scrollTo(), replaceText("desc"), closeSoftKeyboard());
         onView(withId(R.id.etWinners)).perform(scrollTo(), replaceText("5"), closeSoftKeyboard());
-        onView(withId(R.id.etWaitLimit)).perform(scrollTo(), replaceText("xyz"), closeSoftKeyboard());
+        onView(withId(R.id.etWaitLimit))
+                .perform(scrollTo(), replaceText("xyz"), closeSoftKeyboard());
+
+        selectFutureDate(R.id.etSelectionDeadline, 1);
+        selectFutureDate(R.id.etEventDate, 3);
+        selectTimeInAM(R.id.etEventTime, 12, 25);
 
         onView(withId(R.id.btnCreate)).perform(scrollTo(), click());
 
@@ -120,9 +129,12 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         final String self = FirebaseAuthUtils.getCurrentEmail();
         final int before = eventsDB.fetchEventsByOrganizers(self).await().size();
 
-        onView(withId(R.id.etEventName)).perform(scrollTo(), replaceText("Bad Date"), closeSoftKeyboard());
-        onView(withId(R.id.etDescription)).perform(scrollTo(), replaceText("desc"), closeSoftKeyboard());
+        onView(withId(R.id.etEventName))
+                .perform(scrollTo(), replaceText("Bad Date"), closeSoftKeyboard());
+        onView(withId(R.id.etDescription))
+                .perform(scrollTo(), replaceText("desc"), closeSoftKeyboard());
         onView(withId(R.id.etWinners)).perform(scrollTo(), replaceText("3"), closeSoftKeyboard());
+
         selectFutureDate(R.id.etSelectionDeadline, 2);
         selectFutureDate(R.id.etEventDate, 1);
         selectTimeInAM(R.id.etEventTime, 12, 25);
@@ -138,9 +150,12 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         final String self = FirebaseAuthUtils.getCurrentEmail();
         final int before = eventsDB.fetchEventsByOrganizers(self).await().size();
 
-        onView(withId(R.id.etEventName)).perform(scrollTo(), replaceText("Bad Date"), closeSoftKeyboard());
-        onView(withId(R.id.etDescription)).perform(scrollTo(), replaceText("desc"), closeSoftKeyboard());
+        onView(withId(R.id.etEventName))
+                .perform(scrollTo(), replaceText("Bad Date"), closeSoftKeyboard());
+        onView(withId(R.id.etDescription))
+                .perform(scrollTo(), replaceText("desc"), closeSoftKeyboard());
         onView(withId(R.id.etWinners)).perform(scrollTo(), replaceText("3"), closeSoftKeyboard());
+
         selectFutureDate(R.id.etEventDate, 2);
         selectTimeInAM(R.id.etEventTime, 12, 25);
 
@@ -155,9 +170,12 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         final String self = FirebaseAuthUtils.getCurrentEmail();
         final int before = eventsDB.fetchEventsByOrganizers(self).await().size();
 
-        onView(withId(R.id.etEventName)).perform(scrollTo(), replaceText("Bad Date"), closeSoftKeyboard());
-        onView(withId(R.id.etDescription)).perform(scrollTo(), replaceText("desc"), closeSoftKeyboard());
+        onView(withId(R.id.etEventName))
+                .perform(scrollTo(), replaceText("Bad Date"), closeSoftKeyboard());
+        onView(withId(R.id.etDescription))
+                .perform(scrollTo(), replaceText("desc"), closeSoftKeyboard());
         onView(withId(R.id.etWinners)).perform(scrollTo(), replaceText("3"), closeSoftKeyboard());
+
         selectFutureDate(R.id.etSelectionDeadline, 2);
         selectTimeInAM(R.id.etEventTime, 12, 25);
 
@@ -172,9 +190,12 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         final String self = FirebaseAuthUtils.getCurrentEmail();
         final int before = eventsDB.fetchEventsByOrganizers(self).await().size();
 
-        onView(withId(R.id.etEventName)).perform(scrollTo(), replaceText("Bad Date"), closeSoftKeyboard());
-        onView(withId(R.id.etDescription)).perform(scrollTo(), replaceText("desc"), closeSoftKeyboard());
+        onView(withId(R.id.etEventName))
+                .perform(scrollTo(), replaceText("Bad Date"), closeSoftKeyboard());
+        onView(withId(R.id.etDescription))
+                .perform(scrollTo(), replaceText("desc"), closeSoftKeyboard());
         onView(withId(R.id.etWinners)).perform(scrollTo(), replaceText("3"), closeSoftKeyboard());
+
         selectFutureDate(R.id.etSelectionDeadline, 1);
         selectFutureDate(R.id.etEventDate, 2);
 
