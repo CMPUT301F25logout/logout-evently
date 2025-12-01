@@ -133,8 +133,9 @@ public class RegisterFragment extends Fragment {
         }
 
         // Phone number validations
-        var phoneInp = binding.phone.getText();
-        if (!Patterns.PHONE.matcher(phoneInp).matches() && !phoneInp.toString().isBlank()) {
+        var phoneInp = binding.phone;
+        String result = formatPhoneNumber(phoneInp.getText().toString());
+        if (result.equals("None")) {
             binding.phone.setError("Invalid phone number");
             return false;
         }
@@ -252,5 +253,15 @@ public class RegisterFragment extends Fragment {
                         "Something went catastrophically wrong...",
                         Toast.LENGTH_SHORT)
                 .show();
+    }
+
+    private String formatPhoneNumber(String unformattedNumber) {
+        if (unformattedNumber.isBlank()) return "";
+        if (!Patterns.PHONE.matcher(unformattedNumber).matches()) return "None";
+        String phoneNum = unformattedNumber.replaceAll("\\D", "");
+        if (phoneNum.length() < 10) return "None";
+        return String.format(
+                "(%s) %s-%s",
+                phoneNum.substring(0, 3), phoneNum.substring(3, 6), phoneNum.substring(6, 10));
     }
 }
