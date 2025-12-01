@@ -63,4 +63,4 @@ runs:
         emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
         disable-animations: true
         working-directory: ./firebase
-        script: firebase emulators:exec "../gradlew connectedAndroidTest -P android.testInstrumentationRunnerArguments.class=com.example.evently.AdminDeleteEventTest --no-parallel -p ../"
+        script: firebase emulators:exec "../gradlew connectedAndroidTest -P android.testInstrumentationRunnerArguments.notAnnotation=androidx.test.filters.LargeTest  --no-parallel -p ../"
