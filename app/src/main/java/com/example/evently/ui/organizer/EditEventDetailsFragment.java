@@ -17,7 +17,7 @@ import com.example.evently.data.EventsDB;
 import com.example.evently.ui.common.EventDetailsFragment;
 
 public class EditEventDetailsFragment
-        extends EventDetailsFragment<EventPeopleFragment, OrganizerEventActionsFragment> {
+        extends EventDetailsFragment<EventMetaFragment, OrganizerEventActionsFragment> {
 
     private ImageView imageView;
 
@@ -26,20 +26,17 @@ public class EditEventDetailsFragment
     // https://developer.android.com/training/data-storage/shared/photo-picker
     private final ActivityResultLauncher<PickVisualMediaRequest> pickPoster =
             registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
-                if ((uri != null) && (super.eventID != null)) {
-
-                    new EventsDB().storePoster(super.eventID, uri).thenRun(x -> {
-
-                        // Stores it into the image, and shows it if still in the fragment
-                        if (getContext() == null) return;
-                        Glide.with(getContext()).load(uri).into(imageView);
-                        Toast.makeText(getContext(), "Poster Updated!", Toast.LENGTH_SHORT)
-                                .show();
-                    });
-
-                } else {
+                if (uri == null || super.eventID == null) {
                     Log.d("Poster Picker", "No poster selected");
+                    return;
                 }
+                new EventsDB().storePoster(super.eventID, uri).thenRun(x -> {
+                    // Stores it into the image, and shows it if still in the fragment
+                    if (getContext() == null) return;
+                    Glide.with(getContext()).load(uri).into(imageView);
+                    Toast.makeText(getContext(), "Poster Updated!", Toast.LENGTH_SHORT)
+                            .show();
+                });
             });
 
     @Override
@@ -57,8 +54,8 @@ public class EditEventDetailsFragment
     }
 
     @Override
-    protected Class<EventPeopleFragment> getFragmentForEntrantListContainer() {
-        return EventPeopleFragment.class;
+    protected Class<EventMetaFragment> getFragmentForEntrantListContainer() {
+        return EventMetaFragment.class;
     }
 
     @Override

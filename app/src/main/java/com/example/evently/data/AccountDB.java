@@ -164,7 +164,7 @@ public class AccountDB {
         /**
          * The following 2 lines of code are based on a response from the LLM Claude Sonnet 4.5 by
          * Anthropic: "how to store only document IDs in firebase from android with java? No data
-         * needs to be stored. Only the documentID"
+         * needs to be stored. Only the documentID", 2025-11-13
          *
          * According to the response, we need to add at least one field because Firestore does not
          * support empty documents.
