@@ -122,9 +122,14 @@ public final class FirebaseAuthUtils {
 
         if (isDumbAccount()) {
             // No need to reauth for device ID account.
-            accountDB.deleteAccount(getCurrentEmail()).thenRun(ignored -> user.delete()
-                    .addOnSuccessListener(onSuccess)
-                    .addOnFailureListener(onException::accept));
+            user.reauthenticate(EmailAuthProvider.getCredential(
+                            getCurrentEmail(), getDeviceID(activity)))
+                    .addOnSuccessListener(task -> accountDB
+                            .deleteAccount(getCurrentEmail())
+                            .thenRun(ignored -> user.delete()
+                                    .addOnSuccessListener(onSuccess)
+                                    .addOnFailureListener(onException::accept)))
+                    .addOnFailureListener(onException::accept);
             return;
         }
 
