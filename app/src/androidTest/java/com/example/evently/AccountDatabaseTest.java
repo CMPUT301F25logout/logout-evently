@@ -17,6 +17,9 @@ import com.example.evently.data.AccountDB;
 import com.example.evently.data.model.Account;
 
 @RunWith(AndroidJUnit4.class)
+/**
+ * UNIT TEST FOR ACCOUNT DATABASE
+ */
 public class AccountDatabaseTest extends FirebaseEmulatorTest {
     @After
     public void cleanUpAccounts() throws ExecutionException, InterruptedException {

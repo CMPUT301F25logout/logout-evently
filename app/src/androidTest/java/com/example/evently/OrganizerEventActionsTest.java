@@ -47,6 +47,9 @@ import com.example.evently.data.model.Event;
 import com.example.evently.ui.organizer.EditEventDetailsFragment;
 
 @RunWith(AndroidJUnit4.class)
+/**
+ * Tests for the organizer event actions fragment
+ */
 public class OrganizerEventActionsTest extends EmulatedFragmentTest<EditEventDetailsFragment> {
     private static final EventsDB eventsDB = new EventsDB();
     private static final Event mockEvent = new Event(

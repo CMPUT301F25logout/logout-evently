@@ -38,6 +38,9 @@ import com.example.evently.ui.admin.AdminBrowseNotificationsFragment;
 
 @RunWith(AndroidJUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
+/**
+ * Tests for viewing the notifications in Browse notifications
+ */
 public class AdminBrowseNotificationsTest
         extends EmulatedFragmentTest<AdminBrowseNotificationsFragment> {
     private static final EventsDB eventsDB = new EventsDB();

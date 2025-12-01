@@ -34,6 +34,9 @@ import com.example.evently.data.model.Event;
 import com.example.evently.ui.admin.ViewProfileDetailsFragment;
 
 @RunWith(AndroidJUnit4.class)
+/**
+ * Test for deleting a profile from the admin view of the browse profiles
+ */
 public class AdminDeleteProfileTest extends EmulatedFragmentTest<ViewProfileDetailsFragment> {
     private static final AccountDB accountsDB = new AccountDB();
     private static final EventsDB eventsDB = new EventsDB();

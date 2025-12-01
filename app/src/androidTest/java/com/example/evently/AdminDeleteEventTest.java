@@ -31,6 +31,9 @@ import com.example.evently.data.model.Event;
 import com.example.evently.ui.admin.AdminEventDetailsFragment;
 
 @RunWith(AndroidJUnit4.class)
+/**
+ * Test for deleting an event from the admin view of the browse events
+ */
 public class AdminDeleteEventTest extends EmulatedFragmentTest<AdminEventDetailsFragment> {
     private static final EventsDB eventsDB = new EventsDB();
 

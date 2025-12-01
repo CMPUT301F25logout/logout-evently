@@ -46,6 +46,9 @@ import com.example.evently.data.model.Event;
 import com.example.evently.ui.entrant.ViewEventDetailsFragment;
 
 @RunWith(AndroidJUnit4.class)
+/**
+ * Tests for the view event details fragment
+ */
 public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsFragment> {
     private static final EventsDB eventsDB = new EventsDB();
 

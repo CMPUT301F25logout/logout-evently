@@ -31,7 +31,7 @@ import com.example.evently.data.model.Event;
 import com.example.evently.ui.admin.AdminBrowseEventsFragment;
 
 /**
- * Test browsing events as admin
+ * Tests viewing the events in Browse events
  */
 @RunWith(AndroidJUnit4.class)
 public class AdminBrowseEventsTest extends EmulatedFragmentTest<AdminBrowseEventsFragment> {

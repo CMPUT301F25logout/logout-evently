@@ -37,6 +37,9 @@ import com.example.evently.data.model.Event;
 import com.example.evently.ui.admin.AdminEventDetailsFragment;
 
 @RunWith(AndroidJUnit4.class)
+/**
+ * Test for viewing the event details from the admin view of the browse events
+ */
 public class AdminEventDetailsTest extends EmulatedFragmentTest<AdminEventDetailsFragment> {
     private static final EventsDB eventsDB = new EventsDB();
 

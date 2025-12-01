@@ -26,6 +26,9 @@ import com.example.evently.data.model.Event;
 // NOTE: Large tests are not run in CI. Firebase functions take too long to fire in emulator.
 @LargeTest
 @RunWith(AndroidJUnit4.class)
+/**
+ * Tests for the organizer own events fragment
+ */
 public class RedrawTest extends FirebaseEmulatorTest {
     private static final EventsDB eventsDB = new EventsDB();
 

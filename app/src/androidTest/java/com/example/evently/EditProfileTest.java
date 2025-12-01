@@ -23,6 +23,9 @@ import org.junit.Test;
 
 import com.example.evently.ui.common.EditProfileFragment;
 
+/**
+ * Tests for EditProfileFragment.
+ */
 public class EditProfileTest extends EmulatedFragmentTest<EditProfileFragment> {
 
     @Before

@@ -21,6 +21,9 @@ import com.example.evently.ui.organizer.OwnEventsFragment;
 import com.example.evently.utils.FirebaseAuthUtils;
 
 @RunWith(AndroidJUnit4.class)
+/**
+ * Tests for the organizer own events fragment
+ */
 public class OwnEventsFragmentTest extends EmulatedFragmentTest<OwnEventsFragment> {
 
     private final EventsDB eventsDB = new EventsDB();

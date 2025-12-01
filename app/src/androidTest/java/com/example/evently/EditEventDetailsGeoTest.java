@@ -42,6 +42,9 @@ import com.example.evently.ui.organizer.EditEventDetailsFragment;
 import com.example.evently.utils.FirebaseAuthUtils;
 
 @RunWith(AndroidJUnit4.class)
+/**
+ * Test for viewing the event details from the organizer view of the browse events
+ */
 public class EditEventDetailsGeoTest extends EmulatedFragmentTest<EditEventDetailsFragment> {
     private static final EventsDB eventsDB = new EventsDB();
 

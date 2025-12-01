@@ -26,6 +26,9 @@ import com.example.evently.data.model.Event;
 import com.example.evently.utils.FirebaseAuthUtils;
 
 @RunWith(AndroidJUnit4.class)
+/**
+ * UNIT TESTS for the EventsDB class
+ */
 public class EventsDatabaseTest extends FirebaseEmulatorTest {
     /**
      * Creates an event for testing

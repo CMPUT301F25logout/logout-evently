@@ -20,6 +20,9 @@ import com.example.evently.data.model.Account;
 import com.example.evently.ui.admin.BrowseProfilesFragment;
 
 @RunWith(AndroidJUnit4.class)
+/**
+ * Tests viewing the profiles in Browse profiles
+ */
 public class AdminBrowseProfilesTest extends EmulatedFragmentTest<BrowseProfilesFragment> {
     private static final AccountDB accountsDB = new AccountDB();
 

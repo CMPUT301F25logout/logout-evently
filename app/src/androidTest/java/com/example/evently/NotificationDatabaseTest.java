@@ -21,6 +21,9 @@ import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.data.model.Notification;
 
+/**
+ * UNIT Tests for the Notification Database
+ */
 public class NotificationDatabaseTest extends FirebaseEmulatorTest {
     /**
      * Creates an event for testing
