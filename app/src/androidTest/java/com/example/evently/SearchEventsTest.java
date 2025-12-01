@@ -6,7 +6,7 @@ import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.CoreMatchers.allOf;
@@ -18,6 +18,7 @@ import java.util.concurrent.ExecutionException;
 import android.view.KeyEvent;
 import androidx.navigation.NavGraph;
 import androidx.test.espresso.contrib.RecyclerViewActions;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.firebase.Timestamp;
@@ -194,7 +195,7 @@ public class SearchEventsTest extends EmulatedFragmentTest<EntrantSearchEventsFr
                                 withId(R.id.content),
                                 withText(e.name()),
                                 isDescendantOfA(withId(R.id.event_list))))
-                        .check(matches(isDisplayed()));
+                        .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
             }
         }
     }

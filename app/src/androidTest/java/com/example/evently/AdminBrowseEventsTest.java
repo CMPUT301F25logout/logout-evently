@@ -175,7 +175,7 @@ public class AdminBrowseEventsTest extends EmulatedFragmentTest<AdminBrowseEvent
                 assertRecyclerViewItem(
                         R.id.event_list,
                         p(R.id.content, expectedEvent.name()),
-                        p(R.id.txtselection_date, "Waitlist closed"),
+                        p(R.id.txtselectionDate, "Waitlist closed"),
                         p(
                                 R.id.txtDate,
                                 EVENT_DATE_TIME_FORMATTER.format(
@@ -185,7 +185,7 @@ public class AdminBrowseEventsTest extends EmulatedFragmentTest<AdminBrowseEvent
                         R.id.event_list,
                         p(R.id.content, expectedEvent.name()),
                         p(
-                                R.id.txtselection_date,
+                                R.id.txtselectionDate,
                                 MessageFormat.format(
                                         "Selection date: {0}",
                                         SELECTION_DATE_FORMATTER.format(
