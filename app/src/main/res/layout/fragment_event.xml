@@ -34,8 +34,8 @@
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:layout_marginTop="8dp"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp">
+            android:paddingStart="17dp"
+            android:paddingEnd="17dp">
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/content"
