@@ -74,7 +74,8 @@ public class CreateEventFragment extends Fragment {
             registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
                 if (uri != null) {
                     imageUri = uri;
-                    Glide.with(getContext()).load(imageUri).into(imageButton);
+                    imageButton.setImageTintList(null);
+                    Glide.with(requireContext()).load(imageUri).into(imageButton);
                 } else {
                     Log.d("Poster Picker", "No poster selected");
                 }
