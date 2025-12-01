@@ -102,7 +102,7 @@ public class AdminBrowseImagesFragment extends Fragment {
     public void onDialogConfirmClick(String requestKey, Bundle result) {
         if (!result.getBoolean(ConfirmFragmentNoInput.inputKey)) return;
         // Delete the event poster
-        eventsDB.deleteEvent(selectedEventPoster);
+        eventsDB.deletePoster(selectedEventPoster);
 
         // Update the list and update the adapter
         posterDictionary.remove(selectedEventPoster);

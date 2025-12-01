@@ -520,7 +520,7 @@ public class EventsDB {
     }
 
     // Delete the event associated poster if it exists. Ignore otherwise.
-    private Promise<Void> deletePoster(UUID eventID) {
+    public Promise<Void> deletePoster(UUID eventID) {
         return promise(getPosterStorageRef(eventID).delete().continueWith(res -> {
             final var exc = res.getException();
             if (exc == null) {
