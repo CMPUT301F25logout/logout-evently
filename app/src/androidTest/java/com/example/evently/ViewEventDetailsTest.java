@@ -122,6 +122,9 @@ public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsF
     public void testSelectionDetailsButtonOpensDialog() throws InterruptedException {
         Thread.sleep(2000);
 
+        // Get to the bottom of the scroll view.
+        onView(isAssignableFrom(NestedScrollView.class)).perform(swipeUp());
+
         onView(withId(R.id.lotteryGuidelinesButton)).check(matches(isDisplayed()));
         onView(withId(R.id.lotteryGuidelinesButton)).perform(click());
         onView(withText(R.string.lottery_guidelines_dialog_title)).check(matches(isDisplayed()));
