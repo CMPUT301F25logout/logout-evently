@@ -45,7 +45,7 @@ public class OwnEventsFragmentTest extends EmulatedFragmentTest<OwnEventsFragmen
         return new Event(
                 name,
                 "some event " + name,
-                Category.SPORTS,
+                Category.Sports,
                 false,
                 new Timestamp(now.plus(Duration.ofHours(1))),
                 new Timestamp(now.plus(Duration.ofDays(2))),

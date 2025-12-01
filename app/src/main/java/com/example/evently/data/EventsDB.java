@@ -212,7 +212,18 @@ public class EventsDB {
      * @return Promise.
      */
     public Promise<Void> unenroll(UUID eventID, String email) {
-        return removeEntrantFromList(eventID, email, "enrolledEntrants");
+        final var updateMap = removeEntrantUpdateObj(email, "enrolledEntrants");
+        // Remove their location as well.
+        updateMap.put(FieldPath.of("entrantLocations", email), FieldValue.delete());
+
+        // We need to do multiple collection updates.
+        final var eventIDStr = eventID.toString();
+        WriteBatch batch = db.batch();
+        // Update the eventEntrants.
+        fieldPathUpdate(batch, eventEntrantsRef.document(eventID.toString()), updateMap);
+        // Mark the event is "not full".
+        batch.update(eventsRef.document(eventIDStr), "isFull", false);
+        return promise(batch.commit());
     }
 
     /**
@@ -271,12 +282,6 @@ public class EventsDB {
         final var updateMap = new HashMap<FieldPath, Object>();
         updateMap.put(FieldPath.of(field), FieldValue.arrayRemove(email));
         return updateMap;
-    }
-
-    // Helper to remove a user from one of the lists
-    private Promise<Void> removeEntrantFromList(UUID eventID, String email, String field) {
-        final var updateMap = removeEntrantUpdateObj(email, field);
-        return fieldPathUpdate(eventEntrantsRef.document(eventID.toString()), updateMap);
     }
 
     /**
