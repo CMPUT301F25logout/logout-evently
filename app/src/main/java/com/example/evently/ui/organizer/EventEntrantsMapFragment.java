@@ -85,7 +85,7 @@ public class EventEntrantsMapFragment extends DialogFragment implements OnMapRea
             });
             // Move the camera such that it shows all the markers in view.
             final var cameraUpdate = CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 0);
-            gMap.animateCamera(cameraUpdate);
+            gMap.setOnMapLoadedCallback(() -> gMap.animateCamera(cameraUpdate));
         });
     }
 }
