@@ -99,8 +99,9 @@ public class RegisterFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                registerBtn.setEnabled(validateInputs());
-                binding.dumbRegister.setEnabled(validateInputs());
+                final var isValid = validateInputs();
+                registerBtn.setEnabled(isValid);
+                binding.dumbRegister.setEnabled(isValid);
             }
         };
 
@@ -115,31 +116,25 @@ public class RegisterFragment extends Fragment {
         });
 
         registerBtn.setOnClickListener(v -> {
-            if (validateInputs()) {
-                loadingProgressBar.setVisibility(View.VISIBLE);
-                tryRegistering(0);
-            }
+            loadingProgressBar.setVisibility(View.VISIBLE);
+            tryRegistering(0);
         });
 
         binding.dumbRegister.setOnClickListener(v -> {
-            if (validateInputs()) {
-                dumbRegister();
-            }
+            dumbRegister();
         });
     }
 
     private boolean validateInputs() {
-        // TODO (chase): Should add name and phone number validation too.
         var nameInp = binding.name.getText().toString();
         if (nameInp.isBlank()) {
             binding.name.setError("Please enter your name");
             return false;
         }
 
-        // Phone number validation
-        var number = binding.phone;
-        String result = formatPhoneNumber(number.getText().toString());
-        if (result.equals("None")) {
+        // Phone number validations
+        var phoneInp = binding.phone.getText();
+        if (!Patterns.PHONE.matcher(phoneInp).matches()) {
             binding.phone.setError("Invalid phone number");
             return false;
         }
@@ -257,20 +252,5 @@ public class RegisterFragment extends Fragment {
                         "Something went catastrophically wrong...",
                         Toast.LENGTH_SHORT)
                 .show();
-    }
-
-    /**
-     * Get the phone number in format to be displayed
-     * @param unformattedNumber phone number pre-formatting
-     * @return String formatted phone number as (000) 000-0000
-     */
-    private String formatPhoneNumber(String unformattedNumber) {
-        if (unformattedNumber.isBlank()) return "";
-        if (!Patterns.PHONE.matcher(unformattedNumber).matches()) return "None";
-        String phoneNum = unformattedNumber.replaceAll("\\D", "");
-        if (phoneNum.length() < 10) return "None";
-        return String.format(
-                "(%s) %s-%s",
-                phoneNum.substring(0, 3), phoneNum.substring(3, 6), phoneNum.substring(6, 10));
     }
 }
