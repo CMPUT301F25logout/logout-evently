@@ -36,6 +36,13 @@ import com.example.evently.data.generic.Promise;
 public final class FirebaseAuthUtils {
 
     /**
+     * @return Whether or not there is a user currently logged in.
+     */
+    public static boolean isLoggedIn() {
+        return FirebaseAuth.getInstance().getCurrentUser() != null;
+    }
+
+    /**
      * This function will throw if called before AuthActivity gets through (i.e user is logged in).
      * @return Email of the currently logged in user.
      */

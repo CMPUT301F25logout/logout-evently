@@ -1,5 +1,8 @@
 package com.example.evently.ui.common;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
@@ -8,10 +11,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.example.evently.databinding.FragmentEditProfileBinding;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.messaging.FirebaseMessaging;
 
@@ -30,13 +39,32 @@ public class EditProfileFragment extends Fragment {
 
     private AccountDB db;
 
+    private FragmentEditProfileBinding binding;
+
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(
+                    new ActivityResultContracts.RequestPermission(), isGranted -> {
+                        if (!isGranted) {
+                            binding.notificationsToggle.setChecked(false);
+                            FirebaseMessagingUtils.disableNotifications();
+                            Toast.makeText(
+                                            requireContext(),
+                                            "You will not receive notifications regarding events",
+                                            Toast.LENGTH_LONG)
+                                    .show();
+                        } else {
+                            FirebaseMessagingUtils.enableNotifications();
+                        }
+                    });
+
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         db = new AccountDB();
-        return inflater.inflate(R.layout.fragment_edit_profile, container, false);
+        binding = FragmentEditProfileBinding.inflate(getLayoutInflater(), container, false);
+        return binding.getRoot();
     }
 
     @Override
@@ -77,10 +105,6 @@ public class EditProfileFragment extends Fragment {
         });
     }
 
-    /**
-     *
-     * @param v
-     */
     private void connectNotificationToggle(View v) {
         final var notificationToggle = (SwitchMaterial) v.findViewById(R.id.notifications_toggle);
         final var notificationStatus = v.findViewById(R.id.notifications_status_text);
@@ -92,6 +116,15 @@ public class EditProfileFragment extends Fragment {
         notificationToggle.setOnCheckedChangeListener((buttonView, checked) -> {
             updateNotificationStatus((TextView) notificationStatus, checked);
             if (checked) {
+                // We can only enable it if there's permission.
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS)
+                            != PackageManager.PERMISSION_GRANTED) {
+                        // Directly ask for the permission
+                        requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+                        return;
+                    }
+                }
                 FirebaseMessagingUtils.enableNotifications();
             } else {
                 FirebaseMessagingUtils.disableNotifications();
@@ -273,5 +306,11 @@ public class EditProfileFragment extends Fragment {
         return String.format(
                 "(%s) %s-%s",
                 phoneNum.substring(0, 3), phoneNum.substring(3, 6), phoneNum.substring(6, 10));
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 }

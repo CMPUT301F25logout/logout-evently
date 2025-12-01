@@ -57,11 +57,14 @@ public abstract class ArchitectureActivity extends AppCompatActivity
             registerForActivityResult(
                     new ActivityResultContracts.RequestPermission(), isGranted -> {
                         if (!isGranted) {
+                            FirebaseMessagingUtils.disableNotifications();
                             Toast.makeText(
                                             this,
                                             "You will not receive notifications regarding events",
                                             Toast.LENGTH_LONG)
                                     .show();
+                        } else {
+                            FirebaseMessagingUtils.enableNotifications();
                         }
                     });
 
@@ -115,16 +118,7 @@ public abstract class ArchitectureActivity extends AppCompatActivity
             }
         });
 
-        askNotificationPermission();
-
-        // Get the currently usable token and update it in Database if need be.
-        // This is a setup that needs to exist at least once every time the app starts (and
-        // authenticates).
-        FirebaseMessaging.getInstance()
-                .getToken()
-                .addOnSuccessListener(FirebaseMessagingUtils::storeToken);
-        // TODO (chase): Maybe also schedule a periodic task that refreshes the token?
-        // See: https://firebase.google.com/docs/cloud-messaging/manage-tokens
+        getNotificationPermission();
 
         // Attach listener for edit profile sign out/delete account action.
         navHostFragment
@@ -133,15 +127,12 @@ public abstract class ArchitectureActivity extends AppCompatActivity
                         EditProfileFragment.resultTag, this, (result, resultBundle) -> {
                             // Disable FCM auto init and remove the token so the device no longer
                             // gets notifications.
-                            FirebaseMessaging.getInstance().setAutoInitEnabled(false);
-                            FirebaseMessaging.getInstance()
-                                    .deleteToken()
-                                    .addOnSuccessListener(e -> {
-                                        final var intent = new Intent(
-                                                ArchitectureActivity.this, AuthActivity.class);
-                                        startActivity(intent);
-                                        finish();
-                                    });
+                            FirebaseMessagingUtils.disableNotifications(() -> {
+                                final var intent = new Intent(
+                                        ArchitectureActivity.this, AuthActivity.class);
+                                startActivity(intent);
+                                finish();
+                            });
                         });
     }
 
@@ -162,13 +153,15 @@ public abstract class ArchitectureActivity extends AppCompatActivity
     /**
      * Set up notification permission request for the user to approve.
      */
-    private void askNotificationPermission() {
+    private void getNotificationPermission() {
         // This is only necessary for API Level > 33 (TIRAMISU)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                     != PackageManager.PERMISSION_GRANTED) {
                 // Directly ask for the permission
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+            } else {
+                FirebaseMessagingUtils.enableNotifications();
             }
         }
     }

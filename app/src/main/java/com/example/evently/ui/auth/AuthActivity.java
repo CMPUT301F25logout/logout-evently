@@ -199,8 +199,6 @@ public class AuthActivity extends AppCompatActivity {
     }
 
     private void successfulTransition() {
-        // Once user has logged in - they're free to receive FCM stuff again.
-        FirebaseMessaging.getInstance().setAutoInitEnabled(true);
         // Target is always the Entrant screen.
         var transition = new Intent(AuthActivity.this, EntrantActivity.class);
         // We forward any extras that we were passed.

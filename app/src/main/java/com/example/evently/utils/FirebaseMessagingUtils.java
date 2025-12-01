@@ -52,15 +52,26 @@ public final class FirebaseMessagingUtils {
      * revoking the current FCM token locally.
      */
     public static void disableNotifications() {
+        disableNotifications(() -> {});
+    }
+
+    /**
+     * Disable push notifications for the current user by deleting the stored token in Firestore and
+     * revoking the current FCM token locally.
+     * @param then Action to run after disable completed.
+     */
+    public static void disableNotifications(Runnable then) {
         FirebaseMessaging.getInstance().setAutoInitEnabled(false);
         FirebaseMessaging.getInstance().deleteToken();
 
-        final var userEmail = FirebaseAuthUtils.getCurrentEmail();
-        if (userEmail != null) {
+        if (FirebaseAuthUtils.isLoggedIn()) {
+            final var userEmail = FirebaseAuthUtils.getCurrentEmail();
             FirebaseFirestore.getInstance()
                     .collection("fcmTokens")
                     .document(userEmail)
-                    .delete();
+                    .delete().addOnSuccessListener(ignored -> then.run());
+        } else {
+            then.run();
         }
     }
 
