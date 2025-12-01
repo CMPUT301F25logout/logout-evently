@@ -4,11 +4,9 @@ import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -42,7 +40,6 @@ public class EventRecyclerViewAdapter
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
     private final List<Event> mValues;
     private final EventOnClickListener onEventClick;
-    private List<Event> hiddenEvents = new ArrayList<>();
 
     /**
      * Creates an adapter for rendering {@link Event} items and handling per-item clicks.
@@ -78,14 +75,6 @@ public class EventRecyclerViewAdapter
         // Attach the Event to the view.
         holder.mItem = mValues.get(position);
         var binding = holder.binding;
-
-        // Filtering start
-        if (hiddenEvents.contains(holder.mItem)) {
-            holder.itemView.setVisibility(View.GONE);
-        } else {
-            holder.itemView.setVisibility(View.VISIBLE);
-        }
-        // Filtering end
 
         // Title / name
         binding.content.setText(holder.mItem.name());
@@ -146,25 +135,5 @@ public class EventRecyclerViewAdapter
             super(binding.getRoot());
             this.binding = binding;
         }
-    }
-
-    public void updateEvents(List<Event> events) {
-        List<Event> tempList = new ArrayList<>(mValues);
-        int count = 0;
-        hiddenEvents.clear();
-        for (Event event : mValues) {
-            if (events.contains(event)) {
-                tempList.remove(event);
-                tempList.add(count, event);
-                count++;
-            } else {
-                hiddenEvents.add(event);
-            }
-        }
-
-        mValues.clear();
-        mValues.addAll(tempList);
-
-        notifyDataSetChanged();
     }
 }
