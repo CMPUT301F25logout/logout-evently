@@ -243,7 +243,7 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
         // Wait for viewpager
         Thread.sleep(1000);
 
-        String cancelingName = "user2";
+        String cancelingName = "User2";
 
         // Used to scroll to recycler view item
         assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, cancelingName));
