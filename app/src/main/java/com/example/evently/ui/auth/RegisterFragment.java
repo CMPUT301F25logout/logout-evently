@@ -103,6 +103,7 @@ public class RegisterFragment extends Fragment {
                 binding.dumbRegister.setEnabled(validateInputs());
             }
         };
+
         nameEditText.addTextChangedListener(afterTextChangedListener);
         phoneEditText.addTextChangedListener(afterTextChangedListener);
         phoneEditText.setOnEditorActionListener((TextView v, int actionId, KeyEvent event) -> {
@@ -114,12 +115,16 @@ public class RegisterFragment extends Fragment {
         });
 
         registerBtn.setOnClickListener(v -> {
-            loadingProgressBar.setVisibility(View.VISIBLE);
-            tryRegistering(0);
+            if (validateInputs()) {
+                loadingProgressBar.setVisibility(View.VISIBLE);
+                tryRegistering(0);
+            }
         });
 
         binding.dumbRegister.setOnClickListener(v -> {
-            dumbRegister();
+            if (validateInputs()) {
+                dumbRegister();
+            }
         });
     }
 
@@ -132,11 +137,13 @@ public class RegisterFragment extends Fragment {
         }
 
         // Phone number validation
-        String number = binding.phone.getText().toString();
-        if (!Patterns.PHONE.matcher(number).matches()) {
+        var number = binding.phone;
+        String result = formatPhoneNumber(number.getText().toString());
+        if (result.equals("None")) {
             binding.phone.setError("Invalid phone number");
             return false;
         }
+
         return true;
     }
 
@@ -150,6 +157,8 @@ public class RegisterFragment extends Fragment {
 
         fragManager.setFragmentResultListener(
                 ConfirmFragmentTextInput.requestKey, this, (requestKey, result) -> {
+                    // Only make the loading bar visible if confirm is pressed
+                    loadingProgressBar.setVisibility(View.VISIBLE);
                     final var email = result.getString(ConfirmFragmentTextInput.inputKey);
                     assert email != null;
                     loadingProgressBar.setVisibility(View.VISIBLE);
@@ -248,5 +257,20 @@ public class RegisterFragment extends Fragment {
                         "Something went catastrophically wrong...",
                         Toast.LENGTH_SHORT)
                 .show();
+    }
+
+    /**
+     * Get the phone number in format to be displayed
+     * @param unformattedNumber phone number pre-formatting
+     * @return String formatted phone number as (000) 000-0000
+     */
+    private String formatPhoneNumber(String unformattedNumber) {
+        if (unformattedNumber.isBlank()) return "";
+        if (!Patterns.PHONE.matcher(unformattedNumber).matches()) return "None";
+        String phoneNum = unformattedNumber.replaceAll("\\D", "");
+        if (phoneNum.length() < 10) return "None";
+        return String.format(
+                "(%s) %s-%s",
+                phoneNum.substring(0, 3), phoneNum.substring(3, 6), phoneNum.substring(6, 10));
     }
 }
