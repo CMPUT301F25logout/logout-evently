@@ -50,6 +50,5 @@
         android:layout_gravity="bottom"
         app:elevation="3dp"
         app:itemIconSize="28dp"
-        app:menu="@menu/navbar"
         app:labelVisibilityMode="unlabeled" />
 </LinearLayout>

@@ -1,5 +1,7 @@
 package com.example.evently.ui.common;
 
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 import android.os.Bundle;
@@ -14,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.firebase.storage.StorageReference;
 
 import com.example.evently.R;
+import com.example.evently.data.AccountDB;
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.databinding.FragmentEventDetailsBinding;
@@ -24,16 +27,17 @@ import com.example.evently.utils.GlideUtils;
  * Fragment that displays the event information as well as the entrants that have been waitlisted.
  * <p>
  * Things to implement:
- * Images for the event and accounts
- * Extending the description if it's too long
+ * Images for the event
  * <p>
  * Layout: fragment_event_details.xml
- * @author Vinson Lou
  */
 public abstract class EventDetailsFragment<E extends Fragment, A extends Fragment>
         extends Fragment {
     protected FragmentEventDetailsBinding binding;
     protected UUID eventID;
+
+    private static final DateTimeFormatter EVENT_DATE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
     protected EventViewModel eventViewModel;
 
     /**
@@ -78,20 +82,20 @@ public abstract class EventDetailsFragment<E extends Fragment, A extends Fragmen
                     String.valueOf(eventEntrants.all().size()));
         });
 
-        if (savedInstanceState == null) {
-            // Load the entrants list fragment if we were not recreated.
-            getChildFragmentManager()
-                    .beginTransaction()
-                    .setReorderingAllowed(true)
-                    .add(R.id.entrantListContainer, getFragmentForEntrantListContainer(), null)
-                    .commit();
-            // Also load the action buttons fragment.
-            getChildFragmentManager()
-                    .beginTransaction()
-                    .setReorderingAllowed(true)
-                    .add(R.id.actionButtonsContainer, getFragmentForActionButtonsContainer(), null)
-                    .commit();
-        }
+        // Load the entrants list fragment if we were not recreated.
+        if (savedInstanceState != null) return;
+
+        getChildFragmentManager()
+                .beginTransaction()
+                .setReorderingAllowed(true)
+                .add(R.id.entrantListContainer, getFragmentForEntrantListContainer(), null)
+                .commit();
+        // Also load the action buttons fragment.
+        getChildFragmentManager()
+                .beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.actionButtonsContainer, getFragmentForActionButtonsContainer(), null)
+                .commit();
     }
 
     /**
@@ -102,6 +106,22 @@ public abstract class EventDetailsFragment<E extends Fragment, A extends Fragmen
         binding.eventName.setText(event.name());
         binding.eventDescription.setText(event.description());
         binding.eventCategory.setText(event.category().toString());
+
+        new AccountDB().fetchAccount(event.organizer()).thenRun(optionalAccount -> {
+            optionalAccount.ifPresent(account -> binding.organizerInput.setText(account.name()));
+        });
+
+        // Sets the seat text:
+        String seatLimit = String.valueOf(event.selectionLimit());
+        binding.seatsText.setText(seatLimit);
+
+        // Formats the dates, and stores it in the relevant sections
+        String selectedTime =
+                EVENT_DATE_TIME_FORMATTER.format(event.selectionTime().toInstant());
+        String eventTime = EVENT_DATE_TIME_FORMATTER.format(event.eventTime().toInstant());
+        binding.selectionDateText.setText(selectedTime);
+        binding.eventDateTime.setText(eventTime);
+
         eventID = event.eventID();
 
         // Loads the picture into the image view.
@@ -110,6 +130,8 @@ public abstract class EventDetailsFragment<E extends Fragment, A extends Fragmen
 
         event.optionalEntrantLimit().ifPresent(limit -> {
             binding.entrantLimitSection.setVisibility(View.VISIBLE);
+            binding.waitlistSeparator.setVisibility(View.VISIBLE);
+            binding.entrantLimit.setVisibility(View.VISIBLE);
             binding.entrantLimit.setText(String.valueOf(limit));
         });
     }

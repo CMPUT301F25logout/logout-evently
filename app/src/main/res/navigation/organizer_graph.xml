@@ -25,6 +25,19 @@
     </fragment>
 
     <fragment
+        android:id="@+id/nav_search"
+        android:name="com.example.evently.ui.organizer.OrganizerSearchEventsFragment"
+        android:label="Search Events"
+        tools:layout="@layout/fragment_search_events">
+        <action
+            android:id="@+id/action_nav_search_to_event_details"
+            app:destination="@id/event_details"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment
         android:id="@+id/event_details"
         android:name="com.example.evently.ui.organizer.EditEventDetailsFragment"
         android:label="Manage Event"
@@ -32,6 +45,9 @@
         <argument
             android:name="eventID"
             app:argType="java.util.UUID" />
+        <action
+            android:id="@+id/action_event_details_to_nav_thread"
+            app:destination="@id/nav_thread" />
     </fragment>
 
     <fragment
@@ -62,4 +78,12 @@
             android:name="channel"
             app:argType="string" />
     </fragment>
+
+    <fragment
+        android:id="@+id/nav_account"
+        android:name="com.example.evently.ui.common.EditProfileFragment"
+        android:label="Account"
+        tools:layout="@layout/fragment_edit_profile">
+    </fragment>
+
 </navigation>

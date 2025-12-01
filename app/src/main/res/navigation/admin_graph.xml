@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/admin_graph"
+    app:startDestination="@id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.example.evently.ui.admin.AdminBrowseEventsFragment"
+        android:label="Manage Events"
+        tools:layout="@layout/fragment_event_list">
+        <action
+            android:id="@+id/action_nav_home_to_event_details"
+            app:destination="@id/event_details" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/event_details"
+        android:name="com.example.evently.ui.admin.AdminEventDetailsFragment"
+        android:label="Event Details"
+        tools:layout="@layout/fragment_event_details">
+        <argument
+            android:name="eventID"
+            app:argType="java.util.UUID" />
+
+        <action
+            android:id="@+id/action_event_details_to_nav_home"
+            app:destination="@id/nav_home" />
+        <action
+            android:id="@+id/action_event_details_to_profile_details"
+            app:destination="@id/profile_details" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_accounts"
+        android:name="com.example.evently.ui.admin.BrowseProfilesFragment"
+        android:label="Manage Profiles"
+        tools:layout="@layout/fragment_admin_profiles">
+        <action
+            android:id="@+id/action_nav_accounts_to_profile_details"
+            app:destination="@id/profile_details" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/profile_details"
+        android:name="com.example.evently.ui.admin.ViewProfileDetailsFragment"
+        android:label="View Profile"
+        tools:layout="@layout/fragment_admin_profile">
+        <argument
+            android:name="accountEmail"
+            app:argType="string" />
+
+        <action
+            android:id="@+id/action_profile_details_to_nav_accounts"
+            app:destination="@id/nav_accounts" />
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/nav_images"
+        android:name="com.example.evently.ui.admin.AdminBrowseImagesFragment"
+        android:label="Manage Images"
+        tools:layout="@layout/fragment_admin_images"/>
+
+
+    <fragment
+        android:id="@+id/nav_notifs"
+        android:name="com.example.evently.ui.admin.AdminBrowseNotificationsFragment"
+        android:label="Manage Notifications"
+        tools:layout="@layout/fragment_notifs"/>
+
+</navigation>

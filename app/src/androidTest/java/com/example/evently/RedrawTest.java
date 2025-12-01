@@ -39,7 +39,8 @@ public class RedrawTest extends FirebaseEmulatorTest {
         new Event(
                 "name",
                 "description",
-                Category.EDUCATIONAL,
+                Category.Educational,
+                false,
                 selectionTime,
                 eventTime,
                 "orgEmail",
@@ -47,7 +48,8 @@ public class RedrawTest extends FirebaseEmulatorTest {
         new Event(
                 "name",
                 "description",
-                Category.EDUCATIONAL,
+                Category.Educational,
+                false,
                 selectionTime,
                 eventTime,
                 "orgEmail",
