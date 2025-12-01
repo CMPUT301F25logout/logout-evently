@@ -120,8 +120,7 @@ public abstract class EventDetailsFragment<E extends Fragment, A extends Fragmen
         // Formats the dates, and stores it in the relevant sections
         String selectedTime =
                 EVENT_DATE_TIME_FORMATTER.format(event.selectionTime().toInstant());
-        String eventTime =
-                EVENT_DATE_TIME_FORMATTER.format(event.eventTime().toInstant());
+        String eventTime = EVENT_DATE_TIME_FORMATTER.format(event.eventTime().toInstant());
         binding.selectionDateText.setText(selectedTime);
         binding.eventDateTime.setText(eventTime);
 

@@ -130,12 +130,13 @@ public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsF
         // Asserts the correct selection time is shown
         String formattedDate =
                 EVENT_DATE_TIME_FORMATTER.format(mockEvent.selectionTime().toInstant());
-        onView(allOf(withId(R.id.selectionDateText),withText(formattedDate))).check(matches(isDisplayed()));
+        onView(allOf(withId(R.id.selectionDateText), withText(formattedDate)))
+                .check(matches(isDisplayed()));
 
         // Asserts the correct event time is shown
-        formattedDate =
-                EVENT_DATE_TIME_FORMATTER.format(mockEvent.eventTime().toInstant());
-        onView(allOf(withId(R.id.eventDateTime),withText(formattedDate))).check(matches(isDisplayed()));
+        formattedDate = EVENT_DATE_TIME_FORMATTER.format(mockEvent.eventTime().toInstant());
+        onView(allOf(withId(R.id.eventDateTime), withText(formattedDate)))
+                .check(matches(isDisplayed()));
     }
 
     @Test
