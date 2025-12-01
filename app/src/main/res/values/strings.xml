@@ -24,6 +24,9 @@
     <string name="profile_page_email_header">Email:</string>
     <string name="profile_page_phone_header">Phone Number:</string>
     <string name="profile_page_edit_button_text">Edit</string>
+    <string name="profile_page_notifications_header">Notifications:</string>
+    <string name="profile_page_notifications_enabled">Push notifications enabled</string>
+    <string name="profile_page_notifications_disabled">Push notifications disabled</string>
     <string name="action_delete_account">Delete Account</string>
     <string name="create_event_btn_description">Create event</string>
     <string name="selected_role_icon_description">Currently selected role</string>

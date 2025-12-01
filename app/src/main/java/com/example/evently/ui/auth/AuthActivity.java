@@ -16,7 +16,6 @@ import androidx.credentials.exceptions.NoCredentialException;
 
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.messaging.FirebaseMessaging;
 
 import com.example.evently.R;
 import com.example.evently.data.AccountDB;
@@ -196,8 +195,6 @@ public class AuthActivity extends AppCompatActivity {
     }
 
     private void successfulTransition() {
-        // Once user has logged in - they're free to receive FCM stuff again.
-        FirebaseMessaging.getInstance().setAutoInitEnabled(true);
         // Target is always the Entrant screen.
         var transition = new Intent(AuthActivity.this, EntrantActivity.class);
         // We forward any extras that we were passed.
