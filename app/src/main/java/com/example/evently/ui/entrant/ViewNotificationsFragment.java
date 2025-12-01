@@ -29,7 +29,7 @@ public class ViewNotificationsFragment extends NotificationsFragment {
         bundle.putSerializable("id", notif.id());
         bundle.putSerializable("eventID", notif.eventId());
         bundle.putString("title", notif.title());
-        bundle.putString("message", notif.description());
+        bundle.putString("description", notif.description());
         dialog.setArguments(bundle);
         dialog.show(getChildFragmentManager(), "EventNotification");
     }
