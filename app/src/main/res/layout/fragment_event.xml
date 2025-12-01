@@ -43,7 +43,7 @@
                     android:id="@+id/txtCategory"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Category Placeholder"
+                    android:text="CATEGORY"
                     android:textAppearance="@style/TextAppearance.Material3.BodySmall"
                     android:textColor="?attr/colorOnSurfaceVariant"
                     android:layout_marginBottom="2dp"/>
@@ -52,7 +52,7 @@
                     android:id="@+id/txtSelectionLimit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="X Winners"
+                    android:text="Seats: X"
                     android:textAppearance="@style/TextAppearance.Material3.BodySmall"
                     android:textColor="?attr/colorOnSurfaceVariant" />
             </LinearLayout>
@@ -89,23 +89,40 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:layout_marginBottom="2dp"
-                android:layout_marginTop="3dp">
+                android:layout_marginBottom="9dp"
+                android:layout_marginTop="6dp">
 
                 <ImageView
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
                     android:src="@drawable/ic_calendar_clock_24"
                     android:layout_marginEnd="6dp"
-                    android:tint="?attr/colorSecondary" />
+                    app:tint="?attr/colorSecondary" />
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/txtselectionDate"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="DATE"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:textColor="?attr/colorOnSurfaceVariant" />
+                    android:orientation="vertical"
+                    >
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/txtDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="DATE"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/txtselectionDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Selection Date: DATE"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
+
+                </LinearLayout>
+
             </LinearLayout>
 
             <LinearLayout
@@ -120,7 +137,7 @@
                     android:layout_width="wrap_content"
                     android:src="@drawable/ic_person_24"
                     android:layout_marginEnd="6dp"
-                    android:tint="?attr/colorSecondary" />
+                    app:tint="?attr/colorSecondary" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/txtEntrants"
