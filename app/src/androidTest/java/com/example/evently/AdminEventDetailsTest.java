@@ -20,7 +20,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import android.os.Bundle;
-
 import androidx.core.widget.NestedScrollView;
 import androidx.navigation.NavGraph;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -32,7 +31,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.example.evently.data.EventsDB;
-import com.example.evently.data.generic.Promise;
 import com.example.evently.data.model.Account;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
@@ -141,9 +139,8 @@ public class AdminEventDetailsTest extends EmulatedFragmentTest<AdminEventDetail
     public void testViewingSelected() throws InterruptedException {
         Thread.sleep(2000);
 
-        Account[] expectedAccounts = new Account[] {
-            extraAccounts[0], extraAccounts[2], extraAccounts[4]
-        };
+        Account[] expectedAccounts =
+                new Account[] {extraAccounts[0], extraAccounts[2], extraAccounts[4]};
 
         // Get to the bottom of the scroll view.
         onView(isAssignableFrom(NestedScrollView.class)).perform(swipeUp());
