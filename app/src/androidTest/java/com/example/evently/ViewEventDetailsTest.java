@@ -1,7 +1,9 @@
 package com.example.evently;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.example.evently.MatcherUtils.assertRecyclerViewItem;
@@ -17,6 +19,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import android.os.Bundle;
+import androidx.core.widget.NestedScrollView;
 import androidx.navigation.NavGraph;
 import androidx.test.espresso.PerformException;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -93,6 +96,9 @@ public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsF
 
         Account[] expectedAccounts =
                 new Account[] {extraAccounts[0], extraAccounts[2], extraAccounts[4]};
+
+        // Get to the bottom of the scroll view.
+        onView(isAssignableFrom(NestedScrollView.class)).perform(swipeUp());
 
         // Test if the account's emails shows up on the recycler view
         for (final var expectedAccount : expectedAccounts) {
