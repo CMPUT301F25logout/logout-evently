@@ -82,6 +82,7 @@ public class RegisterFragment extends Fragment {
 
         // Setting it in XML doesn't work for some reason. Must set it programmatically.
         registerBtn.setEnabled(false);
+        binding.dumbRegister.setEnabled(false);
 
         // Responsive validation using text changed listeners.
         var afterTextChangedListener = new TextWatcher() {
@@ -98,6 +99,7 @@ public class RegisterFragment extends Fragment {
             @Override
             public void afterTextChanged(Editable s) {
                 registerBtn.setEnabled(validateInputs());
+                binding.dumbRegister.setEnabled(validateInputs());
             }
         };
         nameEditText.addTextChangedListener(afterTextChangedListener);
