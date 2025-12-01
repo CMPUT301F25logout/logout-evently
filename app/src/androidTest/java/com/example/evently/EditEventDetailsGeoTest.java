@@ -120,7 +120,7 @@ public class EditEventDetailsGeoTest extends EmulatedFragmentTest<EditEventDetai
         // Open the map!
         onView(withText(R.string.entrant_map_btn)).perform(scrollTo(), click());
 
-        Thread.sleep(10000);
+        Thread.sleep(1000);
 
         // No real way to test if the markers are there...
         assertTrue(true);
