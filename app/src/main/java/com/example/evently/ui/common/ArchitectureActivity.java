@@ -25,12 +25,14 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import com.example.evently.data.AccountDB;
 import com.example.evently.data.model.Role;
 import com.example.evently.databinding.ActivityArchitectureBinding;
 import com.example.evently.ui.admin.AdminActivity;
 import com.example.evently.ui.auth.AuthActivity;
 import com.example.evently.ui.entrant.EntrantActivity;
 import com.example.evently.ui.organizer.OrganizerActivity;
+import com.example.evently.utils.FirebaseAuthUtils;
 import com.example.evently.utils.FirebaseMessagingUtils;
 
 /**
@@ -50,7 +52,7 @@ public abstract class ArchitectureActivity extends AppCompatActivity
     private ActivityArchitectureBinding binding;
     protected NavController navController;
 
-    private static Role[] DefaultRoles = new Role[] {EntrantRole, OrganizerRole, AdminRole};
+    private static Role[] DefaultRoles = new Role[] {EntrantRole, OrganizerRole};
     // Track the role selected by the role spinner so we can avoid switching when we're already
     // there!
     private int currentlySelectedRole = rolePosition();
@@ -97,10 +99,15 @@ public abstract class ArchitectureActivity extends AppCompatActivity
 
         // Attach the role selector adapter to the spinner.
         final var availableRoles = List.of(DefaultRoles);
-        // TODO (chase): Add the admin role if logged in account is an admin.
-        binding.roleSelector.setAdapter(new RoleSpinnerAdapter(this, availableRoles));
-        binding.roleSelector.setOnItemSelectedListener(this);
-        binding.roleSelector.setSelection(rolePosition());
+        // Add the admin role if logged in account is an admin.
+        new AccountDB().isAdmin(FirebaseAuthUtils.getCurrentEmail()).thenRun(isAdmin -> {
+            if (isAdmin) {
+                availableRoles.add(AdminRole);
+            }
+            binding.roleSelector.setAdapter(new RoleSpinnerAdapter(this, availableRoles));
+            binding.roleSelector.setOnItemSelectedListener(this);
+            binding.roleSelector.setSelection(rolePosition());
+        });
 
         // Set the navbar.
         final var navBar = binding.navbar;
