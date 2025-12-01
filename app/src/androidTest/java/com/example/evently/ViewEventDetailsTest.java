@@ -134,9 +134,6 @@ public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsF
         Thread.sleep(2000);
 
         // Get to the bottom of the scroll view.
-        onView(isAssignableFrom(NestedScrollView.class)).perform(swipeUp());
-
-        // Get to the bottom of the scroll view.
         onView(withId(R.id.lotteryGuidelinesButton)).perform(scrollTo());
         onView(withId(R.id.lotteryGuidelinesButton)).check(matches(isDisplayed()));
         onView(withId(R.id.lotteryGuidelinesButton)).perform(click());
