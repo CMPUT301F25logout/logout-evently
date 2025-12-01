@@ -4,7 +4,11 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.replaceText;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static com.example.evently.MaterialDateTimeUtils.selectFutureDate;
+import static com.example.evently.MaterialDateTimeUtils.selectTimeInAM;
+import static com.example.evently.TimeCompareUtils.compareUTC;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -18,6 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.example.evently.data.EventsDB;
+import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.organizer.CreateEventFragment;
 import com.example.evently.utils.FirebaseAuthUtils;
@@ -33,7 +38,11 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
 
     @AfterClass
     public static void tearDown() throws ExecutionException, InterruptedException {
-        eventsDB.nuke().await();
+        List<Event> mine = eventsDB.fetchEventsByOrganizers(FirebaseAuthUtils.getCurrentEmail())
+                .await();
+        for (final var event : mine) {
+            eventsDB.deleteEvent(event.eventID()).await();
+        }
     }
 
     @Test
@@ -41,24 +50,32 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         final String self = FirebaseAuthUtils.getCurrentEmail();
         final String name = "UI Test Event";
         final String desc = "Created by CreateEventFragmentTest";
-        final String winners = "7";
-        final String date = "2030-01-01";
-        final String time = "12:00:00";
+        final long winners = 7;
 
         // Fill fields
         onView(withId(R.id.etEventName)).perform(replaceText(name), closeSoftKeyboard());
         onView(withId(R.id.etDescription)).perform(replaceText(desc), closeSoftKeyboard());
-        onView(withId(R.id.etWinners)).perform(replaceText(winners), closeSoftKeyboard());
-        onView(withId(R.id.etRegDate)).perform(replaceText(date), closeSoftKeyboard());
-        onView(withId(R.id.etRegTime)).perform(replaceText(time), closeSoftKeyboard());
+        onView(withId(R.id.etWinners))
+                .perform(replaceText(Long.toString(winners)), closeSoftKeyboard());
+        final var selectionDate = selectFutureDate(R.id.etSelectionDeadline, 1);
+        final var eventDate = selectFutureDate(R.id.etEventDate, 2);
+        final var eventTime = selectTimeInAM(R.id.etEventTime, 1, 35);
 
         // Submit
-        onView(withId(R.id.btnCreate)).perform(click());
+        onView(withId(R.id.btnCreate)).perform(scrollTo(), click());
 
         // Verify persisted to Firestore
         List<Event> mine = eventsDB.fetchEventsByOrganizers(self).await();
         assertTrue(mine.stream()
-                .anyMatch(e -> e.name().equals(name) && e.description().equals(desc)));
+                .anyMatch(e -> e.name().equals(name)
+                        && e.description().equals(desc)
+                        && e.category().equals(Category.OTHERS)
+                        && !e.isFull()
+                        && !e.requiresLocation()
+                        && e.optionalEntrantLimit().isEmpty()
+                        && e.selectionLimit() == winners
+                        && compareUTC(e.selectionTime().toInstant(), selectionDate.atStartOfDay())
+                        && compareUTC(e.eventTime().toInstant(), eventDate.atTime(eventTime))));
     }
 
     @Test
@@ -69,10 +86,8 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         onView(withId(R.id.etEventName)).perform(replaceText("Bad Winners"), closeSoftKeyboard());
         onView(withId(R.id.etDescription)).perform(replaceText("desc"), closeSoftKeyboard());
         onView(withId(R.id.etWinners)).perform(replaceText("abc"), closeSoftKeyboard());
-        onView(withId(R.id.etRegDate)).perform(replaceText("2030-01-01"), closeSoftKeyboard());
-        onView(withId(R.id.etRegTime)).perform(replaceText("12:00:00"), closeSoftKeyboard());
 
-        onView(withId(R.id.btnCreate)).perform(click());
+        onView(withId(R.id.btnCreate)).perform(scrollTo(), click());
 
         int after = eventsDB.fetchEventsByOrganizers(self).await().size();
         assertEquals(before, after);
@@ -86,11 +101,9 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         onView(withId(R.id.etEventName)).perform(replaceText("Bad Wait"), closeSoftKeyboard());
         onView(withId(R.id.etDescription)).perform(replaceText("desc"), closeSoftKeyboard());
         onView(withId(R.id.etWinners)).perform(replaceText("5"), closeSoftKeyboard());
-        onView(withId(R.id.etRegDate)).perform(replaceText("2030-01-01"), closeSoftKeyboard());
-        onView(withId(R.id.etRegTime)).perform(replaceText("12:00:00"), closeSoftKeyboard());
         onView(withId(R.id.etWaitLimit)).perform(replaceText("xyz"), closeSoftKeyboard());
 
-        onView(withId(R.id.btnCreate)).perform(click());
+        onView(withId(R.id.btnCreate)).perform(scrollTo(), click());
 
         int after = eventsDB.fetchEventsByOrganizers(self).await().size();
         assertEquals(before, after);
@@ -104,12 +117,62 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         onView(withId(R.id.etEventName)).perform(replaceText("Bad Date"), closeSoftKeyboard());
         onView(withId(R.id.etDescription)).perform(replaceText("desc"), closeSoftKeyboard());
         onView(withId(R.id.etWinners)).perform(replaceText("3"), closeSoftKeyboard());
-        onView(withId(R.id.etRegDate))
-                .perform(replaceText("2030-13-40"), closeSoftKeyboard()); // invalid
-        onView(withId(R.id.etRegTime))
-                .perform(replaceText("99:99:99"), closeSoftKeyboard()); // invalid
+        selectFutureDate(R.id.etSelectionDeadline, 2);
+        selectFutureDate(R.id.etEventDate, 1);
+        selectTimeInAM(R.id.etEventTime, 12, 25);
 
-        onView(withId(R.id.btnCreate)).perform(click());
+        onView(withId(R.id.btnCreate)).perform(scrollTo(), click());
+
+        int after = eventsDB.fetchEventsByOrganizers(self).await().size();
+        assertEquals(before, after);
+    }
+
+    @Test
+    public void createEvent_missingSelectionTest() throws Exception {
+        final String self = FirebaseAuthUtils.getCurrentEmail();
+        final int before = eventsDB.fetchEventsByOrganizers(self).await().size();
+
+        onView(withId(R.id.etEventName)).perform(replaceText("Bad Date"), closeSoftKeyboard());
+        onView(withId(R.id.etDescription)).perform(replaceText("desc"), closeSoftKeyboard());
+        onView(withId(R.id.etWinners)).perform(replaceText("3"), closeSoftKeyboard());
+        selectFutureDate(R.id.etEventDate, 2);
+        selectTimeInAM(R.id.etEventTime, 12, 25);
+
+        onView(withId(R.id.btnCreate)).perform(scrollTo(), click());
+
+        int after = eventsDB.fetchEventsByOrganizers(self).await().size();
+        assertEquals(before, after);
+    }
+
+    @Test
+    public void createEvent_missingDateTest() throws Exception {
+        final String self = FirebaseAuthUtils.getCurrentEmail();
+        final int before = eventsDB.fetchEventsByOrganizers(self).await().size();
+
+        onView(withId(R.id.etEventName)).perform(replaceText("Bad Date"), closeSoftKeyboard());
+        onView(withId(R.id.etDescription)).perform(replaceText("desc"), closeSoftKeyboard());
+        onView(withId(R.id.etWinners)).perform(replaceText("3"), closeSoftKeyboard());
+        selectFutureDate(R.id.etSelectionDeadline, 2);
+        selectTimeInAM(R.id.etEventTime, 12, 25);
+
+        onView(withId(R.id.btnCreate)).perform(scrollTo(), click());
+
+        int after = eventsDB.fetchEventsByOrganizers(self).await().size();
+        assertEquals(before, after);
+    }
+
+    @Test
+    public void createEvent_missingTimeTest() throws Exception {
+        final String self = FirebaseAuthUtils.getCurrentEmail();
+        final int before = eventsDB.fetchEventsByOrganizers(self).await().size();
+
+        onView(withId(R.id.etEventName)).perform(replaceText("Bad Date"), closeSoftKeyboard());
+        onView(withId(R.id.etDescription)).perform(replaceText("desc"), closeSoftKeyboard());
+        onView(withId(R.id.etWinners)).perform(replaceText("3"), closeSoftKeyboard());
+        selectFutureDate(R.id.etSelectionDeadline, 1);
+        selectFutureDate(R.id.etEventDate, 2);
+
+        onView(withId(R.id.btnCreate)).perform(scrollTo(), click());
 
         int after = eventsDB.fetchEventsByOrganizers(self).await().size();
         assertEquals(before, after);

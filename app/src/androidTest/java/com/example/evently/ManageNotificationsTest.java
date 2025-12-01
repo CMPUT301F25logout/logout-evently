@@ -58,6 +58,7 @@ public class ManageNotificationsTest extends EmulatedFragmentTest<ManageNotifica
                 "name",
                 "description",
                 Category.EDUCATIONAL,
+                false,
                 selectionTime,
                 eventTime,
                 mockAccount.email(),
@@ -66,6 +67,7 @@ public class ManageNotificationsTest extends EmulatedFragmentTest<ManageNotifica
                 "name1",
                 "description1",
                 Category.EDUCATIONAL,
+                false,
                 selectionTime,
                 eventTime,
                 "Other User",
@@ -74,6 +76,7 @@ public class ManageNotificationsTest extends EmulatedFragmentTest<ManageNotifica
                 "name2",
                 "description2",
                 Category.EDUCATIONAL,
+                false,
                 selectionTime,
                 eventTime,
                 mockAccount.email(),
@@ -82,6 +85,7 @@ public class ManageNotificationsTest extends EmulatedFragmentTest<ManageNotifica
                 "name3",
                 "description3",
                 Category.EDUCATIONAL,
+                false,
                 selectionTime,
                 eventTime,
                 mockAccount.email(),
@@ -90,6 +94,7 @@ public class ManageNotificationsTest extends EmulatedFragmentTest<ManageNotifica
                 "name4",
                 "description4",
                 Category.EDUCATIONAL,
+                false,
                 selectionTime,
                 eventTime,
                 mockAccount.email(),
@@ -98,6 +103,7 @@ public class ManageNotificationsTest extends EmulatedFragmentTest<ManageNotifica
                 "name5",
                 "description5",
                 Category.EDUCATIONAL,
+                false,
                 selectionTime,
                 eventTime,
                 mockAccount.email(),
@@ -106,6 +112,7 @@ public class ManageNotificationsTest extends EmulatedFragmentTest<ManageNotifica
                 "name6",
                 "description6",
                 Category.EDUCATIONAL,
+                false,
                 selectionTime,
                 eventTime,
                 mockAccount.email(),
@@ -114,6 +121,7 @@ public class ManageNotificationsTest extends EmulatedFragmentTest<ManageNotifica
                 "name7",
                 "description7",
                 Category.EDUCATIONAL,
+                false,
                 selectionTime,
                 eventTime,
                 mockAccount.email(),
@@ -122,6 +130,7 @@ public class ManageNotificationsTest extends EmulatedFragmentTest<ManageNotifica
                 "name8",
                 mockAccount.email(),
                 Category.EDUCATIONAL,
+                false,
                 selectionTime,
                 eventTime,
                 "Other User",
@@ -218,7 +227,7 @@ public class ManageNotificationsTest extends EmulatedFragmentTest<ManageNotifica
         // The following section of code confirms we were brought to the correct fragment, and was
         // created by Anthropic, Claude Sonnet 4.5 with the following prompt:
         // "In java for android, how can you verify that once clicking on an item, the fragment
-        // changes to an expected fragment"
+        // changes to an expected fragment", 2025-11-26
         scenario.onFragment(fragment -> {
             final var dest = NavHostFragment.findNavController(fragment)
                     .getCurrentDestination()

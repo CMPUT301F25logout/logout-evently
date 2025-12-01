@@ -31,12 +31,13 @@
     <string name="event_join_btn">Join Waitlist</string>
     <string name="event_share_btn">Share</string>
     <string name="event_notify_selected_btn">Notify Selected</string>
+    <string name="event_send_notification_button">Notify</string>
     <string name="event_join_btn_full">Waitlist Full</string>
     <string name="event_join_btn_joined">Leave Waitlist</string>
     <string name="event_image_description">Event image</string>
     <string name="event_location_icon">Location icon</string>
     <string name="event_date_icon">Date/time icon</string>
-    <string name="event_selection_header">Selection On:</string>
+    <string name="event_selection_header">Selection Date:</string>
     <string name="event_seats_header">Seats:</string>
     <string name="event_entrants_header">Entrants</string>
     <string name="entrant_limit_header">In Waitlist:</string>
@@ -49,4 +50,22 @@
     <string name="notification_title">Notification Title</string>
     <string name="action_dumb_login">Sign in with Device ID</string>
     <string name="dumb_register_txt">Sign up with Device ID</string>
+    <string name="remove_selected_entrant_button">Remove Selected Entrant Button</string>
+    <string name="filters_button_label">Filters</string>
+    <string name="date_filters_header">Filter by Date range</string>
+    <string name="date_filters_picker_helper">Pick a date range to filter events by. Only one side of the range is required!</string>
+    <string name="date_filters_start_title">Choose a start date and time</string>
+    <string name="date_filters_end_title">Choose an end date and time</string>
+    <string name="date_filters_start_hint">Start</string>
+    <string name="date_filters_end_hint">End</string>
+    <string name="date_filters_invalid_order">Start date must be on or before the end date.</string>
+    <string name="filters_cancel">Cancel</string>
+    <string name="filters_confirm">Confirm</string>
+    <string name="filters_header">Choose Your Categories:</string>
+    <string name="filters_category_prompt">Choose Categories:</string>
+    <string name="create_event_category_label">Category:</string>
+    <string name="create_event_choose_category">Choose Category</string>
+    <string name="create_event_selected_category">Selected: %1$s</string>
+    <string name="create_event_selected_category_placeholder">Selected: Sports</string>
+    <string name="filters_clear">Clear</string>
 </resources>

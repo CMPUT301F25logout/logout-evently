@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.evently.R;
+import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.EventEntrants;
 import com.example.evently.ui.model.EventViewModel;
 
@@ -31,7 +32,8 @@ public abstract sealed class EntrantsFragment extends Fragment
                 EntrantsFragment.AcceptedEntrantsFragment,
                 EntrantsFragment.CancelledEntrantsFragment {
 
-    private EventViewModel eventViewModel;
+    protected EventViewModel eventViewModel;
+    protected boolean showRemoveButton = false;
 
     /**
      * Select the type of entrants we aim to display.
@@ -49,26 +51,23 @@ public abstract sealed class EntrantsFragment extends Fragment
 
         eventViewModel = new ViewModelProvider(requireParentFragment()).get(EventViewModel.class);
 
-        if (view instanceof RecyclerView recyclerView) {
-            Context context = recyclerView.getContext();
-            recyclerView.setLayoutManager(new LinearLayoutManager(context));
-
-            // We set up an initial empty adapter, to allow the usage of swapAdapter later.
-            recyclerView.setAdapter(new EntrantRecyclerViewAdapter());
-
-            // Set up an observer to update the event entrants as they change.
-            eventViewModel
-                    .getEventEntrantsLive()
-                    .observe(getViewLifecycleOwner(), eventEntrants -> {
-                        final var adapter =
-                                new EntrantRecyclerViewAdapter(selectEntrantList(eventEntrants));
-                        recyclerView.swapAdapter(adapter, false);
-                    });
-
-            return view;
-        } else {
+        if (!(view instanceof RecyclerView recyclerView))
             throw new AssertionError("EntrantsFragment.onCreateView called with non RecyclerView");
-        }
+
+        Context context = recyclerView.getContext();
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+
+        // We set up an initial empty adapter, to allow the usage of swapAdapter later.
+        recyclerView.setAdapter(new EntrantRecyclerViewAdapter());
+
+        // Set up an observer to update the event entrants as they change.
+        eventViewModel.getEventEntrantsLive().observe(getViewLifecycleOwner(), eventEntrants -> {
+            final var adapter = new EntrantRecyclerViewAdapter(
+                    selectEntrantList(eventEntrants), showRemoveButton, this::cancelEntrant);
+            recyclerView.swapAdapter(adapter, false);
+        });
+
+        return view;
     }
 
     public static final class EnrolledEntrantsFragment extends EntrantsFragment {
@@ -79,6 +78,14 @@ public abstract sealed class EntrantsFragment extends Fragment
     }
 
     public static final class SelectedEntrantsFragment extends EntrantsFragment {
+
+        // Overrides the onCreateView to show the remove button.
+        @Override
+        public View onCreateView(
+                LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            showRemoveButton = true;
+            return super.onCreateView(inflater, container, savedInstanceState);
+        }
 
         @Override
         protected List<String> selectEntrantList(EventEntrants entrantsInfo) {
@@ -100,5 +107,17 @@ public abstract sealed class EntrantsFragment extends Fragment
         protected List<String> selectEntrantList(EventEntrants entrantsInfo) {
             return entrantsInfo.cancelled();
         }
+    }
+
+    /**
+     * Cancel a selected entrant.
+     * @param email The target entrant
+     */
+    private void cancelEntrant(String email) {
+        EventsDB eventsDB = new EventsDB();
+
+        assert eventViewModel.eventID != null;
+        eventsDB.cancelSelectedUser(eventViewModel.eventID, email)
+                .thenRun(x -> eventViewModel.requestEntrantsUpdate());
     }
 }
