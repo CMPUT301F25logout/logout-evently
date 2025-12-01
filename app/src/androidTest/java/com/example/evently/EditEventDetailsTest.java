@@ -3,15 +3,15 @@ package com.example.evently;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
-import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.hasSibling;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.example.evently.MatcherUtils.assertRecyclerViewItem;
 import static com.example.evently.MatcherUtils.p;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.allOf;
 import static org.junit.Assert.assertThrows;
 
 import java.time.Duration;
@@ -31,8 +31,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.firebase.Timestamp;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Account;
@@ -42,6 +44,7 @@ import com.example.evently.ui.organizer.EditEventDetailsFragment;
 import com.example.evently.utils.FirebaseAuthUtils;
 
 @RunWith(AndroidJUnit4.class)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsFragment> {
     private static final EventsDB eventsDB = new EventsDB();
 
@@ -106,7 +109,7 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
     }
 
     @Test
-    public void testEnrolledPeople() throws InterruptedException {
+    public void test1_EnrolledPeople() throws InterruptedException {
         Thread.sleep(1000);
 
         onView(withText(mockEvent.description())).check(matches(isDisplayed()));
@@ -128,7 +131,7 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
     }
 
     @Test
-    public void testSelectedPeople() throws InterruptedException {
+    public void test2_SelectedPeople() throws InterruptedException {
         Thread.sleep(1000);
 
         onView(withText(mockEvent.description())).check(matches(isDisplayed()));
@@ -156,7 +159,7 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
     }
 
     @Test
-    public void testAcceptedPeople() throws InterruptedException {
+    public void test3_AcceptedPeople() throws InterruptedException {
         Thread.sleep(1000);
 
         onView(withText(mockEvent.description())).check(matches(isDisplayed()));
@@ -185,7 +188,7 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
     }
 
     @Test
-    public void testCancelledPeople() throws InterruptedException {
+    public void test4_CancelledPeople() throws InterruptedException {
         Thread.sleep(1000);
 
         onView(withText(mockEvent.description())).check(matches(isDisplayed()));
@@ -211,11 +214,57 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
     }
 
     @Test
-    public void testNoMap() throws InterruptedException {
+    public void test5_CancelSelected() throws InterruptedException {
+        Thread.sleep(2000);
+
+        onView(withText(mockEvent.description())).check(matches(isDisplayed()));
+
+        // Check the selected tab.
+        onView(withText("Selected")).perform(scrollTo(), click());
+
+        // Wait for viewpager
+        Thread.sleep(1000);
+
+        String cancelingEmail = "email2@gmail.com";
+
+        // Used to scroll to recycler view item
+        assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, cancelingEmail));
+
+        // The following line of code is from Google, Gemini 3 Pro:
+        // "Using hasSibling, show me how to click on a button R.id.removeButton in a recycler view
+        // next to a known email", 2025-11-30
+        onView(allOf(
+                        withId(R.id.removeButton),
+                        hasSibling(withText(cancelingEmail)),
+                        isDisplayed()))
+                .perform(click());
+
+        // Waits for EventViewModel to update
+        Thread.sleep(2000);
+
+        // Ensure unexpected account(s) do not show up in here.
+        assertThrows(
+                PerformException.class,
+                () -> assertRecyclerViewItem(
+                        R.id.entrantList, p(R.id.entrant_name, cancelingEmail)));
+
+        // Navigate to the cancelled tab.
+        onView(withText("Cancelled")).perform(scrollTo(), click());
+
+        // Wait for viewpager
+        Thread.sleep(2000);
+
+        // Asserts the canceled email is in the canceled tab
+        assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, cancelingEmail));
+    }
+
+    @Test
+    public void test6_NoMap() throws InterruptedException {
         Thread.sleep(1000);
 
         // Ensure the map button is not displayed.
-        onView(withId(R.id.open_map)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        onView(withId(R.id.open_map))
+                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }
 
     @Override

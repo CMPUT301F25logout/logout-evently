@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -20,7 +19,6 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import com.example.evently.databinding.FragmentEventMetaBinding;
-import com.example.evently.ui.model.EventViewModel;
 
 /**
  * Fragment that displays the tabs for event participants:
@@ -54,13 +52,13 @@ public class EventMetaFragment extends Fragment {
         viewPager.setAdapter(new EventPeopleAdapter(requireParentFragment()));
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
-            switch (position) {
-                case 0 -> tab.setText("Enrolled");
-                case 1 -> tab.setText("Selected");
-                case 2 -> tab.setText("Accepted");
-                case 3 -> tab.setText("Cancelled");
-            }
-        })
+                    switch (position) {
+                        case 0 -> tab.setText("Enrolled");
+                        case 1 -> tab.setText("Selected");
+                        case 2 -> tab.setText("Accepted");
+                        case 3 -> tab.setText("Cancelled");
+                    }
+                })
                 .attach();
     }
 

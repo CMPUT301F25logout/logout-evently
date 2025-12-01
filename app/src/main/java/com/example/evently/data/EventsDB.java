@@ -225,6 +225,19 @@ public class EventsDB {
     }
 
     /**
+     * Remove user from selected list of event and add them to cancelled.
+     * @param eventID Target event.
+     * @param email Target user email
+     * @return Promise.
+     */
+    public Promise<Void> cancelSelectedUser(UUID eventID, String email) {
+        final var updateMap = removeEntrantUpdateObj(email, "selectedEntrants");
+        final var additionUpdate = addEntrantUpdateObj(email, "cancelledEntrants");
+        updateMap.putAll(additionUpdate);
+        return fieldPathUpdate(eventEntrantsRef.document(eventID.toString()), updateMap);
+    }
+
+    /**
      * Add a user to the accepted list of an event.
      * @param eventID Target event.
      * @param email Email of the user to enroll.
@@ -254,11 +267,16 @@ public class EventsDB {
         return updateMap;
     }
 
+    private HashMap<FieldPath, Object> removeEntrantUpdateObj(String email, String field) {
+        final var updateMap = new HashMap<FieldPath, Object>();
+        updateMap.put(FieldPath.of(field), FieldValue.arrayRemove(email));
+        return updateMap;
+    }
+
     // Helper to remove a user from one of the lists
     private Promise<Void> removeEntrantFromList(UUID eventID, String email, String field) {
-        final var updateMap = new HashMap<String, Object>();
-        updateMap.put(field, FieldValue.arrayRemove(email));
-        return promise(eventEntrantsRef.document(eventID.toString()).update(updateMap));
+        final var updateMap = removeEntrantUpdateObj(email, field);
+        return fieldPathUpdate(eventEntrantsRef.document(eventID.toString()), updateMap);
     }
 
     /**

@@ -58,9 +58,8 @@ public class OrganizerEventActionsFragment extends Fragment {
             qrDialog.show(getChildFragmentManager(), "QR_DIALOG");
         });
 
-        binding.openMap.setOnClickListener(v ->
-            new EventEntrantsMapFragment().show(getParentFragmentManager(), "map_dialog")
-        );
+        binding.openMap.setOnClickListener(
+                v -> new EventEntrantsMapFragment().show(getParentFragmentManager(), "map_dialog"));
 
         binding.sendNotif.setText(String.format("Notify %s", currentlySelectedChannel));
         binding.selectChannel.setCheckable(true);

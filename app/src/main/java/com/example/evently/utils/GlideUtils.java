@@ -22,7 +22,7 @@ public class GlideUtils {
      * Additionally, the following question was asked to Google, Gemini 3 Pro:
      * "I am using Glide for showing images from firebase storage in my Java android app, but my
      * images are not updating when the image in firebase storage are changed. Do you know how
-     * to change this?"
+     * to change this?", 2025-11-24
      * This resulted in adding a signature.
      * @param posterReference A storage reference to the poster
      * @param imageView an image view being stored into.

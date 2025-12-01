@@ -5,13 +5,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.evently.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -19,12 +17,10 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
-
-import com.example.evently.ui.model.EventViewModel;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import java.time.Instant;
-import java.util.Optional;
+import com.example.evently.R;
+import com.example.evently.ui.model.EventViewModel;
 
 /**
  * Fragment for showing all entrant locations in a map!
@@ -38,8 +34,7 @@ public class EventEntrantsMapFragment extends DialogFragment implements OnMapRea
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         layout = getLayoutInflater().inflate(R.layout.fragment_entrants_map, null);
 
-        eventViewModel =
-                new ViewModelProvider(requireParentFragment()).get(EventViewModel.class);
+        eventViewModel = new ViewModelProvider(requireParentFragment()).get(EventViewModel.class);
 
         return new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Entrant Map")
@@ -47,9 +42,11 @@ public class EventEntrantsMapFragment extends DialogFragment implements OnMapRea
                 .create();
     }
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    @Nullable @Override
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         return layout;
     }
 
@@ -59,7 +56,8 @@ public class EventEntrantsMapFragment extends DialogFragment implements OnMapRea
 
         eventViewModel = new ViewModelProvider(requireParentFragment()).get(EventViewModel.class);
 
-        final var mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapFragmentContainer);
+        final var mapFragment = (SupportMapFragment)
+                getChildFragmentManager().findFragmentById(R.id.mapFragmentContainer);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
