@@ -6,6 +6,7 @@ import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.CoreMatchers.containsString;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -49,8 +50,10 @@ public final class MaterialDateTimeUtils {
         Thread.sleep(500);
 
         // Fill in the date in the date picker
-        onView(withContentDescription(targetDay + ", " + targetMonth + " "
-                        + targetDate.getDayOfMonth())) // e.g Saturday, November 29
+        // We must use partial match here. During year boundaries,
+        // the content description includes the different year.
+        onView(withContentDescription(containsString(targetDay + ", " + targetMonth + " "
+                        + targetDate.getDayOfMonth()))) // e.g Saturday, November 29
                 .inRoot(isDialog())
                 .perform(click());
         onView(withText("OK")).inRoot(isDialog()).perform(click());
