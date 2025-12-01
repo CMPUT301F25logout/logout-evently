@@ -132,13 +132,16 @@ public class OrganizerEventActionsFragment extends Fragment {
         popup.show();
     }
 
+    /**
+     * Exports a CSV of final participants to download
+     * @param view view of button pressed
+     */
     private void exportCSV(View view) {
         Log.i("CSV", "CSV write called");
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("text/csv");
         intent.putExtra(Intent.EXTRA_TITLE, "entrants.csv");
-
         createFile.launch(intent);
     }
 }
