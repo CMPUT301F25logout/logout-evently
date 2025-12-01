@@ -118,7 +118,6 @@ public class RegisterFragment extends Fragment {
         });
 
         binding.dumbRegister.setOnClickListener(v -> {
-            loadingProgressBar.setVisibility(View.VISIBLE);
             dumbRegister();
         });
     }
@@ -145,6 +144,7 @@ public class RegisterFragment extends Fragment {
                 ConfirmFragmentTextInput.requestKey, this, (requestKey, result) -> {
                     final var email = result.getString(ConfirmFragmentTextInput.inputKey);
                     assert email != null;
+                    loadingProgressBar.setVisibility(View.VISIBLE);
 
                     FirebaseAuthUtils.dumbSignUp(requireContext(), email)
                             .thenRun(resPair -> {
