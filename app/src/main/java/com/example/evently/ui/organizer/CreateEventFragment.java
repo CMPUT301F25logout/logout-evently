@@ -174,11 +174,6 @@ public class CreateEventFragment extends Fragment {
                 return;
             }
 
-            btnCreate.setIcon(new LoadingIndicator(requireContext()).getDrawable());
-            btnCreate.setText(null);
-            btnCreate.setIconPadding(0);
-            btnCreate.setIconGravity(MaterialButton.ICON_GRAVITY_TEXT_START);
-
             final var selectionDeadline = LocalDate.parse(selectionDeadlineTxt, DATE_FORMATTER);
             final var eventDate = LocalDate.parse(eventDateTxt, DATE_FORMATTER);
             final var eventTime = LocalTime.parse(eventTimeTxt, TIME_FORMATTER);
@@ -226,6 +221,11 @@ public class CreateEventFragment extends Fragment {
 
             btnCreate.setEnabled(false);
 
+            btnCreate.setIcon(new LoadingIndicator(requireContext()).getDrawable());
+            btnCreate.setText(null);
+            btnCreate.setIconPadding(0);
+            btnCreate.setIconGravity(MaterialButton.ICON_GRAVITY_TEXT_START);
+
             EventsDB eventsDB = new EventsDB();
 
             // Gets the upload promise if an image has been selected through the photo picker.
@@ -242,6 +242,8 @@ public class CreateEventFragment extends Fragment {
                     })
                     .catchE(e -> {
                         btnCreate.setEnabled(true);
+                        btnCreate.setIcon(null);
+                        btnCreate.setText("Create");
                         toast("Failed to save event. Try again.");
                     });
         });
