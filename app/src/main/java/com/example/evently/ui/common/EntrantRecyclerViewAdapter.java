@@ -1,7 +1,10 @@
 package com.example.evently.ui.common;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,20 +28,20 @@ public class EntrantRecyclerViewAdapter
         void onRemoveButtonClick(String email);
     }
 
-    private final List<String> entrants;
+    private final Map<String, String> entrants;
     private boolean showRemoveButton = false;
     private OnRemoveButtonClickListener removeButtonListener = ignored -> {};
 
     public EntrantRecyclerViewAdapter() {
-        this.entrants = new ArrayList<>();
+        this.entrants = new HashMap<>();
     }
 
-    public EntrantRecyclerViewAdapter(List<String> entrants) {
+    public EntrantRecyclerViewAdapter(Map<String, String> entrants) {
         this.entrants = entrants;
     }
 
     public EntrantRecyclerViewAdapter(
-            List<String> entrants, boolean showRemoveButton, OnRemoveButtonClickListener listener) {
+            Map<String, String> entrants, boolean showRemoveButton, OnRemoveButtonClickListener listener) {
         this.entrants = entrants;
         this.showRemoveButton = showRemoveButton;
         this.removeButtonListener = listener;
@@ -69,7 +72,9 @@ public class EntrantRecyclerViewAdapter
         var binding = holder.binding;
 
         // Define the names
-        String name = entrants.get(position);
+        String email = entrants.keySet().stream().collect(Collectors.toList()).get(position);
+        String name = entrants.get(email);
+
 
         // Set the name of each person
         binding.entrantName.setText(name);
@@ -80,20 +85,7 @@ public class EntrantRecyclerViewAdapter
         }
 
         // Sets Onclick listener for the remove button
-        binding.removeButton.setOnClickListener(v -> {
-
-            // The following line of code is from Google, Gemini 3 Pro
-            // "I have a recycler view adapter, and I am removing items from the recycler view
-            // when a button within each recycler view item is clicked.
-            //
-            // I am currently trying to fix the remove button from my binding. The first clicked
-            // item is deleting, but then when another item is clicked, it is removing an item
-            // other than the one I clicked. How to fix this?", 2025-11-30
-            int current_pos = holder.getBindingAdapterPosition();
-            String email = entrants.get(current_pos);
-
-            removeButtonListener.onRemoveButtonClick(email);
-        });
+        binding.removeButton.setOnClickListener(v -> removeButtonListener.onRemoveButtonClick(email));
     }
 
     @Override

@@ -1,6 +1,9 @@
 package com.example.evently.ui.common;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import android.content.Context;
@@ -68,7 +71,7 @@ public abstract sealed class EntrantsFragment extends Fragment
             final var selectedEntrantList = selectEntrantList(eventEntrants);
             new AccountDB().fetchAccounts(selectedEntrantList).thenRun(accounts -> {
                 final var accountNames =
-                        accounts.stream().map(Account::name).collect(Collectors.toList());
+                        accounts.stream().map(acc -> Map.entry(acc.email(), acc.name())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
                 final var adapter = new EntrantRecyclerViewAdapter(
                         accountNames, showRemoveButton, this::cancelEntrant);
                 recyclerView.swapAdapter(adapter, false);
