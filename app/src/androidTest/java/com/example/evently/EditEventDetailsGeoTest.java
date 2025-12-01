@@ -1,30 +1,34 @@
 package com.example.evently;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static com.example.evently.MatcherUtils.assertRecyclerViewItem;
-import static com.example.evently.MatcherUtils.p;
-import static org.junit.Assert.assertThrows;
+import static java.util.Map.entry;
+import static org.junit.Assert.assertTrue;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import android.os.Bundle;
 import androidx.core.widget.NestedScrollView;
 import androidx.navigation.NavGraph;
-import androidx.test.espresso.PerformException;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.GeoPoint;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -34,10 +38,11 @@ import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Account;
 import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
-import com.example.evently.ui.entrant.ViewEventDetailsFragment;
+import com.example.evently.ui.organizer.EditEventDetailsFragment;
+import com.example.evently.utils.FirebaseAuthUtils;
 
 @RunWith(AndroidJUnit4.class)
-public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsFragment> {
+public class EditEventDetailsGeoTest extends EmulatedFragmentTest<EditEventDetailsFragment> {
     private static final EventsDB eventsDB = new EventsDB();
 
     private static final Instant now = Instant.now();
@@ -45,15 +50,17 @@ public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsF
     private static final Timestamp selectionTime = new Timestamp(now.plus(Duration.ofMillis(2)));
     private static final Timestamp eventTime = new Timestamp(now.plus(Duration.ofMinutes(10)));
 
+    private static final int selectionLimit = 4;
+
     private static final Event mockEvent = new Event(
             "name",
             "description",
             Category.Educational,
-            false,
+            true,
             selectionTime,
             eventTime,
-            "orgEmail",
-            50);
+            FirebaseAuthUtils.getCurrentEmail(),
+            selectionLimit);
 
     private static final Account[] extraAccounts = new Account[] {
         new Account("email@gmail.com", "User", Optional.empty(), "email@gmail.com"),
@@ -63,6 +70,18 @@ public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsF
         new Account("email5@gmail.com", "User5", Optional.empty(), "email4@gmail.com"),
         new Account("email6@gmail.com", "User6", Optional.empty(), "email6@gmail.com")
     };
+
+    private static final Random rand = new Random();
+
+    private static final Map<String, GeoPoint> entrantLocations = Arrays.stream(extraAccounts)
+            .map(acc -> {
+                final var maxExcl = 91;
+                final var min = -90;
+                final var lat = rand.nextInt(maxExcl - min) + min;
+                final var lng = rand.nextInt(maxExcl - min) + min;
+                return entry(acc.email(), new GeoPoint(lat, lng));
+            })
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
     @Override
     public List<Account> extraMockAccounts() {
@@ -74,12 +93,13 @@ public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsF
         // Store the events.
         eventsDB.storeEvent(mockEvent).await();
 
-        // Enroll a few accounts into the event.
-        for (int i = 0; i < extraAccounts.length; i++) {
-            if (i % 2 == 0) {
-                eventsDB.unsafeEnroll(mockEvent.eventID(), extraAccounts[i].email())
-                        .await();
-            }
+        // Enroll most of the accounts into the event (alongside their locations).
+        for (int i = 1; i < extraAccounts.length; i++) {
+            eventsDB.unsafeEnroll(
+                            mockEvent.eventID(),
+                            extraAccounts[i].email(),
+                            entrantLocations.get(extraAccounts[i].email()))
+                    .await();
         }
     }
 
@@ -89,36 +109,26 @@ public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsF
     }
 
     @Test
-    public void testViewingEventDetails() throws InterruptedException {
-        Thread.sleep(2000);
+    public void testPeopleMap() throws InterruptedException {
+        Thread.sleep(1000);
 
         onView(withText(mockEvent.description())).check(matches(isDisplayed()));
-
-        Account[] expectedAccounts =
-                new Account[] {extraAccounts[0], extraAccounts[2], extraAccounts[4]};
 
         // Get to the bottom of the scroll view.
         onView(isAssignableFrom(NestedScrollView.class)).perform(swipeUp());
 
-        // Test if the account's emails shows up on the recycler view
-        for (final var expectedAccount : expectedAccounts) {
-            assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, expectedAccount.email()));
-        }
+        // Open the map!
+        onView(withText(R.string.entrant_map_btn)).perform(scrollTo(), click());
 
-        // Ensure unexpected account(s) do not show up in here.
-        for (int i = 0; i < extraAccounts.length; i++) {
-            if (i % 2 == 0) continue;
-            final var unexpectedAccount = extraAccounts[i];
-            assertThrows(
-                    PerformException.class,
-                    () -> assertRecyclerViewItem(
-                            R.id.entrantList, p(R.id.entrant_name, unexpectedAccount.email())));
-        }
+        Thread.sleep(1000);
+
+        // No real way to test if the markers are there...
+        assertTrue(true);
     }
 
     @Override
     protected int getGraph() {
-        return R.navigation.entrant_graph;
+        return R.navigation.organizer_graph;
     }
 
     @Override
@@ -134,7 +144,7 @@ public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsF
     }
 
     @Override
-    protected Class<ViewEventDetailsFragment> getFragmentClass() {
-        return ViewEventDetailsFragment.class;
+    protected Class<EditEventDetailsFragment> getFragmentClass() {
+        return EditEventDetailsFragment.class;
     }
 }

@@ -12,31 +12,29 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
-import com.example.evently.databinding.FragmentEventPeopleBinding;
+import com.example.evently.databinding.FragmentEventMetaBinding;
 
 /**
  * Fragment that displays the tabs for event participants:
- * Enrolled, Cancelled, and Selected.
+ * Enrolled, Selected, Accepted, and Cancelled.
  * Uses ViewPager2 and TabLayout.
  */
-public class EventPeopleFragment extends Fragment {
+public class EventMetaFragment extends Fragment {
 
-    private FragmentEventPeopleBinding binding;
+    private FragmentEventMetaBinding binding;
 
     @Nullable @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
-        binding = FragmentEventPeopleBinding.inflate(getLayoutInflater(), container, false);
+        binding = FragmentEventMetaBinding.inflate(getLayoutInflater(), container, false);
 
         return binding.getRoot();
     }
@@ -47,10 +45,11 @@ public class EventPeopleFragment extends Fragment {
 
         final TabLayout tabLayout = binding.eventPeopleTabLayout;
         final ViewPager2 viewPager = binding.eventPeopleViewPager;
+        // This is to prevent "swipe" inputs from being eaten up as tab switches.
+        // The horizontal swipes need to be handled by google maps fragment itself, not viewpager.
+        viewPager.setUserInputEnabled(false);
 
-        // Must use parent fragment manager so that the children tabs will have access to
-        // viewmodel...
-        viewPager.setAdapter(new EventPeopleAdapter(getParentFragmentManager(), getLifecycle()));
+        viewPager.setAdapter(new EventPeopleAdapter(requireParentFragment()));
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
                     switch (position) {
@@ -68,23 +67,20 @@ public class EventPeopleFragment extends Fragment {
      */
     private static class EventPeopleAdapter extends FragmentStateAdapter {
 
-        public EventPeopleAdapter(
-                @NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
-            super(fragmentManager, lifecycle);
+        public EventPeopleAdapter(@NonNull Fragment fragment) {
+            super(fragment);
         }
 
         @NonNull @Override
         public Fragment createFragment(int position) {
-            final var frag =
-                    switch (position) {
-                        case 0 -> new EnrolledEntrantsFragment();
-                        case 1 -> new SelectedEntrantsFragment();
-                        case 2 -> new AcceptedEntrantsFragment();
-                        case 3 -> new CancelledEntrantsFragment();
-                        // This should never happen. See getItemCount.
-                        default -> new Fragment();
-                    };
-            return frag;
+            return switch (position) {
+                case 0 -> new EnrolledEntrantsFragment();
+                case 1 -> new SelectedEntrantsFragment();
+                case 2 -> new AcceptedEntrantsFragment();
+                case 3 -> new CancelledEntrantsFragment();
+                // This should never happen. See getItemCount.
+                default -> new Fragment();
+            };
         }
 
         @Override

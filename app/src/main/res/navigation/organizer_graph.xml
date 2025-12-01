@@ -32,6 +32,9 @@
         <argument
             android:name="eventID"
             app:argType="java.util.UUID" />
+        <action
+            android:id="@+id/action_event_details_to_nav_thread"
+            app:destination="@id/nav_thread" />
     </fragment>
 
     <fragment
@@ -62,4 +65,12 @@
             android:name="channel"
             app:argType="string" />
     </fragment>
+
+    <fragment
+        android:id="@+id/nav_account"
+        android:name="com.example.evently.ui.common.EditProfileFragment"
+        android:label="Account"
+        tools:layout="@layout/fragment_edit_profile">
+    </fragment>
+
 </navigation>

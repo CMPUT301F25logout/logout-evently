@@ -82,6 +82,7 @@ public class RegisterFragment extends Fragment {
 
         // Setting it in XML doesn't work for some reason. Must set it programmatically.
         registerBtn.setEnabled(false);
+        binding.dumbRegister.setEnabled(false);
 
         // Responsive validation using text changed listeners.
         var afterTextChangedListener = new TextWatcher() {
@@ -98,6 +99,7 @@ public class RegisterFragment extends Fragment {
             @Override
             public void afterTextChanged(Editable s) {
                 registerBtn.setEnabled(validateInputs());
+                binding.dumbRegister.setEnabled(validateInputs());
             }
         };
         nameEditText.addTextChangedListener(afterTextChangedListener);
@@ -116,7 +118,6 @@ public class RegisterFragment extends Fragment {
         });
 
         binding.dumbRegister.setOnClickListener(v -> {
-            loadingProgressBar.setVisibility(View.VISIBLE);
             dumbRegister();
         });
     }
@@ -143,6 +144,7 @@ public class RegisterFragment extends Fragment {
                 ConfirmFragmentTextInput.requestKey, this, (requestKey, result) -> {
                     final var email = result.getString(ConfirmFragmentTextInput.inputKey);
                     assert email != null;
+                    loadingProgressBar.setVisibility(View.VISIBLE);
 
                     FirebaseAuthUtils.dumbSignUp(requireContext(), email)
                             .thenRun(resPair -> {

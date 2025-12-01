@@ -52,7 +52,8 @@ public class ViewThreadNotificationsTest
     private static final Event myEvent = new Event(
             "name",
             "description",
-            Category.EDUCATIONAL,
+            Category.Educational,
+            false,
             selectionTime,
             eventTime,
             mockAccount.email(),
@@ -60,7 +61,8 @@ public class ViewThreadNotificationsTest
     private static final Event notMyEvent = new Event(
             "name",
             "description",
-            Category.EDUCATIONAL,
+            Category.Educational,
+            false,
             selectionTime,
             eventTime,
             "some other email",
