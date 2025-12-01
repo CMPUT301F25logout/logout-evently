@@ -1,5 +1,6 @@
 package com.example.evently.ui.entrant;
 
+import java.time.Instant;
 import java.util.Arrays;
 
 import android.Manifest;
@@ -101,6 +102,11 @@ public class EntrantEventActionsFragment extends Fragment {
                         .show());
 
         eventViewModel.getEventLive().observe(getViewLifecycleOwner(), event -> {
+            if (event.selectionTime().toInstant().isBefore(Instant.now())) {
+                binding.waitlistAction.setEnabled(false);
+                binding.waitlistAction.setText(R.string.expired_btn_text);
+                return;
+            }
             requireLocation = event.requiresLocation();
             if (event.isFull()) {
                 // Disable the button if the waitlist is already full
