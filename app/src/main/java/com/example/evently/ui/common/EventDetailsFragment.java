@@ -117,10 +117,13 @@ public abstract class EventDetailsFragment<E extends Fragment, A extends Fragmen
         String seatLimit = String.valueOf(event.selectionLimit());
         binding.seatsText.setText(seatLimit);
 
-        // Formats the date, and stores it in the selection date text
-        String formattedDate =
+        // Formats the dates, and stores it in the relevant sections
+        String selectedTime =
                 EVENT_DATE_TIME_FORMATTER.format(event.selectionTime().toInstant());
-        binding.selectionDateText.setText(formattedDate);
+        String eventTime =
+                EVENT_DATE_TIME_FORMATTER.format(event.eventTime().toInstant());
+        binding.selectionDateText.setText(selectedTime);
+        binding.eventDateTime.setText(eventTime);
 
         eventID = event.eventID();
 

@@ -8,6 +8,7 @@
     tools:context=".ui.common.EventDetailsFragment">
 
     <!-- Event Image Card -->
+
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/eventImageCard"
         android:layout_width="0dp"
@@ -72,31 +73,27 @@
         android:id="@+id/organizerText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="2dp"
         android:text="@string/organizer"
-        app:layout_constraintStart_toEndOf="@id/accountIcon"
-        app:layout_constraintTop_toBottomOf="@id/eventName" />
+        app:layout_constraintEnd_toEndOf="@+id/selectionDateTitleText"
+        app:layout_constraintTop_toTopOf="@+id/accountIcon" />
 
     <TextView
         android:id="@+id/organizerInput"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintStart_toEndOf="@id/organizerText"
-        app:layout_constraintTop_toBottomOf="@id/eventName" />
+        app:layout_constraintStart_toStartOf="@+id/selectionDateText"
+        app:layout_constraintTop_toTopOf="@+id/organizerText" />
 
     <ImageView
         android:id="@+id/dateTimeIcon"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="4dp"
+        android:layout_marginTop="4dp"
         android:contentDescription="@string/event_date_icon"
         android:src="@drawable/ic_event_time"
-        app:layout_constraintEnd_toStartOf="@+id/dateTimeText"
-        app:layout_constraintTop_toBottomOf="@+id/eventName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/accountIcon"
         app:tint="?attr/colorOnSurface" />
 
     <TextView
@@ -108,54 +105,54 @@
         app:layout_constraintTop_toBottomOf="@+id/eventName" />
 
     <!-- Event Meta Info Row 2 -->
+
+    <!-- Description Card -->
+
     <TextView
         android:id="@+id/selectionDateTitleText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="2dp"
         android:text="@string/event_selection_header"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/accountIcon" />
+        app:layout_constraintStart_toEndOf="@+id/dateTimeIcon"
+        app:layout_constraintTop_toTopOf="@+id/dateTimeIcon" />
 
     <TextView
         android:id="@+id/selectionDateText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
+        android:layout_marginStart="12dp"
         app:layout_constraintStart_toEndOf="@id/selectionDateTitleText"
-        app:layout_constraintTop_toBottomOf="@+id/accountIcon" />
+        app:layout_constraintTop_toTopOf="@+id/selectionDateTitleText" />
 
     <TextView
         android:id="@+id/seatsTitleText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_width="37dp"
+        android:layout_height="21dp"
+        android:layout_marginEnd="8dp"
         android:text="@string/event_seats_header"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.1"
-        app:layout_constraintStart_toEndOf="@+id/selectionDateText"
-        app:layout_constraintTop_toBottomOf="@+id/accountIcon" />
-
-    <!-- Description Card -->
+        app:layout_constraintEnd_toStartOf="@+id/seatsText"
+        app:layout_constraintTop_toTopOf="@+id/dateTimeIcon" />
 
     <TextView
         android:id="@+id/seatsText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        app:layout_constraintStart_toEndOf="@id/seatsTitleText"
-        app:layout_constraintTop_toBottomOf="@+id/accountIcon" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/seatsTitleText" />
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/descriptionCard"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:padding="16dp"
         app:cardCornerRadius="12dp"
         app:cardElevation="2dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/selectionDateText">
+        app:layout_constraintTop_toBottomOf="@+id/dateTimeIcon2"
+        android:layout_marginTop="3dp">
 
         <TextView
             android:id="@+id/eventDescription"
@@ -163,6 +160,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="16dp" />
+
     </com.google.android.material.card.MaterialCardView>
 
     <!-- Action Buttons Group -->
@@ -236,5 +234,32 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/entrantListTitle" />
+
+    <TextView
+        android:id="@+id/eventDateTimeTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="Event Date:"
+        app:layout_constraintEnd_toEndOf="@+id/selectionDateTitleText"
+        app:layout_constraintTop_toTopOf="@+id/dateTimeIcon2" />
+
+    <ImageView
+        android:id="@+id/dateTimeIcon2"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginTop="4dp"
+        android:contentDescription="@string/event_date_icon"
+        android:src="@drawable/ic_event_time"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dateTimeIcon"
+        app:tint="?attr/colorOnSurface" />
+
+    <TextView
+        android:id="@+id/eventDateTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@+id/selectionDateText"
+        app:layout_constraintTop_toTopOf="@+id/eventDateTimeTitle" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
