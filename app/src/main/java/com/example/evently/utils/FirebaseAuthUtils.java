@@ -108,18 +108,27 @@ public final class FirebaseAuthUtils {
             Activity activity, OnSuccessListener<Void> onSuccess, Consumer<Exception> onException) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         AccountDB accountDB = new AccountDB();
-        if (user == null)
+        if (user == null) {
             throw new RuntimeException(
                     "Delete account error: user is Null"); // This shouldn't happen
+        }
+
+        if (isDumbAccount()) {
+            // No need to reauth for device ID account.
+            accountDB.deleteAccount(getCurrentEmail()).thenRun(ignored -> user.delete()
+                    .addOnSuccessListener(onSuccess)
+                    .addOnFailureListener(onException::accept));
+        }
 
         requestGoogleCredential(
                 activity,
                 token -> user.reauthenticate(GoogleAuthProvider.getCredential(token, null))
                         .addOnSuccessListener(task -> {
-                            accountDB.deleteAccount(getCurrentEmail());
-                            user.delete()
-                                    .addOnSuccessListener(onSuccess)
-                                    .addOnFailureListener(onException::accept);
+                            accountDB
+                                    .deleteAccount(getCurrentEmail())
+                                    .thenRun(ignored -> user.delete()
+                                            .addOnSuccessListener(onSuccess)
+                                            .addOnFailureListener(onException::accept));
                         })
                         .addOnFailureListener(onException::accept),
                 onException);
