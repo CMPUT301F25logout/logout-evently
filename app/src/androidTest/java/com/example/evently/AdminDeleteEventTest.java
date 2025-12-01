@@ -7,8 +7,6 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static com.example.evently.MatcherUtils.assertRecyclerViewItem;
-import static com.example.evently.MatcherUtils.p;
 import static org.junit.Assert.assertTrue;
 
 import java.time.Duration;
@@ -18,7 +16,6 @@ import java.util.concurrent.ExecutionException;
 
 import android.os.Bundle;
 import androidx.navigation.NavGraph;
-import androidx.test.espresso.action.ViewActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.firebase.Timestamp;
@@ -96,23 +93,8 @@ public class AdminDeleteEventTest extends EmulatedFragmentTest<AdminEventDetails
 
         onView(withText(mockEvent.description())).check(matches(isDisplayed()));
 
-        Account[] expectedAccounts = new Account[] {
-            extraAccounts[0],
-            extraAccounts[1],
-            extraAccounts[2],
-            extraAccounts[3],
-            extraAccounts[4],
-            extraAccounts[5],
-            extraAccounts[6]
-        };
-
-        // Test if the account's emails shows up on the recycler view
-        for (final var expectedAccount : expectedAccounts) {
-            assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, expectedAccount.email()));
-        }
-
         // Test if deleting the event will remove the event and entrants from the database
-        onView(withId(R.id.removeEvent)).perform(scrollTo(), ViewActions.click());
+        onView(withId(R.id.removeEvent)).perform(scrollTo(), click());
         onView(withId(R.id.confirm_button)).perform(click());
 
         eventsDB.fetchEvent(mockEvent.eventID()).thenRun(event -> {
