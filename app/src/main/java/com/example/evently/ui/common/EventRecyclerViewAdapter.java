@@ -82,7 +82,17 @@ public class EventRecyclerViewAdapter
         // Gets a reference to the poster, and stores it in the image view.
         StorageReference posterReference =
                 new EventsDB().getPosterStorageRef(holder.mItem.eventID());
-        GlideUtils.loadPosterIntoImageView(posterReference, binding.imgPoster);
+        posterReference
+                .getMetadata()
+                .addOnSuccessListener(metadata -> {
+                    // Event image exists, set image visible and display it
+                    binding.imgPoster.setVisibility(android.view.View.VISIBLE);
+                    GlideUtils.loadPosterIntoImageView(posterReference, binding.imgPoster);
+                })
+                .addOnFailureListener(e -> {
+                    // Event image does NOT exist, do nothing
+                    ;
+                });
 
         // Status + selectionDate
         EventStatus status = holder.mItem.computeStatus(Instant.now());
@@ -100,7 +110,6 @@ public class EventRecyclerViewAdapter
                 binding.txtselectionDate.setText("Waitlist closed");
             }
         }
-        binding.txtselectionDate.setVisibility(android.view.View.VISIBLE);
 
         // Event date
         binding.txtDate.setText(
@@ -108,6 +117,29 @@ public class EventRecyclerViewAdapter
 
         // Details button with given click logic.
         binding.btnDetails.setOnClickListener(v -> onEventClick.accept(holder.mItem));
+
+        // Event description
+        binding.txtDescription.setText(holder.mItem.description());
+
+        // Event category
+        binding.txtCategory.setText(holder.mItem.category().toString());
+
+        // Entrants count
+        EventsDB db = new EventsDB();
+        db.fetchEventEntrants(holder.mItem.eventID()).thenRun(eventEntrants -> {
+            Integer entrants = eventEntrants.get().all().size();
+            if (holder.mItem.optionalEntrantLimit().isEmpty()) {
+                binding.txtEntrants.setText(MessageFormat.format("{0} Entrants", entrants));
+            } else {
+                binding.txtEntrants.setText(MessageFormat.format(
+                        "{0} / {1} Entrants",
+                        entrants, holder.mItem.optionalEntrantLimit().get()));
+            }
+        });
+
+        // Selection Limit
+        binding.txtSelectionLimit.setText(
+                MessageFormat.format("Seats: {0}", holder.mItem.selectionLimit()));
     }
 
     /**
