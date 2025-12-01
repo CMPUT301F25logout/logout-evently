@@ -52,7 +52,7 @@ public class ViewEventDetailsWithLimitTest extends EmulatedFragmentTest<ViewEven
     private static final Event mockEvent = new Event(
             "name",
             "description",
-            Category.EDUCATIONAL,
+            Category.Educational,
             false,
             selectionTime,
             eventTime,
