@@ -2,7 +2,9 @@ package com.example.evently;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -16,6 +18,8 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import android.os.Bundle;
+
+import androidx.core.widget.NestedScrollView;
 import androidx.navigation.NavGraph;
 import androidx.test.espresso.action.ViewActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -110,6 +114,9 @@ public class AdminDeleteEventTest extends EmulatedFragmentTest<AdminEventDetails
         for (final var expectedAccount : expectedAccounts) {
             assertRecyclerViewItem(R.id.entrantList, p(R.id.entrant_name, expectedAccount.email()));
         }
+
+        // Get to the bottom of the scroll view.
+        onView(isAssignableFrom(NestedScrollView.class)).perform(swipeUp());
 
         // Test if deleting the event will remove the event and entrants from the database
         onView(withId(R.id.removeEvent)).perform(ViewActions.click());

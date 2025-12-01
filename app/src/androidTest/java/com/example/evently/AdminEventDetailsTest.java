@@ -2,7 +2,9 @@ package com.example.evently;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.example.evently.MatcherUtils.assertRecyclerViewItem;
@@ -17,6 +19,8 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import android.os.Bundle;
+
+import androidx.core.widget.NestedScrollView;
 import androidx.navigation.NavGraph;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -113,6 +117,9 @@ public class AdminEventDetailsTest extends EmulatedFragmentTest<AdminEventDetail
 
         onView(withText(mockEvent.description())).check(matches(isDisplayed()));
 
+        // Get to the bottom of the scroll view.
+        onView(isAssignableFrom(NestedScrollView.class)).perform(swipeUp());
+
         Account[] expectedAccounts = new Account[] {
             extraAccounts[0],
             extraAccounts[1],
@@ -137,6 +144,9 @@ public class AdminEventDetailsTest extends EmulatedFragmentTest<AdminEventDetail
             extraAccounts[0], extraAccounts[1], extraAccounts[2], extraAccounts[3], extraAccounts[4]
         };
 
+        // Get to the bottom of the scroll view.
+        onView(isAssignableFrom(NestedScrollView.class)).perform(swipeUp());
+
         // Select selected on the tab layout
         onView(withText("Selected")).perform(click());
 
@@ -154,6 +164,9 @@ public class AdminEventDetailsTest extends EmulatedFragmentTest<AdminEventDetail
 
         Account[] expectedAccounts = new Account[] {extraAccounts[1], extraAccounts[3]};
 
+        // Get to the bottom of the scroll view.
+        onView(isAssignableFrom(NestedScrollView.class)).perform(swipeUp());
+
         // Select accepted on the tab layout
         onView(withText("Accepted")).perform(click());
 
@@ -170,6 +183,9 @@ public class AdminEventDetailsTest extends EmulatedFragmentTest<AdminEventDetail
         Thread.sleep(2000);
 
         Account[] expectedAccounts = new Account[] {extraAccounts[5], extraAccounts[6]};
+
+        // Get to the bottom of the scroll view.
+        onView(isAssignableFrom(NestedScrollView.class)).perform(swipeUp());
 
         // Select cancelled on the tab layout
         onView(withText("Cancelled")).perform(click());
