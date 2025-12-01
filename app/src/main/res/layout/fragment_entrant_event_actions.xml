@@ -7,14 +7,6 @@
     tools:context=".ui.entrant.EntrantEventActionsFragment">
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/lotteryGuidelinesButton"
-        style="?attr/materialButtonOutlinedStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/lottery_guidelines_button"
-        app:materialSizeOverlay="@style/SizeOverlay.Material3Expressive.Button.Xsmall"/>
-
-    <com.google.android.material.button.MaterialButton
         android:id="@+id/waitlistAction"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -22,5 +14,13 @@
         android:enabled="false" />
 
     <include android:id="@+id/util_share_btn" layout="@layout/util_share_btn" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/lotteryGuidelinesButton"
+        style="?attr/borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="11sp"
+        android:text="@string/lottery_guidelines_button" />
 
 </com.google.android.material.button.MaterialButtonGroup>
