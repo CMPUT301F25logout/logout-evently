@@ -81,7 +81,7 @@ public final class FirebaseAuthUtils {
         // Assumption: Each account is linked to only one provider.
         return Objects.requireNonNull(auth.getCurrentUser())
                 .getProviderData()
-                .get(0)
+                .get(1)
                 .getProviderId()
                 .equals(EmailAuthProvider.PROVIDER_ID);
     }
@@ -118,6 +118,7 @@ public final class FirebaseAuthUtils {
             accountDB.deleteAccount(getCurrentEmail()).thenRun(ignored -> user.delete()
                     .addOnSuccessListener(onSuccess)
                     .addOnFailureListener(onException::accept));
+            return;
         }
 
         requestGoogleCredential(
