@@ -24,11 +24,22 @@
             app:icon="@drawable/m3_split_button_chevron_avd" />
     </com.google.android.material.button.MaterialSplitButton>
 
+    <com.google.android.material.button.MaterialButton
+        style="?attr/materialButtonTonalStyle"
+        android:id="@+id/open_map"
+        android:text="@string/entrant_map_btn"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="8dp"/>
+
     <include
         android:id="@+id/util_share_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
+        android:layout_marginStart="8dp"
         layout="@layout/util_share_btn" />
 
     <com.google.android.material.button.MaterialButton

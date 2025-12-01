@@ -84,19 +84,19 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Category Picker -->
-        <TextView
-            android:id="@+id/tvCategoryLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="10dp"
-            android:text="@string/create_event_category_label" />
-
-        <Spinner
-            android:id="@+id/spCategory"
+        <com.google.android.material.textfield.TextInputLayout
+            style="?attr/textInputOutlinedExposedDropdownMenuStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:drawable/edit_text"
-            android:spinnerMode="dropdown" />
+            android:hint="@string/create_event_category_label">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/spCategory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none" />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Waiting List Limit -->
         <com.google.android.material.textfield.TextInputLayout
