@@ -2,6 +2,7 @@ package com.example.evently;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
@@ -36,7 +37,7 @@ public final class MaterialDateTimeUtils {
         final var targetMonth =
                 targetDate.getMonth().getDisplayName(TextStyle.FULL_STANDALONE, Locale.ENGLISH);
         // This should open the selection date picker
-        onView(withId(res)).perform(click());
+        onView(withId(res)).perform(scrollTo(), click());
         final var targetDay =
                 targetDate.getDayOfWeek().getDisplayName(TextStyle.FULL_STANDALONE, Locale.ENGLISH);
 
@@ -71,7 +72,7 @@ public final class MaterialDateTimeUtils {
      */
     public static LocalTime selectTimeInAM(@IdRes int res, int hour, int minute) {
         // This should open the selection date picker
-        onView(withId(res)).perform(click());
+        onView(withId(res)).perform(scrollTo(), click());
         // Fill in the time part
         onView(withContentDescription(hour + " o'clock")) // e.g 12 o'clock
                 .inRoot(isDialog())
