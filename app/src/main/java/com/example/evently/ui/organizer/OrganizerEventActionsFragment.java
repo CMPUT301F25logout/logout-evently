@@ -23,7 +23,6 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Notification;
 import com.example.evently.databinding.FragmentOrganizerEventActionsBinding;
-import com.example.evently.ui.common.EventQRDialogFragment;
 import com.example.evently.ui.model.EventViewModel;
 
 /**
@@ -84,14 +83,6 @@ public class OrganizerEventActionsFragment extends Fragment {
             if (ev.requiresLocation()) {
                 binding.openMap.setVisibility(View.VISIBLE);
             }
-        });
-
-        binding.utilShareBtn.shareBtn.setOnClickListener(v -> {
-            final var qrDialog = new EventQRDialogFragment();
-            final var bundle = new Bundle();
-            bundle.putSerializable("eventID", eventViewModel.eventID);
-            qrDialog.setArguments(bundle);
-            qrDialog.show(getChildFragmentManager(), "QR_DIALOG");
         });
 
         binding.openMap.setOnClickListener(
