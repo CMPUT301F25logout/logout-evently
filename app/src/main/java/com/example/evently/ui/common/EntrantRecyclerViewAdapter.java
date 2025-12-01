@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.evently.data.AccountDB;
 import com.example.evently.databinding.FragmentEntrantBinding;
 
 /**
@@ -72,7 +73,8 @@ public class EntrantRecyclerViewAdapter
         String name = entrants.get(position);
 
         // Set the name of each person
-        binding.entrantName.setText(name);
+        new AccountDB().fetchAccount(name).optionally(account ->
+                binding.entrantName.setText(account.name()));
 
         // If we need to have the remove button, it is shown
         if (showRemoveButton) {
