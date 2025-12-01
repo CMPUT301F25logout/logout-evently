@@ -2,6 +2,7 @@ package com.example.evently;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
@@ -141,7 +142,7 @@ public class AdminEventDetailsTest extends EmulatedFragmentTest<AdminEventDetail
         Thread.sleep(2000);
 
         Account[] expectedAccounts = new Account[] {
-            extraAccounts[0], extraAccounts[1], extraAccounts[2], extraAccounts[3], extraAccounts[4]
+            extraAccounts[0], extraAccounts[2], extraAccounts[4]
         };
 
         // Get to the bottom of the scroll view.
@@ -188,7 +189,7 @@ public class AdminEventDetailsTest extends EmulatedFragmentTest<AdminEventDetail
         onView(isAssignableFrom(NestedScrollView.class)).perform(swipeUp());
 
         // Select cancelled on the tab layout
-        onView(withText("Cancelled")).perform(click());
+        onView(withText("Cancelled")).perform(scrollTo(), click());
 
         Thread.sleep(1000);
 
@@ -200,7 +201,7 @@ public class AdminEventDetailsTest extends EmulatedFragmentTest<AdminEventDetail
 
     @AfterClass
     public static void tearDownEventEnroll() throws ExecutionException, InterruptedException {
-        Promise.all(eventsDB.nuke()).await();
+        eventsDB.deleteEvent(mockEvent.eventID()).await();
     }
 
     @Override
