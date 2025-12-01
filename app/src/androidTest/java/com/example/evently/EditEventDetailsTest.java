@@ -48,6 +48,9 @@ import com.example.evently.utils.FirebaseAuthUtils;
 
 @RunWith(AndroidJUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
+/**
+ * Test viewing the event details from the organizer view of the browse events
+ */
 public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsFragment> {
     private static final EventsDB eventsDB = new EventsDB();
 

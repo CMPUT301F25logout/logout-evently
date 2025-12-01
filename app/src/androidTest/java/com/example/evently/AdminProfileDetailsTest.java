@@ -15,6 +15,9 @@ import org.junit.runner.RunWith;
 import com.example.evently.ui.admin.ViewProfileDetailsFragment;
 
 @RunWith(AndroidJUnit4.class)
+/**
+ * TESTS for admin viewing the profile details from the admin view of the browse profiles
+ */
 public class AdminProfileDetailsTest extends EmulatedFragmentTest<ViewProfileDetailsFragment> {
 
     @Test

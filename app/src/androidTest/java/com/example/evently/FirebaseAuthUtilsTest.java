@@ -10,6 +10,9 @@ import org.junit.Test;
 
 import com.example.evently.utils.FirebaseAuthUtils;
 
+/**
+ * Tests for FirebaseAuthUtils
+ */
 public class FirebaseAuthUtilsTest extends FirebaseEmulatorTest {
     /**
      * Tests that getCurrentEmail returns proper auth email

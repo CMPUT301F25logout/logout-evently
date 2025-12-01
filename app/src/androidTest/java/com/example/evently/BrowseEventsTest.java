@@ -30,11 +30,11 @@ import com.example.evently.data.model.Category;
 import com.example.evently.data.model.Event;
 import com.example.evently.ui.entrant.BrowseEventsFragment;
 
+@RunWith(AndroidJUnit4.class)
 /**
  * Test viewing the events in Browsing events
  * @author Vinson Lou
  */
-@RunWith(AndroidJUnit4.class)
 public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment> {
     private static final EventsDB eventsDB = new EventsDB();
 
