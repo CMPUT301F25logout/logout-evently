@@ -50,6 +50,7 @@
     <string name="notification_title">Notification Title</string>
     <string name="action_dumb_login">Sign in with Device ID</string>
     <string name="dumb_register_txt">Sign up with Device ID</string>
+    <string name="remove_selected_entrant_button">Remove Selected Entrant Button</string>
     <string name="filters_button_label">Filters</string>
     <string name="date_filters_header">Filter by Date range</string>
     <string name="date_filters_picker_helper">Pick a date range to filter events by. Only one side of the range is required!</string>

@@ -110,6 +110,7 @@ public record Notification(
         // The following line code is from Anthropic, Claude Sonnet 4.5:
         // Query: How to store a timestamp in Firebase? I currently
         // have an "Instant" object, and want to store it in a firestore.
+        // 2025-11-05
         Timestamp timestamp = new Timestamp(creationTime);
         hashMap.put("creationTime", timestamp);
 
