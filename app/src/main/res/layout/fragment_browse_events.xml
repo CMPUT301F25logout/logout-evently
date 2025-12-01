@@ -7,18 +7,6 @@
     android:orientation="vertical"
     tools:context=".ui.entrant.BrowseEventsFragment">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnBrowseFilters"
-        style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_weight="1"
-        android:text="@string/filters_button_label"
-        app:icon="@drawable/filter_list"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/filteredEventsContainer"
         android:name="com.example.evently.ui.entrant.FilteredEventsFragment"
@@ -28,5 +16,18 @@
         app:layout_goneMarginTop="8dp"
         app:layout_constraintEnd_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnBrowseFilters"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnBrowseFilters"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/filters_button_label"
+        app:srcCompat="@drawable/filter_list"
+        app:tint="@android:color/white"
+        app:backgroundTint="?attr/colorPrimary"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="8dp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
