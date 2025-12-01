@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,55 +7,58 @@
     android:padding="16dp"
     tools:context=".ui.common.EventDetailsFragment">
 
-    <!-- Event Image Card -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/eventImageCard"
-        android:layout_width="0dp"
-        android:layout_height="200dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="3dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        <!-- Event Image Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/eventImageCard"
+            android:layout_width="0dp"
+            android:layout_height="200dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="3dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/eventPicture"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:contentDescription="@string/event_image_description"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_share" />
-    </com.google.android.material.card.MaterialCardView>
+            <ImageView
+                android:id="@+id/eventPicture"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/event_image_description"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_share" />
+        </com.google.android.material.card.MaterialCardView>
 
-    <!-- Event Title -->
-    <TextView
-        android:id="@+id/eventName"
-        style="@style/TextAppearance.Material3.HeadlineMedium"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/eventImageCard" />
-
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/eventCategoryCard"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="3dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/eventImageCard">
-
+        <!-- Event Title -->
         <TextView
-            android:id="@+id/eventCategory"
+            android:id="@+id/eventName"
+            style="@style/TextAppearance.Material3.HeadlineMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/eventImageCard" />
+
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/eventCategoryCard"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:textStyle="italic" />
-    </com.google.android.material.card.MaterialCardView>
+            android:layout_marginTop="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="3dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/eventImageCard">
+
+            <TextView
+                android:id="@+id/eventCategory"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:textStyle="italic" />
+        </com.google.android.material.card.MaterialCardView>
 
     <!-- Event Meta Info Row 1 -->
     <ImageView
@@ -96,13 +99,13 @@
         app:layout_constraintTop_toBottomOf="@+id/accountIcon"
         app:tint="?attr/colorOnSurface" />
 
-    <TextView
-        android:id="@+id/dateTimeText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/eventName" />
+        <TextView
+            android:id="@+id/dateTimeText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/eventName" />
 
     <!-- Event Meta Info Row 2 -->
 
@@ -142,45 +145,43 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/seatsTitleText" />
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/descriptionCard"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="2dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dateTimeIcon2"
-        android:layout_marginTop="3dp">
-
-        <TextView
-            android:id="@+id/eventDescription"
-            style="@style/TextAppearance.Material3.BodyLarge"
-            android:layout_width="match_parent"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/descriptionCard"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:padding="16dp" />
+            android:layout_marginTop="12dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/selectionDateText">
 
-    </com.google.android.material.card.MaterialCardView>
+            <TextView
+                android:id="@+id/eventDescription"
+                style="@style/TextAppearance.Material3.BodyLarge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp" />
+        </com.google.android.material.card.MaterialCardView>
 
-    <!-- Action Buttons Group -->
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/actionButtonsContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/descriptionCard" />
+        <!-- Action Buttons Group -->
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/actionButtonsContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/descriptionCard" />
 
-    <!-- Entrants Title -->
-    <TextView
-        android:id="@+id/entrantListTitle"
-        style="@style/TextAppearance.Material3.HeadlineSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/event_entrants_header"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/actionButtonsContainer" />
+        <!-- Entrants Title -->
+        <TextView
+            android:id="@+id/entrantListTitle"
+            style="@style/TextAppearance.Material3.HeadlineSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/event_entrants_header"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/actionButtonsContainer" />
 
     <!-- Section to display the entrant limit and how much of it is filled (if limit exists) -->
     <LinearLayout
@@ -199,10 +200,10 @@
             android:layout_marginEnd="4dp"
             android:text="@string/entrant_limit_header" />
 
-        <TextView
-            android:id="@+id/currentEntrantCount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/currentEntrantCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -218,48 +219,48 @@
             android:layout_height="wrap_content" />
     </LinearLayout>
 
-    <com.google.android.material.divider.MaterialDivider
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/entrantListTitle" />
+        <com.google.android.material.divider.MaterialDivider
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/entrantListTitle" />
 
-    <!-- Entrant List Fragment -->
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/entrantListContainer"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/entrantListTitle" />
+        <!-- Entrant List Fragment -->
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/entrantListContainer"
+            android:layout_width="match_parent"
+            android:layout_height="350dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/entrantListTitle" />
+        <TextView
+            android:id="@+id/eventDateTimeTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Event Date:"
+            app:layout_constraintEnd_toEndOf="@+id/selectionDateTitleText"
+            app:layout_constraintTop_toTopOf="@+id/dateTimeIcon2" />
 
-    <TextView
-        android:id="@+id/eventDateTimeTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:text="Event Date:"
-        app:layout_constraintEnd_toEndOf="@+id/selectionDateTitleText"
-        app:layout_constraintTop_toTopOf="@+id/dateTimeIcon2" />
+        <ImageView
+            android:id="@+id/dateTimeIcon2"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginTop="4dp"
+            android:contentDescription="@string/event_date_icon"
+            android:src="@drawable/ic_event_time"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/dateTimeIcon"
+            app:tint="?attr/colorOnSurface" />
 
-    <ImageView
-        android:id="@+id/dateTimeIcon2"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_marginTop="4dp"
-        android:contentDescription="@string/event_date_icon"
-        android:src="@drawable/ic_event_time"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dateTimeIcon"
-        app:tint="?attr/colorOnSurface" />
+        <TextView
+            android:id="@+id/eventDateTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="@+id/selectionDateText"
+            app:layout_constraintTop_toTopOf="@+id/eventDateTimeTitle" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>
 
-    <TextView
-        android:id="@+id/eventDateTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="@+id/selectionDateText"
-        app:layout_constraintTop_toTopOf="@+id/eventDateTimeTitle" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>

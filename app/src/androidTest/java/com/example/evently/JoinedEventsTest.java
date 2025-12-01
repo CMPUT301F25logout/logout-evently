@@ -64,7 +64,7 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
         new Event(
                 "name",
                 "description",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 selectionTimes[0],
                 eventTimeAfter(selectionTimes[0]),
@@ -73,7 +73,7 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
         new Event(
                 "name1",
                 "description1",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 selectionTimes[1],
                 eventTimeAfter(selectionTimes[1]),
@@ -82,7 +82,7 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
         new Event(
                 "name2",
                 "description2",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 selectionTimes[2],
                 eventTimeAfter(selectionTimes[2]),
@@ -91,7 +91,7 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
         new Event(
                 "name3",
                 "description3",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 selectionTimes[3],
                 eventTimeAfter(selectionTimes[3]),
@@ -100,7 +100,7 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
         new Event(
                 "name4",
                 "description4",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 selectionTimes[4],
                 eventTimeAfter(selectionTimes[4]),
@@ -109,7 +109,7 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
         new Event(
                 "name5",
                 "description5",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 selectionTimes[5],
                 eventTimeAfter(selectionTimes[5]),
@@ -118,7 +118,7 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
         new Event(
                 "name6",
                 "description6",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 selectionTimes[6],
                 eventTimeAfter(selectionTimes[6]),
@@ -127,7 +127,7 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
         new Event(
                 "name7",
                 "description7",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 selectionTimes[7],
                 eventTimeAfter(selectionTimes[7]),
@@ -136,7 +136,7 @@ public class JoinedEventsTest extends EmulatedFragmentTest<JoinedEventsFragment>
         new Event(
                 "name8",
                 "description8",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 selectionTimes[8],
                 eventTimeAfter(selectionTimes[8]),
