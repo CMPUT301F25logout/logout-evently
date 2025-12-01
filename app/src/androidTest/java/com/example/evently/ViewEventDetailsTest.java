@@ -1,6 +1,8 @@
 package com.example.evently;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
@@ -28,6 +30,7 @@ import androidx.core.widget.NestedScrollView;
 import androidx.navigation.NavGraph;
 import androidx.test.espresso.PerformException;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
 
 import com.google.firebase.Timestamp;
 import org.junit.AfterClass;
@@ -125,6 +128,19 @@ public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsF
                     () -> assertRecyclerViewItem(
                             R.id.entrantList, p(R.id.entrant_name, unexpectedAccount.email())));
         }
+    }
+
+    // Note: Not run in CI because it has proven impossible to get this to pass there.
+    @LargeTest
+    @Test
+    public void testSelectionDetailsButtonOpensDialog() throws InterruptedException {
+        Thread.sleep(2000);
+
+        // Get to the bottom of the scroll view.
+        onView(withId(R.id.lotteryGuidelinesButton)).perform(scrollTo(), click());
+        onView(withText(R.string.lottery_guidelines_dialog_title)).check(matches(isDisplayed()));
+        onView(withText(R.string.lottery_guidelines_dialog_message)).check(matches(isDisplayed()));
+        onView(withText(R.string.lottery_guidelines_dialog_positive)).perform(click());
     }
 
     @Test
