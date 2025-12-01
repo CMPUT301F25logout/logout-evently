@@ -26,7 +26,8 @@ public class AdminBrowseEventsFragment extends EventsFragment {
      */
     @Override
     protected void onEventClick(Event event) {
-        var action = HomeFragmentDirections.actionNavHomeToEventDetails(event.eventID());
+        var action =
+                AdminBrowseEventsFragmentDirections.actionNavHomeToEventDetails(event.eventID());
         NavController navController = NavHostFragment.findNavController(this);
         navController.navigate(action);
     }

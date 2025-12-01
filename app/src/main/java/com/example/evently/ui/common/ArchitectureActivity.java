@@ -4,7 +4,8 @@ import static com.example.evently.data.model.Role.AdminRole;
 import static com.example.evently.data.model.Role.EntrantRole;
 import static com.example.evently.data.model.Role.OrganizerRole;
 
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import android.Manifest;
 import android.content.Intent;
@@ -16,6 +17,7 @@ import android.widget.AdapterView;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.MenuRes;
 import androidx.annotation.NavigationRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -25,6 +27,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import com.example.evently.R;
 import com.example.evently.data.AccountDB;
 import com.example.evently.data.model.Role;
 import com.example.evently.databinding.ActivityArchitectureBinding;
@@ -76,6 +79,11 @@ public abstract class ArchitectureActivity extends AppCompatActivity
     @NavigationRes
     protected abstract int getGraph();
 
+    @MenuRes
+    protected int getMenu() {
+        return R.menu.navbar;
+    }
+
     /**
      * Role index for the implementing activity.
      * @implNote Entrant=0, Organizer=1, Admin>1
@@ -97,20 +105,32 @@ public abstract class ArchitectureActivity extends AppCompatActivity
         binding = ActivityArchitectureBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Attach the role selector adapter to the spinner.
-        final var availableRoles = List.of(DefaultRoles);
         // Add the admin role if logged in account is an admin.
-        new AccountDB().isAdmin(FirebaseAuthUtils.getCurrentEmail()).thenRun(isAdmin -> {
-            if (isAdmin) {
-                availableRoles.add(AdminRole);
-            }
-            binding.roleSelector.setAdapter(new RoleSpinnerAdapter(this, availableRoles));
-            binding.roleSelector.setOnItemSelectedListener(this);
-            binding.roleSelector.setSelection(rolePosition());
-        });
+        final var spinnerAdapter =
+                new RoleSpinnerAdapter(this, new ArrayList<>(Arrays.asList(DefaultRoles)));
+
+        if (this instanceof AdminActivity) {
+            // Obviously, if we got here - we are an admin.
+            spinnerAdapter.add(AdminRole);
+            spinnerAdapter.notifyDataSetChanged();
+        } else {
+            // Check if this account is an admin and add the role.
+            final var self = FirebaseAuthUtils.getCurrentEmail();
+            new AccountDB().isAdmin(self).thenRun(isAdmin -> {
+                if (isAdmin) {
+                    spinnerAdapter.add(AdminRole);
+                    spinnerAdapter.notifyDataSetChanged();
+                }
+            });
+        }
+
+        binding.roleSelector.setAdapter(spinnerAdapter);
+        binding.roleSelector.setOnItemSelectedListener(this);
+        binding.roleSelector.setSelection(rolePosition());
 
         // Set the navbar.
         final var navBar = binding.navbar;
+        navBar.inflateMenu(getMenu());
         final var fragmentContainer = binding.navHostFragment;
         NavHostFragment navHostFragment = (NavHostFragment)
                 getSupportFragmentManager().findFragmentById(fragmentContainer.getId());

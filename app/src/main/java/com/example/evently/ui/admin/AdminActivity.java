@@ -17,4 +17,13 @@ public class AdminActivity extends ArchitectureActivity {
     protected int getGraph() {
         return R.navigation.admin_graph;
     }
+
+    /**
+     * Get the menu for the admin activity.
+     * @return {@code R.menu.admin_navbar} the Admin nav bar resource id.
+     */
+    @Override
+    protected int getMenu() {
+        return R.menu.admin_navbar;
+    }
 }

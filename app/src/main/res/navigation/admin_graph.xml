@@ -7,9 +7,9 @@
 
     <fragment
         android:id="@+id/nav_home"
-        android:name="com.example.evently.ui.admin.HomeFragment"
-        android:label="Admin Browse Events"
-        tools:layout="@layout/fragment_admin_home">
+        android:name="com.example.evently.ui.admin.AdminBrowseEventsFragment"
+        android:label="Manage Events"
+        tools:layout="@layout/fragment_event_list">
         <action
             android:id="@+id/action_nav_home_to_event_details"
             app:destination="@id/event_details" />
@@ -36,7 +36,7 @@
     <fragment
         android:id="@+id/nav_accounts"
         android:name="com.example.evently.ui.admin.BrowseProfilesFragment"
-        android:label="Admin Browse Profiles"
+        android:label="Manage Profiles"
         tools:layout="@layout/fragment_admin_profiles">
         <action
             android:id="@+id/action_nav_accounts_to_profile_details"
@@ -46,7 +46,7 @@
     <fragment
         android:id="@+id/profile_details"
         android:name="com.example.evently.ui.admin.ViewProfileDetailsFragment"
-        android:label="Admin View Profile"
+        android:label="View Profile"
         tools:layout="@layout/fragment_admin_profile">
         <argument
             android:name="accountEmail"
@@ -61,14 +61,14 @@
     <fragment
         android:id="@+id/nav_images"
         android:name="com.example.evently.ui.admin.AdminBrowseImagesFragment"
-        android:label="Admin Browse Images"
+        android:label="Manage Images"
         tools:layout="@layout/fragment_admin_images"/>
 
 
     <fragment
         android:id="@+id/nav_notifs"
         android:name="com.example.evently.ui.admin.AdminBrowseNotificationsFragment"
-        android:label="Admin Browse Notifications"
+        android:label="Manage Notifications"
         tools:layout="@layout/fragment_notifs"/>
 
 </navigation>
