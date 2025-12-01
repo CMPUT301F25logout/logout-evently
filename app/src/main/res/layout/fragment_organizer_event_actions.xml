@@ -10,12 +10,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
         <com.google.android.material.button.MaterialButton
-
         style="?attr/materialSplitButtonLeadingFilledStyle"
             android:id="@+id/send_notif"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/event_send_notification_button" />
+
         <com.google.android.material.button.MaterialButton
             style="?attr/materialSplitButtonIconFilledStyle"
             android:id="@+id/select_channel"
@@ -32,13 +32,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:layout_marginStart="8dp"/>
+        android:layout_marginStart="4dp"/>
 
-    <include
-        android:id="@+id/util_share_btn"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/export_entrants"
+        style="?attr/materialButtonOutlinedStyle"
+        android:textSize="12sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:layout_marginStart="8dp"
-        layout="@layout/util_share_btn" />
+        android:layout_marginStart="4dp"
+        android:text="@string/event_export_entrants_button" />
 </LinearLayout>

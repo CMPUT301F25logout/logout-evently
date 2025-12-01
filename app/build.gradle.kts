@@ -146,6 +146,7 @@ dependencies {
     implementation(libs.lifecycle.livedata)
 
     implementation(libs.zxing.android.embedded)
+    implementation(libs.espresso.intents)
 
     annotationProcessor(libs.compiler)
 

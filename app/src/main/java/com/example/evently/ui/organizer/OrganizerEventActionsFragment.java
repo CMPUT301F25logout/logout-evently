@@ -1,19 +1,28 @@
 package com.example.evently.ui.organizer;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Notification;
 import com.example.evently.databinding.FragmentOrganizerEventActionsBinding;
-import com.example.evently.ui.common.EventQRDialogFragment;
 import com.example.evently.ui.model.EventViewModel;
 
 /**
@@ -25,6 +34,8 @@ public class OrganizerEventActionsFragment extends Fragment {
     private FragmentOrganizerEventActionsBinding binding;
     private String currentlySelectedChannel = Notification.Channel.All.name();
     private EventViewModel eventViewModel;
+    private ActivityResultLauncher<Intent> createFile;
+    private List<String> accepted;
 
     @Override
     public View onCreateView(
@@ -36,6 +47,30 @@ public class OrganizerEventActionsFragment extends Fragment {
                 FragmentOrganizerEventActionsBinding.inflate(getLayoutInflater(), container, false);
 
         eventViewModel = new ViewModelProvider(requireParentFragment()).get(EventViewModel.class);
+
+        createFile = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(), result -> {
+                    Log.i("CSV", "CSV write launched");
+                    if (result.getResultCode() != OrganizerActivity.RESULT_OK) {
+                        Log.w("CSV", "Result bad. code: " + result.getResultCode());
+                        return; // May need to change returns to making a toast
+                    }
+
+                    if (result.getData() == null) return;
+                    var uri = result.getData().getData();
+                    if (uri == null) {
+                        Log.w("CSV", "URI was null");
+                        return;
+                    }
+                    try (OutputStream os =
+                            requireContext().getContentResolver().openOutputStream(uri)) {
+                        os.write(String.join(",", accepted).getBytes(StandardCharsets.UTF_8));
+                        os.flush();
+                        Log.i("CSV", "Exported CSV Successfully");
+                    } catch (IOException e) {
+                        Log.e("CSV", "CSV write error", e);
+                    }
+                });
 
         return binding.getRoot();
     }
@@ -50,14 +85,6 @@ public class OrganizerEventActionsFragment extends Fragment {
             }
         });
 
-        binding.utilShareBtn.shareBtn.setOnClickListener(v -> {
-            final var qrDialog = new EventQRDialogFragment();
-            final var bundle = new Bundle();
-            bundle.putSerializable("eventID", eventViewModel.eventID);
-            qrDialog.setArguments(bundle);
-            qrDialog.show(getChildFragmentManager(), "QR_DIALOG");
-        });
-
         binding.openMap.setOnClickListener(
                 v -> new EventEntrantsMapFragment().show(getParentFragmentManager(), "map_dialog"));
 
@@ -67,6 +94,15 @@ public class OrganizerEventActionsFragment extends Fragment {
         binding.sendNotif.setOnClickListener(v -> NavHostFragment.findNavController(this)
                 .navigate(EditEventDetailsFragmentDirections.actionEventDetailsToNavThread(
                         eventViewModel.eventID, currentlySelectedChannel)));
+
+        binding.exportEntrants.setEnabled(false);
+        var eventsDB = new EventsDB();
+        eventsDB.fetchEventEntrants(eventViewModel.eventID).optionally(entrants -> {
+            accepted = entrants.accepted();
+            if (accepted.isEmpty()) return;
+            binding.exportEntrants.setEnabled(true);
+            binding.exportEntrants.setOnClickListener(this::exportCSV);
+        });
     }
 
     @Override
@@ -80,7 +116,7 @@ public class OrganizerEventActionsFragment extends Fragment {
      * @param v View of button
      */
     private void selectChannel(View v) {
-        PopupMenu popup = new PopupMenu(getContext(), v);
+        var popup = new PopupMenu(getContext(), v);
         binding.selectChannel.setChecked(true);
 
         for (Notification.Channel channel : Notification.Channel.values())
@@ -94,5 +130,18 @@ public class OrganizerEventActionsFragment extends Fragment {
 
         popup.setOnDismissListener(menu -> binding.selectChannel.setChecked(false));
         popup.show();
+    }
+
+    /**
+     * Exports a CSV of final participants to download
+     * @param view view of button pressed
+     */
+    private void exportCSV(View view) {
+        Log.i("CSV", "CSV write called");
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("text/csv");
+        intent.putExtra(Intent.EXTRA_TITLE, "entrants.csv");
+        createFile.launch(intent);
     }
 }
