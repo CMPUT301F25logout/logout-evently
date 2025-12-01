@@ -51,7 +51,7 @@ public class EditEventDetailsGeoTest extends EmulatedFragmentTest<EditEventDetai
     private static final Event mockEvent = new Event(
             "name",
             "description",
-            Category.EDUCATIONAL,
+            Category.Educational,
             true,
             selectionTime,
             eventTime,

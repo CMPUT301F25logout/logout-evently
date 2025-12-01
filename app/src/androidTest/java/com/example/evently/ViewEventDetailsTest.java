@@ -45,7 +45,7 @@ public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsF
     private static final Event mockEvent = new Event(
             "name",
             "description",
-            Category.EDUCATIONAL,
+            Category.Educational,
             false,
             selectionTime,
             eventTime,

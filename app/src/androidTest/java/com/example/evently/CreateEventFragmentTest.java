@@ -69,7 +69,7 @@ public class CreateEventFragmentTest extends EmulatedFragmentTest<CreateEventFra
         assertTrue(mine.stream()
                 .anyMatch(e -> e.name().equals(name)
                         && e.description().equals(desc)
-                        && e.category().equals(Category.OTHERS)
+                        && e.category().equals(Category.Other)
                         && !e.isFull()
                         && !e.requiresLocation()
                         && e.optionalEntrantLimit().isEmpty()

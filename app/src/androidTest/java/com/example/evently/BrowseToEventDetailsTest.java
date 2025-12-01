@@ -47,7 +47,7 @@ public class BrowseToEventDetailsTest extends EmulatedFragmentTest<BrowseEventsF
         new Event(
                 "name",
                 "description",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 selectionTime,
                 eventTime,
