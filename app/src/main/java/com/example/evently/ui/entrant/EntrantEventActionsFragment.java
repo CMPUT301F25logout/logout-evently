@@ -23,7 +23,9 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.loadingindicator.LoadingIndicator;
 import com.google.firebase.firestore.GeoPoint;
 
 import com.example.evently.R;
@@ -111,11 +113,14 @@ public class EntrantEventActionsFragment extends Fragment {
         });
 
         eventViewModel.getEventEntrantsLive().observe(getViewLifecycleOwner(), eventEntrants -> {
+            binding.waitlistAction.setIcon(null);
             if (eventEntrants.all().contains(self)) {
                 // The user has already joined!
                 binding.waitlistAction.setText(R.string.event_join_btn_joined);
                 binding.waitlistAction.setOnClickListener(
                         v -> eventsDB.unenroll(eventViewModel.eventID, self).thenRun(vu -> {
+                            showLoadingIndicator();
+
                             // A join/leave action has happened - ask to update entrants and event.
                             eventViewModel.requestUpdate();
                         }));
@@ -124,6 +129,7 @@ public class EntrantEventActionsFragment extends Fragment {
                 binding.waitlistAction.setText(R.string.event_join_btn);
                 binding.waitlistAction.setOnClickListener(v -> {
                     binding.waitlistAction.setEnabled(false);
+                    showLoadingIndicator();
                     // Check if enrollment requires location.
                     // N.B: This relies on the eventViewModel observer firing first.
                     if (requireLocation) {
@@ -168,6 +174,13 @@ public class EntrantEventActionsFragment extends Fragment {
                 .addOnSuccessListener(location -> {
                     enrollIntoEvent(new GeoPoint(location.getLatitude(), location.getLongitude()));
                 });
+    }
+
+    private void showLoadingIndicator() {
+        binding.waitlistAction.setIcon(new LoadingIndicator(requireContext()).getDrawable());
+        binding.waitlistAction.setText(null);
+        binding.waitlistAction.setIconPadding(0);
+        binding.waitlistAction.setIconGravity(MaterialButton.ICON_GRAVITY_TEXT_START);
     }
 
     private void enrollIntoEvent(GeoPoint loc) {
