@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -98,10 +99,12 @@ public class RegisterFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                registerBtn.setEnabled(validateInputs());
-                binding.dumbRegister.setEnabled(validateInputs());
+                final var isValid = validateInputs();
+                registerBtn.setEnabled(isValid);
+                binding.dumbRegister.setEnabled(isValid);
             }
         };
+
         nameEditText.addTextChangedListener(afterTextChangedListener);
         phoneEditText.addTextChangedListener(afterTextChangedListener);
         phoneEditText.setOnEditorActionListener((TextView v, int actionId, KeyEvent event) -> {
@@ -123,12 +126,19 @@ public class RegisterFragment extends Fragment {
     }
 
     private boolean validateInputs() {
-        // TODO (chase): Should add name and phone number validation too.
         var nameInp = binding.name.getText().toString();
         if (nameInp.isBlank()) {
             binding.name.setError("Please enter your name");
             return false;
         }
+
+        // Phone number validations
+        var phoneInp = binding.phone.getText();
+        if (!Patterns.PHONE.matcher(phoneInp).matches()) {
+            binding.phone.setError("Invalid phone number");
+            return false;
+        }
+
         return true;
     }
 
@@ -142,6 +152,8 @@ public class RegisterFragment extends Fragment {
 
         fragManager.setFragmentResultListener(
                 ConfirmFragmentTextInput.requestKey, this, (requestKey, result) -> {
+                    // Only make the loading bar visible if confirm is pressed
+                    loadingProgressBar.setVisibility(View.VISIBLE);
                     final var email = result.getString(ConfirmFragmentTextInput.inputKey);
                     assert email != null;
                     loadingProgressBar.setVisibility(View.VISIBLE);
