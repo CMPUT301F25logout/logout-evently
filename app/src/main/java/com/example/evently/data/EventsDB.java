@@ -289,6 +289,36 @@ public class EventsDB {
     }
 
     /**
+     * Fetch events whose names start with given search string.
+     * @param searchString Prefix to search with.
+     * @return List of matching events.
+     */
+    public Promise<List<Event>> fetchEventsBySearchString(String searchString) {
+        // https://stackoverflow.com/a/49230889/10305477
+        return parseQuerySnapShots(eventsRef
+                .orderBy("name")
+                .startAt(searchString)
+                .endAt(searchString + '\uf8ff')
+                .get());
+    }
+
+    /**
+     * Fetch events by orgnaizer whose names start with given search string.
+     * @param searchString Prefix to search with.
+     * @return List of matching events.
+     */
+    public Promise<List<Event>> fetchOrganizerEventsBySearchString(
+            String organizer, String searchString) {
+        // https://stackoverflow.com/a/49230889/10305477
+        return parseQuerySnapShots(eventsRef
+                .whereEqualTo("organizer", organizer)
+                .orderBy("name")
+                .startAt(searchString)
+                .endAt(searchString + '\uf8ff')
+                .get());
+    }
+
+    /**
      * Fetch events from database by organizer email.
      * @param organizer email of the event's organizer
      */
