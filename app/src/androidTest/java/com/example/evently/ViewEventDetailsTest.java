@@ -2,6 +2,7 @@ package com.example.evently;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
@@ -123,8 +124,7 @@ public class ViewEventDetailsTest extends EmulatedFragmentTest<ViewEventDetailsF
         Thread.sleep(2000);
 
         // Get to the bottom of the scroll view.
-        onView(isAssignableFrom(NestedScrollView.class)).perform(swipeUp());
-
+        onView(withId(R.id.lotteryGuidelinesButton)).perform(scrollTo());
         onView(withId(R.id.lotteryGuidelinesButton)).check(matches(isDisplayed()));
         onView(withId(R.id.lotteryGuidelinesButton)).perform(click());
         onView(withText(R.string.lottery_guidelines_dialog_title)).check(matches(isDisplayed()));
