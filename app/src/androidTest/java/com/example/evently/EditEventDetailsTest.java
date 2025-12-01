@@ -6,9 +6,12 @@ import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.example.evently.MatcherUtils.assertRecyclerViewItem;
 import static com.example.evently.MatcherUtils.p;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThrows;
 
 import java.time.Duration;
@@ -22,6 +25,7 @@ import java.util.concurrent.ExecutionException;
 import android.os.Bundle;
 import androidx.navigation.NavGraph;
 import androidx.test.espresso.PerformException;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.firebase.Timestamp;
@@ -210,8 +214,8 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
     public void testNoMap() throws InterruptedException {
         Thread.sleep(1000);
 
-        // Ensure the map tab is not displayed.
-        onView(withText("Map")).check(doesNotExist());
+        // Ensure the map button is not displayed.
+        onView(withId(R.id.open_map)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }
 
     @Override

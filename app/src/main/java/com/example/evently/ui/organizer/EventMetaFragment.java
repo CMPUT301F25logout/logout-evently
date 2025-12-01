@@ -23,15 +23,13 @@ import com.example.evently.databinding.FragmentEventMetaBinding;
 import com.example.evently.ui.model.EventViewModel;
 
 /**
- * Fragment that displays the tabs for event participants and their locations:
- * Enrolled, Cancelled, Selected, and MapView (optional)
+ * Fragment that displays the tabs for event participants:
+ * Enrolled, Selected, Accepted, and Cancelled.
  * Uses ViewPager2 and TabLayout.
  */
 public class EventMetaFragment extends Fragment {
 
     private FragmentEventMetaBinding binding;
-
-    private EventViewModel eventViewModel;
 
     @Nullable @Override
     public View onCreateView(
@@ -53,25 +51,17 @@ public class EventMetaFragment extends Fragment {
         // The horizontal swipes need to be handled by google maps fragment itself, not viewpager.
         viewPager.setUserInputEnabled(false);
 
-        eventViewModel = new ViewModelProvider(requireParentFragment()).get(EventViewModel.class);
+        viewPager.setAdapter(new EventPeopleAdapter(requireParentFragment()));
 
-        eventViewModel.getEventLive().observe(getViewLifecycleOwner(), event -> {
-            // Must use the parent fragment manager so the children have access to the original view
-            // model.
-            viewPager.setAdapter(
-                    new EventPeopleAdapter(requireParentFragment(), event.requiresLocation()));
-
-            new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
-                        switch (position) {
-                            case 0 -> tab.setText("Enrolled");
-                            case 1 -> tab.setText("Selected");
-                            case 2 -> tab.setText("Accepted");
-                            case 3 -> tab.setText("Cancelled");
-                            case 4 -> tab.setText("Map");
-                        }
-                    })
-                    .attach();
-        });
+        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
+            switch (position) {
+                case 0 -> tab.setText("Enrolled");
+                case 1 -> tab.setText("Selected");
+                case 2 -> tab.setText("Accepted");
+                case 3 -> tab.setText("Cancelled");
+            }
+        })
+                .attach();
     }
 
     /**
@@ -79,11 +69,8 @@ public class EventMetaFragment extends Fragment {
      */
     private static class EventPeopleAdapter extends FragmentStateAdapter {
 
-        private final boolean requiresLocation;
-
-        public EventPeopleAdapter(@NonNull Fragment fragment, boolean requiresLocation) {
+        public EventPeopleAdapter(@NonNull Fragment fragment) {
             super(fragment);
-            this.requiresLocation = requiresLocation;
         }
 
         @NonNull @Override
@@ -93,7 +80,6 @@ public class EventMetaFragment extends Fragment {
                 case 1 -> new SelectedEntrantsFragment();
                 case 2 -> new AcceptedEntrantsFragment();
                 case 3 -> new CancelledEntrantsFragment();
-                case 4 -> new EventEntrantsMapFragment();
                 // This should never happen. See getItemCount.
                 default -> new Fragment();
             };
@@ -101,7 +87,7 @@ public class EventMetaFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            return requiresLocation ? 5 : 4;
+            return 4;
         }
     }
 }

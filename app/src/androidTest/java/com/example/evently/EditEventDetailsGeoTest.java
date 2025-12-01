@@ -112,7 +112,7 @@ public class EditEventDetailsGeoTest extends EmulatedFragmentTest<EditEventDetai
         onView(withText(mockEvent.description())).check(matches(isDisplayed()));
 
         // Check the enrolled tab.
-        onView(withText("Map")).perform(scrollTo(), click());
+        onView(withText(R.string.entrant_map_btn)).perform(click());
 
         Thread.sleep(10000);
 

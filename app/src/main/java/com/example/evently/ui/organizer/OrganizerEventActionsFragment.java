@@ -44,6 +44,12 @@ public class OrganizerEventActionsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        eventViewModel.getEventLive().observe(getViewLifecycleOwner(), ev -> {
+            if (ev.requiresLocation()) {
+                binding.openMap.setVisibility(View.VISIBLE);
+            }
+        });
+
         binding.utilShareBtn.shareBtn.setOnClickListener(v -> {
             final var qrDialog = new EventQRDialogFragment();
             final var bundle = new Bundle();
@@ -51,6 +57,10 @@ public class OrganizerEventActionsFragment extends Fragment {
             qrDialog.setArguments(bundle);
             qrDialog.show(getChildFragmentManager(), "QR_DIALOG");
         });
+
+        binding.openMap.setOnClickListener(v ->
+            new EventEntrantsMapFragment().show(getParentFragmentManager(), "map_dialog")
+        );
 
         binding.sendNotif.setText(String.format("Notify %s", currentlySelectedChannel));
         binding.selectChannel.setCheckable(true);
