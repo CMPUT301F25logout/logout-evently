@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -127,6 +128,13 @@ public class RegisterFragment extends Fragment {
         var nameInp = binding.name.getText().toString();
         if (nameInp.isBlank()) {
             binding.name.setError("Please enter your name");
+            return false;
+        }
+
+        // Phone number validation
+        String number = binding.phone.getText().toString();
+        if (!Patterns.PHONE.matcher(number).matches()) {
+            binding.phone.setError("Invalid phone number");
             return false;
         }
         return true;
