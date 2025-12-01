@@ -22,8 +22,6 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
-import com.google.firebase.messaging.FirebaseMessaging;
-
 import com.example.evently.data.model.Role;
 import com.example.evently.databinding.ActivityArchitectureBinding;
 import com.example.evently.ui.auth.AuthActivity;
@@ -128,8 +126,8 @@ public abstract class ArchitectureActivity extends AppCompatActivity
                             // Disable FCM auto init and remove the token so the device no longer
                             // gets notifications.
                             FirebaseMessagingUtils.disableNotifications(() -> {
-                                final var intent = new Intent(
-                                        ArchitectureActivity.this, AuthActivity.class);
+                                final var intent =
+                                        new Intent(ArchitectureActivity.this, AuthActivity.class);
                                 startActivity(intent);
                                 finish();
                             });

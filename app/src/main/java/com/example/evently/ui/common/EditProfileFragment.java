@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -20,12 +19,12 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
-import com.example.evently.databinding.FragmentEditProfileBinding;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import com.example.evently.R;
 import com.example.evently.data.AccountDB;
+import com.example.evently.databinding.FragmentEditProfileBinding;
 import com.example.evently.utils.FirebaseAuthUtils;
 import com.example.evently.utils.FirebaseMessagingUtils;
 import com.example.evently.utils.TextInputValidator;
@@ -118,7 +117,8 @@ public class EditProfileFragment extends Fragment {
             if (checked) {
                 // We can only enable it if there's permission.
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS)
+                    if (ContextCompat.checkSelfPermission(
+                                    requireContext(), Manifest.permission.POST_NOTIFICATIONS)
                             != PackageManager.PERMISSION_GRANTED) {
                         // Directly ask for the permission
                         requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);

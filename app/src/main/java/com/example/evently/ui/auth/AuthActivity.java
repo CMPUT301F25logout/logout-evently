@@ -16,7 +16,6 @@ import androidx.credentials.exceptions.NoCredentialException;
 
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.messaging.FirebaseMessaging;
 
 import com.example.evently.R;
 import com.example.evently.data.AccountDB;

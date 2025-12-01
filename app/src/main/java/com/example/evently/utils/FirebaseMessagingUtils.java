@@ -69,7 +69,8 @@ public final class FirebaseMessagingUtils {
             FirebaseFirestore.getInstance()
                     .collection("fcmTokens")
                     .document(userEmail)
-                    .delete().addOnSuccessListener(ignored -> then.run());
+                    .delete()
+                    .addOnSuccessListener(ignored -> then.run());
         } else {
             then.run();
         }
