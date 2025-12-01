@@ -52,7 +52,7 @@
     <string name="lottery_guidelines_button">Selection Details</string>
     <string name="lottery_guidelines_dialog_title">How this lottery works</string>
     <string name="lottery_guidelines_dialog_positive">Got it</string>
-    <string name="lottery_guidelines_dialog_message">The lottery selection process uses a fair distribution random selection algorithm, namely <a href="https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle">Fisher–Yates shuffle</a>. It is run when the selection deadline is reached. Firstly, it uses this algorithm to shuffle the input set, which is the set of all entrants. Next, it picks the first N elements from the resulting list, where N is the number of seats in the event, as set by the organizer.
+    <string name="lottery_guidelines_dialog_message">The lottery selection process uses a fair distribution random selection algorithm, namely Fisher–Yates shuffle. It is run when the selection deadline is reached. Firstly, it uses this algorithm to shuffle the input set, which is the set of all entrants. Next, it picks the first N elements from the resulting list, where N is the number of seats in the event, as set by the organizer.
 
 By default, all events have an unlimited number of entrants - that is, people can keep joining the entrant list. The organizer may decide to limit the maximum number of entrants allowed in the waiting list. If this is the case, you'll see the limit in the event details page.
 
