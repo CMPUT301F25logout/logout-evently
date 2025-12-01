@@ -5,15 +5,15 @@ package com.example.evently.data.model;
  */
 public enum Category {
     /** For sporting events */
-    SPORTS,
+    Sports,
     /** For educational events */
-    EDUCATIONAL,
+    Educational,
     /** For social gatherings or networking events */
-    SOCIAL,
+    Social,
     /** For events aimed at raising funds */
-    FUNDRAISER,
+    Fundraiser,
     /** For events celebrating or showcasing culture */
-    CULTURAL,
+    Cultural,
     /** For any other events that don't fit into the above categories */
-    OTHERS;
+    Other;
 }

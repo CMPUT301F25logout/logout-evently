@@ -59,7 +59,7 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
         new Event(
                 "name1",
                 "description1",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 selectionTimes[0],
                 eventTimeAfter(selectionTimes[0]),
@@ -68,7 +68,7 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
         new Event(
                 "name2",
                 "description2",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 selectionTimes[1],
                 eventTimeAfter(selectionTimes[1]),
@@ -77,7 +77,7 @@ public class BrowseEventsTest extends EmulatedFragmentTest<BrowseEventsFragment>
         new Event(
                 "name3",
                 "description3",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 false,
                 selectionTimes[2],
                 eventTimeAfter(selectionTimes[2]),

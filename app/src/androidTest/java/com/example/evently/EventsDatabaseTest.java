@@ -63,7 +63,7 @@ public class EventsDatabaseTest extends FirebaseEmulatorTest {
         return new Event(
                 "testEvent" + num,
                 "Event " + num + " created for testing",
-                Category.EDUCATIONAL,
+                Category.Educational,
                 requiresLocation,
                 new Timestamp(LocalDate.of(2026, 10, 1)
                         .atStartOfDay(ZoneId.systemDefault())
