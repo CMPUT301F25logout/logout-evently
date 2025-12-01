@@ -46,7 +46,7 @@ public final class MatcherUtils {
 
         // Make sure all the expected descendants are displayed.
         for (final var expectedDescendant : expectedDescendants) {
-            onView(allOf(withText(expectedDescendant.second))).check(matches(isDisplayed()));
+            onView(withText(expectedDescendant.second)).check(matches(isDisplayed()));
         }
     }
 

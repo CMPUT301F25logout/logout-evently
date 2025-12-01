@@ -294,8 +294,11 @@ public class EventsDB {
      * @return List of matching events.
      */
     public Promise<List<Event>> fetchEventsBySearchString(String searchString) {
-        // https://stackoverflow.com/a/49230889/10305477
+        if (searchString.isBlank()) {
+            return Promise.of(new ArrayList<>());
+        }
         return parseQuerySnapShots(eventsRef
+                // https://stackoverflow.com/a/49230889/10305477
                 .orderBy("name")
                 .startAt(searchString)
                 .endAt(searchString + '\uf8ff')
@@ -309,9 +312,13 @@ public class EventsDB {
      */
     public Promise<List<Event>> fetchOrganizerEventsBySearchString(
             String organizer, String searchString) {
-        // https://stackoverflow.com/a/49230889/10305477
+
+        if (searchString.isBlank()) {
+            return Promise.of(new ArrayList<>());
+        }
         return parseQuerySnapShots(eventsRef
                 .whereEqualTo("organizer", organizer)
+                // https://stackoverflow.com/a/49230889/10305477
                 .orderBy("name")
                 .startAt(searchString)
                 .endAt(searchString + '\uf8ff')
