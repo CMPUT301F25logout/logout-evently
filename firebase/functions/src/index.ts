@@ -24,9 +24,21 @@ function winnerNotification(eventId: string, seenBy: string[] = []): Notificatio
     channel: "Winners",
     title: "You are invited to an event!",
     description:
-      "Congratulations! You have been selected to attend event with ID " +
-      eventId +
+      "Congratulations! You have been selected to attend this event!" +
       ".\nYou may accept or deny this invitation.",
+    creationTime: Timestamp.now(),
+    seenBy
+  };
+}
+
+// Template for creating a loser notification.
+function loserNotification(eventId: string, seenBy: string[] = []): Notification {
+  return {
+    eventId,
+    channel: "Losers",
+    title: "You were not chosen for an event",
+    description: "Sorry! You were not chosen for this event." +
+      "\nBut you may get another chance if a winner declines their invitation!",
     creationTime: Timestamp.now(),
     seenBy
   };
@@ -160,17 +172,25 @@ export const monitorEntrants = onDocumentUpdated(
       tasks.push(redrawSelected(eventID));
     }
 
-    // Check if there selected entrants was filled (when it was previously empty).
-    const oldSelected = new Set(oldEventEntrants.selectedEntrants);
-    const newSelected = new Set(newEventEntrants.selectedEntrants);
-    // Note: A simple length check won't do. Consider the situation where:
-    // 1. An account is cancelled from the selected list by the organizer.
-    // 2. A redraw is run and a new account is added to the selected list.
-    // If the above two happen around the same time, the length difference will be zero.
-    const additionalSelected = newSelected.difference(oldSelected);
-    if (additionalSelected.size != 0) {
-      // We ensure to mark the "old winners" within the seenBy set.
-      tasks.push(writeWinnerNotification(eventID, oldEventEntrants.selectedEntrants));
+    // Simplest case: check if there selected entrants was filled (when it was previously empty).
+    if (oldEventEntrants.selectedEntrants.length == 0 && newEventEntrants.selectedEntrants.length > 0) {
+      // First time selection! Send both winner and loser notifications!
+      tasks.push(writeWinnerNotification(eventID, []));
+      tasks.push(writeLoserNotification(eventID));
+    } else {
+      // More complex case:
+      // Note: A simple length check won't do. Consider the situation where:
+      // 1. An account is cancelled from the selected list by the organizer.
+      // 2. A redraw is run and a new account is added to the selected list.
+      // If the above two happen around the same time, the length difference will be zero.
+      const oldSelected = new Set(oldEventEntrants.selectedEntrants);
+      const newSelected = new Set(newEventEntrants.selectedEntrants);
+
+      const additionalSelected = newSelected.difference(oldSelected);
+      if (additionalSelected.size != 0) {
+        // We ensure to mark the "old winners" within the seenBy set.
+        tasks.push(writeWinnerNotification(eventID, oldEventEntrants.selectedEntrants));
+      }
     }
 
     return Promise.all(tasks);
@@ -249,10 +269,6 @@ async function redrawSelected(eventID: string) {
 }
 
 async function writeWinnerNotification(eventID: string, seenBy: string[] = []) {
-  // Redraw (but be wary of concurrency bugs indeed)!
-  // Note: Multiple instances of this function may be called
-  // around the same time if two users cancel around the same time.
-  // Thus: One must be wise in implementing redraw.
   const selfRef = db
     .collection(NOTIFS_COLL)
     .where(notifsKey("eventId"), "==", eventID)
@@ -270,6 +286,33 @@ async function writeWinnerNotification(eventID: string, seenBy: string[] = []) {
       tx.create(
         db.collection(NOTIFS_COLL).doc(crypto.randomUUID()),
         winnerNotification(eventID, seenBy)
+      );
+    })
+    .catch((e) => {
+      if (!(e instanceof BenignError)) {
+        throw e;
+      }
+    });
+}
+
+async function writeLoserNotification(eventID: string) {
+  const selfRef = db
+    .collection(NOTIFS_COLL)
+    .where(notifsKey("eventId"), "==", eventID)
+    .where(notifsKey("channel"), "==", channel("Losers"))
+    .limit(1);
+  return db
+    .runTransaction(async (tx) => {
+      const loserNotificationRef = await tx.get(selfRef);
+      if (!loserNotificationRef.empty) {
+        // We already have a notification written in the winners channel. No more is needed!
+        throw new BenignError("Write loser notification has already run!");
+      }
+
+      // Write the loser notification!
+      tx.create(
+        db.collection(NOTIFS_COLL).doc(crypto.randomUUID()),
+        loserNotification(eventID)
       );
     })
     .catch((e) => {
@@ -342,7 +385,7 @@ async function getTokensByEmails(emails: string[]): Promise<string[]> {
             const r = tokenDoc.data() as { token: string };
             return [r.token];
           } else {
-            logger.error(`No token found for email: ${email}`);
+            logger.warn(`No token found for email: ${email}`);
             return [];
           }
         })
