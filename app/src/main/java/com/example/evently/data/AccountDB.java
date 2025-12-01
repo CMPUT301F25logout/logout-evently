@@ -4,7 +4,9 @@ import static com.example.evently.data.generic.Promise.promise;
 import static com.example.evently.data.generic.PromiseOpt.promiseOpt;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.firebase.firestore.CollectionReference;
@@ -76,7 +78,7 @@ public class AccountDB {
     }
 
     /**
-     * Returns an account based based on an email. Also takes in onSuccess, and onFailure listeners.
+     * Returns an account based on an email. Also takes in onSuccess, and onFailure listeners.
      * @param email The email of the target account
      * @return Reference to the concurrent task yielding to an account (if found).
      */
@@ -95,6 +97,17 @@ public class AccountDB {
                 return getAccountFromSnapshot(qs.getDocuments().get(0));
             }
         }));
+    }
+
+    /**
+     * Returns all accounts for admin viewing
+     * @return A list of accounts
+     */
+    public Promise<List<Account>> fetchAllAccounts() {
+        return promise(accountsRef.get()).map(querySnapshot -> querySnapshot.getDocuments().stream()
+                .map(AccountDB::getAccountFromSnapshot)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList()));
     }
 
     /**

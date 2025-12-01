@@ -91,9 +91,6 @@ public class AuthActivity extends AppCompatActivity {
             successfulTransition();
             return;
         }
-
-        // Otherwise, try logging in (not register).
-        tryLoggingIn(0);
     }
 
     private void showRegisterForm() {

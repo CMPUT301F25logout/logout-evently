@@ -10,12 +10,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
         <com.google.android.material.button.MaterialButton
-
         style="?attr/materialSplitButtonLeadingFilledStyle"
             android:id="@+id/send_notif"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/event_send_notification_button" />
+
         <com.google.android.material.button.MaterialButton
             style="?attr/materialSplitButtonIconFilledStyle"
             android:id="@+id/select_channel"
@@ -24,10 +24,23 @@
             app:icon="@drawable/m3_split_button_chevron_avd" />
     </com.google.android.material.button.MaterialSplitButton>
 
-    <include
-        android:id="@+id/util_share_btn"
+    <com.google.android.material.button.MaterialButton
+        style="?attr/materialButtonTonalStyle"
+        android:id="@+id/open_map"
+        android:text="@string/entrant_map_btn"
+        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        layout="@layout/util_share_btn" />
+        android:layout_marginStart="4dp"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/export_entrants"
+        style="?attr/materialButtonOutlinedStyle"
+        android:textSize="12sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="4dp"
+        android:text="@string/event_export_entrants_button" />
 </LinearLayout>

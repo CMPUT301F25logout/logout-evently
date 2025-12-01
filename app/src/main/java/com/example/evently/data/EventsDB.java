@@ -212,7 +212,18 @@ public class EventsDB {
      * @return Promise.
      */
     public Promise<Void> unenroll(UUID eventID, String email) {
-        return removeEntrantFromList(eventID, email, "enrolledEntrants");
+        final var updateMap = removeEntrantUpdateObj(email, "enrolledEntrants");
+        // Remove their location as well.
+        updateMap.put(FieldPath.of("entrantLocations", email), FieldValue.delete());
+
+        // We need to do multiple collection updates.
+        final var eventIDStr = eventID.toString();
+        WriteBatch batch = db.batch();
+        // Update the eventEntrants.
+        fieldPathUpdate(batch, eventEntrantsRef.document(eventID.toString()), updateMap);
+        // Mark the event is "not full".
+        batch.update(eventsRef.document(eventIDStr), "isFull", false);
+        return promise(batch.commit());
     }
 
     /**
@@ -273,12 +284,6 @@ public class EventsDB {
         return updateMap;
     }
 
-    // Helper to remove a user from one of the lists
-    private Promise<Void> removeEntrantFromList(UUID eventID, String email, String field) {
-        final var updateMap = removeEntrantUpdateObj(email, field);
-        return fieldPathUpdate(eventEntrantsRef.document(eventID.toString()), updateMap);
-    }
-
     /**
      * Fetch an event from database by UUID.
      * @param eventID UUID of the event
@@ -286,6 +291,43 @@ public class EventsDB {
     public PromiseOpt<Event> fetchEvent(UUID eventID) {
         return promiseOpt(promise(eventsRef.document(eventID.toString()).get())
                 .map(EventsDB::getEventFromSnapshot));
+    }
+
+    /**
+     * Fetch events whose names start with given search string.
+     * @param searchString Prefix to search with.
+     * @return List of matching events.
+     */
+    public Promise<List<Event>> fetchEventsBySearchString(String searchString) {
+        if (searchString.isBlank()) {
+            return Promise.of(new ArrayList<>());
+        }
+        return parseQuerySnapShots(eventsRef
+                // https://stackoverflow.com/a/49230889/10305477
+                .orderBy("name")
+                .startAt(searchString)
+                .endAt(searchString + '\uf8ff')
+                .get());
+    }
+
+    /**
+     * Fetch events by orgnaizer whose names start with given search string.
+     * @param searchString Prefix to search with.
+     * @return List of matching events.
+     */
+    public Promise<List<Event>> fetchOrganizerEventsBySearchString(
+            String organizer, String searchString) {
+
+        if (searchString.isBlank()) {
+            return Promise.of(new ArrayList<>());
+        }
+        return parseQuerySnapShots(eventsRef
+                .whereEqualTo("organizer", organizer)
+                // https://stackoverflow.com/a/49230889/10305477
+                .orderBy("name")
+                .startAt(searchString)
+                .endAt(searchString + '\uf8ff')
+                .get());
     }
 
     /**
@@ -313,6 +355,17 @@ public class EventsDB {
             query = eventsRef.whereLessThan("eventTime", dateConstraint);
         }
         return parseQuerySnapShots(query.get());
+    }
+
+    /**
+     * Gets all events for admin viewing purposes
+     * @return A list of events
+     */
+    public Promise<List<Event>> fetchAllEvents() {
+        return promise(eventsRef.get()).map(querySnapshot -> querySnapshot.getDocuments().stream()
+                .map(EventsDB::getEventFromSnapshot)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList()));
     }
 
     /**
@@ -479,6 +532,28 @@ public class EventsDB {
             }
             throw exc;
         }));
+    }
+
+    /**
+     * The function below fetches the storage references for all events with posters.
+     * @return A promise of a map of eventID's to posters.
+     */
+    public Promise<Map<UUID, StorageReference>> fetchAllPosters() {
+        StorageReference postersRef = storageRef.child("posters/");
+
+        return promise(postersRef.listAll()).map(listResult -> {
+            // Creates map, and gets items from the list.
+            Map<UUID, StorageReference> dict = new HashMap<>();
+            List<StorageReference> imageRefs = listResult.getItems();
+
+            // Adds the eventID, and storageRef to the dictionary
+            for (StorageReference imageRef : imageRefs) {
+                UUID eventID = UUID.fromString(imageRef.getName());
+                dict.put(eventID, imageRef);
+            }
+
+            return dict;
+        });
     }
 
     /**

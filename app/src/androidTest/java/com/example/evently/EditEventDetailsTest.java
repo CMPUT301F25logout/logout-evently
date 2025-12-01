@@ -3,10 +3,12 @@ package com.example.evently;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
-import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
+import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.hasSibling;
+import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.example.evently.MatcherUtils.assertRecyclerViewItem;
@@ -23,8 +25,10 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import android.os.Bundle;
+import androidx.core.widget.NestedScrollView;
 import androidx.navigation.NavGraph;
 import androidx.test.espresso.PerformException;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.firebase.Timestamp;
@@ -57,7 +61,7 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
     private static final Event mockEvent = new Event(
             "name",
             "description",
-            Category.EDUCATIONAL,
+            Category.Educational,
             false,
             selectionTime,
             eventTime,
@@ -113,6 +117,9 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
 
         onView(withText(mockEvent.description())).check(matches(isDisplayed()));
 
+        // Get to the bottom of the scroll view.
+        onView(isAssignableFrom(NestedScrollView.class)).perform(swipeUp());
+
         // Check the enrolled tab.
         onView(withText("Enrolled")).perform(click());
 
@@ -134,6 +141,9 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
         Thread.sleep(1000);
 
         onView(withText(mockEvent.description())).check(matches(isDisplayed()));
+
+        // Get to the bottom of the scroll view.
+        onView(isAssignableFrom(NestedScrollView.class)).perform(swipeUp());
 
         // Check the selected tab.
         onView(withText("Selected")).perform(click());
@@ -162,6 +172,9 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
         Thread.sleep(1000);
 
         onView(withText(mockEvent.description())).check(matches(isDisplayed()));
+
+        // Get to the bottom of the scroll view.
+        onView(isAssignableFrom(NestedScrollView.class)).perform(swipeUp());
 
         // Check the accepted tab.
         onView(withText("Accepted")).perform(click());
@@ -192,6 +205,9 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
 
         onView(withText(mockEvent.description())).check(matches(isDisplayed()));
 
+        // Get to the bottom of the scroll view.
+        onView(isAssignableFrom(NestedScrollView.class)).perform(swipeUp());
+
         // Check the cancelled tab.
         onView(withText("Cancelled")).perform(scrollTo(), click());
 
@@ -217,6 +233,9 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
         Thread.sleep(2000);
 
         onView(withText(mockEvent.description())).check(matches(isDisplayed()));
+
+        // Get to the bottom of the scroll view.
+        onView(isAssignableFrom(NestedScrollView.class)).perform(swipeUp());
 
         // Check the selected tab.
         onView(withText("Selected")).perform(scrollTo(), click());
@@ -261,8 +280,12 @@ public class EditEventDetailsTest extends EmulatedFragmentTest<EditEventDetailsF
     public void test6_NoMap() throws InterruptedException {
         Thread.sleep(1000);
 
-        // Ensure the map tab is not displayed.
-        onView(withText("Map")).check(doesNotExist());
+        // Get to the bottom of the scroll view.
+        onView(isAssignableFrom(NestedScrollView.class)).perform(swipeUp());
+
+        // Ensure the map button is not displayed.
+        onView(withId(R.id.open_map))
+                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }
 
     @Override

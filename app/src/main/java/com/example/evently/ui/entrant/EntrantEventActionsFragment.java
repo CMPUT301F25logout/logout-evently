@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.firestore.GeoPoint;
 
 import com.example.evently.R;
@@ -87,6 +88,15 @@ public class EntrantEventActionsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        binding.lotteryGuidelinesButton.setOnClickListener(
+                v -> new MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(R.string.lottery_guidelines_dialog_title)
+                        .setMessage(R.string.lottery_guidelines_dialog_message)
+                        .setPositiveButton(
+                                R.string.lottery_guidelines_dialog_positive,
+                                (dialog, which) -> dialog.dismiss())
+                        .show());
 
         eventViewModel.getEventLive().observe(getViewLifecycleOwner(), event -> {
             requireLocation = event.requiresLocation();
