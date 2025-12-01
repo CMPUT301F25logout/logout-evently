@@ -51,4 +51,6 @@
     <string name="action_dumb_login">Sign in with Device ID</string>
     <string name="dumb_register_txt">Sign up with Device ID</string>
     <string name="waitlist_separator">/</string>
+    <string name="account_icon">Account Icon</string>
+    <string name="organizer">Organizer:</string>
 </resources>

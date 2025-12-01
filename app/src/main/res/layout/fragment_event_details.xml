@@ -58,23 +58,33 @@
 
     <!-- Event Meta Info Row 1 -->
     <ImageView
-        android:id="@+id/locationIcon"
+        android:id="@+id/accountIcon"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginTop="8dp"
-        android:contentDescription="@string/event_location_icon"
-        android:src="@drawable/ic_location_pin"
+        android:contentDescription="@string/account_icon"
+        android:src="@drawable/ic_account"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/eventName"
         app:tint="?attr/colorOnSurface" />
 
     <TextView
-        android:id="@+id/locationText"
+        android:id="@+id/organizerText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
         android:layout_marginTop="8dp"
-        app:layout_constraintStart_toEndOf="@id/locationIcon"
+        android:text="@string/organizer"
+        app:layout_constraintStart_toEndOf="@id/accountIcon"
+        app:layout_constraintTop_toBottomOf="@id/eventName" />
+
+    <TextView
+        android:id="@+id/organizerInput"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toEndOf="@id/organizerText"
         app:layout_constraintTop_toBottomOf="@id/eventName" />
 
     <ImageView
@@ -103,31 +113,28 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="4dp"
         android:text="@string/event_selection_header"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/locationIcon" />
+        app:layout_constraintTop_toBottomOf="@+id/accountIcon" />
 
     <TextView
         android:id="@+id/selectionDateText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
-        android:layout_marginTop="8dp"
         app:layout_constraintStart_toEndOf="@id/selectionDateTitleText"
-        app:layout_constraintTop_toBottomOf="@+id/locationText" />
+        app:layout_constraintTop_toBottomOf="@+id/accountIcon" />
 
     <TextView
         android:id="@+id/seatsTitleText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="4dp"
         android:text="@string/event_seats_header"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.1"
         app:layout_constraintStart_toEndOf="@+id/selectionDateText"
-        app:layout_constraintTop_toBottomOf="@+id/dateTimeIcon" />
+        app:layout_constraintTop_toBottomOf="@+id/accountIcon" />
 
     <!-- Description Card -->
 
@@ -136,9 +143,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
-        android:layout_marginTop="8dp"
         app:layout_constraintStart_toEndOf="@id/seatsTitleText"
-        app:layout_constraintTop_toBottomOf="@+id/dateTimeText" />
+        app:layout_constraintTop_toBottomOf="@+id/accountIcon" />
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/descriptionCard"

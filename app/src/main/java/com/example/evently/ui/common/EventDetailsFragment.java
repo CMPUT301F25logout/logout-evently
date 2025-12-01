@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.firebase.storage.StorageReference;
 
 import com.example.evently.R;
+import com.example.evently.data.AccountDB;
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Event;
 import com.example.evently.databinding.FragmentEventDetailsBinding;
@@ -108,21 +109,13 @@ public abstract class EventDetailsFragment<E extends Fragment, A extends Fragmen
         binding.eventDescription.setText(event.description());
         binding.eventCategory.setText(event.category().toString());
 
+        new AccountDB().fetchAccount(event.organizer()).thenRun(optionalAccount -> {
+            optionalAccount.ifPresent(account -> binding.organizerInput.setText(account.name()));
+        });
+
         // Sets the seat text:
         String seatLimit = String.valueOf(event.selectionLimit());
         binding.seatsText.setText(seatLimit);
-
-        // If we have a limit, it is shown
-        if (event.optionalEntrantLimit().isPresent()) {
-            binding.waitlistSeparator.setVisibility(View.VISIBLE);
-            binding.entrantLimit.setVisibility(View.VISIBLE);
-            // Sets the entrant limit text.
-            String entrantLimit = event.optionalEntrantLimit().get().toString();
-            binding.entrantLimit.setText(entrantLimit);
-        } else {
-            binding.waitlistSeparator.setVisibility(View.INVISIBLE);
-            binding.entrantLimit.setVisibility(View.INVISIBLE);
-        }
 
         // Formats the date, and stores it in the selection date text
         String formattedDate =
@@ -137,6 +130,8 @@ public abstract class EventDetailsFragment<E extends Fragment, A extends Fragmen
 
         event.optionalEntrantLimit().ifPresent(limit -> {
             binding.entrantLimitSection.setVisibility(View.VISIBLE);
+            binding.waitlistSeparator.setVisibility(View.VISIBLE);
+            binding.entrantLimit.setVisibility(View.VISIBLE);
             binding.entrantLimit.setText(String.valueOf(limit));
         });
     }

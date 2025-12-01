@@ -26,6 +26,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import com.example.evently.data.AccountDB;
 import com.example.evently.data.EventsDB;
 import com.example.evently.data.model.Account;
 import com.example.evently.data.model.Category;
@@ -55,7 +56,7 @@ public class ViewEventDetailsWithLimitTest extends EmulatedFragmentTest<ViewEven
             false,
             selectionTime,
             eventTime,
-            "orgEmail",
+            defaultMockAccount.email(),
             50,
             100L);
 
@@ -75,8 +76,10 @@ public class ViewEventDetailsWithLimitTest extends EmulatedFragmentTest<ViewEven
 
     @BeforeClass
     public static void setUpEventEnroll() throws ExecutionException, InterruptedException {
-        // Store the events.
-        eventsDB.storeEvent(mockEvent).await();
+        // Store the events, and the organizer
+        eventsDB.storeEvent(mockEvent)
+                .alongside(new AccountDB().storeAccount(defaultMockAccount))
+                .await();
 
         // Enroll a few accounts into the event.
         for (int i = 0; i < extraAccounts.length; i++) {
