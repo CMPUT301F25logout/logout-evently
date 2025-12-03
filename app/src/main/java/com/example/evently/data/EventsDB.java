@@ -375,15 +375,16 @@ public class EventsDB {
     public Promise<List<Event>> fetchEventByFilters(EventFilter filters) {
         var query = eventsRef.whereGreaterThan("selectionTime", Timestamp.now());
         if (!filters.categories().isEmpty()) {
-            query = eventsRef.whereIn("category", new ArrayList<>(filters.categories()));
+            final var categoriesList = filters.categories().stream().map(Category::name).collect(Collectors.toList());
+            query = query.whereIn("category", categoriesList);
         }
         if (filters.startTime().isPresent()) {
             final var startTime = filters.startTime().get();
-            query = eventsRef.whereGreaterThanOrEqualTo("eventTime", startTime);
+            query = query.whereGreaterThanOrEqualTo("eventTime", startTime);
         }
         if (filters.endTime().isPresent()) {
             final var endTime = filters.endTime().get();
-            query = eventsRef.whereLessThan("eventTime", endTime);
+            query = query.whereLessThan("eventTime", endTime);
         }
         return parseQuerySnapShots(query.get());
     }
