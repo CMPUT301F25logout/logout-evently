@@ -375,7 +375,8 @@ public class EventsDB {
     public Promise<List<Event>> fetchEventByFilters(EventFilter filters) {
         var query = eventsRef.whereGreaterThan("selectionTime", Timestamp.now());
         if (!filters.categories().isEmpty()) {
-            final var categoriesList = filters.categories().stream().map(Category::name).collect(Collectors.toList());
+            final var categoriesList =
+                    filters.categories().stream().map(Category::name).collect(Collectors.toList());
             query = query.whereIn("category", categoriesList);
         }
         if (filters.startTime().isPresent()) {
