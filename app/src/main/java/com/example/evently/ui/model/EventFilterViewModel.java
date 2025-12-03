@@ -18,7 +18,7 @@ import com.example.evently.data.model.EventFilter;
  * User's choices on the filters update this model and {@link com.example.evently.ui.common.LiveEventsFragment }
  * uses it to render the associated events.
  */
-public class EventFilterViewModel extends ViewModel {
+public final class EventFilterViewModel extends ViewModel {
     private final MutableLiveData<EventFilter> eventFilterLive =
             new MutableLiveData<>(new EventFilter());
 
@@ -30,50 +30,23 @@ public class EventFilterViewModel extends ViewModel {
     }
 
     /**
-     * Set the given categories to the existing filter, overwriting any previous ones.
+     * Set the given filters to the existing filter, overwriting any previous ones.
      * @param categories Additional chosen categories. Events matching any of these categories should be added.
+     * @param startTime Optional event start time to filter by.
+     * @param endTime Optional event end time to filter by.
+     * @implNote It is important to update all components of the filter at once in order to prevent the observer from
+     * firing several times from just a "compound" filter. When the observer fires multiple times, there is no guarantee
+     * of the order of event fetching. It's possible that a partially updated filter's event fetching overwrites the effect
+     * of the full filter.
      */
-    public void setCategories(Collection<Category> categories) {
+    public void setFilters(
+            Collection<Category> categories,
+            Optional<Instant> startTime,
+            Optional<Instant> endTime) {
         modifyLive(currentEventFilter -> new EventFilter(
                 new HashSet<>(categories),
-                currentEventFilter.startTime(),
-                currentEventFilter.endTime()));
-    }
-
-    /**
-     * Set a start time filter for events.
-     * @apiNote If there was another start time set previously, it will be overwritten with this one.
-     * @param start Events that start after this moment may be shown.
-     */
-    public void setStartTime(Instant start) {
-        modifyLive(currentEventFilter -> new EventFilter(
-                currentEventFilter.categories(), Optional.of(start), currentEventFilter.endTime()));
-    }
-
-    /**
-     * Clear the currently set start time.
-     */
-    public void clearStartTime() {
-        modifyLive(currentEventFilter -> new EventFilter(
-                currentEventFilter.categories(), Optional.empty(), currentEventFilter.endTime()));
-    }
-
-    /**
-     * Set a end time filter for events.
-     * @apiNote If there was another end time set previously, it will be overwritten with this one.
-     * @param end Events that end before this moment may be shown.
-     */
-    public void setEndTime(Instant end) {
-        modifyLive(currentEventFilter -> new EventFilter(
-                currentEventFilter.categories(), currentEventFilter.startTime(), Optional.of(end)));
-    }
-
-    /**
-     * Clear the currently set end time.
-     */
-    public void clearEndTime() {
-        modifyLive(currentEventFilter -> new EventFilter(
-                currentEventFilter.categories(), currentEventFilter.startTime(), Optional.empty()));
+                startTime.or(currentEventFilter::startTime),
+                endTime.or(currentEventFilter::endTime)));
     }
 
     /**
