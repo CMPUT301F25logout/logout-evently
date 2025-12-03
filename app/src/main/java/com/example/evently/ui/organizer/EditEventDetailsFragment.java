@@ -15,6 +15,7 @@ import com.bumptech.glide.Glide;
 
 import com.example.evently.data.EventsDB;
 import com.example.evently.ui.common.EventDetailsFragment;
+import com.example.evently.utils.GlideUtils;
 
 public class EditEventDetailsFragment
         extends EventDetailsFragment<EventMetaFragment, OrganizerEventActionsFragment> {
