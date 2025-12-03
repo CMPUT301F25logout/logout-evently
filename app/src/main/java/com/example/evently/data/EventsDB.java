@@ -381,11 +381,11 @@ public class EventsDB {
         }
         if (filters.startTime().isPresent()) {
             final var startTime = filters.startTime().get();
-            query = query.whereGreaterThanOrEqualTo("eventTime", startTime);
+            query = query.whereGreaterThanOrEqualTo("eventTime", new Timestamp(startTime));
         }
         if (filters.endTime().isPresent()) {
             final var endTime = filters.endTime().get();
-            query = query.whereLessThan("eventTime", endTime);
+            query = query.whereLessThan("eventTime", new Timestamp(endTime));
         }
         return parseQuerySnapShots(query.get());
     }
