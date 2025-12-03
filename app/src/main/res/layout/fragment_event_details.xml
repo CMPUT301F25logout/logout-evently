@@ -28,7 +28,6 @@
                 android:layout_height="match_parent"
                 android:contentDescription="@string/event_image_description"
                 android:scaleType="fitCenter"
-                app:tint="?attr/colorOnSurface"
                 android:src="@drawable/rsvp_icon" />
         </com.google.android.material.card.MaterialCardView>
 

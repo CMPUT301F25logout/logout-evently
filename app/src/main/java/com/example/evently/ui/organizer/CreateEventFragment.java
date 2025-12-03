@@ -156,6 +156,10 @@ public class CreateEventFragment extends Fragment {
                 toast("Please enter an event name.");
                 return;
             }
+            if (TextUtils.isEmpty(desc)) {
+                toast("Please enter event description.");
+                return;
+            }
             if (TextUtils.isEmpty(winnersStr)) {
                 toast("Please enter number of winners.");
                 return;
@@ -187,6 +191,11 @@ public class CreateEventFragment extends Fragment {
                 return;
             }
 
+            if (winners <= 0) {
+                toast("Please select a positive number of winners.");
+                return;
+            }
+
             Optional<Long> wait = Optional.empty();
             String w = binding.etWaitLimit.getText().toString().trim();
             if (!TextUtils.isEmpty(w)) {
@@ -194,6 +203,19 @@ public class CreateEventFragment extends Fragment {
                     wait = Optional.of(Long.parseLong(w));
                 } catch (NumberFormatException e) {
                     toast("Waitlist limit must be an integer.");
+                    return;
+                }
+            }
+
+            if (wait.isPresent()) {
+                final var entrantLimit = wait.get();
+                if (entrantLimit <= 0) {
+                    toast("Please select a positive number of entrants.");
+                    return;
+                }
+                if (entrantLimit < winners) {
+                    toast(
+                            "Please select a number of entrants greater than or equal to the number of winners.");
                     return;
                 }
             }
