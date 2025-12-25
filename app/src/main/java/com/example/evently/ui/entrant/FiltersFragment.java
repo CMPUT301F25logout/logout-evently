@@ -70,13 +70,10 @@ public class FiltersFragment extends DialogFragment {
                             && startDateTime.isAfter(endDateTime)) {
                         showError(R.string.date_filters_invalid_order);
                     } else {
-                        eventFilterViewModel.setCategories(collectSelectedCategories());
-
-                        Optional.ofNullable(startDateTime)
-                                .ifPresent(x -> eventFilterViewModel.setStartTime(x));
-
-                        Optional.ofNullable(endDateTime)
-                                .ifPresent(x -> eventFilterViewModel.setEndTime(x));
+                        eventFilterViewModel.setFilters(
+                                collectSelectedCategories(),
+                                Optional.ofNullable(startDateTime),
+                                Optional.ofNullable(endDateTime));
                     }
                 })
                 .create();
@@ -102,6 +99,9 @@ public class FiltersFragment extends DialogFragment {
             // Set up the categories chips.
             final var chipGroup = binding.chipGroupCategories;
             chipGroup.removeAllViews();
+            if (!categories.isEmpty()) {
+                binding.btnClearFilters.setVisibility(View.VISIBLE);
+            }
             for (Category category : Category.values()) {
                 final var chip = (Chip) LayoutInflater.from(requireContext())
                         .inflate(R.layout.chip_filter_category, chipGroup, false);

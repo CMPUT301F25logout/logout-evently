@@ -25,8 +25,7 @@
         android:layout_height="wrap_content"
         android:contentDescription="@string/filters_button_label"
         app:srcCompat="@drawable/filter_list"
-        app:tint="@android:color/white"
-        app:backgroundTint="?attr/colorPrimary"
+        app:tint="?attr/colorOnSurface"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="8dp"/>
