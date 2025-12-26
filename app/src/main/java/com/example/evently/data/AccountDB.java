@@ -15,6 +15,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import org.jetbrains.annotations.TestOnly;
 
@@ -64,6 +65,18 @@ public class AccountDB {
     }
 
     /**
+     * Returns an account from a query snapshot.
+     * @param querySnapshot The snapshot of the account
+     * @return the fetched account, if found
+     */
+    private static Optional<Account> getAccountFromSnapshot(QuerySnapshot querySnapshot)
+            throws NullPointerException {
+        return querySnapshot.isEmpty()
+                ? Optional.empty()
+                : getAccountFromSnapshot(querySnapshot.getDocuments().get(0));
+    }
+
+    /**
      * Stores an account in the database.
      * @param a The account stored in the database.
      * @return Reference to the concurrent task.
@@ -100,15 +113,9 @@ public class AccountDB {
     }
 
     public PromiseOpt<Account> fetchAccountByDeviceID(String deviceID) {
-        final var prom =
-                promise(accountsRef.whereEqualTo("deviceID", deviceID).limit(1).get());
-        return promiseOpt(prom.map(qs -> {
-            if (qs.isEmpty()) {
-                return Optional.empty();
-            } else {
-                return getAccountFromSnapshot(qs.getDocuments().get(0));
-            }
-        }));
+        return promiseOpt(
+                promise(accountsRef.whereEqualTo("deviceID", deviceID).limit(1).get())
+                        .map(AccountDB::getAccountFromSnapshot));
     }
 
     /**
