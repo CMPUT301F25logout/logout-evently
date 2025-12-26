@@ -19,7 +19,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import org.jetbrains.annotations.TestOnly;
@@ -41,7 +40,6 @@ public class NotificationDB {
             QuerySnapshot notifications,
             List<EventEntrants> eventEntrants,
             Map<String, Event> eventMap) {}
-    ;
 
     private final CollectionReference notificationsRef;
 
@@ -73,26 +71,6 @@ public class NotificationDB {
         final var updateMap = new HashMap<String, Object>();
         updateMap.put("seenBy", FieldValue.arrayUnion(email));
         return promise(notificationsRef.document(notificationID.toString()).update(updateMap));
-    }
-
-    /**
-     * Creates a notification from a QueryDocumentSnapshot
-     *
-     * @param snapshot The queryDocumentSnapshot for the notification
-     * @return A notification from the QueryDocumentSnapshot.
-     */
-    private static Notification notificationFromQuerySnapshot(QueryDocumentSnapshot snapshot) {
-        ArrayList<String> seenByList = (ArrayList<String>) snapshot.get("seenBy");
-
-        return new Notification(
-                UUID.fromString(snapshot.getId()),
-                UUID.fromString(snapshot.getString("eventId")),
-                // Converts the channel back to an ENUM.
-                Notification.Channel.valueOf(snapshot.getString("channel")),
-                snapshot.getString("title"),
-                snapshot.getString("description"),
-                snapshot.getTimestamp("creationTime").toInstant(),
-                new HashSet<>(seenByList));
     }
 
     /**
@@ -241,26 +219,13 @@ public class NotificationDB {
                         }
                     }
 
-                    // Adds each notification to the notifications list if
-                    // it is the
-                    // correct channel
-                    for (QueryDocumentSnapshot documentSnapshot : allDocsSnapshot) {
-                        if (documentSnapshot.exists()) {
-
-                            // Adds the notification list if the message is
-                            // to all event
-                            // participants or if the user is a member of a
-                            // certain
-                            // Channel.
-                            Notification n = notificationFromQuerySnapshot(documentSnapshot);
-                            if (n.channel() == Notification.Channel.All
-                                    || n.channel() == entrantChannelInEvent.get(n.eventId())) {
-                                notifications.add(n);
-                            }
-                        }
-                    }
-
-                    return notifications;
+                    // Adds each notification to the notifications list if it is the correct channel
+                    return allDocsSnapshot.getDocuments().stream()
+                            .map(NotificationDB::parseDocumentSnapshot)
+                            .flatMap(Optional::stream)
+                            .filter(n -> n.channel() == Notification.Channel.All
+                                    || n.channel() == entrantChannelInEvent.get(n.eventId()))
+                            .collect(Collectors.toList());
                 });
     }
 
@@ -279,20 +244,22 @@ public class NotificationDB {
         }));
     }
 
+    /**
+     * Parses a query snapshot into a List of notifications
+     * @param snapshot a query snapshot of notifications
+     * @return a List of notifications
+     */
     private static List<Notification> parseQuerySnapshot(QuerySnapshot snapshot) {
-        ArrayList<Notification> notifications = new ArrayList<>();
         // This check is needed due to TRAP scenarios (see above).
         if (snapshot == null) {
-            return notifications;
+            return new ArrayList<>();
         }
 
-        // Adds each notification to the notifications list
-        for (QueryDocumentSnapshot documentSnapshot : snapshot) {
-            if (documentSnapshot.exists()) {
-                notifications.add(notificationFromQuerySnapshot(documentSnapshot));
-            }
-        }
-        return notifications;
+        // Parses a query snapshot into a list of notifications
+        return snapshot.getDocuments().stream()
+                .map(NotificationDB::parseDocumentSnapshot)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList());
     }
 
     private static Optional<Notification> parseDocumentSnapshot(DocumentSnapshot snapshot) {
@@ -302,6 +269,7 @@ public class NotificationDB {
         }
         ArrayList<String> seenByList = (ArrayList<String>) snapshot.get("seenBy");
 
+        assert seenByList != null;
         return Optional.of(new Notification(
                 UUID.fromString(snapshot.getId()),
                 UUID.fromString(snapshot.getString("eventId")),
